@@ -50,6 +50,7 @@ import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
+import {disableEditorImageInsert} from "../../../shared/utils/editor-utils";
 
 @Component({
   selector: 'app-documentation',
@@ -122,12 +123,16 @@ export class DocumentationManagementComponent extends BaseComponent implements O
     return languageForm.get('text') as FormControl;
   }
 
+  onEditorInit(event: { editor: any }): void {
+    disableEditorImageInsert(event.editor);
+  }
+
   notFilled(language: string): boolean {
     const languagesGroup = this.documentationForm.get('languages') as FormGroup;
     const languageForm = languagesGroup?.get(language) as FormGroup;
 
     const messageControl = languageForm?.get('text') as FormControl;
-    return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+    return messageControl?.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
   }
 
   isAtLeastOneLanguageFilled(): boolean {

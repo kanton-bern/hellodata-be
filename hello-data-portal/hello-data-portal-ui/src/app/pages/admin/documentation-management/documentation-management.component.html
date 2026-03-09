@@ -18,7 +18,8 @@
           <p-tabpanels>
             @for (language of supportedLanguages; track $index) {
               <p-tabpanel [value]="$index">
-                <p-editor [formControl]="getText(language)"/>
+                <p-editor [formControl]="getText(language)"
+                          (onInit)="onEditorInit($event)"/>
               </p-tabpanel>
             }
           </p-tabpanels>

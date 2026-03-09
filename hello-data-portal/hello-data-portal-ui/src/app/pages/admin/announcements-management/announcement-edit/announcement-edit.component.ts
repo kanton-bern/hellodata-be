@@ -55,6 +55,7 @@ import {Card} from 'primeng/card';
 import {DeleteAnnouncementPopupComponent} from '../delete-announcement-popup/delete-announcement-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
+import {disableEditorImageInsert} from "../../../../shared/utils/editor-utils";
 
 @Component({
   selector: 'app-announcement-edit',
@@ -147,6 +148,10 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     const languagesGroup = this.announcementForm.get('languages') as FormGroup;
     const languageForm = languagesGroup.get(language) as FormGroup;
     return languageForm.get('message') as FormControl;
+  }
+
+  onEditorInit(event: { editor: any }): void {
+    disableEditorImageInsert(event.editor);
   }
 
   notFilled(language: string): boolean {

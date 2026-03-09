@@ -104,3 +104,5 @@ export const deleteEditedFaq = createAction(
 export const deleteEditedFaqSuccess = createAction(
   FaqActionType.DELETE_EDITED_FAQ_SUCCESS
 );
+
+

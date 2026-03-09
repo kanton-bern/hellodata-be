@@ -104,6 +104,7 @@
                 </div>
                 <div class="mt-1">
                   <p-editor [formControl]="getMessage(language)"
+                            (onInit)="onEditorInit($event)"
                             id="faqMessage"/>
                 </div>
               </p-tabpanel>

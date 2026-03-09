@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 public class FaqMessage {
     @NotBlank
     private String title;
+
     @NotBlank
+    @NoBase64Images
     private String message;
 }

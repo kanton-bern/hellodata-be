@@ -25,29 +25,42 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {createAction, props} from "@ngrx/store";
-import {SupersetDashboardWithMetadata} from "./start-page.model";
-import {Faq} from "../faq/faq.model";
+/**
+ * Disables image insertion in a Quill editor instance.
+ * Blocks drag-and-drop and paste of images to prevent base64 embedding.
+ * The toolbar image button is already hidden globally via CSS (.ql-toolbar .ql-image).
+ *
+ * Call this from a p-editor's (onInit) event handler:
+ *   onEditorInit(event: { editor: any }) { disableEditorImageInsert(event.editor); }
+ */
+export function disableEditorImageInsert(quill: any): void {
+  const editorEl: HTMLElement = quill.root;
 
-export enum StartPageActionType {
-  UPDATE_DASHBOARD_METADATA = '[START PAGE] Update DASHBOARD metadata',
+  // Block drag-and-drop of images
+  editorEl.addEventListener('drop', (e: DragEvent) => {
+    if (e.dataTransfer?.files?.length) {
+      const hasImage = Array.from(e.dataTransfer.files).some(f => f.type.startsWith('image/'));
+      if (hasImage) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+  }, true);
 
-  LOAD_FAQ_START_PAGE = '[START PAGE] Load FAQ start page',
-  LOAD_FAQ_START_PAGE_SUCCESS = '[START PAGE] Load FAQ start page SUCCESS',
+  // Block paste of images (clipboard image data)
+  editorEl.addEventListener('paste', (e: ClipboardEvent) => {
+    if (e.clipboardData?.files?.length) {
+      const hasImage = Array.from(e.clipboardData.files).some(f => f.type.startsWith('image/'));
+      if (hasImage) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+  }, true);
+
+  // Override the Quill clipboard matcher for image nodes to strip them
+  quill.clipboard.addMatcher('IMG', () => {
+    const Delta = quill.constructor.import('delta');
+    return new Delta();
+  });
 }
-
-export const updateDashboardMetadata = createAction(
-  StartPageActionType.UPDATE_DASHBOARD_METADATA,
-  props<{ dashboard: SupersetDashboardWithMetadata }>()
-);
-
-export const loadFaqStartPage = createAction(
-  StartPageActionType.LOAD_FAQ_START_PAGE
-);
-
-export const loadFaqStartPageSuccess = createAction(
-  StartPageActionType.LOAD_FAQ_START_PAGE_SUCCESS,
-  props<{ payload: Faq[] }>()
-);
-
-
