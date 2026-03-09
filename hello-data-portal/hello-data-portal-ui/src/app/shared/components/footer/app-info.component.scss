@@ -25,6 +25,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-.footer-image{
+:host {
+  padding-left: 0;
+}
+
+.footer-image {
   max-height: 1.75em;
 }

@@ -29,6 +29,17 @@ $background-color-hover: var(--surface-hover);
 $menu-item-text-color: #000000;
 $content-text-color: #11101d;
 
+// ──────────────────────────────────────────────────────────
+// Inverted border-radius (concave corner) CSS custom properties
+// Adjust --sidebar-curve-size to change the radius of the inner curve.
+// --sidebar-bg must match the sidebar/topbar background.
+// --content-bg must match the main content area background.
+// ──────────────────────────────────────────────────────────
+:root {
+  --sidebar-curve-size: 7px;
+  --sidebar-bg: #{$background-color};
+  --content-bg: var(--surface-ground, #f8f9fa);
+}
 
 body {
   overflow: hidden;
@@ -57,6 +68,36 @@ body {
     transition: top 0.3s ease;
     clip-path: inset(0 -10px -10px 0);
   }
+
+  // Inverted border-radius on the sidebar side of the junction.
+  // This pseudo-element sits just to the right of the sidebar,
+  // at the topbar height, creating a concave curve that mirrors
+  // the one on the topbar's ::before (see _topbar.scss).
+  &::before {
+    content: '';
+    position: absolute;
+    top: 60px;
+    right: calc(-1 * var(--sidebar-curve-size, 10px));
+    width: var(--sidebar-curve-size, 10px);
+    height: var(--sidebar-curve-size, 10px);
+    background: var(--sidebar-bg, #ffffff);
+    // Technique: We fill this square with the sidebar/topbar color,
+    // then use a radial-gradient mask to "punch out" a quarter-circle
+    // from the top-left corner (origin 0 0). The transparent region
+    // of the gradient removes the sidebar color, revealing the content
+    // background underneath — creating the concave curve.
+    //
+    // Standard border-radius only supports outward (convex) curves.
+    // By masking a filled rectangle, we achieve the inverse: an inward
+    // (concave) curve. The `mask` property clips rendering to the opaque
+    // areas of the mask image.
+    -webkit-mask-image: radial-gradient(circle at 0 0, transparent calc(var(--sidebar-curve-size, 10px) - 0.5px), black var(--sidebar-curve-size, 10px));
+    mask-image: radial-gradient(circle at 0 0, transparent calc(var(--sidebar-curve-size, 10px) - 0.5px), black var(--sidebar-curve-size, 10px));
+    transform: rotate(180deg);
+    z-index: 201;
+    pointer-events: none;
+    transition: top 0.3s ease, right 0.3s ease, width 0.3s ease, height 0.3s ease;
+  }
 }
 
 .sidebar.close {
@@ -66,6 +107,11 @@ body {
 
 // Adjust shadow pseudo-element for minimized sidebar
 .sidebar.minimized::after {
+  top: 45px;
+}
+
+// Adjust inverted radius pseudo-element for minimized sidebar
+.sidebar.minimized::before {
   top: 45px;
 }
 
