@@ -28,10 +28,20 @@ package ch.bedag.dap.hellodata.portal.faq.repository;
 
 import ch.bedag.dap.hellodata.portal.faq.entity.FaqEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface FaqRepository extends JpaRepository<FaqEntity, UUID> {
+
+    @Query("SELECT f FROM faq f WHERE f.contextKey IS NULL")
+    List<FaqEntity> findAllWithoutContext();
+
+    @Query("SELECT f FROM faq f WHERE f.contextKey IS NULL OR f.contextKey IN :contextKeys")
+    List<FaqEntity> findByContextKeyIsNullOrContextKeyIn(@Param("contextKeys") Collection<String> contextKeys);
 }
