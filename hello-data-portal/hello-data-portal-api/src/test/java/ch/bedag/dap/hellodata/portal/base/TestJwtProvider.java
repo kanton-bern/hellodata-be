@@ -29,17 +29,24 @@ package ch.bedag.dap.hellodata.portal.base;
 import ch.bedag.dap.hellodata.commons.security.HellodataAuthenticationToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
 public class TestJwtProvider {
-    public static final String JWT_SECRET = "secret";
+    public static final String JWT_SECRET = "this-is-a-very-long-secret-key-for-testing-purposes-only-at-least-64-bytes!!!!";
 
     public static final Long JWT_EXPIRATION_IN_MS = 10000L;
+
+    public static SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
+    }
 
     public Authentication getAuthentication(HttpServletRequest request) {
         Claims claims = extractClaims(request);
@@ -79,6 +86,6 @@ public class TestJwtProvider {
             return null;
         }
 
-        return Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token).getBody();
+        return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
     }
 }
