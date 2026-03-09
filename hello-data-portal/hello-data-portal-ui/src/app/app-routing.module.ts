@@ -88,19 +88,11 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/user-management/user-management.component').then(m => m.UserManagementComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['USER_MANAGEMENT'],
-        }
       },
       {
         path: naviElements.userEdit.path,
         loadComponent: () => import('./pages/admin/user-management/user-edit/user-edit.component').then(m => m.UserEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
-        data: {
-          requiredPermissions: ['USER_MANAGEMENT'],
-        }
       },
     ]
   },
@@ -114,10 +106,6 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/subsystem-users/subsystem-users.component').then(m => m.SubsystemUsersComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['USER_MANAGEMENT'],
-        }
       }
     ]
   },
@@ -131,10 +119,6 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/dashboard-access/dashboard-access.component').then(m => m.DashboardAccessComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['DASHBOARD_ACCESS'],
-        }
       }
     ]
   },
@@ -148,10 +132,6 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/users-overview/users-overview.component').then(m => m.UsersOverviewComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['USERS_OVERVIEW'],
-        }
       }
     ]
   },
@@ -165,28 +145,16 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/portal-roles-management/portal-roles-management.component').then(m => m.PortalRolesManagementComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['ROLE_MANAGEMENT'],
-        }
       },
       {
         path: naviElements.roleCreate.path,
         loadComponent: () => import('./pages/admin/portal-roles-management/portal-role-edit/portal-role-edit.component').then(m => m.PortalRoleEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
-        data: {
-          requiredPermissions: ['ROLE_MANAGEMENT'],
-        }
       },
       {
         path: naviElements.roleEdit.path,
         loadComponent: () => import('./pages/admin/portal-roles-management/portal-role-edit/portal-role-edit.component').then(m => m.PortalRoleEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
-        data: {
-          requiredPermissions: ['ROLE_MANAGEMENT'],
-        }
       },
     ]
   },
@@ -200,18 +168,10 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/workspaces/workspaces.component').then(m => m.WorkspacesComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['WORKSPACES'],
-        }
       },
       {
         path: naviElements.selectedWorkspace.path,
         loadComponent: () => import('./pages/admin/workspaces/selected-workspace/selected-workspace.component').then(m => m.SelectedWorkspaceComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['WORKSPACES'],
-        }
       },
     ]
   },
@@ -225,10 +185,6 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/data-mart/embedded-dm-viewer.component').then(m => m.EmbeddedDmViewerComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['DATA_MARTS'],
-        }
       }
     ]
   },
@@ -242,10 +198,6 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/data-warehouse/data-warehouse-viewer.component').then(m => m.DataWarehouseViewerComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['DATA_DWH'],
-        }
       }
     ]
   },
@@ -259,18 +211,10 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['DATA_ENG'],
-        }
       },
       {
         path: naviElements.embeddedOrchestrationDetails.path,
         loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['DATA_ENG'],
-        }
       }
     ]
   },
@@ -284,10 +228,6 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/advanced-analytics/advanced-analytics-viewer.component').then(m => m.AdvancedAnalyticsViewerComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['DATA_JUPYTER'],
-        }
       }
     ]
   },
@@ -302,56 +242,39 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/my-dashboards/my-dashboards.component').then(m => m.MyDashboardsComponent),
-        canActivate: [AutoLoginPartialRoutesGuard],
       },
       {
         path: naviElements.myDashboardDetail.path,
         loadComponent: () => import('./pages/my-dashboards/embed-my-dashboard-wrapper/embed-my-dashboard-wrapper.component').then(m => m.EmbedMyDashboardWrapperComponent),
-        canActivate: [AutoLoginPartialRoutesGuard],
       },
       {
         path: naviElements.domainComments.path,
         loadComponent: () => import('./pages/my-dashboards/domain-comments/domain-comments.component').then(m => m.DomainDashboardCommentsComponent),
-        canActivate: [AutoLoginPartialRoutesGuard],
       },
     ]
   },
   {
     path: naviElements.query.path,
     canActivate: [AutoLoginPartialRoutesGuard],
-    data: {
-      requiredPermissions: []
-    },
     children: [
       {
         path: '',
         loadComponent: () => import('./pages/admin/queries/queries.component').then(m => m.QueriesComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: []
-        }
       },
     ]
   },
   {
     path: naviElements.externalDashboards.path,
     canActivate: [AutoLoginPartialRoutesGuard],
-    data: {
-      requiredPermissions: []
-    },
     children: [
       {
         path: '',
         loadComponent: () => import('./pages/my-dashboards/external-dashboards/external-dashboards.component').then(m => m.ExternalDashboardsComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: []
-        }
       },
       {
         path: naviElements.externalDashboardEdit.path,
         loadComponent: () => import('./pages/my-dashboards/external-dashboards/external-dashboard-edit/external-dashboard-edit.component').then(m => m.ExternalDashboardEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        canActivate: [PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
           requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT'],
@@ -360,7 +283,7 @@ const routes: Routes = [
       {
         path: naviElements.externalDashboardCreate.path,
         loadComponent: () => import('./pages/my-dashboards/external-dashboards/external-dashboard-edit/external-dashboard-edit.component').then(m => m.ExternalDashboardEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        canActivate: [PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
           requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT'],
@@ -378,28 +301,16 @@ const routes: Routes = [
       {
         path: naviElements.dashboardGroupsList.path,
         loadComponent: () => import('./pages/admin/dashboard-groups/dashboard-groups.component').then(m => m.DashboardGroupsComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT'],
-        }
       },
       {
         path: naviElements.dashboardGroupEdit.path,
         loadComponent: () => import('./pages/admin/dashboard-groups/dashboard-group-edit/dashboard-group-edit.component').then(m => m.DashboardGroupEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
-        data: {
-          requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT'],
-        }
       },
       {
         path: naviElements.dashboardGroupCreate.path,
         loadComponent: () => import('./pages/admin/dashboard-groups/dashboard-group-edit/dashboard-group-edit.component').then(m => m.DashboardGroupEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
-        data: {
-          requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT'],
-        }
       },
     ]
   },
@@ -413,28 +324,16 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/announcements-management/announcements-management.component').then(m => m.AnnouncementsManagementComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['ANNOUNCEMENT_MANAGEMENT'],
-        }
       },
       {
         path: naviElements.announcementEdit.path,
         loadComponent: () => import('./pages/admin/announcements-management/announcement-edit/announcement-edit.component').then(m => m.AnnouncementEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
-        data: {
-          requiredPermissions: ['ANNOUNCEMENT_MANAGEMENT'],
-        }
       },
       {
         path: naviElements.announcementCreate.path,
         loadComponent: () => import('./pages/admin/announcements-management/announcement-edit/announcement-edit.component').then(m => m.AnnouncementEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
-        data: {
-          requiredPermissions: ['ANNOUNCEMENT_MANAGEMENT'],
-        }
       },
     ]
   },
@@ -448,28 +347,16 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/faq-management/faq-list.component').then(m => m.FaqListComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['FAQ_MANAGEMENT'],
-        }
       },
       {
         path: naviElements.faqEdit.path,
         loadComponent: () => import('./pages/admin/faq-management/faq-edit/faq-edit.component').then(m => m.FaqEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
-        data: {
-          requiredPermissions: ['FAQ_MANAGEMENT'],
-        }
       },
       {
         path: naviElements.faqCreate.path,
         loadComponent: () => import('./pages/admin/faq-management/faq-edit/faq-edit.component').then(m => m.FaqEditComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
-        data: {
-          requiredPermissions: ['FAQ_MANAGEMENT'],
-        }
       },
     ]
   },
@@ -484,10 +371,6 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/documentation-management/documentation-management.component').then(m => m.DocumentationManagementComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['DOCUMENTATION_MANAGEMENT'],
-        }
       },
     ]
   },
@@ -501,10 +384,6 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/dashboard-import-export/dashboard-import-export.component').then(m => m.DashboardImportExportComponent),
-        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
-        data: {
-          requiredPermissions: ['DASHBOARD_IMPORT_EXPORT'],
-        }
       },
     ]
   },

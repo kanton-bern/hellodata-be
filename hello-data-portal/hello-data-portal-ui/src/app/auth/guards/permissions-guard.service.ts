@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
-import {asyncScheduler, Observable, scheduled} from 'rxjs';
+import {Observable} from 'rxjs';
 import {filter, map, switchMap, take} from 'rxjs/operators';
 import {Store} from '@ngrx/store';
 import {AppState} from "../../store/app/app.state";
@@ -41,29 +41,14 @@ export class PermissionsGuard {
   private readonly store = inject<Store<AppState>>(Store);
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
-    return this.store.select(selectCurrentUserPermissions).pipe(
-      switchMap((currentUserPermissions) => {
-        if (!currentUserPermissions || currentUserPermissions.length === 0) {
-          // Permissions not yet loaded, return observable that will wait for them to be loaded
-          return this.store.select(selectCurrentUserPermissionsLoaded).pipe(
-            filter((loaded) => loaded),
-            take(1),
-            switchMap(() => this.permissionsLoadedCheckPermissions(next, state))
-          );
-        } else {
-          // Permissions already loaded, check them immediately
-          return scheduled([this.checkPermissions(next, state, currentUserPermissions)], asyncScheduler);
-        }
-      })
+    return this.store.select(selectCurrentUserPermissionsLoaded).pipe(
+      filter((loaded) => loaded),
+      take(1),
+      switchMap(() => this.store.select(selectCurrentUserPermissions).pipe(
+        take(1),
+        map((currentUserPermissions) => this.checkPermissions(next, state, currentUserPermissions))
+      ))
     );
-  }
-
-  private permissionsLoadedCheckPermissions(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    return this.store.select(selectCurrentUserPermissions).pipe(
-      map((currentUserPermissions) => {
-        return this.checkPermissions(next, state, currentUserPermissions);
-      })
-    )
   }
 
   private checkPermissions(next: ActivatedRouteSnapshot, state: RouterStateSnapshot, currentUserPermissions: string[]): boolean {

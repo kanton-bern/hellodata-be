@@ -30,7 +30,7 @@ import {Component, inject, input} from '@angular/core';
 import {AsyncPipe} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {distinctUntilChanged, Observable} from "rxjs";
+import {Observable} from "rxjs";
 import {selectNavItems} from "../../store/menu/menu.selector";
 import {Router} from "@angular/router";
 import {TranslocoPipe} from "@jsverse/transloco";
@@ -60,7 +60,7 @@ export class SideNavOuterToolbarComponent {
   sidebarMinimized = false;
 
   constructor() {
-    this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
+    this.navItems$ = this.store.select(selectNavItems);
     const stored = sessionStorage.getItem(SideNavOuterToolbarComponent.SIDEBAR_STATE_KEY);
     this.sidebarMinimized = stored === null ? false : stored === 'true';
   }

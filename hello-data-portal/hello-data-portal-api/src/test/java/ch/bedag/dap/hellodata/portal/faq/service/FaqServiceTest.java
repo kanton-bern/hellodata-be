@@ -82,11 +82,11 @@ class FaqServiceTest {
         HdContextEntity contextEntity = new HdContextEntity();
         contextEntity.setContextKey("contextKey1");
         contextEntity.setName("ContextName");
-        when(contextRepository.getByContextKey("contextKey1")).thenReturn(Optional.of(contextEntity));
+        when(contextRepository.findAllByContextKeyIn(Set.of("contextKey1"))).thenReturn(List.of(contextEntity));
 
         FaqEntity faqEntity = new FaqEntity();
         faqEntity.setContextKey("contextKey1");
-        when(faqRepository.findAll()).thenReturn(Collections.singletonList(faqEntity));
+        when(faqRepository.findByContextKeyIsNullOrContextKeyIn(List.of("contextKey1"))).thenReturn(Collections.singletonList(faqEntity));
 
         // when
         List<FaqDto> faqList = faqService.getAll();
@@ -102,6 +102,7 @@ class FaqServiceTest {
     void testGetAllWithoutCurrentUserContextRoles() {
         // given
         when(userService.getCurrentUserDataDomainRolesWithoutNone()).thenReturn(Collections.emptySet());
+        when(faqRepository.findAllWithoutContext()).thenReturn(Collections.emptyList());
 
         // when
         List<FaqDto> faqList = faqService.getAll();

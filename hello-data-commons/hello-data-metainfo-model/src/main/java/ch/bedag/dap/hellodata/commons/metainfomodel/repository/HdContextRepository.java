@@ -33,6 +33,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,6 +50,8 @@ public interface HdContextRepository extends JpaRepository<HdContextEntity, UUID
     Optional<HdContextEntity> getByTypeAndNameAndKey(@Param("type") HdContextType type, @Param("name") String name, @Param("contextKey") String contextKey);
 
     List<HdContextEntity> findAllByTypeIn(List<HdContextType> types);
+
+    List<HdContextEntity> findAllByContextKeyIn(Collection<String> contextKeys);
 
     boolean existsByContextKeyAndType(String contextKey, HdContextType type);
 }

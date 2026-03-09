@@ -36,7 +36,6 @@ import ch.bedag.dap.hellodata.portal.faq.entity.FaqEntity;
 import ch.bedag.dap.hellodata.portal.faq.repository.FaqRepository;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -46,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -58,28 +58,41 @@ public class FaqService {
 
     @Transactional(readOnly = true)
     public List<FaqDto> getAll() {
-        Set<UserContextRoleEntity> currentUserContextRoles = userService.getCurrentUserDataDomainRolesWithoutNone();
+        List<FaqEntity> faqEntities;
         if (SecurityUtils.isSuperuser()) {
-            return faqRepository.findAll().stream().map(this::map).map(this::mapContextName).toList();
+            faqEntities = faqRepository.findAll();
+        } else {
+            Set<UserContextRoleEntity> currentUserContextRoles = userService.getCurrentUserDataDomainRolesWithoutNone();
+            if (currentUserContextRoles.isEmpty()) {
+                faqEntities = faqRepository.findAllWithoutContext();
+            } else {
+                List<String> contextKeys = currentUserContextRoles.stream().map(UserContextRoleEntity::getContextKey).toList();
+                faqEntities = faqRepository.findByContextKeyIsNullOrContextKeyIn(contextKeys);
+            }
         }
-        if (!SecurityUtils.isSuperuser() && currentUserContextRoles.isEmpty()) {
-            return faqRepository.findAll()
+
+        // Batch-resolve all context names in a single query instead of N+1
+        Set<String> contextKeys = faqEntities.stream()
+                .map(FaqEntity::getContextKey)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<String, String> contextKeyToName = Collections.emptyMap();
+        if (!contextKeys.isEmpty()) {
+            contextKeyToName = contextRepository.findAllByContextKeyIn(contextKeys)
                     .stream()
-                    .filter(entity -> entity.getContextKey() == null)
-                    .map(this::map)
-                    .map(this::mapContextName)
-                    .toList();
+                    .collect(Collectors.toMap(HdContextEntity::getContextKey, HdContextEntity::getName, (a, b) -> a));
         }
-        if (!currentUserContextRoles.isEmpty()) {
-            List<String> contextKeys = currentUserContextRoles.stream().map(UserContextRoleEntity::getContextKey).toList();
-            return faqRepository.findAll()
-                    .stream()
-                    .filter(entity -> entity.getContextKey() == null || contextKeys.contains(entity.getContextKey()))
-                    .map(this::map)
-                    .map(this::mapContextName)
-                    .toList();
-        }
-        return Collections.emptyList();
+
+        Map<String, String> finalContextKeyToName = contextKeyToName;
+        return faqEntities.stream()
+                .map(this::map)
+                .map(dto -> {
+                    if (dto.getContextKey() != null) {
+                        dto.setContextName(finalContextKeyToName.get(dto.getContextKey()));
+                    }
+                    return dto;
+                })
+                .toList();
     }
 
 
@@ -91,17 +104,6 @@ public class FaqService {
         return faqDto;
     }
 
-    @NotNull
-    private FaqDto mapContextName(FaqDto dto) {
-        if (dto.getContextKey() != null) {
-            Optional<HdContextEntity> byContextKey = contextRepository.getByContextKey(dto.getContextKey());
-            if (byContextKey.isPresent()) {
-                HdContextEntity context = byContextKey.get();
-                dto.setContextName(context.getName());
-            }
-        }
-        return dto;
-    }
 
     @Transactional
     public void create(FaqCreateDto faqCreateDto) {
