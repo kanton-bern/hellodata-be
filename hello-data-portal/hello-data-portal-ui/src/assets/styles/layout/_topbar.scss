@@ -140,6 +140,12 @@ app-breadcrumb {
   transition: height 0.3s ease;
 }
 
+.p-breadcrumb .p-breadcrumb-separator svg,
+.p-breadcrumb .p-menuitem-separator svg {
+  width: 0.55em;
+  height: 0.55em;
+}
+
 .breadcrumb-minimized .p-breadcrumb {
   height: 20px;
   font-size: 0.75rem;
