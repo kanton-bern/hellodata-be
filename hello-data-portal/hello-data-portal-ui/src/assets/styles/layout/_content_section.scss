@@ -83,6 +83,7 @@
 
 #mainContentDiv > .ng-star-inserted > div.ng-star-inserted:has(#subsystem-iframe) {
   height: 100%;
+  padding-left: 0;
 }
 
 .embedded-dashboard .comment-form {
