@@ -1,5 +1,5 @@
 <h2 class="content-block">{{ '@Portal roles management' | transloco }}</h2>
-<div class="card">
+<p-card>
   @if ((roles$ | async); as roles) {
     <div>
       <p-table
@@ -39,7 +39,7 @@
             </td>
             <td>
               @if (!role.systemDefault) {
-                <p-button (click)="editRole(role)"
+                <p-button (click)="editRole(role)" (keydown.enter)="editRole(role)"
                           [pTooltip]="'@Edit' | transloco"
                           severity="success"
                           class="p-button-rounded"
@@ -48,7 +48,7 @@
                           pRipple/>
               }
               @if (!role.systemDefault) {
-                <p-button (click)="showRoleDeletionPopup(role)"
+                <p-button (click)="showRoleDeletionPopup(role)" (keydown.enter)="showRoleDeletionPopup(role)"
                           [pTooltip]="'@Delete' | transloco"
                           severity="danger"
                           class="p-button-rounded"
@@ -62,6 +62,6 @@
       </p-table>
     </div>
   }
-</div>
-
+</p-card>
+<br>
 <app-delete-role-popup [action]="getDeletionAction()"/>

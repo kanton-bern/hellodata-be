@@ -1,6 +1,6 @@
 <h2 class="content-block">{{ '@Dbt Project Docs' | transloco }}</h2>
 @if ((docs$ |async); as projectDocs) {
-  <div class="card">
+  <p-card>
     <h4>{{ '@Available Projects' | transloco }}</h4>
     <p-table [paginator]="true"
              [stripedRows]="true"
@@ -51,6 +51,6 @@
         </tr>
       </ng-template>
     </p-table>
-  </div>
+  </p-card>
 }
 <br/>

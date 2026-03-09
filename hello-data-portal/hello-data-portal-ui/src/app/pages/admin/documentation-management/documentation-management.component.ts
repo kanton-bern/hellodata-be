@@ -47,6 +47,7 @@ import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {Editor} from 'primeng/editor';
 import {Toolbar} from 'primeng/toolbar';
 import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
 
@@ -54,7 +55,7 @@ import {Ripple} from "primeng/ripple";
   selector: 'app-documentation',
   templateUrl: './documentation-management.component.html',
   styleUrls: ['./documentation-management.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Tabs, TabList, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, AsyncPipe, TranslocoPipe, Ripple]
+  imports: [FormsModule, ReactiveFormsModule, Tabs, TabList, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, AsyncPipe, TranslocoPipe, Ripple, Card]
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
   documentationForm!: FormGroup;
@@ -62,8 +63,8 @@ export class DocumentationManagementComponent extends BaseComponent implements O
   selectedLanguage$: Observable<any>;
   supportedLanguages$: Observable<string[]>;
   defaultLanguage$: Observable<string | null>;
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly fb = inject(FormBuilder);
 
   constructor() {
     super();
@@ -105,7 +106,7 @@ export class DocumentationManagementComponent extends BaseComponent implements O
 
   createOrUpdateDocumentation(documentation: Documentation) {
     const documentationToBeSaved = {...documentation} as Documentation;
-    const formDocumentation = this.documentationForm.getRawValue() as any;
+    const formDocumentation = this.documentationForm.getRawValue();
     documentationToBeSaved.texts = Object.keys(formDocumentation.languages).reduce((acc, locale) => {
       acc[locale] = formDocumentation.languages[locale].text;
       return acc;

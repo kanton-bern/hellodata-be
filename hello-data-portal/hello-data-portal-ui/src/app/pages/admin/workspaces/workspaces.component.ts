@@ -25,33 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, NgModule, OnInit, inject } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {selectAppInfos} from "../../../store/metainfo-resource/metainfo-resource.selector";
 import {AppState} from "../../../store/app/app.state";
-import { CommonModule, AsyncPipe } from "@angular/common";
-import {ReactiveFormsModule} from "@angular/forms";
-import { RippleModule, Ripple } from "primeng/ripple";
-import {SelectedWorkspaceComponent} from "./selected-workspace/selected-workspace.component";
-import {SelectedWorkspaceRolesComponent} from "./selected-workspace-roles/selected-workspace-roles.component";
-import {
-  SelectedWorkspaceDashboardsComponent
-} from "./selected-workspace-dashboards/selected-workspace-dashboards.component";
-import {TableModule} from "primeng/table";
-import {TranslocoModule} from "@jsverse/transloco";
-import {TagModule} from "primeng/tag";
-import {TooltipModule} from "primeng/tooltip";
-import {ToolbarModule} from "primeng/toolbar";
-import {ButtonModule} from "primeng/button";
-import {
-  SelectedWorkspacePermissionsComponent
-} from "./selected-workspace-permissions/selected-workspace-permissions.component";
-import {SelectedWorkspaceUsersComponent} from "./selected-workspace-users/selected-workspace-users.component";
-import {FieldsetModule} from "primeng/fieldset";
-import {
-  SelectedWorkspacePipelinesComponent
-} from "./selected-workspace-pipelines/selected-workspace-pipelines.component";
+import {AsyncPipe} from "@angular/common";
+import {Ripple} from "primeng/ripple";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {NgArrayPipesModule} from "ngx-pipes";
@@ -59,14 +39,16 @@ import {navigate} from "../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {loadAppInfoResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 
+import {Card} from 'primeng/card';
+
 @Component({
-    selector: 'app-workspaces',
-    templateUrl: './workspaces.component.html',
-    styleUrls: ['./workspaces.component.scss'],
-    imports: [Ripple, AsyncPipe, NgArrayPipesModule]
+  selector: 'app-workspaces',
+  templateUrl: './workspaces.component.html',
+  styleUrls: ['./workspaces.component.scss'],
+  imports: [Ripple, AsyncPipe, NgArrayPipesModule, Card]
 })
 export class WorkspacesComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
 
 
   appInfos$: Observable<any>;

@@ -12,7 +12,7 @@
 }
 
 @if ((resources$ | async); as resources) {
-  <div class="card">
+  <p-card>
     <div class="grid grid-cols-12 gap-4">
       @for (item of resources; track item) {
         <div class="col-span-2">
@@ -39,12 +39,12 @@
                   severity="secondary" pRipple/>
       </div>
     </p-toolbar>
-  </div>
+  </p-card>
 }
 
 
 @if ((selectedResource$ | async); as selectedResource) {
-  <div class="card">
+  <p-card>
     @switch (selectedResource.kind) {
       @case ('hellodata/Dashboards') {
         <p-fieldset legend="{{ selectedResource.kind.replace('hellodata/', '') }}">
@@ -81,6 +81,6 @@
         </div>
       }
     }
-  </div>
+  </p-card>
 }
 <br/>

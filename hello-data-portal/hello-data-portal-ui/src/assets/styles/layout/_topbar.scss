@@ -26,7 +26,7 @@
  */
 $background-color: #ffffff;
 .layout-topbar {
-  box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+  box-shadow: var(--p-card-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1));
   background-color: $background-color;
   display: flex;
   align-items: center;
@@ -39,6 +39,40 @@ $background-color: #ffffff;
   height: 60px;
   display: flex;
   align-items: center;
+  transition: height 0.3s ease;
+}
+
+// Minimized topbar
+#layout-topbar.topbar-minimized {
+  height: 45px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+#layout-topbar.topbar-minimized .env-badge {
+  font-size: 0.85rem !important;
+  height: 20px;
+}
+
+#layout-topbar.topbar-minimized .app-title {
+  font-size: 1rem;
+}
+
+#layout-topbar.topbar-minimized .layout-topbar-button {
+  font-size: 0.85rem;
+  padding: 3px;
+}
+
+#layout-topbar.topbar-minimized .data-domain-name {
+  font-size: 0.85rem;
+}
+
+#layout-topbar.topbar-minimized #topbar-language-selector {
+  font-size: 0.85rem;
+}
+
+#layout-topbar.topbar-minimized #userMenu {
+  font-size: 0.85rem;
 }
 
 #topbar-right-group {
@@ -49,7 +83,7 @@ $background-color: #ffffff;
   padding-right: 20px;
 }
 
-.content-section .card {
+.content-section .card, .content-section p-card {
   padding: 25px;
 }
 
@@ -67,13 +101,13 @@ $background-color: #ffffff;
 }
 
 app-header {
-  z-index: 100;
+  z-index: 101;
   position: fixed;
   top: 0;
-  left: 260px;
+  left: 77px;
   right: 0;
-  width: calc(100% - 260px);
-  transition: all 0.5s ease;
+  width: calc(100% - 77px);
+  transition: all 0.3s ease;
 }
 
 
@@ -91,17 +125,30 @@ p-breadcrumb {
 }
 
 app-breadcrumb {
-  left: 8px;
+  left: 0;
 }
 
 .p-breadcrumb {
   background-color: var(--surface-ground) !important;
   border-radius: 0 !important;
   border: 1px solid #e5e5e5;
+  border-left: none;
   height: 30px;
   display: flex;
   align-items: center;
   padding: 0 0.5rem;
+  transition: height 0.3s ease;
+}
+
+.p-breadcrumb .p-breadcrumb-separator svg,
+.p-breadcrumb .p-menuitem-separator svg {
+  width: 0.55em;
+  height: 0.55em;
+}
+
+.breadcrumb-minimized .p-breadcrumb {
+  height: 20px;
+  font-size: 0.75rem;
 }
 
 .topbar-left-group {
@@ -127,6 +174,7 @@ app-breadcrumb {
 .topbar-left-group .app-title {
   font-weight: 500;
   font-size: 1.3rem;
+  letter-spacing: 0.5px;
   display: inline-flex;
   align-items: center;
   margin-right: 0.25rem;

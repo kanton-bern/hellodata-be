@@ -79,6 +79,7 @@ import {Divider} from 'primeng/divider';
 import {Select} from 'primeng/select';
 import {Checkbox} from 'primeng/checkbox';
 import {Tooltip} from 'primeng/tooltip';
+import {Card} from 'primeng/card';
 import {
   DashboardViewerPermissionsComponent
 } from './dashboard-viewer-permissions/dashboard-viewer-permissions.component';
@@ -91,7 +92,7 @@ import {UserEditToolbarComponent} from './user-edit-toolbar/user-edit-toolbar.co
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, DashboardGroupMembershipComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent]
+  imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, DashboardGroupMembershipComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent, Card]
 })
 export class UserEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedUser$: Observable<any>;

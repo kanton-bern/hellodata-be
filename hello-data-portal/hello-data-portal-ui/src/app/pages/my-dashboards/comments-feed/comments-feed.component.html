@@ -45,7 +45,7 @@
                 optionLabel="label"
                 optionValue="value"
                 placeholder="{{ '@All' | transloco }}"
-                [style]="{'width': '100%'}"
+                [style]="{'width': '100%', 'height': '1.5rem', 'font-size': '0.6rem'}"
                 size="small"
                 appendTo="body">
         <ng-template pTemplate="item" let-option>
@@ -64,7 +64,7 @@
                 optionLabel="label"
                 optionValue="value"
                 placeholder="{{ '@All' | transloco }}"
-                [style]="{'width': '100%'}"
+                [style]="{'width': '100%', 'height': '1.5rem', 'font-size': '0.6rem'}"
                 size="small"
                 appendTo="body">
         <ng-template pTemplate="item" let-option>
@@ -83,7 +83,7 @@
                 optionLabel="label"
                 optionValue="value"
                 placeholder="{{ '@All' | transloco }}"
-                [style]="{'width': '100%'}"
+                [style]="{'width': '100%', 'height': '1.5rem', 'font-size': '0.6rem'}"
                 size="small"
                 appendTo="body">
         <ng-template pTemplate="item" let-option>
@@ -104,7 +104,7 @@
                     optionLabel="label"
                     optionValue="value"
                     placeholder="{{ '@All' | transloco }}"
-                    [style]="{'width': '100%'}"
+                    [style]="{'width': '100%', 'height': '1.5rem', 'font-size': '0.6rem'}"
                     size="small"
                     appendTo="body">
             <ng-template pTemplate="item" let-option>
@@ -143,7 +143,7 @@
   @if (canWriteComments$ | async) {
     <div class="comment-form">
       <textarea
-        class="w-full border rounded-md"
+        class="w-full border border-gray-200 rounded-md"
         [(ngModel)]="newCommentText"
         placeholder="{{ '@Write a comment' | transloco }}"
         rows="3">

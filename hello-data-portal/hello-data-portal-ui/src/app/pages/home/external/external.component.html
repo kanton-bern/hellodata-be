@@ -17,8 +17,9 @@
                  stateKey="home-external-dashboards-table"
                  dataKey="id">
           <ng-template pTemplate="caption">
-            <div class="flex">
-              <span class="p-input-icon-left ml-auto">
+            <div class="flex items-center justify-between">
+              <h5 class="m-0">{{ title() }}</h5>
+              <span class="p-input-icon-left">
                 <p-iconfield>
                   <p-inputicon class="pi pi-search"/>
                   <input pInputText #textInput [(ngModel)]="filterValue" (input)="onFilter($event, dt)"

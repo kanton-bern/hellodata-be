@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnInit, viewChild} from '@angular/core';
+import {Component, inject, input, OnInit, viewChild} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {Observable} from "rxjs";
@@ -54,6 +54,7 @@ export class DashboardsComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly menuService = inject(MenuService);
 
+  title = input<string>('');
   dashboards$: Observable<SupersetDashboard[]>;
   filterValue = '';
   readonly dt = viewChild.required<Table | undefined>('dt');

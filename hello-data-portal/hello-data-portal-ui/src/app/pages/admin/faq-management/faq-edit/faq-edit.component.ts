@@ -51,6 +51,7 @@ import {Editor} from 'primeng/editor';
 import {Toolbar} from 'primeng/toolbar';
 import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
+import {Card} from 'primeng/card';
 import {DeleteFaqPopupComponent} from '../delete-faq-popup/delete-faq-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 
@@ -58,7 +59,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
   selector: 'app-faq-edit',
   templateUrl: './faq-edit.component.html',
   styleUrls: ['./faq-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedFaq$: Observable<Faq>;
@@ -69,9 +70,9 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   formValueChangedSub!: Subscription;
   titleMinLenght = 3;
   messageMinLength = 3;
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly fb = inject(FormBuilder);
+  private readonly translateService = inject(TranslateService);
 
   constructor() {
     super();

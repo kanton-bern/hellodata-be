@@ -1,5 +1,5 @@
 <h3 class="content-block">{{ '@Dashboards' | transloco }}</h3>
-<div class="card">
+<p-card>
   <p-table #dt (onRowSelect)="onRowSelect($event)"
            [filterDelay]="0"
            [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
@@ -114,7 +114,7 @@
       </tr>
     </ng-template>
   </p-table>
-</div>
+</p-card>
 <br/>
 <p-dialog [(visible)]="editDashboardMetadataDialog"
           [modal]="true"

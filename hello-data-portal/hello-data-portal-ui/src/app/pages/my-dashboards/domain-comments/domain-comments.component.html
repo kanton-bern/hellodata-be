@@ -1,5 +1,5 @@
 <h2 class="content-block">{{ '@Domain Comments' | transloco }}: {{ contextName }}</h2>
-<div class="card">
+<p-card>
   <p-table
     #dt
     [value]="comments"
@@ -402,7 +402,7 @@
       </tr>
     </ng-template>
   </p-table>
-</div>
+</p-card>
 
 <!-- Edit Comment Dialog -->
 <p-dialog [header]="'@Edit comment' | transloco"

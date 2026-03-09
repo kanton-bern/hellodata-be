@@ -4,11 +4,13 @@
     [paginator]="false"
     [rowHover]="true"
     [showCurrentPageReport]="true"
-    [tableStyle]="{ 'min-width': '75rem' }"
+    [tableStyle]="{ 'width': '100%' }"
     [value]="users()"
-    dataKey="id"
+    dataKey="username"
+    [expandedRowKeys]="expandedRows"
     class="p-datatable-striped"
-    >
+    style="overflow-x: auto; display: block;"
+  >
     <ng-template pTemplate="header">
       <tr>
         <th id="username">
@@ -23,12 +25,10 @@
         <th id="lastName">
           {{ '@Last name' | transloco }}
         </th>
-        <th id="roles">
-          {{ '@Roles' | transloco }}
-        </th>
+        <th id="roles" style="width: 3rem"></th>
       </tr>
     </ng-template>
-    <ng-template let-user pTemplate="body">
+    <ng-template let-user pTemplate="body" let-expanded="expanded">
       <tr>
         <td>
           {{ user.username }}
@@ -43,11 +43,23 @@
           {{ user.last_name }}
         </td>
         <td>
-          @for (role of user.roles; track role) {
-            <span style="margin: 2px">
-              <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}" />
-            </span>
-          }
+          <p-button type="button" pRipple [pRowToggler]="user"
+                    [text]="true" [rounded]="true" [plain]="true"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template let-user pTemplate="expandedrow">
+      <tr>
+        <td [attr.colspan]="5">
+          <div class="p-3">
+            <strong>{{ '@Roles' | transloco }}:</strong>
+            <div class="flex flex-wrap gap-1 mt-2">
+              @for (role of user.roles; track role) {
+                <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}"/>
+              }
+            </div>
+          </div>
         </td>
       </tr>
     </ng-template>

@@ -43,6 +43,7 @@ import {Button} from 'primeng/button';
 import {Ripple} from 'primeng/ripple';
 import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
+import {Card} from 'primeng/card';
 import {DeleteFaqPopupComponent} from './delete-faq-popup/delete-faq-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 
@@ -50,7 +51,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
   selector: 'app-faq-list',
   templateUrl: './faq-list.component.html',
   styleUrls: ['./faq-list.component.scss'],
-  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe]
+  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe, Card]
 })
 export class FaqListComponent extends BaseComponent implements OnInit {
   faq$: Observable<any>;

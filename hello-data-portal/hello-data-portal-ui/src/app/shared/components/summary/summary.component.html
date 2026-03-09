@@ -1,20 +1,20 @@
 @if ((currentUserPermissions$ | async); as permissions) {
-  <div class="p-8 pb-10 grid grid-cols-2 gap-x-5 gap-y-6" id="summary-content">
+  <div class="p-8 pb-10 grid grid-cols-2 gap-x-4 gap-y-4" id="summary-content">
 
     <!-- Row 1: Footer (col 1) | Subscriptions (col 2) -->
-    <div class="card col-span-1">
+    <p-card class="col-span-1">
       <app-footer [appInfo]="appInfo"/>
-    </div>
+    </p-card>
     @if (permissions.length !== 0) {
-      <div class="card col-span-1" id="subscriptionsHeader">
+      <p-card class="col-span-1" id="subscriptionsHeader">
         <h5>{{ '@Subscriptions' | transloco }}</h5>
         <app-subscriptions/>
-      </div>
+      </p-card>
     }
 
     <!-- Row 2: Documentation (col 1) | Status (col 2) -->
     @if ((documentation$ | async); as documentation) {
-      <div class="card col-span-1">
+      <p-card class="col-span-1">
         <div class="flex align-items-center gap-2 mb-3">
           <h5 class="m-0">{{ '@Documentation' | transloco }}</h5>
           @if (permissions | contains: 'DOCUMENTATION_MANAGEMENT') {
@@ -42,10 +42,10 @@
             }
           </div>
         }
-      </div>
+      </p-card>
     }
     @if (permissions.length !== 0) {
-      <div class="card col-span-1" id="statusHeader">
+      <p-card class="col-span-1" id="statusHeader">
         <h5>Status</h5>
         <p-accordion>
           <p-accordion-panel value="0">
@@ -139,7 +139,7 @@
             </p-accordion-panel>
           </p-accordion>
         }
-      </div>
+      </p-card>
     }
 
   </div>

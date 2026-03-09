@@ -54,6 +54,7 @@ import {Toolbar} from 'primeng/toolbar';
 import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
 import {ConfirmDialog} from 'primeng/confirmdialog';
+import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
 
@@ -61,17 +62,17 @@ import {Ripple} from "primeng/ripple";
   selector: 'app-external-dashboard-edit',
   templateUrl: './external-dashboard-edit.component.html',
   styleUrls: ['./external-dashboard-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Select, Toolbar, Button, Tooltip, ConfirmDialog, PrimeTemplate, AsyncPipe, TranslocoPipe, Ripple]
+  imports: [FormsModule, ReactiveFormsModule, Select, Toolbar, Button, Tooltip, ConfirmDialog, PrimeTemplate, AsyncPipe, TranslocoPipe, Ripple, Card]
 })
 export class ExternalDashboardEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedExternalDashboard$: Observable<any>;
   availableDataDomains$: Observable<any>;
   externalDashboardForm!: FormGroup;
   formValueChangedSub!: Subscription;
-  private fb = inject(FormBuilder);
-  private store = inject<Store<AppState>>(Store);
-  private confirmationService = inject(ConfirmationService);
-  private translateService = inject(TranslateService);
+  private readonly fb = inject(FormBuilder);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
 
   constructor() {
 

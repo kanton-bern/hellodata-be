@@ -27,17 +27,20 @@
 
 import {Component, input} from '@angular/core';
 
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
-import { Tag } from 'primeng/tag';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {TableModule} from 'primeng/table';
+import {PrimeTemplate} from 'primeng/api';
+import {Tag} from 'primeng/tag';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {Button} from 'primeng/button';
+import {Ripple} from 'primeng/ripple';
 
 @Component({
-    selector: 'app-selected-workspace-users',
-    templateUrl: './selected-workspace-users.component.html',
-    styleUrls: ['./selected-workspace-users.component.scss'],
-    imports: [TableModule, PrimeTemplate, Tag, TranslocoPipe]
+  selector: 'app-selected-workspace-users',
+  templateUrl: './selected-workspace-users.component.html',
+  styleUrls: ['./selected-workspace-users.component.scss'],
+  imports: [TableModule, PrimeTemplate, Tag, TranslocoPipe, Button, Ripple]
 })
 export class SelectedWorkspaceUsersComponent {
   readonly users = input.required<any[]>();
+  expandedRows: { [key: string]: boolean } = {};
 }

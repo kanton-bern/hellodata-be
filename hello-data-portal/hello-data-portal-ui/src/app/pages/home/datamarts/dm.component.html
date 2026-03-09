@@ -6,6 +6,11 @@
          [value]="dataMarts$ | async"
          [stripedRows]="true"
          dataKey="id">
+  <ng-template pTemplate="caption">
+    <div class="flex items-center">
+      <h5 class="m-0">{{ title() }}</h5>
+    </div>
+  </ng-template>
   <ng-template pTemplate="header">
     <tr>
       <th id="iconHeader"></th>

@@ -110,6 +110,14 @@
   overflow: hidden;
   border-bottom: 1px solid var(--surface-border, #dee2e6);
 
+  // Override PrimeNG design tokens for compact selects
+  --p-select-padding-y: 0.1rem;
+  --p-select-padding-x: 0.3rem;
+  --p-select-font-size: 0.6rem;
+  --p-select-sm-padding-y: 0.05rem;
+  --p-select-sm-padding-x: 0.2rem;
+  --p-select-sm-font-size: 0.55rem;
+
   .filter-group {
     flex: 1;
     display: flex;
@@ -130,15 +138,28 @@
   }
 
   ::ng-deep .p-select {
-    font-size: 0.65rem;
+    font-size: 0.6rem !important;
+    min-height: 0 !important;
+    height: 1.5rem !important;
+    padding: 0 !important;
 
     .p-select-label {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.65rem;
+      padding: 0.3rem 0.3rem !important;
+      font-size: 0.6rem !important;
+      line-height: 1.2 !important;
     }
 
     .p-select-dropdown {
-      width: 1.5rem;
+      width: 1.1rem !important;
+      padding: 0 !important;
+
+      .p-select-dropdown-icon {
+        font-size: 0.55rem !important;
+      }
+    }
+
+    .p-select-trigger {
+      padding: 0 !important;
     }
   }
 }
@@ -200,6 +221,7 @@
   textarea {
     font-size: 0.75rem;
     padding: 0.5rem;
+    background-color: #fff;
   }
 
   ::ng-deep .p-button {

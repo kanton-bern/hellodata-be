@@ -1,4 +1,4 @@
-<div class="card">
+<p-card>
   @if ((editedFaq$ | async); as editedFaq) {
     <form [formGroup]="faqForm">
       <h5>{{ '@Faq' | transloco }}</h5>
@@ -136,5 +136,5 @@
       </p-toolbar>
     </form>
   }
-</div>
+</p-card>
 <app-delete-faq-popup [action]="getDeletionAction()"/>

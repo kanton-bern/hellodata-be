@@ -49,6 +49,7 @@ import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
 import {Tooltip} from 'primeng/tooltip';
 import {ConfirmDialog} from 'primeng/confirmdialog';
+import {Card} from 'primeng/card';
 import {ContainsPipe} from '../../../shared/pipes/contains.pipe';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {IconField} from "primeng/iconfield";
@@ -60,7 +61,7 @@ import {Ripple} from "primeng/ripple";
   templateUrl: './external-dashboards.component.html',
   styleUrls: ['./external-dashboards.component.scss'],
   imports: [TableModule, PrimeTemplate, Button, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe,
-    TranslocoPipe, IconField, InputIcon, Ripple]
+    TranslocoPipe, IconField, InputIcon, Ripple, Card]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
   readonly dt = viewChild.required<Table | undefined>('dt');

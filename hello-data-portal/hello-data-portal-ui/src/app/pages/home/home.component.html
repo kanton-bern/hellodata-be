@@ -16,9 +16,9 @@
     <div class="home-view">
       @if ((currentUserContextRolesNotNone$ | async)?.length === 0) {
         <div class="grid grid-cols-12 gap-4">
-          <p-fieldset class="col-span-12 lg:col-span-12">
+          <p-card class="col-span-12 lg:col-span-12">
             <ng-template pTemplate="header">
-              <div class="flex items-center gap-2 text-primary">
+              <div class="flex items-center gap-2 text-primary px-5 pt-5">
                 <p-badge severity="success" size="large" value="{{ '@Welcome' | transloco }}"/>
               </div>
             </ng-template>
@@ -34,82 +34,36 @@
                 }
               </div>
             }
-          </p-fieldset>
+          </p-card>
         </div>
       }
       @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
-        <div class="grid grid-cols-12 gap-4">
-          <p-fieldset class="col-span-12 lg:col-span-6">
-            <ng-template pTemplate="header">
-              <div class="flex items-center text-primary">
-                <h5 class="m-0" id="dashboardsHeader">{{ '@Dashboards' | transloco }}</h5>
-              </div>
-            </ng-template>
-            <div class="h-full">
-              <app-dashboards/>
-            </div>
-          </p-fieldset>
-          <p-fieldset class="col-span-12 lg:col-span-6">
-            <ng-template pTemplate="header">
-              <div class="flex items-center text-primary">
-                <h5 class="m-0" id="externalDashboardsHeader">{{ '@External dashboards' | transloco }}</h5>
-              </div>
-            </ng-template>
-            <div class="h-full">
-              <app-external/>
-            </div>
-          </p-fieldset>
+        <div class="grid grid-cols-12 gap-3">
+          <p-card class="col-span-12 lg:col-span-6">
+            <app-dashboards title="{{ '@Dashboards' | transloco }}"/>
+          </p-card>
+          <p-card class="col-span-12 lg:col-span-6">
+            <app-external title="{{ '@External dashboards' | transloco }}"/>
+          </p-card>
           @if (hasPermissions(['DATA_MARTS']) |async) {
-            <p-fieldset class="col-span-12 lg:col-span-6">
-              <ng-template pTemplate="header">
-                <div class="flex items-center text-primary">
-                  <h5 class="m-0" id="dataMartsHeader">{{ '@Data Marts' | transloco }}</h5>
-                </div>
-              </ng-template>
-              <div class="h-full">
-                <app-dm/>
-              </div>
-            </p-fieldset>
+            <p-card class="col-span-12 lg:col-span-6">
+              <app-dm title="{{ '@Data Marts' | transloco }}"/>
+            </p-card>
           }
           @if (hasPermissions(['DATA_LINEAGE']) |async) {
-            <p-fieldset class="col-span-12 lg:col-span-6">
-              <ng-template pTemplate="header">
-                <div class="flex items-center text-primary">
-                  <h5 class="m-0" id="lineageHeader">{{ '@Lineage' | transloco }}</h5>
-                </div>
-              </ng-template>
-              <div class="h-full">
-                <app-lineage/>
-              </div>
-            </p-fieldset>
+            <p-card class="col-span-12 lg:col-span-6">
+              <app-lineage title="{{ '@Lineage' | transloco }}"/>
+            </p-card>
           }
-          <p-fieldset class="col-span-12 lg:col-span-6">
-            <ng-template pTemplate="header">
-              <div class="flex items-center text-primary">
-                <h5 class="m-0" id="faqHeader">{{ '@Faq' | transloco }}</h5>
-              </div>
-            </ng-template>
-            <div class="h-full">
-              <app-faq/>
-            </div>
-          </p-fieldset>
-          <p-fieldset class="col-span-12 lg:col-span-6">
-            <ng-template pTemplate="header">
-              <div class="flex items-center text-primary">
-                <h5 class="m-0" id="documentationHeader">{{ '@Documentation' | transloco }}</h5>
-              </div>
-            </ng-template>
-            <div class="h-full">
-              <app-home-documentation/>
-            </div>
-          </p-fieldset>
+          <p-card class="col-span-12 lg:col-span-6">
+            <app-faq title="{{ '@Faq' | transloco }}"/>
+          </p-card>
+          <p-card class="col-span-12 lg:col-span-6">
+            <app-home-documentation title="{{ '@Documentation' | transloco }}"/>
+          </p-card>
           <app-admin-init/>
         </div>
       }
     </div>
-    <div>&nbsp;</div>
-    <br/>
   }
 }
-
-

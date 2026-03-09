@@ -33,14 +33,15 @@ import {TranslocoPipe} from "@jsverse/transloco";
 import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
 
+import {Card} from 'primeng/card';
+
 @Component({
   templateUrl: 'queries.component.html',
   styleUrls: ['./queries.component.scss'],
-  imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Button, Ripple, Textarea, AsyncPipe, DatePipe, TranslocoPipe, IconField, InputIcon]
+  imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Button, Ripple, Textarea, AsyncPipe, DatePipe, TranslocoPipe, IconField, InputIcon, Card]
 })
 export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
-  private store = inject<Store<AppState>>(Store);
-
+  private readonly store = inject<Store<AppState>>(Store);
 
   paramContextKey$: Observable<any>;
   queries$: Observable<any>;
@@ -90,7 +91,7 @@ export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy
               page: 0, size: 10, sort: 'changedOn, desc', search: '', contextKey
             }));
           }
-          return contextKey ? contextKey : '';
+          return contextKey || '';
         }),
       );
 
@@ -102,10 +103,15 @@ export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   loadQueries(event: TableLazyLoadEvent, contextKey: string) {
+    let sort = '';
+    if (event.sortField) {
+      const direction = event.sortOrder && event.sortOrder > 0 ? 'asc' : 'desc';
+      sort = `${event.sortField}, ${direction}`;
+    }
     this.store.dispatch(loadQueriesPaginated({
       page: event.first as number / (event.rows as number),
       size: event.rows as number,
-      sort: event.sortField ? `${event.sortField}, ${event.sortOrder ? event.sortOrder > 0 ? 'asc' : 'desc' : ''}` : '',
+      sort,
       search: event.globalFilter ? event.globalFilter as string : '',
       contextKey
     }));

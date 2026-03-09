@@ -1,5 +1,5 @@
 <h2 class="content-block">{{ '@Dashboard import-export' | transloco }}</h2>
-<div class="card">
+<p-card>
   @if ((availableDataDomains$ | async); as dataDomains) {
     <div>
       @for (dataDomain of dataDomains | orderBy: 'data.name'; track dataDomain) {
@@ -23,6 +23,7 @@
                     <ng-template pTemplate="caption">
                       <div class="flex ">
                         <p-button (click)="exportDashboards(dataDomain.data.key)"
+                                  (keydown.enter)="exportDashboards(dataDomain.data.key)"
                                   [disabled]="getSelectedDashboards(dataDomain.data.key).length === 0"
                                   [pTooltip]="'@Export dashboard' | transloco"
                                   class="p-button-rounded mr-2"
@@ -31,6 +32,7 @@
 
                                   pRipple/>
                         <p-button (click)="toggleImportVisible(dataDomain.data.key)"
+                                  (keydown.enter)="toggleImportVisible(dataDomain.data.key)"
                                   [pTooltip]="'@Import dashboard' | transloco"
                                   class="p-button-rounded mr-2" severity="primary"
                                   icon="fas fa-light fa-upload"
@@ -114,7 +116,7 @@
       }
     </div>
   }
-</div>
+</p-card>
 <div style="display: none">
   <app-silent-login/>
 </div>

@@ -77,6 +77,7 @@ export class HeaderComponent {
   readonly menuToggle = output<boolean>();
   readonly menuToggleEnabled = input(false);
   readonly title = input.required<string>();
+  readonly minimized = input(false);
 
   userData$: Observable<IUser>;
   languages$: Observable<any[]>;

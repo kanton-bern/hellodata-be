@@ -39,13 +39,11 @@ body {
   top: 0;
   left: 0;
   height: 100%;
-  width: 260px;
+  width: 77px;
   background: $background-color;
-  z-index: 100;
-  transition: all 0.5s ease;
-  -webkit-box-shadow: 1px 1px 5px -2px rgba(66, 68, 90, 1);
-  -moz-box-shadow: 1px 1px 5px -2px rgba(66, 68, 90, 1);
-  box-shadow: 1px 1px 5px -2px rgba(66, 68, 90, 1);
+  z-index: 200;
+  transition: all 0.3s ease;
+  box-shadow: 2px 0 6px 0 rgba(0, 0, 0, 0.12);
 }
 
 .sidebar.close {
@@ -53,16 +51,90 @@ body {
   z-index: 200;
 }
 
+// Minimized state — narrower, icons only, no text
+.sidebar.minimized {
+  width: 40px;
+}
+
+.sidebar.minimized .logo-details img {
+  width: 26px;
+  height: 26px;
+}
+
+.sidebar.minimized .logo-details {
+  padding: 4px;
+  height: 36px;
+}
+
+.sidebar.minimized .first-level-label {
+  display: none;
+}
+
+.sidebar.minimized .nav-links > li > a .p-menuitem-icon {
+  font-size: 1.3rem !important;
+}
+
+.sidebar.minimized .nav-links > li > a {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.sidebar.minimized .nav-links li .second-level-menu,
+.sidebar.minimized .nav-links li .third-level-menu {
+  left: 100%;
+}
+
+.sidebar.minimized .sidebar-toggle-btn i {
+  font-size: 0.8rem;
+}
+
+.sidebar.minimized .nav-links {
+  height: calc(100% - 36px - 32px);
+}
+
+
+// Sidebar toggle button at the bottom
+.sidebar-toggle-btn {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--p-text-muted-color, #b0b5bd);
+  border: none;
+  background: transparent;
+  transition: color 0.2s ease;
+  opacity: 0.5;
+
+  &:hover {
+    color: var(--text-color);
+    opacity: 1;
+  }
+
+  i {
+    font-size: 0.7rem;
+  }
+}
+
 .sidebar .logo-details {
-  height: 55px;
+  height: 60px;
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 10px;
-  margin-top: 7px;
+  justify-content: center;
+  padding: 6px;
+  transition: padding 0.3s ease;
 
   img {
-    width: 55px;
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    transition: width 0.3s ease, height 0.3s ease;
   }
 }
 
@@ -87,6 +159,8 @@ body {
   transition-delay: 0s;
   opacity: 0;
   pointer-events: none;
+  width: 0;
+  overflow: hidden;
 }
 
 // CSS-only flyout submenus
@@ -176,7 +250,7 @@ body {
 }
 
 .sidebar .nav-links {
-  height: 100%;
+  height: calc(100% - 60px - 32px);
   overflow: auto;
   margin-top: 0;
 }
@@ -259,22 +333,35 @@ body {
   font-size: 10px;
 }
 
+
 .content-section {
   position: relative;
-  left: 260px;
-  width: calc(100% - 260px);
-  transition: all 0.5s ease;
+  left: 77px;
+  width: calc(100% - 77px);
+  transition: all 0.3s ease;
 }
 
 .sidebar.close ~ .content-section {
-  left: 70px;
-  width: calc(100% - 63px);
+  left: 77px;
+  width: calc(100% - 77px);
 }
 
 .sidebar.close ~ .content-section app-header {
-  left: 70px;
-  width: calc(100% - 70px);
+  left: 77px;
+  width: calc(100% - 77px);
 }
+
+// When sidebar is minimized
+.sidebar.minimized ~ .content-section {
+  left: 40px;
+  width: calc(100% - 40px);
+}
+
+.sidebar.minimized ~ .content-section app-header {
+  left: 40px;
+  width: calc(100% - 40px);
+}
+
 
 .home-content {
   display: flex;
@@ -299,25 +386,22 @@ body {
 }
 
 @media screen and (max-width: 400px) {
-  .sidebar {
-    width: 240px;
-  }
   .sidebar.close {
-    width: 78px;
+    width: 77px;
   }
-  .sidebar .profile-details {
-    width: 240px;
+  .sidebar.minimized {
+    width: 40px;
   }
   .sidebar.close .profile-details {
     background: none;
-    width: 78px;
+    width: 77px;
   }
   .content-section {
-    left: 240px;
-    width: calc(100% - 240px);
+    left: 77px;
+    width: calc(100% - 77px);
   }
-  .sidebar.close ~ .content-section {
-    left: 78px;
-    width: calc(100% - 78px);
+  .sidebar.minimized ~ .content-section {
+    left: 40px;
+    width: calc(100% - 40px);
   }
 }
