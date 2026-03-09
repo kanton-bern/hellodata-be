@@ -43,12 +43,30 @@ body {
   background: $background-color;
   z-index: 200;
   transition: all 0.3s ease;
-  box-shadow: 2px 0 6px 0 rgba(0, 0, 0, 0.12);
+
+  // Shadow only below the logo-details area so sidebar + topbar look unified
+  &::after {
+    content: '';
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: 2px 0 6px 0 rgba(0, 0, 0, 0.12);
+    pointer-events: none;
+    transition: top 0.3s ease;
+    clip-path: inset(0 -10px -10px 0);
+  }
 }
 
 .sidebar.close {
   width: 77px;
   z-index: 200;
+}
+
+// Adjust shadow pseudo-element for minimized sidebar
+.sidebar.minimized::after {
+  top: 45px;
 }
 
 // Minimized state — narrower, icons only, no text
@@ -63,7 +81,7 @@ body {
 
 .sidebar.minimized .logo-details {
   padding: 4px;
-  height: 36px;
+  height: 45px;
 }
 
 .sidebar.minimized .first-level-label {
@@ -89,7 +107,7 @@ body {
 }
 
 .sidebar.minimized .nav-links {
-  height: calc(100% - 36px - 32px);
+  height: calc(100% - 45px - 32px);
 }
 
 
@@ -127,7 +145,9 @@ body {
   align-items: center;
   justify-content: center;
   padding: 6px;
-  transition: padding 0.3s ease;
+  transition: padding 0.3s ease, background-color 0.3s ease;
+  position: relative;
+  z-index: 202;
 
   img {
     width: 48px;
@@ -137,6 +157,7 @@ body {
     transition: width 0.3s ease, height 0.3s ease;
   }
 }
+
 
 .sidebar .logo-details i {
   font-size: 30px;

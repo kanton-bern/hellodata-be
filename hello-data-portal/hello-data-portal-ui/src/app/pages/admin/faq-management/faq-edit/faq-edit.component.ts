@@ -54,6 +54,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {Card} from 'primeng/card';
 import {DeleteFaqPopupComponent} from '../delete-faq-popup/delete-faq-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {disableEditorImageInsert} from "../../../../shared/utils/editor-utils";
 
 @Component({
   selector: 'app-faq-edit',
@@ -62,6 +63,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
   imports: [FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy {
+
   editedFaq$: Observable<Faq>;
   faqForm!: FormGroup;
   availableDataDomains$: Observable<any>;
@@ -100,12 +102,14 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
   saveFaq(editedFaq: Faq) {
     const faqToBeSaved = {id: editedFaq.id} as any;
-    const formFaq = this.faqForm.getRawValue() as any;
+    const formFaq = this.faqForm.getRawValue();
     faqToBeSaved.title = formFaq.title;
     faqToBeSaved.messages = formFaq.languages;
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
+
+
     this.store.dispatch(saveChangesToFaq({faq: faqToBeSaved}));
   }
 
@@ -123,6 +127,10 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
   override ngOnInit(): void {
     super.ngOnInit();
+  }
+
+  onEditorInit(event: { editor: any }): void {
+    disableEditorImageInsert(event.editor);
   }
 
   getMessage(language: string): FormControl {
@@ -149,8 +157,8 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
     const messageControl = languageForm?.get('message') as FormControl;
     const titleControl = languageForm?.get('title') as FormControl;
-    const messageNotFilled = !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
-    const titleNotFilled = !titleControl || titleControl.value === null || titleControl.value === undefined || titleControl.value.trim() === '';
+    const messageNotFilled = messageControl?.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+    const titleNotFilled = titleControl?.value === null || titleControl.value === undefined || titleControl.value.trim() === '';
     return messageNotFilled || titleNotFilled;
   }
 
@@ -169,6 +177,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
       defaultLanguageControl.get('message')?.value?.trim();
     return filled;
   }
+
 
   private getEditedFaq() {
     return combineLatest([
@@ -193,7 +202,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
         this.faqForm = this.fb.group({
           languages: this.fb.group(languageFaqFormGroups),
-          dataDomain: [faqCpy && faqCpy.contextKey ? faqCpy.contextKey : ALL_DATA_DOMAINS],
+          dataDomain: [faqCpy?.contextKey ? faqCpy.contextKey : ALL_DATA_DOMAINS],
         });
 
         if (faqCpy.id) {
@@ -241,7 +250,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
   private onChange(editedFaq: Faq) {
     const faqToBeSaved = {id: editedFaq.id} as any;
-    const formFaq = this.faqForm.getRawValue() as any;
+    const formFaq = this.faqForm.getRawValue();
     faqToBeSaved.title = formFaq.title;
     faqToBeSaved.message = formFaq.message;
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {

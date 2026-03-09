@@ -27,7 +27,7 @@
 
 import {Component, inject, input} from '@angular/core';
 
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgStyle} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {Observable} from "rxjs";
@@ -39,16 +39,18 @@ import {Toast} from "primeng/toast";
 import {
   UnsavedChangesDialogComponent
 } from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
+import {openWindow, trackEvent} from "../../store/app/app.action";
 import {MenuItem} from "primeng/api";
 import {HeaderComponent} from '../../shared/components';
+import {environment} from "../../../environments/environment";
+import {Environment} from "../../shared/components/header/header.component";
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
   imports: [Tooltip, HeaderComponent,
-    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
+    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe, NgStyle]
 })
 export class SideNavOuterToolbarComponent {
   private static readonly SIDEBAR_STATE_KEY = 'sidebar-minimized';
@@ -58,11 +60,17 @@ export class SideNavOuterToolbarComponent {
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
   sidebarMinimized = false;
+  environment: Environment;
 
   constructor() {
     this.navItems$ = this.store.select(selectNavItems);
     const stored = sessionStorage.getItem(SideNavOuterToolbarComponent.SIDEBAR_STATE_KEY);
     this.sidebarMinimized = stored === null ? false : stored === 'true';
+    this.environment = {
+      name: environment.deploymentEnvironment.name,
+      showEnvironment: environment.deploymentEnvironment.showEnvironment ?? true,
+      color: environment.deploymentEnvironment.headerColor ? environment.deploymentEnvironment.headerColor : ''
+    };
   }
 
   toggleSidebar(): void {
@@ -71,7 +79,7 @@ export class SideNavOuterToolbarComponent {
   }
 
   navigateHome() {
-    this.store.dispatch(navigate({url: 'home'}));
+    this.router.navigate(['home']);
     this.store.dispatch(trackEvent({
       eventCategory: 'Menu Item',
       eventAction: '[Click] - Moved to Home'
@@ -81,7 +89,7 @@ export class SideNavOuterToolbarComponent {
   openWindow(item: MenuItem) {
     let isRouterOrUrl = false;
     if (item.routerLink) {
-      this.store.dispatch(navigate({url: item.routerLink}));
+      this.router.navigate([item.routerLink]);
       isRouterOrUrl = true;
     }
     if (item.target || item.url) {

@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.faq.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -38,5 +39,5 @@ import java.util.Map;
 public class FaqCreateDto {
     private String contextKey;
     @NotNull
-    private Map<Locale, FaqMessage> messages;
+    private Map<Locale, @Valid FaqMessage> messages;
 }

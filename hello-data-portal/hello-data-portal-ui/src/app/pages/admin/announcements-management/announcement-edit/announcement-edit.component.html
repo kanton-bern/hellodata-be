@@ -94,7 +94,8 @@
               <p-tabpanel [value]="$index">
                 <div class="field grid grid-cols-12 gap-4">
                   <div class="col-span-12 md:col-span-12">
-                    <p-editor [formControl]="getMessage(language)" [style]="{ width: '100%' }"/>
+                    <p-editor [formControl]="getMessage(language)" [style]="{ width: '100%' }"
+                              (onInit)="onEditorInit($event)"/>
                   </div>
                 </div>
               </p-tabpanel>

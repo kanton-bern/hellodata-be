@@ -6,17 +6,16 @@
      class="layout-topbar flex w-full flex-nowrap items-center justify-between gap-4 py-2"
      [class.topbar-minimized]="minimized()"
      id="layout-topbar">
-  <!-- Left column: Env + Title + Data Domain Selector -->
+  <!-- Left column: Title + Data Domain Selector -->
   <div class="topbar-left-group shrink-0 flex items-center gap-4">
-    @if (environment.showEnvironment) {
-      <span class="glow env-badge uppercase font-bold tracking-wide" [pTooltip]="environment.name"
-            tooltipPosition="bottom" style="font-size: 1.2rem">
-        {{ environment.name | transloco }}
-      </span>
-    }
     <span class="app-title font-semibold px-3" [pTooltip]="title() | transloco"
           tooltipPosition="bottom">
       {{ title() | transloco }}
+      @if (environment.showEnvironment) {
+        <sup class="glow env-badge-inline uppercase font-bold tracking-wide">
+          {{ environment.name | transloco }}
+        </sup>
+      }
     </span>
     @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
       @if ((selectedDataDomain$ | async); as selectedDataDomain) {

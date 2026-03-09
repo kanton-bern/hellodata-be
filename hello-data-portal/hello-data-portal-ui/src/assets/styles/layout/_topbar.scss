@@ -49,9 +49,8 @@ $background-color: #ffffff;
   padding-bottom: 0;
 }
 
-#layout-topbar.topbar-minimized .env-badge {
-  font-size: 0.85rem !important;
-  height: 20px;
+#layout-topbar.topbar-minimized .env-badge-inline {
+  font-size: 0.55em;
 }
 
 #layout-topbar.topbar-minimized .app-title {
@@ -158,19 +157,6 @@ app-breadcrumb {
   white-space: nowrap;
 }
 
-.topbar-left-group .env-badge {
-  font-weight: 600;
-  font-size: 0.95rem;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 0.5rem;
-  height: 24px;
-  line-height: 1;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-}
-
 .topbar-left-group .app-title {
   font-weight: 500;
   font-size: 1.3rem;
@@ -178,6 +164,7 @@ app-breadcrumb {
   display: inline-flex;
   align-items: center;
   margin-right: 0.25rem;
+  padding-left: 0;
 }
 
 .topbar-left-group .data-domain-selector {

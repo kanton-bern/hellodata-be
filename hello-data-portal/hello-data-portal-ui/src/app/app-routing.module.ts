@@ -26,7 +26,7 @@
 ///
 
 import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {PreloadAllModules, RouterModule, Routes} from '@angular/router';
 import {AutoLoginPartialRoutesGuard} from "angular-auth-oidc-client";
 import {PermissionsGuard} from "./auth/guards/permissions-guard.service";
 import {naviElements} from "./app-navi-elements";
@@ -418,7 +418,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes),
+    RouterModule.forRoot(routes, {preloadingStrategy: PreloadAllModules}),
   ],
   providers: [],
   exports: [RouterModule],

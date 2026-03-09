@@ -205,4 +205,9 @@ p-button[severity="help"] .p-button {
   font-weight: 600;
 }
 
+/* Hide the image button from Quill editor toolbar to prevent base64 image embedding */
+.ql-toolbar .ql-image {
+  display: none !important;
+}
+
 
