@@ -27,6 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Observable} from "rxjs";
+import {map} from "rxjs/operators";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {DashboardGroup, DashboardGroupCreateUpdate, DashboardGroupDomainUser} from "./dashboard-groups.model";
 import {environment} from "../../../environments/environment";
@@ -66,8 +67,10 @@ export class DashboardGroupsService {
     return this.httpClient.get<DashboardGroupDomainUser[]>(`${this.baseUrl}/eligible-users`, {params});
   }
 
-  public createDashboardGroup(dashboardGroup: DashboardGroupCreateUpdate): Observable<any> {
-    return this.httpClient.post<any>(this.baseUrl, dashboardGroup);
+  public createDashboardGroup(dashboardGroup: DashboardGroupCreateUpdate): Observable<string> {
+    return this.httpClient.post(this.baseUrl, dashboardGroup, {responseType: 'text'}).pipe(
+      map(response => response.replace(/"/g, ''))
+    );
   }
 
   public updateDashboardGroup(dashboardGroup: DashboardGroupCreateUpdate): Observable<any> {

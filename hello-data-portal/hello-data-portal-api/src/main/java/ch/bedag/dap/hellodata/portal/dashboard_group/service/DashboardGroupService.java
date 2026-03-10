@@ -88,7 +88,7 @@ public class DashboardGroupService {
     }
 
     @Transactional
-    public void create(DashboardGroupCreateDto createDto) {
+    public UUID create(DashboardGroupCreateDto createDto) {
         if (dashboardGroupRepository.existsByNameIgnoreCaseAndContextKey(createDto.getName(), createDto.getContextKey())) {
             log.error("Dashboard group with name '{}' already exists in context '{}'", createDto.getName(), createDto.getContextKey());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Dashboard group with this name already exists");
@@ -113,6 +113,7 @@ public class DashboardGroupService {
                 }
             });
         }
+        return entity.getId();
     }
 
     @Transactional

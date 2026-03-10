@@ -75,7 +75,8 @@ export const saveChangesToDashboardGroup = createAction(
 );
 
 export const saveChangesToDashboardGroupSuccess = createAction(
-  DashboardGroupsActionType.SAVE_CHANGES_TO_DASHBOARD_GROUP_SUCCESS
+  DashboardGroupsActionType.SAVE_CHANGES_TO_DASHBOARD_GROUP_SUCCESS,
+  props<{ createdId?: string; contextKey?: string }>()
 );
 
 export const showDeleteDashboardGroupPopup = createAction(

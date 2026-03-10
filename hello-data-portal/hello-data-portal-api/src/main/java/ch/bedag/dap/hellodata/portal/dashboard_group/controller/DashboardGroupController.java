@@ -74,8 +74,8 @@ public class DashboardGroupController {
     }
 
     @PostMapping
-    public void createDashboardGroup(@RequestBody DashboardGroupCreateDto createDto) {
-        dashboardGroupService.create(createDto);
+    public UUID createDashboardGroup(@RequestBody DashboardGroupCreateDto createDto) {
+        return dashboardGroupService.create(createDto);
     }
 
     @PutMapping

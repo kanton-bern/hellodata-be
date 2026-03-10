@@ -107,11 +107,14 @@ export class DashboardGroupsEffects {
         return action.dashboardGroup.id
           ? this._dashboardGroupsService.updateDashboardGroup(action.dashboardGroup).pipe(
             tap(() => this._notificationService.success('@Dashboard group updated successfully')),
-            map(() => saveChangesToDashboardGroupSuccess())
+            map(() => saveChangesToDashboardGroupSuccess({}))
           )
           : this._dashboardGroupsService.createDashboardGroup(action.dashboardGroup).pipe(
             tap(() => this._notificationService.success('@Dashboard group created successfully')),
-            map(() => saveChangesToDashboardGroupSuccess())
+            map((createdId) => saveChangesToDashboardGroupSuccess({
+              createdId,
+              contextKey: action.dashboardGroup.contextKey
+            }))
           );
       }),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
@@ -121,7 +124,16 @@ export class DashboardGroupsEffects {
   saveChangesToDashboardGroupSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(saveChangesToDashboardGroupSuccess),
-      switchMap(() => scheduled([clearUnsavedChanges()], asyncScheduler)),
+      switchMap(action => {
+        if (action.createdId) {
+          // After create, navigate to edit route so subsequent saves use update
+          return scheduled([
+            clearUnsavedChanges(),
+            navigate({url: `${naviElements.dashboardGroups.path}/${action.contextKey}/edit/${action.createdId}`})
+          ], asyncScheduler);
+        }
+        return scheduled([clearUnsavedChanges()], asyncScheduler);
+      }),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     );
   });
