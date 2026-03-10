@@ -67,6 +67,9 @@ public class UploadDashboardsFileListener {
     @Value("${hello-data.dashboard-import-default-sql-alchemy}")
     private String defaultSqlAlchemyUri;
 
+    @Value("${hello-data.tmp-dir:/storage/tmp}")
+    private String tmpDir;
+
     @PostConstruct
     public void listenForRequests() {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
@@ -82,7 +85,7 @@ public class UploadDashboardsFileListener {
                 if (dashboardUpload.isLastChunk()) {
                     destinationFile =
                             File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), //NOSONAR
-                                    ""); //NOSONAR
+                                    "", new File(tmpDir)); //NOSONAR
                     log.debug("Created temp file for chunk {}", destinationFile);
                     binaryFileId = dashboardUpload.getBinaryFileId();
                     assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), destinationFile.toPath());
@@ -117,7 +120,7 @@ public class UploadDashboardsFileListener {
     }
 
     private void useDefaultSqlAlchemyUri(DashboardUpload dashboardUpload, File destinationFile) throws IOException {
-        File tempZip = File.createTempFile("modified-", dashboardUpload.getFilename()); //NOSONAR
+        File tempZip = File.createTempFile("modified-", dashboardUpload.getFilename(), new File(tmpDir)); //NOSONAR
         replaceSqlalchemyUrisInZip(destinationFile, tempZip, defaultSqlAlchemyUri);
         Files.move(tempZip.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
@@ -245,7 +248,7 @@ public class UploadDashboardsFileListener {
      */
     private Path getUploadFolderPath(String filename) {
         String uploadFolder = filename.replaceAll(FOLDER_NAMES_REGEX_PATTERN, "");
-        return Paths.get(System.getProperty("java.io.tmpdir"), "dashboards_upload", uploadFolder);
+        return Paths.get(tmpDir, "dashboards_upload", uploadFolder);
     }
 
     private void assembleChunks(String binaryFileId, String filename, long totalChunks, long fileSize, Path destinationPath) throws IOException {
