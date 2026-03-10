@@ -58,7 +58,7 @@ p-menu {
 }
 
 .app-title {
-  transition: background-size 0.8s ease, -webkit-text-fill-color 0.8s ease, filter 0.8s ease;
+  transition: background-size 0.8s ease, -webkit-text-fill-color 0.8s ease;
   background-clip: text;
   -webkit-background-clip: text;
   background-image: linear-gradient(90deg, #0fa, #0ff, #f0f, #ff0, #0fa);
