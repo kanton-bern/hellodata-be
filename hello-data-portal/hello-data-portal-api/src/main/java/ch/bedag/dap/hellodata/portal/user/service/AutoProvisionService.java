@@ -40,6 +40,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.s
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentPermissionEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
 import ch.bedag.dap.hellodata.portal.user.service.UserSelectedDashboardService.DashboardSelection;
@@ -74,6 +76,7 @@ public class AutoProvisionService {
     private final PortalRoleRepository portalRoleRepository;
     private final UserPortalRoleRepository userPortalRoleRepository;
     private final HdContextRepository hdContextRepository;
+    private final DashboardCommentPermissionRepository dashboardCommentPermissionRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public UserEntity autoProvisionIfEnabled(String email, String firstName, String lastName, String keycloakSubject) {
@@ -108,6 +111,10 @@ public class AutoProvisionService {
         // on the very first request (portal sidecar will reconcile these later via NATS)
         assignPortalRolesForViewer(userEntity);
 
+        // Assign default comment permissions (readComments=true) for all data domains
+        // so the auto-provisioned viewer can read comments immediately
+        assignDefaultCommentPermissionsForViewer(userEntity);
+
         // Assign all published dashboards and build sync payload
         Map<String, List<DashboardForUserDto>> dashboardsPerContext = assignAllPublishedDashboards(userEntity.getId());
 
@@ -136,38 +143,33 @@ public class AutoProvisionService {
                 metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS);
 
         for (MetaInfoResourceEntity entity : allDashboardResources) {
-            if (!(entity.getMetainfo() instanceof DashboardResource dashboardResource)) {
-                continue;
-            }
-            String contextKey = entity.getContextKey();
-            if (contextKey == null) {
-                continue;
-            }
+            if (entity.getMetainfo() instanceof DashboardResource dashboardResource && entity.getContextKey() != null) {
+                String contextKey = entity.getContextKey();
 
-            List<DashboardSelection> selections = new ArrayList<>();
-            List<DashboardForUserDto> dashboardDtos = new ArrayList<>();
+                List<DashboardSelection> selections = new ArrayList<>();
+                List<DashboardForUserDto> dashboardDtos = new ArrayList<>();
 
-            for (SupersetDashboard dashboard : dashboardResource.getData()) {
-                if (!dashboard.isPublished()) {
-                    continue;
+                for (SupersetDashboard dashboard : dashboardResource.getData()) {
+                    if (dashboard.isPublished()) {
+                        selections.add(new DashboardSelection(
+                                dashboard.getId(), dashboard.getDashboardTitle(), dashboardResource.getInstanceName()));
+
+                        DashboardForUserDto dto = new DashboardForUserDto();
+                        dto.setId(dashboard.getId());
+                        dto.setTitle(dashboard.getDashboardTitle());
+                        dto.setViewer(true);
+                        dto.setInstanceName(dashboardResource.getInstanceName());
+                        dashboardDtos.add(dto);
+                    }
                 }
-                selections.add(new DashboardSelection(
-                        dashboard.getId(), dashboard.getDashboardTitle(), dashboardResource.getInstanceName()));
 
-                DashboardForUserDto dto = new DashboardForUserDto();
-                dto.setId(dashboard.getId());
-                dto.setTitle(dashboard.getDashboardTitle());
-                dto.setViewer(true);
-                dto.setInstanceName(dashboardResource.getInstanceName());
-                dashboardDtos.add(dto);
-            }
-
-            if (!selections.isEmpty()) {
-                userSelectedDashboardService.saveSelectedDashboards(userId, contextKey, selections);
-                dashboardsPerContext.merge(contextKey, dashboardDtos, (existing, newList) -> {
-                    existing.addAll(newList);
-                    return existing;
-                });
+                if (!selections.isEmpty()) {
+                    userSelectedDashboardService.saveSelectedDashboards(userId, contextKey, selections);
+                    dashboardsPerContext.merge(contextKey, dashboardDtos, (existing, newList) -> {
+                        existing.addAll(newList);
+                        return existing;
+                    });
+                }
             }
         }
 
@@ -193,5 +195,26 @@ public class AutoProvisionService {
             userPortalRoleRepository.saveAndFlush(portalRoleEntity);
         }
         log.info("Assigned DATA_DOMAIN_VIEWER portal role for {} data domains for user {}", allDataDomains.size(), userEntity.getEmail());
+    }
+
+    private void assignDefaultCommentPermissionsForViewer(UserEntity userEntity) {
+        List<HdContextEntity> allDataDomains = hdContextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
+        int createdCount = 0;
+        for (HdContextEntity dataDomain : allDataDomains) {
+            Optional<DashboardCommentPermissionEntity> existing =
+                    dashboardCommentPermissionRepository.findByUserIdAndContextKey(userEntity.getId(), dataDomain.getContextKey());
+            if (existing.isEmpty()) {
+                DashboardCommentPermissionEntity permission = new DashboardCommentPermissionEntity();
+                permission.setId(UUID.randomUUID());
+                permission.setUserId(userEntity.getId());
+                permission.setContextKey(dataDomain.getContextKey());
+                permission.setReadComments(true);
+                permission.setWriteComments(false);
+                permission.setReviewComments(false);
+                dashboardCommentPermissionRepository.saveAndFlush(permission);
+                createdCount++;
+            }
+        }
+        log.info("Assigned default comment permissions (readComments) for {} data domains for user {}", createdCount, userEntity.getEmail());
     }
 }

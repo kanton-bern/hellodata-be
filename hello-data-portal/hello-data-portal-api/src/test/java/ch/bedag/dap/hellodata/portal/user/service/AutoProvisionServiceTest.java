@@ -39,6 +39,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentPermissionEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
@@ -95,6 +97,9 @@ class AutoProvisionServiceTest {
 
     @Mock
     private HdContextRepository hdContextRepository;
+
+    @Mock
+    private DashboardCommentPermissionRepository dashboardCommentPermissionRepository;
 
     @InjectMocks
     private AutoProvisionService autoProvisionService;
@@ -164,6 +169,10 @@ class AutoProvisionServiceTest {
         when(hdContextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN)))
                 .thenReturn(List.of(dataDomain));
 
+        // No existing comment permissions
+        when(dashboardCommentPermissionRepository.findByUserIdAndContextKey(any(), eq("dd-key-1")))
+                .thenReturn(Optional.empty());
+
         UserEntity result = autoProvisionService.autoProvisionIfEnabled("user@example.com", "John", "Doe", keycloakSubject);
 
         // Verify user entity was created
@@ -178,36 +187,58 @@ class AutoProvisionServiceTest {
         verify(roleService).setBusinessDomainRoleForUser(result, HdRoleName.NONE);
         verify(roleService).setAllDataDomainRolesForUser(result, HdRoleName.DATA_DOMAIN_VIEWER);
 
-        // Verify portal roles created for immediate permissions
+        // Verify portal roles, dashboards, NATS, sync event and comment permissions
+        verifyPortalRoles(result, viewerPortalRole);
+        verifyDashboardsSaved(result);
+        verifyNatsCreateUserEvent();
+        verifyFullSyncEvent(result);
+        verifyCommentPermissions(result);
+    }
+
+    private void verifyPortalRoles(UserEntity user, PortalRoleEntity expectedRole) {
         ArgumentCaptor<UserPortalRoleEntity> portalRoleCaptor = ArgumentCaptor.forClass(UserPortalRoleEntity.class);
         verify(userPortalRoleRepository).saveAndFlush(portalRoleCaptor.capture());
         UserPortalRoleEntity savedPortalRole = portalRoleCaptor.getValue();
-        assertEquals(result, savedPortalRole.getUser());
-        assertEquals(viewerPortalRole, savedPortalRole.getRole());
+        assertEquals(user, savedPortalRole.getUser());
+        assertEquals(expectedRole, savedPortalRole.getRole());
         assertEquals("dd-key-1", savedPortalRole.getContextKey());
         assertEquals(HdContextType.DATA_DOMAIN, savedPortalRole.getContextType());
+    }
 
-        // Verify dashboards saved (only published one)
-        verify(userSelectedDashboardService).saveSelectedDashboards(eq(result.getId()), eq("dd-key-1"), argThat(selections ->
+    private void verifyDashboardsSaved(UserEntity user) {
+        verify(userSelectedDashboardService).saveSelectedDashboards(eq(user.getId()), eq("dd-key-1"), argThat(selections ->
                 selections.size() == 1
                         && selections.get(0).dashboardId() == 42
                         && selections.get(0).dashboardTitle().equals("Sales Dashboard")
                         && selections.get(0).instanceName().equals("superset-1")
         ));
+    }
 
-        // Verify NATS CREATE_USER event
+    private void verifyNatsCreateUserEvent() {
         ArgumentCaptor<SubsystemUserUpdate> natsCaptor = ArgumentCaptor.forClass(SubsystemUserUpdate.class);
         verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.CREATE_USER), natsCaptor.capture());
         assertEquals("user@example.com", natsCaptor.getValue().getEmail());
         assertFalse(natsCaptor.getValue().isSendBackUsersList());
+    }
 
-        // Verify UserFullSyncEvent with dashboards
+    private void verifyFullSyncEvent(UserEntity user) {
         ArgumentCaptor<UserFullSyncEvent> eventCaptor = ArgumentCaptor.forClass(UserFullSyncEvent.class);
         verify(eventPublisher).publishEvent(eventCaptor.capture());
         UserFullSyncEvent event = eventCaptor.getValue();
-        assertEquals(result.getId(), event.userId());
+        assertEquals(user.getId(), event.userId());
         assertNotNull(event.dashboardsPerContext());
         assertTrue(event.dashboardsPerContext().containsKey("dd-key-1"));
         assertTrue(event.dashboardsPerContext().get("dd-key-1").get(0).isViewer());
+    }
+
+    private void verifyCommentPermissions(UserEntity user) {
+        ArgumentCaptor<DashboardCommentPermissionEntity> commentPermCaptor = ArgumentCaptor.forClass(DashboardCommentPermissionEntity.class);
+        verify(dashboardCommentPermissionRepository).saveAndFlush(commentPermCaptor.capture());
+        DashboardCommentPermissionEntity savedPermission = commentPermCaptor.getValue();
+        assertEquals(user.getId(), savedPermission.getUserId());
+        assertEquals("dd-key-1", savedPermission.getContextKey());
+        assertTrue(savedPermission.isReadComments());
+        assertFalse(savedPermission.isWriteComments());
+        assertFalse(savedPermission.isReviewComments());
     }
 }
