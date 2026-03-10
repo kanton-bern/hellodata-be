@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectionStrategy, Component, inject, input, NgZone, output, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, input, NgZone, output, signal, ViewChild} from '@angular/core';
 import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 
 import {Store} from "@ngrx/store";
@@ -57,7 +57,6 @@ import {navigate, trackEvent} from "../../../store/app/app.action";
 import {setSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
 import {MenuItem} from "primeng/api";
 import {setSelectedLanguage} from "../../../store/auth/auth.action";
-import {Tooltip} from "primeng/tooltip";
 import {
   PublishedAnnouncementsWrapperComponent
 } from '../published-announcement/published-announcements-wrapper/published-announcements-wrapper.component';
@@ -67,7 +66,7 @@ import {
   templateUrl: 'header.component.html',
   styleUrls: ['./header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgStyle, Tooltip, Ripple, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
+  imports: [NgStyle, Ripple, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
 })
 export class HeaderComponent {
   private readonly store = inject<Store<AppState>>(Store);
@@ -78,6 +77,14 @@ export class HeaderComponent {
   readonly menuToggleEnabled = input(false);
   readonly title = input.required<string>();
   readonly minimized = input(false);
+  readonly neonActive = signal(false);
+  private neonTimeout: any;
+
+  activateNeon() {
+    clearTimeout(this.neonTimeout);
+    this.neonActive.set(true);
+    this.neonTimeout = setTimeout(() => this.neonActive.set(false), 3000);
+  }
 
   userData$: Observable<IUser>;
   languages$: Observable<any[]>;
