@@ -36,6 +36,7 @@ import {
   selectCommentPermissionsForUser,
   selectCurrentPagination,
   selectDashboardsForUser,
+  selectEffectiveUserId,
   selectParamUserId,
   selectSelectedDashboardGroupIdsForUser,
   selectSelectedRolesForUser,
@@ -234,7 +235,7 @@ export class UsersManagementEffects {
   loadUserById$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadUserById),
-      withLatestFrom(this._store.select(selectParamUserId)),
+      withLatestFrom(this._store.select(selectEffectiveUserId)),
       tap(([action, userId]) => sessionStorage.setItem(CURRENT_EDITED_USER_ID, userId as string)),
       switchMap(([action, userId]) => this._usersManagementService.getUserById(userId as string)),
       switchMap(result => scheduled([loadUserByIdSuccess({user: result})], asyncScheduler)),
@@ -252,7 +253,7 @@ export class UsersManagementEffects {
   loadAllDashboardsWithMarkedUser$ = createEffect(() => {
       return this._actions$.pipe(
         ofType(loadDashboards),
-        withLatestFrom(this._store.select(selectParamUserId)),
+        withLatestFrom(this._store.select(selectEffectiveUserId)),
         switchMap(([action, userId]) => {
             return this._usersManagementService.getDashboardsWithMarkedUser(userId as string).pipe(
               map((result) => loadDashboardsSuccess({dashboards: result.dashboards})),
@@ -301,7 +302,7 @@ export class UsersManagementEffects {
   loadUserContextRoles$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadUserContextRoles),
-      withLatestFrom(this._store.select(selectParamUserId)),
+      withLatestFrom(this._store.select(selectEffectiveUserId)),
       switchMap(([action, userId]) => this._usersManagementService.getUserContextRoles(userId as string)),
       switchMap(result => scheduled([loadUserContextRolesSuccess({payload: result})], asyncScheduler)),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
@@ -330,8 +331,15 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(updateUserRolesSuccess),
       delay(200),
-      switchMap((action) =>
-        scheduled([loadUserContextRoles(), loadUserById(), loadCommentPermissions(), showSuccess({message: '@User roles updated'})], asyncScheduler)),
+      withLatestFrom(this._store.select(selectParamUserId)),
+      switchMap(([action, userId]) => {
+        if (userId) {
+          // Still on the user edit page, reload user data
+          return scheduled([loadUserContextRoles(), loadUserById(), loadCommentPermissions(), showSuccess({message: '@User roles updated'})], asyncScheduler);
+        }
+        // User has navigated away (e.g. save-on-cancel flow), skip reloading user data
+        return scheduled([showSuccess({message: '@User roles updated'})], asyncScheduler);
+      }),
     )
   });
 
@@ -374,7 +382,7 @@ export class UsersManagementEffects {
   loadCommentPermissions$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadCommentPermissions),
-      withLatestFrom(this._store.select(selectParamUserId)),
+      withLatestFrom(this._store.select(selectEffectiveUserId)),
       switchMap(([action, userId]) => this._usersManagementService.getCommentPermissions(userId as string)),
       map(result => {
         const permissionsMap: Record<string, {
@@ -398,7 +406,7 @@ export class UsersManagementEffects {
   loadDashboardGroupMemberships$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadDashboardGroupMemberships),
-      withLatestFrom(this._store.select(selectParamUserId)),
+      withLatestFrom(this._store.select(selectEffectiveUserId)),
       switchMap(([action, userId]) =>
         this._usersManagementService.getDashboardGroupMemberships(userId as string, action.contextKey).pipe(
           map(memberships => loadDashboardGroupMembershipsSuccess({contextKey: action.contextKey, memberships})),

@@ -45,6 +45,17 @@ import {selectCurrentUserPermissions, selectIsSuperuser} from "../auth/auth.sele
 const usersManagementState = (state: AppState) => state.usersManagement;
 export const selectParamUserId = selectRouteParam('userId');
 
+/**
+ * Selector that returns the userId from the route param, falling back to editedUser.id from the store.
+ * This is needed because after navigation (e.g. unsaved changes dialog save-then-navigate),
+ * the route param becomes undefined while the editedUser is still in state.
+ */
+export const selectEffectiveUserId = createSelector(
+  selectParamUserId,
+  usersManagementState,
+  (routeUserId: string | undefined, state: UsersManagementState) => routeUserId || state.editedUser?.id
+);
+
 export const selectUsers = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.users
@@ -213,7 +224,7 @@ export const selectAvailableRolesForDataDomain = createSelector(
 
 export const selectSelectedRolesForUser = createSelector(
   usersManagementState,
-  selectParamUserId,
+  selectEffectiveUserId,
   (state: UsersManagementState, userId: string | undefined) => {
     return {
       userId,
