@@ -148,6 +148,26 @@ body {
   left: 100%;
 }
 
+// Compact flyout menus when sidebar is minimized
+.sidebar.minimized .nav-links .second-level-menu li a,
+.sidebar.minimized .nav-links .third-level-menu li a {
+  padding: 4px 10px 4px 6px;
+  font-size: 0.8rem;
+}
+
+.sidebar.minimized .nav-links .second-level-menu li a .p-menuitem-icon,
+.sidebar.minimized .nav-links .third-level-menu li a .p-menuitem-icon {
+  font-size: 0.85rem;
+  margin-right: 0.35rem;
+}
+
+.sidebar.minimized .nav-links .second-level-menu i,
+.sidebar.minimized .nav-links .third-level-menu i {
+  font-size: 0.6rem;
+  margin-left: 6px;
+}
+
+
 .sidebar.minimized .sidebar-toggle-btn i {
   font-size: 0.8rem;
 }
@@ -290,6 +310,14 @@ body {
   z-index: 300;
 }
 
+// Only the third-level menu scrolls — the second-level must keep
+// overflow visible so the absolutely-positioned third-level can fly out.
+.sidebar.close .nav-links li .third-level-menu {
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
 .sidebar.close .nav-links li:hover > .second-level-menu {
   opacity: 1;
   transform: translateX(0);
@@ -367,7 +395,7 @@ body {
 }
 
 .sidebar .nav-links::-webkit-scrollbar {
-  display: none;
+  display: none; // Chrome / Safari
 }
 
 .sidebar .nav-links li {
