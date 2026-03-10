@@ -158,6 +158,9 @@ body {
 
 
 // Sidebar toggle button at the bottom
+// Pinned at the bottom of the sidebar with a solid background so that
+// overflowing nav-links items scroll *behind* it and disappear.
+// No border — the background alone provides visual separation.
 .sidebar-toggle-btn {
   position: absolute;
   bottom: 0;
@@ -170,17 +173,22 @@ body {
   cursor: pointer;
   color: var(--p-text-muted-color, #b0b5bd);
   border: none;
-  background: transparent;
+  background: $background-color;
+  z-index: 210;
   transition: color 0.2s ease;
-  opacity: 0.5;
 
   &:hover {
     color: var(--text-color);
-    opacity: 1;
+
+    i {
+      opacity: 1;
+    }
   }
 
   i {
     font-size: 0.7rem;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
   }
 }
 
