@@ -314,4 +314,135 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         assertThat(actualDoc.select("blockquote").text()).isEqualTo("Edited comment text");
         assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
     }
+
+    @Test
+    void toMultiLangSimpleMailMessage_when_user_account_created_should_contain_all_three_languages() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ACCOUNT_CREATED);
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_ROLE_NAME_PARAM, "HelloDATA Admin");
+        List<UserContextRoleDto> allDataDomainRoles = new ArrayList<>();
+        UserContextRoleDto userContextRoleDto = new UserContextRoleDto();
+        RoleDto roleDto = new RoleDto();
+        roleDto.setName("Role1");
+        userContextRoleDto.setRole(roleDto);
+        ContextDto contextDto = new ContextDto();
+        contextDto.setName("Data Domain 1");
+        userContextRoleDto.setContext(contextDto);
+        allDataDomainRoles.add(userContextRoleDto);
+        emailTemplateData.getTemplateModel().put(DATA_DOMAIN_ROLES_PARAM, allDataDomainRoles);
+        emailTemplateData.setSubjectParams(new Object[]{"Fancy Business Domain"});
+
+        //when
+        SimpleMailMessage email = emailSendService.toMultiLangSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then — subject contains all 3 languages
+        assertThat(email.getSubject()).contains("Fachdom");
+        assertThat(email.getSubject()).contains("domaine professionnel");
+        assertThat(email.getSubject()).contains("business domain");
+
+        //then — body contains German section
+        assertThat(actualDoc.select("div[lang=de]").text()).contains("Hallo John Doe");
+        assertThat(actualDoc.select("div[lang=de]").text()).contains("Darth Vader");
+        assertThat(actualDoc.select("div[lang=de]").text()).contains("Benutzer*in mit folgenden Rollen angelegt");
+
+        //then — body contains French section
+        assertThat(actualDoc.select("div[lang=fr]").text()).contains("Bonjour John Doe");
+        assertThat(actualDoc.select("div[lang=fr]").text()).contains("Darth Vader");
+        assertThat(actualDoc.select("div[lang=fr]").text()).contains("créé un utilisateur");
+
+        //then — body contains English section
+        assertThat(actualDoc.select("div[lang=en]").text()).contains("Hello John Doe");
+        assertThat(actualDoc.select("div[lang=en]").text()).contains("Darth Vader");
+        assertThat(actualDoc.select("div[lang=en]").text()).contains("has created a user");
+    }
+
+    @Test
+    void toMultiLangSimpleMailMessage_when_user_role_changed_should_contain_all_three_languages() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ROLE_CHANGED);
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_ROLE_NAME_PARAM, "HelloDATA Admin");
+        List<UserContextRoleDto> allDataDomainRoles = new ArrayList<>();
+        UserContextRoleDto userContextRoleDto = new UserContextRoleDto();
+        RoleDto roleDto = new RoleDto();
+        roleDto.setName("Role1");
+        userContextRoleDto.setRole(roleDto);
+        ContextDto contextDto = new ContextDto();
+        contextDto.setName("Data Domain 1");
+        userContextRoleDto.setContext(contextDto);
+        allDataDomainRoles.add(userContextRoleDto);
+        emailTemplateData.getTemplateModel().put(DATA_DOMAIN_ROLES_PARAM, allDataDomainRoles);
+        emailTemplateData.setSubjectParams(new Object[]{"Fancy Business Domain"});
+
+        //when
+        SimpleMailMessage email = emailSendService.toMultiLangSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then — subject contains all 3 languages
+        assertThat(email.getSubject()).contains("angepasst");
+        assertThat(email.getSubject()).contains("mis");
+        assertThat(email.getSubject()).contains("updated");
+
+        //then — body contains German section
+        assertThat(actualDoc.select("div[lang=de]").text()).contains("Hallo John Doe");
+        assertThat(actualDoc.select("div[lang=de]").text()).contains("Rollen angepasst");
+
+        //then — body contains French section
+        assertThat(actualDoc.select("div[lang=fr]").text()).contains("Bonjour John Doe");
+        assertThat(actualDoc.select("div[lang=fr]").text()).contains("ajusté vos rôles");
+
+        //then — body contains English section
+        assertThat(actualDoc.select("div[lang=en]").text()).contains("Hello John Doe");
+        assertThat(actualDoc.select("div[lang=en]").text()).contains("adjusted your roles");
+    }
+
+    @Test
+    void toMultiLangSimpleMailMessage_when_user_activated_should_contain_all_three_languages() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ACTIVATED);
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
+        emailTemplateData.setSubjectParams(new Object[]{"Fancy Business Domain"});
+
+        //when
+        SimpleMailMessage email = emailSendService.toMultiLangSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then — body contains all three language sections
+        assertThat(actualDoc.select("div[lang=de]").text()).contains("Hallo John Doe");
+        assertThat(actualDoc.select("div[lang=de]").text()).contains("aktiviert");
+        assertThat(actualDoc.select("div[lang=fr]").text()).contains("Bonjour John Doe");
+        assertThat(actualDoc.select("div[lang=fr]").text()).contains("activé");
+        assertThat(actualDoc.select("div[lang=en]").text()).contains("Hello John Doe");
+        assertThat(actualDoc.select("div[lang=en]").text()).contains("activated");
+    }
+
+    @Test
+    void toMultiLangSimpleMailMessage_when_user_deactivated_should_contain_all_three_languages() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_DEACTIVATED);
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
+        emailTemplateData.setSubjectParams(new Object[]{"Fancy Business Domain"});
+
+        //when
+        SimpleMailMessage email = emailSendService.toMultiLangSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then — body contains all three language sections
+        assertThat(actualDoc.select("div[lang=de]").text()).contains("Hallo John Doe");
+        assertThat(actualDoc.select("div[lang=de]").text()).contains("deaktiviert");
+        assertThat(actualDoc.select("div[lang=fr]").text()).contains("Bonjour John Doe");
+        assertThat(actualDoc.select("div[lang=fr]").text()).contains("désactivé");
+        assertThat(actualDoc.select("div[lang=en]").text()).contains("Hello John Doe");
+        assertThat(actualDoc.select("div[lang=en]").text()).contains("deactivated");
+    }
 }

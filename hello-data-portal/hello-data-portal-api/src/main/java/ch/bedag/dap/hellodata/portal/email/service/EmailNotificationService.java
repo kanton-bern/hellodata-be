@@ -158,7 +158,7 @@ public class EmailNotificationService {
         emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
         emailTemplateData.getReceivers().add(createdUserEmail);
         emailTemplateData.setLocale(locale);
-        emailSendService.sendEmailFromTemplate(emailTemplateData);
+        emailSendService.sendMultiLangEmailFromTemplate(emailTemplateData);
     }
 
     private void fillRolesInformation(UpdateContextRolesForUserDto updateContextRolesForUserDto, List<UserContextRoleDto> adminContextRolesAddedToUser,

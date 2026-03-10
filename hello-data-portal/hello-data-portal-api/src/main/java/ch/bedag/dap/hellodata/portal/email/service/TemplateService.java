@@ -39,6 +39,7 @@ import java.util.Map;
 class TemplateService {
 
     private static final String DEFAULT_TEMPLATE_PATH = "de_CH";
+    private static final String MULTILANG_TEMPLATE_PATH = "multilang";
     private final SpringTemplateEngine templateEngine;
 
     String getContent(String templateName, Map<String, Object> model, Locale locale) {
@@ -50,6 +51,12 @@ class TemplateService {
             rootTemplateLangPath = locale.toString();
         }
         String localizedTemplateName = rootTemplateLangPath + "/" + templateName;
+        return templateEngine.process(localizedTemplateName, context);
+    }
+
+    String getMultiLangContent(String templateName, Map<String, Object> model) {
+        Context context = new Context(Locale.ROOT, model);
+        String localizedTemplateName = MULTILANG_TEMPLATE_PATH + "/" + templateName;
         return templateEngine.process(localizedTemplateName, context);
     }
 }
