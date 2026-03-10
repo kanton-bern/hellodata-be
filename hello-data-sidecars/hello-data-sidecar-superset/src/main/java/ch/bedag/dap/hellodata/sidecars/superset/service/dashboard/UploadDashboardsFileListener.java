@@ -67,7 +67,7 @@ public class UploadDashboardsFileListener {
     @Value("${hello-data.dashboard-import-default-sql-alchemy}")
     private String defaultSqlAlchemyUri;
 
-    @Value("${hello-data.tmp-dir:/storage/tmp}")
+    @Value("${hello-data.tmp-dir:/tmp}")
     private String tmpDir;
 
     @PostConstruct
