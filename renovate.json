@@ -33,6 +33,16 @@
       "enabled": false
     },
     {
+      "description": "Pin spring-cloud-dependencies to 2025.0.x (2025.1.x targets Spring Boot 4.0.x)",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchPackageNames": [
+        "org.springframework.cloud:spring-cloud-dependencies"
+      ],
+      "allowedVersions": "<2025.1.0"
+    },
+    {
       "description": "Group all Spring packages (minor/patch)",
       "matchManagers": [
         "maven"
