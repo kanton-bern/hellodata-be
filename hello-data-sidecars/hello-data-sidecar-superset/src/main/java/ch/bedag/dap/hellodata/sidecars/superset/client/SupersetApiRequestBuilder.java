@@ -77,7 +77,7 @@ public class SupersetApiRequestBuilder {
     private static final String LIST_LOGS_API_ENDPOINT = "/api/v1/log/";
     private static final String DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/%d";
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
-    private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
+    private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/assets/import/";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
     private static final String DELETE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
 
@@ -231,7 +231,7 @@ public class SupersetApiRequestBuilder {
                 .build();
     }
 
-    public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride, //NONOSONAR
+    public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride, //NOSONAR
                                                            JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, IMPORT_DASHBOARD_API_ENDPOINT, null);
         log.debug("create import dashboard request, auth token {}", authToken);
