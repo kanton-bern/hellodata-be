@@ -48,7 +48,6 @@ p-menu {
 
 .app-title {
   user-select: none;
-  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
 
   .app-title-text {
     transition: background-size 0s, -webkit-text-fill-color 0s;
@@ -67,12 +66,10 @@ p-menu {
     font-size: 0.5em;
     font-style: italic;
     font-weight: normal;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
     transition: color 0.8s ease;
   }
 
   &.neon-active {
-    filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
 
     .app-title-text {
       -webkit-text-fill-color: transparent;
