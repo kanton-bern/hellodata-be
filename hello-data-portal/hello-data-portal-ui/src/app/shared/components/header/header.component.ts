@@ -83,7 +83,7 @@ export class HeaderComponent {
   activateNeon() {
     clearTimeout(this.neonTimeout);
     this.neonActive.set(true);
-    this.neonTimeout = setTimeout(() => this.neonActive.set(false), 3000);
+    this.neonTimeout = setTimeout(() => this.neonActive.set(false), 5000);
   }
 
   userData$: Observable<IUser>;
