@@ -77,7 +77,7 @@ public class SupersetApiRequestBuilder {
     private static final String LIST_LOGS_API_ENDPOINT = "/api/v1/log/";
     private static final String DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/%d";
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
-    private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/assets/import/";
+    private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
     private static final String DELETE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
 
@@ -244,7 +244,7 @@ public class SupersetApiRequestBuilder {
 
             ContentType contentType = ContentType.create("multipart/form-data", StandardCharsets.UTF_8);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("bundle", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
+            builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
             builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
             builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
 
