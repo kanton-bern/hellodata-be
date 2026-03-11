@@ -234,10 +234,17 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
 
   onDataDomainRoleSelected($event: any, dataDomain: Context) {
     const contextKey = dataDomain.contextKey as string;
-    if ([DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes($event.value.name)) {
+    const previousRole = this.userForm?.get(contextKey)?.value?.name;
+    const eligibleRoles = [DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE];
+    const newRoleName = $event.value.name;
+    if (eligibleRoles.includes(newRoleName)) {
       this.dashboardTableVisibility.set(contextKey, true);
-      // Clear selected dashboards when switching to viewer/specialist role to force re-selection
-      this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
+      // Only clear dashboards and groups when switching from a non-eligible role (e.g. ADMIN, EDITOR, NONE)
+      // Preserve both when switching between eligible roles (VIEWER <-> BUSINESS_SPECIALIST)
+      if (!eligibleRoles.includes(previousRole)) {
+        this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
+        this.store.dispatch(clearDashboardGroupMembershipsForContext({contextKey}));
+      }
     } else {
       // Clear selected dashboards and dashboard group memberships when switching away from viewer/specialist role
       this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
