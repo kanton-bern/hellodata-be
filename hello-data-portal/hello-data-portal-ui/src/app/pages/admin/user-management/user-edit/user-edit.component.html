@@ -3,7 +3,7 @@
     @if ((editedUser$ | async); as editedUser) {
       <form [formGroup]="userForm" class="form">
         <!-- Card 1: User Data -->
-        <div class="card mb-4">
+        <p-card class="mb-4 block">
           <h4>{{ '@User data' | transloco }}</h4>
           <app-user-edit-toolbar
             [user]="editedUser"
@@ -58,7 +58,7 @@
               }
             </div>
           </div>
-        </div>
+        </p-card>
 
         @if (userForm) {
           <div>
@@ -69,7 +69,7 @@
                     <!-- Card 2: Business Domain Roles -->
                     @if ((businessDomains$ | async); as businessDomains) {
                       @for (businessDomain of businessDomains; track businessDomain) {
-                        <div class="card mb-4">
+                        <p-card class="mb-4 block">
                           <div class="flex flex-wrap items-center justify-between gap-4">
                             <div class="flex items-center gap-2">
                               <span class="text-sm text-gray-600">{{ '@Business domain' | transloco }}:</span>
@@ -88,13 +88,13 @@
                                 [style]="{'min-width': '250px'}"/>
                             </div>
                           </div>
-                        </div>
+                        </p-card>
                       }
                     }
 
                     <!-- Cards for each Data Domain -->
                     @for (dataDomain of dataDomains; track dataDomain) {
-                      <div class="card mb-4">
+                      <p-card class="mb-4 block">
                         <!-- Row 1: Domain name with icon and User role selector -->
                         <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
                           <div class="flex items-center gap-2">
@@ -166,7 +166,7 @@
                               [context]="dataDomain"/>
                           </div>
                         }
-                      </div>
+                      </p-card>
                     }
                   </div>
                 }
