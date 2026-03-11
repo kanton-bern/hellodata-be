@@ -43,6 +43,9 @@ import java.time.Duration;
 public class NatsStreamUtil {
 
     public static StreamInfo createOrUpdateStream(JetStreamManagement jsm, String streamName, String subject) throws IOException, JetStreamApiException {
+        if (jsm == null) {
+            throw new IOException("JetStreamManagement is null – NATS connection may not be fully established yet");
+        }
         StreamInfo streamInfo = getStreamInfoOrNull(jsm, streamName);
         log.debug("[NATS] Create or update stream {}, streamInfo {}", streamName, streamInfo);
         if (streamInfo == null) {

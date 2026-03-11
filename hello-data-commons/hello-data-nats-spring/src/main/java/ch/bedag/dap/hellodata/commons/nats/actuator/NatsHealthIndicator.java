@@ -124,8 +124,10 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
                     builder.down();
         }
         try {
-            StreamInfo streamInfoOrNull = NatsStreamUtil.getStreamInfoOrNull(natsConnection.jetStreamManagement(), METAINFO_STREAM.name());
-            log.debug("[NATS connection check] Stream info {}", streamInfoOrNull);
+            if (natsConnection.getStatus() == Connection.Status.CONNECTED) {
+                StreamInfo streamInfoOrNull = NatsStreamUtil.getStreamInfoOrNull(natsConnection.jetStreamManagement(), METAINFO_STREAM.name());
+                log.debug("[NATS connection check] Stream info {}", streamInfoOrNull);
+            }
         } catch (JetStreamApiException | IOException e) {
             log.error("[[NATS connection check]] Connection error", e);
             builder.down();

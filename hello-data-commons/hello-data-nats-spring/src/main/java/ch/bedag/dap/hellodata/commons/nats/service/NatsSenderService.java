@@ -60,6 +60,9 @@ public class NatsSenderService {
 
     private <T> PublishAck publishMessageToJetStream(String streamName, String subjectName, T body) {
         try {
+            if (connection.getStatus() != Connection.Status.CONNECTED) {
+                throw new NatsException("NATS connection is not ready (status: " + connection.getStatus() + "). Message will be retried on the next scheduled run.");
+            }
             NatsStreamUtil.createOrUpdateStream(connection.jetStreamManagement(), streamName, subjectName);
             JetStream js = connection.jetStream();
 
@@ -80,7 +83,7 @@ public class NatsSenderService {
                     .data(message.getBytes(StandardCharsets.UTF_8))
                     .build();
             PublishOptions pubOpts = PublishOptions.builder()
-                    .stream(streamName)
+                    .expectedStream(streamName)
                     .messageId(messageId)
                     .build();
 
