@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {asyncScheduler, catchError, delay, map, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, delay, map, mergeMap, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
 import {UsersManagementService} from "./users-management.service";
 import {NotificationService} from "../../shared/services/notification.service";
 import {Store} from '@ngrx/store';
@@ -407,7 +407,7 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(loadDashboardGroupMemberships),
       withLatestFrom(this._store.select(selectEffectiveUserId)),
-      switchMap(([action, userId]) =>
+      mergeMap(([action, userId]) =>
         this._usersManagementService.getDashboardGroupMemberships(userId as string, action.contextKey).pipe(
           map(memberships => loadDashboardGroupMembershipsSuccess({contextKey: action.contextKey, memberships})),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
