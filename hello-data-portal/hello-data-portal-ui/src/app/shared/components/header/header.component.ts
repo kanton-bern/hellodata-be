@@ -165,6 +165,8 @@ export class HeaderComponent {
       }
     }));
 
+    // Trigger neon effect on app load
+    this.activateNeon();
   }
 
   private getAvailableDataDomains() {
