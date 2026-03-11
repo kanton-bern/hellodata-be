@@ -52,9 +52,6 @@ import java.util.*;
 @RequiredArgsConstructor
 class EmailSendService {
     private static final String HELLODATA_FRONTEND_URL_PARAM_KEY = "link";
-    private static final Locale LOCALE_DE_CH = Locale.forLanguageTag("de-CH");
-    private static final Locale LOCALE_FR_CH = Locale.forLanguageTag("fr-CH");
-    private static final Locale LOCALE_EN = Locale.forLanguageTag("en");
 
     private final JavaMailSender javaMailSender;
     private final TemplateService templateService;
@@ -101,26 +98,25 @@ class EmailSendService {
     }
 
     SimpleMailMessage toSimpleMailMessage(EmailTemplateData emailTemplateData) {
-        SimpleMailMessage email = new SimpleMailMessage();
-        email.setFrom(systemProperties.getNoReplyEmail());
-        email.setTo(emailTemplateData.getReceivers().toArray(new String[0]));
+        SimpleMailMessage email = getSimpleMailMessage(emailTemplateData);
         Locale locale = emailTemplateData.getLocale();
-        String message = resourceBundleMessageSource.getMessage(emailTemplateData.getSubject(), emailTemplateData.getSubjectParams(), emailTemplateData.getSubject(), locale != null ? locale : Locale.ROOT);
-        email.setSubject(message);
         email.setText(templateService.getContent(emailTemplateData.getTemplate(), getTemplateModel(emailTemplateData), locale));
         return email;
     }
 
     SimpleMailMessage toMultiLangSimpleMailMessage(EmailTemplateData emailTemplateData) {
+        SimpleMailMessage email = getSimpleMailMessage(emailTemplateData);
+        email.setText(templateService.getMultiLangContent(emailTemplateData.getTemplate(), getTemplateModel(emailTemplateData)));
+        return email;
+    }
+
+    private SimpleMailMessage getSimpleMailMessage(EmailTemplateData emailTemplateData) {
         SimpleMailMessage email = new SimpleMailMessage();
         email.setFrom(systemProperties.getNoReplyEmail());
         email.setTo(emailTemplateData.getReceivers().toArray(new String[0]));
-        Object[] subjectParams = emailTemplateData.getSubjectParams();
-        String subjectDe = resourceBundleMessageSource.getMessage(emailTemplateData.getSubject(), subjectParams, emailTemplateData.getSubject(), LOCALE_DE_CH);
-        String subjectFr = resourceBundleMessageSource.getMessage(emailTemplateData.getSubject(), subjectParams, emailTemplateData.getSubject(), LOCALE_FR_CH);
-        String subjectEn = resourceBundleMessageSource.getMessage(emailTemplateData.getSubject(), subjectParams, emailTemplateData.getSubject(), LOCALE_EN);
-        email.setSubject(subjectDe + " / " + subjectFr + " / " + subjectEn);
-        email.setText(templateService.getMultiLangContent(emailTemplateData.getTemplate(), getTemplateModel(emailTemplateData)));
+        Locale locale = emailTemplateData.getLocale();
+        String subject = resourceBundleMessageSource.getMessage(emailTemplateData.getSubject(), emailTemplateData.getSubjectParams(), emailTemplateData.getSubject(), locale != null ? locale : Locale.ROOT);
+        email.setSubject(subject);
         return email;
     }
 

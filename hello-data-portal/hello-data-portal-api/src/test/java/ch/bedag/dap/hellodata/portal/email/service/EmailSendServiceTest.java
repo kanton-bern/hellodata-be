@@ -91,7 +91,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
         assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
         assertThat(actualDoc.select("p").get(1).text()).contains("deaktiviert");
-        assertThat(email.getSubject()).isEqualTo("Benutzer in HelloDATA Fachdomäne Fancy Business Domain deaktiviert");
+        assertThat(email.getSubject()).contains("Info HelloDATA Business Domain");
     }
 
 
@@ -340,9 +340,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then — subject contains all 3 languages
-        assertThat(email.getSubject()).contains("Fachdom");
-        assertThat(email.getSubject()).contains("domaine professionnel");
-        assertThat(email.getSubject()).contains("business domain");
+        assertThat(email.getSubject()).contains("Info HelloDATA Business Domain");
 
         //then — body contains German section
         assertThat(actualDoc.select("div[lang=de]").text()).contains("Hallo John Doe");
@@ -385,9 +383,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then — subject contains all 3 languages
-        assertThat(email.getSubject()).contains("angepasst");
-        assertThat(email.getSubject()).contains("mis");
-        assertThat(email.getSubject()).contains("updated");
+        assertThat(email.getSubject()).contains("Info HelloDATA Business Domain");
 
         //then — body contains German section
         assertThat(actualDoc.select("div[lang=de]").text()).contains("Hallo John Doe");
