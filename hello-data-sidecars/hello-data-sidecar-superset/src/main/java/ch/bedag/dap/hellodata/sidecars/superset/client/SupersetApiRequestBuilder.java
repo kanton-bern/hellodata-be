@@ -244,7 +244,7 @@ public class SupersetApiRequestBuilder {
 
             ContentType contentType = ContentType.create("multipart/form-data", StandardCharsets.UTF_8);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
+            builder.addBinaryBody("bundle", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
             builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
             builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
 
