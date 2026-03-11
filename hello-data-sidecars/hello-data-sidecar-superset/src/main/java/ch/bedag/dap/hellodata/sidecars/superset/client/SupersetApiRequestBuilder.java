@@ -242,12 +242,11 @@ public class SupersetApiRequestBuilder {
             int read = fis.read(arr);
             log.debug("{} bytes were read", read);
 
-//            ContentType contentType = ContentType.create("multipart/form-data", StandardCharsets.UTF_8);
+            ContentType contentType = ContentType.create("multipart/form-data", StandardCharsets.UTF_8);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("bundle", arr, ContentType.create("application/zip"), "dashboard.zip");
-//            builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
-            String passwordsJson = (passwords == null || passwords.isJsonNull()) ? "{}" : new Gson().toJson(passwords);
-            builder.addTextBody("passwords", passwordsJson, ContentType.TEXT_PLAIN);
+            builder.addBinaryBody("bundle", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
+            builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
+            builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
 
             return RequestBuilder.post() //
                     .setUri(apiUri) //

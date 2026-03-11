@@ -96,7 +96,7 @@ public class UploadDashboardsFileListener {
                 }
                 useDefaultSqlAlchemyUri(dashboardUpload, destinationFile);
                 JsonObject passwordsObject = getPasswordsObject(destinationFile);
-                log.debug("Passwords parameter send to API ");
+                log.debug("Passwords parameter send to API {}", passwordsObject);
                 supersetClient.importDashboard(destinationFile, passwordsObject, true);
                 ackMessage(msg);
                 dashboardResourceProviderService.publishDashboards();
