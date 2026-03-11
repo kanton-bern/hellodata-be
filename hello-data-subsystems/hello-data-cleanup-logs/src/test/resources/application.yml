@@ -48,7 +48,7 @@ spring:
 
 hello-data:
   log-cleanup:
-    cron-expression: "* */20 * * * *"
+    cron-expression: "-"
     olderThanInDays: 1
 
 server:
