@@ -1,9 +1,7 @@
 <div class="sidebar close" [class.minimized]="sidebarMinimized" id="appSidebar">
-  <div [pTooltip]="'@HelloDATA' | transloco"
-       class="logo-details"
+  <div class="logo-details"
        [class.logo-details-env]="environment.showEnvironment"
-       [ngStyle]="environment.color && { 'background-color': environment.color } || null"
-       tooltipPosition="bottom">
+       [ngStyle]="environment.color && { 'background-color': environment.color } || null">
     <img alt="logo" src="/assets/img/hd.png" style="cursor: pointer" (click)="navigateHome()"
          (keydown)="navigateHome()"/>
     <span class="logo_name">{{ '@HelloDATA' | transloco }}</span>
