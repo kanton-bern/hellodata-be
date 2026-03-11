@@ -36,7 +36,7 @@ $content-text-color: #11101d;
 // --content-bg must match the main content area background.
 // ──────────────────────────────────────────────────────────
 :root {
-  --sidebar-curve-size: 4px;
+  --sidebar-curve-size: 5px;
   --sidebar-bg: #{$background-color};
   --content-bg: var(--surface-ground, #f8f9fa);
 }

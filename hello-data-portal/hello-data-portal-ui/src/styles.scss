@@ -29,6 +29,11 @@
 
 :root {
   --p-text-muted-color: var(--p-surface-800) !important;
+  --p-card-border-radius: 5px;
+}
+
+.p-card {
+  border-radius: 5px !important;
 }
 
 .p-card-body {
