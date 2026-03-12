@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, OnDestroy, inject } from '@angular/core';
+import {inject, Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {ActuatorInfo} from "./interfaces/actuator-info";
 import {OidcSecurityService} from "angular-auth-oidc-client";
@@ -34,12 +34,12 @@ import {environment} from "../../../environments/environment";
 
 @Injectable()
 export class AppInfoService implements OnDestroy {
-  private http = inject(HttpClient);
-  private oidcSecurityService = inject(OidcSecurityService);
+  private readonly http = inject(HttpClient);
+  private readonly oidcSecurityService = inject(OidcSecurityService);
 
 
   readonly userData$: Subscription;
-  private baseUrl = `${environment.portalApi}`;
+  private readonly baseUrl = `${environment.portalApi}`;
   private _timestamp!: string;
   private _branch!: string;
   private _tag!: string;
@@ -64,7 +64,7 @@ export class AppInfoService implements OnDestroy {
   }
 
   public get title() {
-    return environment.appTitle ? environment.appTitle : 'HelloDATA BE | Portal';
+    return environment.appTitle ? environment.appTitle : 'HelloDATA BE Portal';
   }
 
   public get currentYear() {

@@ -11,11 +11,16 @@
     <span class="app-title font-semibold px-3"
           [class.neon-active]="neonActive()"
           (dblclick)="activateNeon()">
-      <span class="app-title-text">{{ title() | transloco }}</span>
-      @if (environment.showEnvironment) {
-        <sub class="app-title-sub uppercase tracking-wide">
-          {{ environment.name | transloco }}
-        </sub>
+      <span class="app-title-row">
+        <span class="app-title-text">{{ title() | transloco }}</span>
+        @if (environment.showEnvironment) {
+          <sub class="app-title-sub uppercase tracking-wide">
+            {{ environment.name | transloco }}
+          </sub>
+        }
+      </span>
+      @if (businessDomain$ | async; as businessDomain) {
+        <small class="app-title-domain">{{ businessDomain }}</small>
       }
     </span>
     @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {

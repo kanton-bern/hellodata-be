@@ -48,6 +48,31 @@ p-menu {
 
 .app-title {
   user-select: none;
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+
+  .app-title-row {
+    display: inline;
+  }
+
+  .app-title-domain {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    font-size: 0.4em;
+    font-weight: 400;
+    opacity: 0;
+    line-height: 1;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  &:hover .app-title-domain {
+    opacity: 0.5;
+  }
 
   .app-title-text {
     transition: background-size 0s, -webkit-text-fill-color 0s;
@@ -68,6 +93,7 @@ p-menu {
     font-weight: normal;
     transition: color 0.8s ease;
   }
+
 
   &.neon-active {
 
