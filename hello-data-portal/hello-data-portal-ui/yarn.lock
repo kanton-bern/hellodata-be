@@ -9180,7 +9180,7 @@ __metadata:
     jest-environment-jsdom: "npm:^30.2.0"
     jest-junit: "npm:^16.0.0"
     jest-mock-extended: "npm:^4.0.0"
-    jest-preset-angular: "npm:^15.0.3"
+    jest-preset-angular: "npm:^16.0.0"
     jest-sonar: "npm:^0.2.16"
     ngx-matomo-client: "npm:^9.0.0"
     ngx-pipes: "npm:^3.2.2"
@@ -10130,9 +10130,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-preset-angular@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "jest-preset-angular@npm:15.0.3"
+"jest-preset-angular@npm:^16.0.0":
+  version: 16.1.1
+  resolution: "jest-preset-angular@npm:16.1.1"
   dependencies:
     "@jest/environment-jsdom-abstract": "npm:^30.0.0"
     bs-logger: "npm:^0.2.6"
@@ -10142,17 +10142,17 @@ __metadata:
     pretty-format: "npm:^30.0.0"
     ts-jest: "npm:^29.4.0"
   peerDependencies:
-    "@angular/compiler-cli": ">=18.0.0 <21.0.0"
-    "@angular/core": ">=18.0.0 <21.0.0"
-    "@angular/platform-browser": ">=18.0.0 <21.0.0"
-    "@angular/platform-browser-dynamic": ">=18.0.0 <21.0.0"
+    "@angular/compiler-cli": ">=19.0.0 <22.0.0"
+    "@angular/core": ">=19.0.0 <22.0.0"
+    "@angular/platform-browser": ">=19.0.0 <22.0.0"
+    "@angular/platform-browser-dynamic": ">=19.0.0 <22.0.0"
     jest: ^30.0.0
     jsdom: ">=26.0.0"
     typescript: ">=5.5"
   dependenciesMeta:
     esbuild:
       optional: true
-  checksum: 10c0/98c6a0ab95a9d971cb2abcb3874a2ccb18a477fde8dce71b9e29406a57a346b0ae70bcef179bc59028442a361ad0b7d3efcd3f74160d8af075065ee62ff72cb4
+  checksum: 10c0/4edf06ca48ad4fdb7e94265b3e241eae5db4d29651a8be31de2c28eb9e90a17c4a2a1e49d014d9d638d6d6eb417b6ea95b67748007d3659ffadbeec177f5cfc7
   languageName: node
   linkType: hard
 
