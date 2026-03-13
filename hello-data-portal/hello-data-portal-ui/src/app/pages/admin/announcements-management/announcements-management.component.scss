@@ -24,3 +24,43 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+.announcement-translations-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--p-datatable-row-border-color, #dee2e6);
+    vertical-align: top;
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--p-datatable-header-cell-color, #343a40);
+    background: var(--p-datatable-header-cell-background, #f8f9fa);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.announcement-message-preview {
+  max-height: 3.6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.announcement-message-content {
+  max-height: 200px;
+  overflow-y: auto;
+  word-break: break-word;
+
+  img {
+    max-width: 100%;
+  }
+}
+

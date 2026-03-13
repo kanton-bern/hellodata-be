@@ -48,22 +48,23 @@ import {Button} from 'primeng/button';
 import {Ripple} from 'primeng/ripple';
 import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
-import {Editor} from 'primeng/editor';
 import {Card} from 'primeng/card';
-import {FormsModule} from '@angular/forms';
 import {DeleteAnnouncementPopupComponent} from './delete-announcement-popup/delete-announcement-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-announcements-management',
   templateUrl: './announcements-management.component.html',
   styleUrls: ['./announcements-management.component.scss'],
-  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Tooltip, Editor, FormsModule, SharedModule, Button, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
+  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Tooltip, SharedModule, Button, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class AnnouncementsManagementComponent extends BaseComponent implements OnInit {
   allAnnouncements$: Observable<any>;
   selectedLanguage$: Observable<any>;
+  expandedRows: { [key: string]: boolean } = {};
   private readonly store = inject<Store<AppState>>(Store);
+  private readonly sanitizer = inject(DomSanitizer);
 
   constructor() {
     super();
@@ -102,7 +103,19 @@ export class AnnouncementsManagementComponent extends BaseComponent implements O
     return deleteAnnouncement();
   }
 
-  getMessage(announcement: Announcement, selectedLanguage: any): string | undefined {
-    return announcement?.messages?.[selectedLanguage.code];
+  getMessage(announcement: Announcement, selectedLanguage: any): SafeHtml {
+    const message = announcement?.messages?.[selectedLanguage.code] || '';
+    return this.sanitizer.bypassSecurityTrustHtml(message);
+  }
+
+  getTranslations(announcement: Announcement): { locale: string; displayLocale: string; message: SafeHtml }[] {
+    if (!announcement?.messages) {
+      return [];
+    }
+    return Object.entries(announcement.messages).map(([locale, message]) => ({
+      locale,
+      displayLocale: locale.split('_')[0].toUpperCase(),
+      message: this.sanitizer.bypassSecurityTrustHtml(message || '')
+    }));
   }
 }

@@ -4,8 +4,8 @@
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
         <p-button (click)="createAnnouncement()" severity="success" icon="fas fa-circle-plus"
-                  label="{{'@Create announcement' | transloco }}" pRipple
-                  (keydown.enter)="createAnnouncement()" ></p-button>
+                  [label]="'@Create announcement' | transloco" pRipple
+                  (keydown.enter)="createAnnouncement()"></p-button>
       </ng-template>
     </p-toolbar>
     @if ((allAnnouncements$ | async); as announcements) {
@@ -13,74 +13,107 @@
         @if (announcements.length > 0) {
           <p-table
             #dt
-            [paginator]="false"
+            [paginator]="true"
+            [rows]="10"
             [rowHover]="true"
+            [stripedRows]="true"
             [showCurrentPageReport]="true"
+            [tableStyle]="{ 'min-width': '50rem' }"
             [value]="announcements"
             dataKey="id"
-            class="p-datatable-striped"
+            [expandedRowKeys]="expandedRows"
           >
             <ng-template pTemplate="header">
               <tr>
-                <th id="publishedHeader">&nbsp;</th>
-                <th id="createdDateHeader">
-                  {{ '@Created date' | transloco }}
-                </th>
-                <th id="publishedDateHeader">
-                  {{ '@Published date' | transloco }}
-                </th>
-                <th id="msgEditor" style="min-width:30rem">
+                <th id="publishedHeader" scope="col" style="width: 3rem">&nbsp;</th>
+                <th id="messagePreviewHeader" scope="col">
                   {{ '@Message' | transloco }}
                 </th>
-                <th id="actionHeader" style="width:8rem"></th>
+                <th id="createdDateHeader" scope="col">
+                  {{ '@Created date' | transloco }}
+                </th>
+                <th id="publishedDateHeader" scope="col">
+                  {{ '@Published date' | transloco }}
+                </th>
+                <th id="actionHeader" scope="col" style="width: 10rem"></th>
               </tr>
             </ng-template>
-            <ng-template let-announcement pTemplate="body">
+            <ng-template let-announcement pTemplate="body" let-expanded="expanded">
               <tr>
                 <td>
-                  @if (!announcement.published) {
-                    <div>
-                      <i class="fa-solid fa-circle" style="color: #ff0000;"
-                         pTooltip="{{'@Announcement unpublished' | transloco }}"></i>
-                    </div>
-                  }
                   @if (announcement.published) {
-                    <div>
-                      <i class="fa-solid fa-circle" style="color: #008000;"
-                         pTooltip="{{'@Announcement published' | transloco }}"></i>
-                    </div>
+                    <i class="fa-solid fa-circle" style="color: #008000;"
+                       [pTooltip]="'@Announcement published' | transloco"></i>
+                  } @else {
+                    <i class="fa-solid fa-circle" style="color: #ff0000;"
+                       [pTooltip]="'@Announcement unpublished' | transloco"></i>
                   }
-                </td>
-                <td style="vertical-align: top">
-                  {{ announcement.createdDate | date: 'dd.MM.yyyy HH:mm:ss' }}
-                </td>
-                <td style="vertical-align: top">
-                  {{ announcement.publishedDate ? (announcement.publishedDate | date: 'dd.MM.yyyy HH:mm:ss') : '-' }}
                 </td>
                 <td>
-                  <p-editor [ngModel]="getMessage(announcement, selectedLanguage)" [disabled]="true" [readonly]="true"
-                            [style]="{ height: '320px' }">
-                    <p-header hidden/>
-                  </p-editor>
+                  <div class="announcement-message-preview"
+                       [innerHTML]="getMessage(announcement, selectedLanguage)"></div>
+                </td>
+                <td>
+                  {{ announcement.createdDate | date: 'dd.MM.yyyy HH:mm:ss' }}
+                </td>
+                <td>
+                  {{ announcement.publishedDate ? (announcement.publishedDate | date: 'dd.MM.yyyy HH:mm:ss') : '-' }}
                 </td>
                 <td>
                   <p-button (click)="editAnnouncement(announcement)" (keydown.enter)="editAnnouncement(announcement)"
                             [pTooltip]="'@Edit' | transloco"
                             tooltipPosition="top"
                             severity="success"
-                            icon="fas fa-light fa-pen-to-square"
                             [rounded]="true"
                             [text]="true"
-                            class="mr-2"/>
+                            class="mr-2"
+                            icon="fas fa-light fa-pen-to-square"/>
                   <p-button (click)="showAnnouncementDeletionPopup(announcement)"
                             (keydown.enter)="showAnnouncementDeletionPopup(announcement)"
                             [pTooltip]="'@Delete' | transloco"
                             tooltipPosition="top"
                             severity="danger"
-                            icon="fas fa-trash"
                             [rounded]="true"
-                            [text]="true"/>
+                            [text]="true"
+                            class="mr-2"
+                            icon="fas fa-trash"/>
+                  <p-button type="button" pRipple [pRowToggler]="announcement"
+                            [text]="true" [rounded]="true" [plain]="true"
+                            [pTooltip]="'@Details' | transloco"
+                            tooltipPosition="top"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
                 </td>
+              </tr>
+            </ng-template>
+            <ng-template let-announcement pTemplate="expandedrow">
+              <tr>
+                <td [attr.colspan]="5">
+                  <div class="p-3">
+                    <table class="announcement-translations-table">
+                      <thead>
+                      <tr>
+                        <th scope="col" style="width: 8%">{{ '@Language' | transloco }}</th>
+                        <th scope="col">{{ '@Message' | transloco }}</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        @for (translation of getTranslations(announcement); track translation.locale) {
+                          <tr>
+                            <td><strong>{{ translation.displayLocale }}</strong></td>
+                            <td>
+                              <div class="announcement-message-content" [innerHTML]="translation.message"></div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5">{{ '@No announcements found' | transloco }}</td>
               </tr>
             </ng-template>
           </p-table>

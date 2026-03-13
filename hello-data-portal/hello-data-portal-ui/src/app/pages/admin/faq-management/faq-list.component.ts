@@ -46,6 +46,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {Card} from 'primeng/card';
 import {DeleteFaqPopupComponent} from './delete-faq-popup/delete-faq-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-faq-list',
@@ -58,6 +59,7 @@ export class FaqListComponent extends BaseComponent implements OnInit {
   selectedLanguage$: Observable<any>;
   expandedRows: { [key: string]: boolean } = {};
   private readonly store = inject<Store<AppState>>(Store);
+  private readonly sanitizer = inject(DomSanitizer);
 
   constructor() {
     super();
@@ -111,7 +113,7 @@ export class FaqListComponent extends BaseComponent implements OnInit {
   }
 
 
-  getTranslations(faq: Faq): { locale: string; displayLocale: string; title: string; message: string }[] {
+  getTranslations(faq: Faq): { locale: string; displayLocale: string; title: string; message: SafeHtml }[] {
     if (!faq?.messages) {
       return [];
     }
@@ -119,7 +121,7 @@ export class FaqListComponent extends BaseComponent implements OnInit {
       locale,
       displayLocale: locale.split('_')[0].toUpperCase(),
       title: msg.title || '',
-      message: msg.message || ''
+      message: this.sanitizer.bypassSecurityTrustHtml(msg.message || '')
     }));
   }
 }
