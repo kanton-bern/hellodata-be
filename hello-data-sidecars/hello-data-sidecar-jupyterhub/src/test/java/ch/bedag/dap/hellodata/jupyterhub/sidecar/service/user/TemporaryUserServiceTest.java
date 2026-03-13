@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -59,9 +58,8 @@ class TemporaryUserServiceTest {
         assertTrue(responseDto.getUsername().matches(expectedUsernamePattern));
         assertFalse(responseDto.getPassword().isEmpty());
 
-        LocalDateTime expectedExpiryDate = LocalDateTime.now().plusDays(tempUserPasswordValidInDays);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedExpiryDate = expectedExpiryDate.format(formatter);
+        String formattedExpiryDate = responseDto.getExpiryDate().format(formatter);
 
         verify(dwhJdbcTemplate).execute(startsWith("CREATE USER " + responseDto.getUsername()));
         verify(dwhJdbcTemplate).execute(contains("VALID UNTIL '" + formattedExpiryDate + "'"));
