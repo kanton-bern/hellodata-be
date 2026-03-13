@@ -5556,17 +5556,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jasmine@npm:*":
+"@types/jasmine@npm:*, @types/jasmine@npm:^6.0.0":
   version: 6.0.0
   resolution: "@types/jasmine@npm:6.0.0"
   checksum: 10c0/9521bb7bd9c897ba6333478cd1c4acd68f813ea9b2ebf0f61283cc0357a9d7581c44f1798f4733ad662b3d1498449ebbb074a0e8bf96b95d6c72e9651fe7e047
-  languageName: node
-  linkType: hard
-
-"@types/jasmine@npm:^5.1.12":
-  version: 5.1.15
-  resolution: "@types/jasmine@npm:5.1.15"
-  checksum: 10c0/824119f85fd01f88a251fb654f58b135ba38d1085137b4bf57ecaa74b129ba617da58183b9f5f9cf271c86c72cf1f33b6277afb720a1734574cd953b4da2bf22
   languageName: node
   linkType: hard
 
@@ -9055,7 +9048,7 @@ __metadata:
     "@tailwindcss/postcss": "npm:^4.2.1"
     "@testing-library/angular": "npm:^18.1.0"
     "@testing-library/dom": "npm:^10.4.1"
-    "@types/jasmine": "npm:^5.1.12"
+    "@types/jasmine": "npm:^6.0.0"
     "@types/jasminewd2": "npm:^2.0.13"
     "@types/jest": "npm:^30.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^8.46.3"
