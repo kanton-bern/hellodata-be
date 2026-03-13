@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, HostListener, inject, viewChild } from '@angular/core';
+import {Component, ElementRef, HostListener, inject, viewChild} from '@angular/core';
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -37,18 +37,18 @@ import {selectLineageInfo} from "../../../store/lineage-docs/lineage-docs.select
 import {navigate} from "../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {TranslateService} from "../../../shared/services/translate.service";
-import { AsyncPipe } from '@angular/common';
-import { SubsystemIframeComponent } from '../../../shared/components/subsystem-iframe/subsystem-iframe.component';
+import {AsyncPipe} from '@angular/common';
+import {SubsystemIframeComponent} from '../../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
 @Component({
-    templateUrl: 'embedded-lineage-docs.component.html',
-    styleUrls: ['./embedded-lineage-docs.component.scss'],
-    imports: [SubsystemIframeComponent, AsyncPipe]
+  templateUrl: 'embedded-lineage-docs.component.html',
+  styleUrls: ['./embedded-lineage-docs.component.scss'],
+  imports: [SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbeddedLineageDocsComponent {
-  private store = inject<Store<AppState>>(Store);
-  private docsService = inject(LineageDocsService);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly docsService = inject(LineageDocsService);
+  private readonly translateService = inject(TranslateService);
 
   url!: string;
   projectId!: string;
@@ -74,7 +74,7 @@ export class EmbeddedLineageDocsComponent {
     this.store.dispatch(navigate({url: '/lineage-docs/list'}));
   }
 
-  @HostListener("window:scroll", ["$event"])
+  @HostListener("window:scroll")
   onWindowScroll() {
     setTimeout(function () {
       window.scrollBy(0, -60);

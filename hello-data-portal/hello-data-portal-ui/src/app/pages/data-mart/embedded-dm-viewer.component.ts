@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, HostListener, inject } from '@angular/core';
+import {Component, HostListener, inject} from '@angular/core';
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -34,17 +34,17 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {Observable, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
-import { AsyncPipe } from '@angular/common';
-import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
+import {AsyncPipe} from '@angular/common';
+import {SubsystemIframeComponent} from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
 @Component({
-    templateUrl: 'embedded-dm-viewer.component.html',
-    styleUrls: ['./embedded-dm-viewer.component.scss'],
-    imports: [SubsystemIframeComponent, AsyncPipe]
+  templateUrl: 'embedded-dm-viewer.component.html',
+  styleUrls: ['./embedded-dm-viewer.component.scss'],
+  imports: [SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbeddedDmViewerComponent {
-  private store = inject<Store<AppState>>(Store);
-  private cloudbeaverSessionService = inject(CloudbeaverSessionService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly cloudbeaverSessionService = inject(CloudbeaverSessionService);
 
   baseUrl = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
     + environment.subSystemsConfig.dmViewer.domain;
@@ -72,7 +72,7 @@ export class EmbeddedDmViewerComponent {
     this.iframeUrl = `${this.baseUrl}?lang=${language}`;
   }
 
-  @HostListener("window:scroll", ["$event"])
+  @HostListener("window:scroll")
   onWindowScroll() {
     setTimeout(function () {
       window.scrollBy(0, -60);
