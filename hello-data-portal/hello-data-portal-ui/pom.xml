@@ -25,7 +25,7 @@
     <sonar.tests>src/app</sonar.tests>
     <sonar.exclusions>src/app/oauth2/**/*,src/app/app.module.ts</sonar.exclusions>
     <sonar.test.inclusions>src/app/**/*.spec.ts</sonar.test.inclusions>
-    <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
+    <frontend-maven-plugin.version>2.0.0</frontend-maven-plugin.version>
     <frontend-maven-plugin.nodeVersion>v24.10.0</frontend-maven-plugin.nodeVersion>
     <frontend-maven-plugin.yarnVersion>v1.22.18</frontend-maven-plugin.yarnVersion>
     <frontend-maven-plugin.npmVersion>11.6.0</frontend-maven-plugin.npmVersion>
