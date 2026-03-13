@@ -49,6 +49,8 @@ import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
 import {Fieldset} from 'primeng/fieldset';
 import {Card} from 'primeng/card';
+import {environment} from "../../../../../environments/environment";
+import {naviElements} from "../../../../app-navi-elements";
 import {
   SelectedWorkspaceDashboardsComponent
 } from '../selected-workspace-dashboards/selected-workspace-dashboards.component';
@@ -84,7 +86,11 @@ export class SelectedWorkspaceComponent extends BaseComponent implements OnInit 
     this.resources$ = this.store.select(selectAppInfoResources);
     this.selectedResource$ = this.store.select(selectSelectedAppInfoResource);
     this.selectedAppInfo$ = this.store.select(selectSelectedAppInfo).pipe(tap((appInfo: any) => {
-      this.selectedResourceUrl = appInfo?.data?.url;
+      if (appInfo?.moduleType === 'CLOUDBEAVER') {
+        this.selectedResourceUrl = environment.authConfig.redirectUrl + '?redirectTo=' + naviElements.dataWarehouseViewer.path;
+      } else {
+        this.selectedResourceUrl = appInfo?.data?.url;
+      }
     }));
   }
 
