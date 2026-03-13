@@ -43,7 +43,7 @@
         <springdoc.version>2.8.16</springdoc.version>
         <testcontainers-keycloak.version>3.9.1</testcontainers-keycloak.version>
         <testcontainers-postgresql.version>1.21.4</testcontainers-postgresql.version>
-        <testcontainers.version>1.21.4</testcontainers.version>
+        <testcontainers.version>2.0.3</testcontainers.version>
         <docker-java.version>3.7.0</docker-java.version>
         <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
         <thymeleaf-layout-dialect.version>2.5.3</thymeleaf-layout-dialect.version>
