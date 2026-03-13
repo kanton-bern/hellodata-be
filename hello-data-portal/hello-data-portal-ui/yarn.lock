@@ -9182,7 +9182,7 @@ __metadata:
     jest-mock-extended: "npm:^4.0.0"
     jest-preset-angular: "npm:^15.0.3"
     jest-sonar: "npm:^0.2.16"
-    ngx-matomo-client: "npm:^8.0.0"
+    ngx-matomo-client: "npm:^9.0.0"
     ngx-pipes: "npm:^3.2.2"
     postcss: "npm:^8.5.6"
     primeicons: "npm:^7.0.0"
@@ -11624,15 +11624,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ngx-matomo-client@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "ngx-matomo-client@npm:8.0.0"
+"ngx-matomo-client@npm:^9.0.0":
+  version: 9.0.1
+  resolution: "ngx-matomo-client@npm:9.0.1"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/common": ^20.0.0
-    "@angular/core": ^20.0.0
-  checksum: 10c0/d2e923f590b173d0ec3e54b69c69103a764a5b460c313b0b01b5f8ede6778e92fd42e10656e982d716762f9f4aabdba0112123ff131a8c6cff959b10e0c1e441
+    "@angular/common": ^21.0.0
+    "@angular/core": ^21.0.0
+  checksum: 10c0/1e840937b3ad015f4c1379496fdc4342dee55ce6b4f2c0fd7b6f74ab7fb01cdb8c69ac06e3641d9e6b9064596877dd8d5eea3f26a229a2312cb976ec42e99962
   languageName: node
   linkType: hard
 
