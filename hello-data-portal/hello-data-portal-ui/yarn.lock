@@ -4673,16 +4673,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@primeuix/styles@npm:^1.2.5":
-  version: 1.2.5
-  resolution: "@primeuix/styles@npm:1.2.5"
-  dependencies:
-    "@primeuix/styled": "npm:^0.7.3"
-  checksum: 10c0/49d8f5fca435e095c13bc7004187ee1d741004cf2696ed615e6a72d6732d928c55670f0f98700c3e040058746669d11abc7906f16c9b2f5631635d1260d01212
-  languageName: node
-  linkType: hard
-
-"@primeuix/styles@npm:^2.0.3":
+"@primeuix/styles@npm:^2.0.0, @primeuix/styles@npm:^2.0.3":
   version: 2.0.3
   resolution: "@primeuix/styles@npm:2.0.3"
   dependencies:
@@ -9050,7 +9041,7 @@ __metadata:
     "@ngrx/router-store": "npm:^21.0.0"
     "@ngrx/store": "npm:^21.0.0"
     "@ngrx/store-devtools": "npm:^21.0.0"
-    "@primeuix/styles": "npm:^1.2.5"
+    "@primeuix/styles": "npm:^2.0.0"
     "@primeuix/themes": "npm:^1.2.5"
     "@tailwindcss/postcss": "npm:^4.2.1"
     "@testing-library/angular": "npm:^18.1.0"
