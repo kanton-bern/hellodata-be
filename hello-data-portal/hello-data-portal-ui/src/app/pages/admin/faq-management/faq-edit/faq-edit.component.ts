@@ -104,7 +104,14 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     const faqToBeSaved = {id: editedFaq.id} as any;
     const formFaq = this.faqForm.getRawValue();
     faqToBeSaved.title = formFaq.title;
-    faqToBeSaved.messages = formFaq.languages;
+    // Filter out languages where both title and message are empty
+    const filteredMessages: { [key: string]: any } = {};
+    for (const [locale, value] of Object.entries(formFaq.languages as { [key: string]: any })) {
+      if (value.title?.trim() || value.message?.trim()) {
+        filteredMessages[locale] = value;
+      }
+    }
+    faqToBeSaved.messages = filteredMessages;
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
@@ -252,12 +259,19 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     const faqToBeSaved = {id: editedFaq.id} as any;
     const formFaq = this.faqForm.getRawValue();
     faqToBeSaved.title = formFaq.title;
-    faqToBeSaved.message = formFaq.message;
+    // Filter out languages where both title and message are empty
+    const filteredMessages: { [key: string]: any } = {};
+    for (const [locale, value] of Object.entries(formFaq.languages as { [key: string]: any })) {
+      if (value.title?.trim() || value.message?.trim()) {
+        filteredMessages[locale] = value;
+      }
+    }
+    faqToBeSaved.messages = filteredMessages;
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
     this.store.dispatch(markUnsavedChanges({
-      action: saveChangesToFaq(faqToBeSaved),
+      action: saveChangesToFaq({faq: faqToBeSaved}),
       stayOnPage: faqToBeSaved.id === undefined
     }));
   }

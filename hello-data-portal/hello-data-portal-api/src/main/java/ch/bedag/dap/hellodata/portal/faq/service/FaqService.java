@@ -26,11 +26,13 @@
  */
 package ch.bedag.dap.hellodata.portal.faq.service;
 
+import ch.bedag.dap.hellodata.commons.HdHtmlSanitizer;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqCreateDto;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqDto;
+import ch.bedag.dap.hellodata.portal.faq.data.FaqMessage;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqUpdateDto;
 import ch.bedag.dap.hellodata.portal.faq.entity.FaqEntity;
 import ch.bedag.dap.hellodata.portal.faq.repository.FaqRepository;
@@ -107,6 +109,7 @@ public class FaqService {
 
     @Transactional
     public void create(FaqCreateDto faqCreateDto) {
+        sanitizeFaqMessages(faqCreateDto.getMessages());
         FaqEntity entity = modelMapper.map(faqCreateDto, FaqEntity.class);
         userService.validateUserHasAccessToContext(entity.getContextKey(), "User doesn't have permissions to create the faq");
         faqRepository.save(entity);
@@ -121,8 +124,17 @@ public class FaqService {
         }
         FaqEntity entityToUpdate = entity.get();
         userService.validateUserHasAccessToContext(entityToUpdate.getContextKey(), "User doesn't have permissions to update the faq");
+        sanitizeFaqMessages(faqUpdateDto.getMessages());
         modelMapper.map(faqUpdateDto, entityToUpdate);
         faqRepository.save(entityToUpdate);
+    }
+
+    private void sanitizeFaqMessages(Map<Locale, FaqMessage> messages) {
+        if (messages != null) {
+            for (FaqMessage faqMessage : messages.values()) {
+                faqMessage.setMessage(HdHtmlSanitizer.sanitizeHtml(faqMessage.getMessage()));
+            }
+        }
     }
 
     @Transactional

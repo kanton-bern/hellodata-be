@@ -18,7 +18,8 @@ class HdHtmlSanitizerTest {
                 new TestCase("<p>Safe text<script>alert('hack');</script></p>", "<p>Safe text</p>"),
                 new TestCase("<p onclick=\"evil()\">Click me</p>", "<p>Click me</p>"),
                 new TestCase("<iframe src=\"evil.com\"></iframe><object>hack</object><p>ok</p>", "hack<p>ok</p>"),
-                new TestCase("<ul><li class=\"bullet\">Item</li></ul>", "<ul><li class=\"bullet\">Item</li></ul>")
+                new TestCase("<ul><li class=\"bullet\">Item</li></ul>", "<ul><li class=\"bullet\">Item</li></ul>"),
+                new TestCase("<p><span style=\"background-color: rgb(255, 255, 0); color: rgb(0, 138, 0);\">colourful text</span></p>", "<p><span style=\"background-color: rgb(255, 255, 0); color: rgb(0, 138, 0);\">colourful text</span></p>")
         );
     }
 

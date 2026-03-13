@@ -39,6 +39,7 @@ import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'prim
 import {MatomoTrackerDirective} from 'ngx-matomo-client';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-faq',
@@ -49,6 +50,7 @@ import {Tooltip} from 'primeng/tooltip';
 export class FaqComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   title = input<string>('');
   faq$: Observable<GroupedFaq[]>;
@@ -75,12 +77,13 @@ export class FaqComponent implements OnInit {
     return title;
   }
 
-  getMessage(faq: Faq, selectedLanguage: string, defaultLanguage: any): string | undefined {
+  getMessage(faq: Faq, selectedLanguage: string, defaultLanguage: any): SafeHtml {
     const message = faq?.messages?.[selectedLanguage]?.message;
     if (!message) {
-      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + faq?.messages?.[defaultLanguage]?.message
+      const fallback = this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + (faq?.messages?.[defaultLanguage]?.message || '');
+      return this.sanitizer.bypassSecurityTrustHtml(fallback);
     }
-    return message;
+    return this.sanitizer.bypassSecurityTrustHtml(message);
   }
 
   private _getGroupedFaqs(): Observable<GroupedFaq[]> {
