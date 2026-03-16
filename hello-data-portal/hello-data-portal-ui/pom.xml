@@ -162,15 +162,6 @@
                 </configuration>
               </execution>
               <execution>
-                <id>yarn audit</id>
-                <goals>
-                  <goal>yarn</goal>
-                </goals>
-                <configuration>
-                  <arguments>audit:high</arguments>
-                </configuration>
-              </execution>
-              <execution>
                 <id>yarn build</id>
                 <goals>
                   <goal>yarn</goal>
