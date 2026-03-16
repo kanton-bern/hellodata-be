@@ -19,9 +19,30 @@
     "maven",
     "npm"
   ],
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "security"
+    ]
+  },
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
   "packageRules": [
+    {
+      "description": "Security updates: auto-create PRs immediately, bypass approval and grouping",
+      "matchCategories": [
+        "security"
+      ],
+      "dependencyDashboardApproval": false,
+      "automerge": false,
+      "groupName": null,
+      "prPriority": 10,
+      "schedule": [
+        "at any time"
+      ],
+      "platformAutomerge": false
+    },
     {
       "description": "Ignore internal Maven packages that Renovate cannot resolve",
       "matchManagers": [
