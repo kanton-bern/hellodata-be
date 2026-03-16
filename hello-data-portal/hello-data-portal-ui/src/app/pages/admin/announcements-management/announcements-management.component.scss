@@ -48,10 +48,14 @@
 }
 
 .announcement-message-preview {
-  max-height: 3.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-word;
+  line-height: 1.4em;
+  max-height: calc(1.4em * 3);
 }
 
 .announcement-message-content {
