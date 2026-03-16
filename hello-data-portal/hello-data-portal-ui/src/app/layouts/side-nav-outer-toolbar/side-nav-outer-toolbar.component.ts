@@ -34,7 +34,6 @@ import {Observable} from "rxjs";
 import {selectNavItems} from "../../store/menu/menu.selector";
 import {Router} from "@angular/router";
 import {TranslocoPipe} from "@jsverse/transloco";
-import {Tooltip} from "primeng/tooltip";
 import {Toast} from "primeng/toast";
 import {
   UnsavedChangesDialogComponent
@@ -49,7 +48,7 @@ import {Environment} from "../../shared/components/header/header.component";
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
-  imports: [Tooltip, HeaderComponent,
+  imports: [HeaderComponent,
     Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe, NgStyle]
 })
 export class SideNavOuterToolbarComponent {
