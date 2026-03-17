@@ -28,12 +28,16 @@ package ch.bedag.dap.hellodata.commons.nats;
 
 import ch.bedag.dap.hellodata.commons.nats.actuator.NatsHealthIndicator;
 import ch.bedag.dap.hellodata.commons.nats.bean.NatsConfigBeanPostProcessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import io.nats.spring.boot.autoconfigure.NatsAutoConfiguration;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -64,6 +68,12 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public NatsConfigBeanPostProcessor configBeanPostProcessor(Connection natsConnection) {
         return new NatsConfigBeanPostProcessor(natsConnection);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ObjectMapper.class)
+    public ObjectMapper objectMapper() {
+        return JsonMapper.builder().addModule(new JavaTimeModule()).build();
     }
 
     @Bean

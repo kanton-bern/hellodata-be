@@ -38,9 +38,12 @@ import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializ
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 import java.time.Duration;
 
@@ -58,8 +61,13 @@ public class RedisConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
+        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(Object.class)
+                .build();
+
         ObjectMapper objectMapper = JsonMapper.builder()
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();
 
         RedisSerializer<Object> serializer = new GenericJacksonJsonRedisSerializer(objectMapper);
@@ -71,9 +79,9 @@ public class RedisConfig {
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(config)
                 .withCacheConfiguration(USERS_WITH_DASHBOARD_CACHE,
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(usersWithDashboardsTtlCacheMinutes)))
+                        config.entryTtl(Duration.ofMinutes(usersWithDashboardsTtlCacheMinutes)))
                 .withCacheConfiguration(SUBSYSTEM_USERS_CACHE,
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(subsystemUsersTtlCacheMinutes)))
+                        config.entryTtl(Duration.ofMinutes(subsystemUsersTtlCacheMinutes)))
                 .build();
     }
 }

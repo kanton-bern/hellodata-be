@@ -37,7 +37,6 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
@@ -62,7 +61,6 @@ public class KeycloakService {
     private String realm;
     @Value("${hello-data.auth-server.url}")
     private String authServerUrl;
-    private final WebClient.Builder exchangeTokenTarget;
 
     public String createUser(UserRepresentation user) {
         try (Response response = keycloak.realm(realmName).users().create(user)) {

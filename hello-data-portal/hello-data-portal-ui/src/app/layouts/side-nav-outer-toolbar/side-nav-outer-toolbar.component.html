@@ -1,4 +1,5 @@
-<div class="sidebar close" [class.minimized]="sidebarMinimized" id="appSidebar">
+<div class="sidebar close" [class.minimized]="sidebarMinimized" id="appSidebar"
+     [ngStyle]="environment.color && { 'background-color': environment.color, '--sidebar-bg': environment.color } || null">
   <div class="logo-details"
        [class.logo-details-env]="environment.showEnvironment"
        [ngStyle]="environment.color && { 'background-color': environment.color } || null">
@@ -50,7 +51,8 @@
       }
     </ul>
   }
-  <div class="sidebar-toggle-btn" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()">
+  <div class="sidebar-toggle-btn" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()"
+       [ngStyle]="environment.color && { 'background-color': environment.color } || null">
     @if (sidebarMinimized) {
       <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
     } @else {

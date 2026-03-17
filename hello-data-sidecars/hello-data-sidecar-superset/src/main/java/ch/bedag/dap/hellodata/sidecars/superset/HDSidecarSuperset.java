@@ -29,15 +29,12 @@ package ch.bedag.dap.hellodata.sidecars.superset;
 import ch.bedag.dap.hellodata.commons.nats.annotation.EnableJetStream;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.sidecars.superset.client.properties.SupersetProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
@@ -58,14 +55,4 @@ public class HDSidecarSuperset {
         return new RestTemplate();
     }
 
-    @Bean
-    public Jackson2ObjectMapperBuilder objectMapperBuilder() {
-        return new Jackson2ObjectMapperBuilder() {
-            @Override
-            public void configure(ObjectMapper objectMapper) {
-                super.configure(objectMapper);
-                objectMapper.registerModule(new JavaTimeModule());
-            }
-        };
-    }
 }

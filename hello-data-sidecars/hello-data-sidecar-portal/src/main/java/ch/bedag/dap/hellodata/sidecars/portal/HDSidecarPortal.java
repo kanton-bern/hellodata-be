@@ -27,14 +27,11 @@
 package ch.bedag.dap.hellodata.sidecars.portal;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.EnableJetStream;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
@@ -56,15 +53,4 @@ public class HDSidecarPortal {
         return new RestTemplate();
     }
 
-    @Bean
-    public Jackson2ObjectMapperBuilder objectMapperBuilder() {
-        return new Jackson2ObjectMapperBuilder() {
-
-            @Override
-            public void configure(ObjectMapper objectMapper) {
-                super.configure(objectMapper);
-                objectMapper.registerModule(new JavaTimeModule());
-            }
-        };
-    }
 }
