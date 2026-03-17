@@ -27,10 +27,7 @@
 package ch.bedag.dap.hellodata.portal.announcement.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -47,6 +44,7 @@ import java.util.Map;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "announcement")
+@Table(name = "announcement")
 public class AnnouncementEntity extends BaseEntity {
 
     private Boolean published;

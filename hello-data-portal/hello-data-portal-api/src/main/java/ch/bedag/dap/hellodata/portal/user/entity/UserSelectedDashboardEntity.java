@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.user.entity;
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -41,6 +42,7 @@ import java.util.UUID;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "user_selected_dashboard")
+@Table(name = "user_selected_dashboard")
 public class UserSelectedDashboardEntity extends BaseEntity {
 
     @Column(nullable = false)

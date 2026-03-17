@@ -28,10 +28,7 @@ package ch.bedag.dap.hellodata.portalcommon.role.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.Permissions;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -43,6 +40,7 @@ import org.hibernate.type.SqlTypes;
 @Setter
 @RequiredArgsConstructor
 @Entity(name = "portal_role")
+@Table(name = "portal_role")
 public class PortalRoleEntity extends BaseEntity {
 
     @NaturalId

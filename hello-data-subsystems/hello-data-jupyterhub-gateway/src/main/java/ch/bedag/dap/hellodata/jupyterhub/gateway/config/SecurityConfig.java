@@ -161,9 +161,7 @@ public class SecurityConfig {
     }
 
     private void configureCors(ServerHttpSecurity http) {
-        if (env.matchesProfiles("disable-cors")) {
-            http.cors(ServerHttpSecurity.CorsSpec::disable);
-        } else {
+        if (!env.matchesProfiles("disable-cors")) {
             List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
             http.cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration corsConfig = new CorsConfiguration();

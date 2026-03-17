@@ -68,7 +68,7 @@ public class TokenAuthenticationFilter implements WebFilter {
 
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
         HttpHeaders headers = exchange.getRequest().getHeaders();
-        boolean hasAuthHeader = headers.containsKey(SecurityConfig.AUTHORIZATION_HEADER_NAME);
+        boolean hasAuthHeader = headers.containsHeader(SecurityConfig.AUTHORIZATION_HEADER_NAME);
         List<HttpCookie> cookie = cookies.get(SecurityConfig.ACCESS_TOKEN_COOKIE_NAME);
         boolean hasAuthCookie = cookie != null && !cookie.isEmpty();
 
@@ -85,7 +85,7 @@ public class TokenAuthenticationFilter implements WebFilter {
             }
         }).build();
 
-        log.info("\t--->Added headers: {}", new ArrayList<>(request.getHeaders().entrySet()).stream()
+        log.info("\t--->Added headers: {}", new ArrayList<>(request.getHeaders().asMultiValueMap().entrySet()).stream()
                 .map(entry -> "\n\t" + entry.getKey() + ": " + entry.getValue() + "\n")
                 .collect(Collectors.toList()));
 

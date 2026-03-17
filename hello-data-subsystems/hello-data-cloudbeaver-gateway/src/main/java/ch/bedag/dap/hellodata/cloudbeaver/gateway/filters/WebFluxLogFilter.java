@@ -60,11 +60,11 @@ public class WebFluxLogFilter implements WebFilter, Ordered {
                     // crash during WebSocket upgrade when headers are modified concurrently
                     log.info("Request Headers: {}", new ArrayList<>(exchange.getRequest()
                             .getHeaders()
-                            .entrySet()));
+                            .asMultiValueMap().entrySet()));
                     log.info("Response: {}", exchange.getResponse().getStatusCode());
                     log.info("Response Headers: {}", new ArrayList<>(exchange.getResponse()
                             .getHeaders()
-                            .entrySet()));
+                            .asMultiValueMap().entrySet()));
                     log.info("\n:: End Request Log ::");
                 } catch (Exception e) {
                     log.warn("Could not log request/response details: {}", e.getMessage());

@@ -30,9 +30,8 @@ import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.documentation.data.DocumentationDto;
 import ch.bedag.dap.hellodata.portal.documentation.service.DocumentationService;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -41,7 +40,6 @@ import java.util.Set;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(SummaryController.class)
-@ContextConfiguration(classes = {SummaryController.class})
 class SummaryControllerTest extends HDControllerTest {
 
     @MockitoBean

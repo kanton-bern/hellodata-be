@@ -35,12 +35,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Arrays;
@@ -52,7 +51,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableGlobalMethodSecurity(prePostEnabled = true) //NOSONAR
+@EnableMethodSecurity //NOSONAR
 public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
@@ -81,16 +80,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         configureFrameOptions(http);
         configureCors(http);
         configureCsrf(http);
         http.authorizeHttpRequests(auth -> {
-            AntPathRequestMatcher[] matchers = new AntPathRequestMatcher[AUTH_WHITELIST.length]; //NOSONAR
-            for (int i = 0; i < AUTH_WHITELIST.length; i++) {
-                matchers[i] = new AntPathRequestMatcher(AUTH_WHITELIST[i]); //NOSONAR
-            }
-            auth.requestMatchers(matchers).permitAll();
+            auth.requestMatchers(AUTH_WHITELIST).permitAll();
             auth.anyRequest().authenticated();
         });
         http.oauth2Login(withDefaults());
@@ -100,7 +95,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private void configureCsrf(HttpSecurity http) throws Exception {
+    private void configureCsrf(HttpSecurity http) {
         if (env.matchesProfiles("disable-csrf")) {
             http.csrf(csrf -> csrf.disable()); //NOSONAR
         } else {
@@ -108,7 +103,7 @@ public class SecurityConfig {
         }
     }
 
-    private void configureFrameOptions(HttpSecurity http) throws Exception {
+    private void configureFrameOptions(HttpSecurity http) {
         if (env.matchesProfiles("disable-frame-options")) {
             http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
         } else {
@@ -116,10 +111,8 @@ public class SecurityConfig {
         }
     }
 
-    private void configureCors(HttpSecurity http) throws Exception {
-        if (env.matchesProfiles("disable-cors")) {
-            http.cors(cors -> cors.disable()); //NOSONAR
-        } else {
+    private void configureCors(HttpSecurity http) {
+        if (!env.matchesProfiles("disable-cors")) {
             List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
 
             http.cors(cors -> cors.configurationSource(request -> {

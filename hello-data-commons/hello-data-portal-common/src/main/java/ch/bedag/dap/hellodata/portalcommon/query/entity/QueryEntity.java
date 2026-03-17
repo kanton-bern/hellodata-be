@@ -3,6 +3,7 @@ package ch.bedag.dap.hellodata.portalcommon.query.entity;
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import java.time.OffsetDateTime;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "query")
+@Table(name = "query")
 public class QueryEntity extends BaseEntity {
 
     @Column(name = "context_key", nullable = false)

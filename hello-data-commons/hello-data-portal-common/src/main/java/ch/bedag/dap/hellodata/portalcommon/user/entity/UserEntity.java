@@ -30,10 +30,7 @@ import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.SystemDefaultPortalRoleName;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserPortalRoleEntity;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +50,7 @@ import java.util.Set;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "user_")
+@Table(name = "user_")
 public class UserEntity extends BaseEntity {  //NOSONAR
     private String authId;
     @NotBlank

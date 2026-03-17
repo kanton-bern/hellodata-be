@@ -169,10 +169,8 @@ public class SecurityConfig {
         return null;
     }
 
-    private void configureCors(HttpSecurity http) throws Exception {
-        if (env.matchesProfiles("disable-cors")) {
-            http.cors(cors -> cors.disable());
-        } else {
+    private void configureCors(HttpSecurity http) {
+        if (!env.matchesProfiles("disable-cors")) {
             List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
 
             http.cors(cors -> cors.configurationSource(request -> {
@@ -200,7 +198,7 @@ public class SecurityConfig {
         }
     }
 
-    private void configureCsrf(HttpSecurity http) throws Exception {
+    private void configureCsrf(HttpSecurity http) {
         if (env.matchesProfiles("disable-csrf")) {
             http.csrf(csrf -> csrf.disable());//NOSONAR
         } else {

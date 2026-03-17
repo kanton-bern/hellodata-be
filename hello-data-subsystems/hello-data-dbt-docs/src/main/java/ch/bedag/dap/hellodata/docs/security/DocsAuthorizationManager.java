@@ -69,7 +69,7 @@ public class DocsAuthorizationManager implements AuthorizationManager<RequestAut
     }
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authenticationSupplier, RequestAuthorizationContext context) {
+    public AuthorizationDecision authorize(Supplier<? extends Authentication> authenticationSupplier, RequestAuthorizationContext context) {
         HttpServletRequest request = context.getRequest();
         log.info("Request uri: {}", request.getRequestURI());
         log.info("Request url: {}", request.getRequestURL());

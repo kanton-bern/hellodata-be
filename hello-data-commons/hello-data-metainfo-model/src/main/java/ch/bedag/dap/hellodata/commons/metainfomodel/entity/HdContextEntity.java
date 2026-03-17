@@ -28,10 +28,7 @@ package ch.bedag.dap.hellodata.commons.metainfomodel.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -43,6 +40,7 @@ import org.hibernate.annotations.NaturalId;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "context")
+@Table(name = "context")
 public class HdContextEntity extends BaseEntity {
 
     private String name;

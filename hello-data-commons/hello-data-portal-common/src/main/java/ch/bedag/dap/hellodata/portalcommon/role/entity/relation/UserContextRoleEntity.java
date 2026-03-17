@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -40,6 +41,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 @Entity(name = "user_context_role")
+@Table(name = "user_context_role")
 public class UserContextRoleEntity extends BaseEntity {
 
     @ManyToOne

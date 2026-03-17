@@ -38,9 +38,9 @@
         <rest-assured.version>6.0.0</rest-assured.version>
         <spring-boot.version>4.0.3</spring-boot.version>
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.x targets Boot 4.0.x -->
-        <spring-cloud.version>2025.0.1</spring-cloud.version>
+        <spring-cloud.version>2025.1.0</spring-cloud.version>
         <spring-ws-test.version>5.0.0</spring-ws-test.version>
-        <springdoc.version>2.8.16</springdoc.version>
+        <springdoc.version>3.0.2</springdoc.version>
         <testcontainers-keycloak.version>4.1.1</testcontainers-keycloak.version>
         <testcontainers.version>2.0.3</testcontainers.version>
         <docker-java.version>3.7.0</docker-java.version>
@@ -293,6 +293,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test-autoconfigure</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

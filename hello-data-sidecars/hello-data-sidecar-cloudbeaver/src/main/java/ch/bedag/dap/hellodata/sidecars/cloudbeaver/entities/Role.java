@@ -36,6 +36,7 @@ import lombok.Setter;
 import java.util.Collection;
 
 @Entity(name = "hd_role")
+@Table(name = "hd_role")
 @Getter
 @Setter
 public class Role extends BaseEntity {

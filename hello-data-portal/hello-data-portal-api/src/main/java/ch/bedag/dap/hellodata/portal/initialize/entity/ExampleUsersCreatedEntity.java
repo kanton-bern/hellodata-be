@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.initialize.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -36,6 +37,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 @Entity(name = "example_users_created")
+@Table(name = "example_users_created")
 public class ExampleUsersCreatedEntity extends BaseEntity {
     private String dataDomainList;
 

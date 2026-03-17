@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 @Entity(name = "hd_user")
+@Table(name = "hd_user")
 @Getter
 @Setter
 public class User extends BaseEntity implements Persistable<UUID> {

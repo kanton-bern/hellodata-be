@@ -34,9 +34,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -50,8 +49,7 @@ import java.util.stream.Collectors;
 import static ch.bedag.dap.hellodata.portal.base.TestJwtProvider.JWT_EXPIRATION_IN_MS;
 import static ch.bedag.dap.hellodata.portal.base.TestJwtProvider.getSigningKey;
 
-@AutoConfigureMockMvc
-@ContextConfiguration(classes = {TestSecurityConfig.class, HellodataAuthenticationConverter.class})
+@Import({TestSecurityConfig.class, HellodataAuthenticationConverter.class})
 public abstract class HDControllerTest {
 
     @Autowired

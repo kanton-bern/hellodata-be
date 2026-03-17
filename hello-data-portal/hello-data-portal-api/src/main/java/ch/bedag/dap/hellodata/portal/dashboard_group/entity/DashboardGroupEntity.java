@@ -27,10 +27,7 @@
 package ch.bedag.dap.hellodata.portal.dashboard_group.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -45,6 +42,7 @@ import java.util.List;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "dashboard_group")
+@Table(name = "dashboard_group")
 public class DashboardGroupEntity extends BaseEntity {
 
     @Column(nullable = false, length = 150)

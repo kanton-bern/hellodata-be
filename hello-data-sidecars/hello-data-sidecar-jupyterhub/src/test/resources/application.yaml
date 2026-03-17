@@ -1,0 +1,33 @@
+hello-data:
+  business-context: 'Business Domain | Test | Test'
+  contexts:
+    - 'Data Domain | Test_Domain | Test Domain'
+  instance:
+    name: "Test jupyterhub instance"
+    url: jupyterhub.local
+  jupyterhub:
+    temp-user-password-valid-in-days: 1
+    dwh-admin-username: sa
+    dwh-admin-password:
+    dwh-url: jdbc:h2:mem:testdb
+    dwh-driver-class-name: org.h2.Driver
+    dwh-temp-user-schemas:
+      - public
+spring:
+  application:
+    name: HelloDATA Sidecar for Jupyterhub Test
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+security:
+  user:
+    username: user
+    password: password
+  api:
+    username: apikey
+    password: password
