@@ -66,11 +66,25 @@ public class RoleResourceProviderService {
         natsSenderService.publishMessageToJetStream(PUBLISH_ROLE_RESOURCES, roleResource);
     }
 
+    private static final int BATCH_SIZE = 40; // stay well under Superset's 50 req/s rate limit
+    private static final long BATCH_PAUSE_MS = 1100; // pause between batches to let the rate-limit window reset
+
     private List<RolePermissions> getRolePermissions() throws URISyntaxException, IOException {
         List<RolePermissions> data = new ArrayList<>();
         SupersetClient supersetClientInstance = supersetClientProvider.getSupersetClientInstance();
         SupersetRolesResponse roles = supersetClientInstance.roles();
-        roles.getResult().forEach(role -> {
+        var roleList = roles.getResult();
+        for (int i = 0; i < roleList.size(); i++) {
+            if (i > 0 && i % BATCH_SIZE == 0) {
+                log.debug("Pausing for {} ms after {} role-permission requests to avoid Superset rate limit", BATCH_PAUSE_MS, BATCH_SIZE);
+                try {
+                    Thread.sleep(BATCH_PAUSE_MS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Interrupted while throttling role-permission requests", e); //NOSONAR
+                }
+            }
+            var role = roleList.get(i);
             try {
                 SupersetRolePermissionsResponse supersetRolePermissionsResponse = supersetClientInstance.rolePermissions(role.getId());
                 List<RolePermissions.PermissionNameViewMenuName> permissions = supersetRolePermissionsResponse.getResult()
@@ -83,7 +97,7 @@ public class RoleResourceProviderService {
             } catch (URISyntaxException | IOException e) {
                 throw new RuntimeException(e); //NOSONAR
             }
-        });
+        }
         return data;
     }
 }
