@@ -67,7 +67,7 @@ public class RedisConfig {
 
         ObjectMapper objectMapper = JsonMapper.builder()
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+                .activateDefaultTypingAsProperty(ptv, DefaultTyping.NON_FINAL, "@class")
                 .build();
 
         RedisSerializer<Object> serializer = new GenericJacksonJsonRedisSerializer(objectMapper);
