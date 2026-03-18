@@ -188,12 +188,14 @@ export class HeaderComponent {
       this.store.select(selectSupportedLanguages)
     ]).pipe(tap(([selectedLanguage, supportedLanguages]) => {
       this.selectedLanguage = selectedLanguage.code;
+      const selectedPrefix = (this.selectedLanguage ?? '').slice(0, 2).toLowerCase();
       const languagesLocal: any = [];
       for (const language of supportedLanguages) {
+        const langPrefix = language.slice(0, 2).toLowerCase();
         languagesLocal.push({
           code: language,
           label: language.slice(0, 2)?.toUpperCase(),
-          selected: language.startsWith(this.selectedLanguage as string)
+          selected: langPrefix === selectedPrefix
         });
       }
       this.supportedLanguages = languagesLocal;

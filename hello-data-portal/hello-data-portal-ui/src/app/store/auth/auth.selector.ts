@@ -127,14 +127,16 @@ export const selectSelectedLanguage = createSelector(
   (state: AuthState) => {
     if (!state.selectedLanguage) {
       const browserLanguage = navigator.language.replace('-', '_');
-      if (!state.supportedLanguages) {
+      const browserPrefix = browserLanguage.slice(0, 2).toLowerCase();
+      if (!state.supportedLanguages || state.supportedLanguages.length === 0) {
         return {code: state.defaultLanguage, typeTranslationKey: '@App fallback language'};
       }
-      if (browserLanguage.startsWith('en')) {
+      if (browserPrefix === 'en') {
         return {code: 'en', typeTranslationKey: '@Browser default language'};
       }
-      if (state.supportedLanguages.includes(browserLanguage)) {
-        return {code: browserLanguage, typeTranslationKey: '@Browser default language'};
+      const matchedLang = state.supportedLanguages.find(lang => lang.slice(0, 2).toLowerCase() === browserPrefix);
+      if (matchedLang) {
+        return {code: matchedLang, typeTranslationKey: '@Browser default language'};
       } else {
         return {code: state.defaultLanguage, typeTranslationKey: '@App fallback language'};
       }

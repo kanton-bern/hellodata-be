@@ -307,15 +307,12 @@ export class AuthEffects {
         this._store.select(selectSupportedLanguages)
       ),
       tap(([_, selectedLanguage, supportedLanguages]) => {
-        if (selectedLanguage && !supportedLanguages.includes(selectedLanguage.code as string)) {
-          const lang = supportedLanguages.find(lang => lang.startsWith(selectedLanguage.code as string));
-          if (lang) {
-            this._translateService.setActiveLang(lang);
-          } else {
-            this._translateService.setActiveLang(this._translateService.getDefaultLanguage());
-          }
-        } else if (selectedLanguage) {
-          this._translateService.setActiveLang(selectedLanguage.code as string);
+        const selectedPrefix = (selectedLanguage?.code ?? '').slice(0, 2).toLowerCase();
+        const matchedLang = supportedLanguages.find(lang => lang.slice(0, 2).toLowerCase() === selectedPrefix);
+        if (matchedLang) {
+          this._translateService.setActiveLang(matchedLang);
+        } else {
+          this._translateService.setActiveLang(this._translateService.getDefaultLanguage());
         }
       }),
       switchMap(() => {
