@@ -44,6 +44,7 @@ import org.hibernate.validator.constraints.Length;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "resource")
+@Table(name = "resource")
 public class MetaInfoResourceEntity extends BaseEntity {
     @NotBlank
     @Length(max = 55)

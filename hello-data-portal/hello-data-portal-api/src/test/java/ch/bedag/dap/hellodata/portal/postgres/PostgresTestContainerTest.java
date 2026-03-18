@@ -35,10 +35,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResou
 import ch.bedag.dap.hellodata.portal.base.config.PersistenceConfig;
 import io.nats.client.Connection;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -50,10 +51,26 @@ import java.util.UUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-@DataJpaTest
+@SpringBootTest
+@Transactional
 @ActiveProfiles("tc-postgres")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = {PersistenceConfig.class})
+@EnableAutoConfiguration(excludeName = {
+        "org.springdoc.webmvc.ui.SwaggerConfig",
+        "org.springdoc.webmvc.core.configuration.SpringDocWebMvcConfiguration",
+        "org.springdoc.webmvc.core.configuration.MultipleOpenApiSupportConfiguration",
+        "org.springdoc.core.configuration.SpringDocConfiguration",
+        "org.springdoc.core.properties.SpringDocConfigProperties",
+        "org.springdoc.core.properties.SwaggerUiConfigProperties",
+        "org.springdoc.core.properties.SwaggerUiOAuthProperties",
+        "org.springdoc.core.configuration.SpringDocSecurityConfiguration",
+        "org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientAutoConfiguration",
+        "org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration",
+        "org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration",
+        "org.springframework.boot.webclient.autoconfigure.WebClientAutoConfiguration",
+        "org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration",
+        "io.nats.spring.boot.autoconfigure.NatsAutoConfiguration"
+})
 class PostgresTestContainerTest {
 
     @Autowired

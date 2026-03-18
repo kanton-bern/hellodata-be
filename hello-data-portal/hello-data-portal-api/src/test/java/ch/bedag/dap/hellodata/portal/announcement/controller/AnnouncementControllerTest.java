@@ -31,9 +31,8 @@ import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementUpdateDto;
 import ch.bedag.dap.hellodata.portal.announcement.service.AnnouncementService;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -43,7 +42,6 @@ import java.util.UUID;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AnnouncementController.class)
-@ContextConfiguration(classes = {AnnouncementController.class})
 class AnnouncementControllerTest extends HDControllerTest {
     @MockitoBean
     private AnnouncementService announcementService;

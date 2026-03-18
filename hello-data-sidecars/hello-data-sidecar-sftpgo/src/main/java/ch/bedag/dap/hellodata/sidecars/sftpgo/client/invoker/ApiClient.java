@@ -29,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -41,7 +42,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.Nullable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -55,7 +55,7 @@ public class ApiClient extends JavaTimeFormatter {
     private final DateFormat dateFormat;
     private final ObjectMapper objectMapper;
     private final HttpHeaders defaultHeaders = new HttpHeaders();
-    private final MultiValueMap<String, String> defaultCookies = new LinkedMultiValueMap<String, String>();
+    private final MultiValueMap<String, String> defaultCookies = new LinkedMultiValueMap<>();
     private String basePath = "/api/v2";
     private Map<String, Authentication> authentications;
 
@@ -118,8 +118,7 @@ public class ApiClient extends JavaTimeFormatter {
                     clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(mapper, MediaType.APPLICATION_JSON));
                     clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(mapper, MediaType.APPLICATION_JSON));
                 }).build();
-        WebClient.Builder webClientBuilder = WebClient.builder().exchangeStrategies(strategies);
-        return webClientBuilder;
+        return WebClient.builder().exchangeStrategies(strategies);
     }
 
     /**
@@ -201,7 +200,7 @@ public class ApiClient extends JavaTimeFormatter {
                 return;
             }
         }
-        throw new RuntimeException("No Bearer authentication configured!");
+        throw new RuntimeException("No Bearer authentication configured!"); //NOSONAR
     }
 
     /**
@@ -216,7 +215,7 @@ public class ApiClient extends JavaTimeFormatter {
                 return;
             }
         }
-        throw new RuntimeException("No HTTP basic authentication configured!");
+        throw new RuntimeException("No HTTP basic authentication configured!"); //NOSONAR
     }
 
     /**
@@ -231,7 +230,7 @@ public class ApiClient extends JavaTimeFormatter {
                 return;
             }
         }
-        throw new RuntimeException("No HTTP basic authentication configured!");
+        throw new RuntimeException("No HTTP basic authentication configured!");//NOSONAR
     }
 
     /**
@@ -246,7 +245,7 @@ public class ApiClient extends JavaTimeFormatter {
                 return;
             }
         }
-        throw new RuntimeException("No API key authentication configured!");
+        throw new RuntimeException("No API key authentication configured!");//NOSONAR
     }
 
     /**
@@ -261,7 +260,7 @@ public class ApiClient extends JavaTimeFormatter {
                 return;
             }
         }
-        throw new RuntimeException("No API key authentication configured!");
+        throw new RuntimeException("No API key authentication configured!");//NOSONAR
     }
 
     /**
@@ -317,7 +316,7 @@ public class ApiClient extends JavaTimeFormatter {
         try {
             return dateFormat.parse(str);
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e);//NOSONAR
         }
     }
 
@@ -382,7 +381,7 @@ public class ApiClient extends JavaTimeFormatter {
      * @return a Map containing the String value(s) of the input parameter
      */
     public MultiValueMap<String, String> parameterToMultiValueMap(CollectionFormat collectionFormat, String name, Object value) {
-        final MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         if (name == null || name.isEmpty() || value == null) {
             return params;
@@ -419,7 +418,7 @@ public class ApiClient extends JavaTimeFormatter {
             return params;
         }
 
-        List<String> values = new ArrayList<String>();
+        List<String> values = new ArrayList<>();
         for (Object o : valueCollection) {
             values.add(parameterToString(o));
         }
@@ -596,7 +595,7 @@ public class ApiClient extends JavaTimeFormatter {
                                                      MediaType contentType, String[] authNames) {
         updateParamsForAuth(authNames, queryParams, headerParams, cookieParams);
 
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(basePath).path(path);
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(basePath).path(path);
 
         String finalUri = builder.build(false).toUriString();
         Map<String, Object> uriParams = new HashMap<>();
@@ -645,7 +644,7 @@ public class ApiClient extends JavaTimeFormatter {
 
     protected void init() {
         // Setup authentications (key: authentication name, value: authentication).
-        authentications = new HashMap<String, Authentication>();
+        authentications = new HashMap<>();
         authentications.put("BasicAuth", new HttpBasicAuth());
         authentications.put("BearerAuth", new HttpBearerAuth("bearer"));
         authentications.put("APIKeyAuth", new ApiKeyAuth("header", "X-SFTPGO-API-KEY"));
@@ -685,7 +684,7 @@ public class ApiClient extends JavaTimeFormatter {
      * @param requestBuilder The current request
      */
     protected void addHeadersToRequest(HttpHeaders headers, WebClient.RequestBodySpec requestBuilder) {
-        for (Entry<String, List<String>> entry : headers.entrySet()) {
+        for (Entry<String, List<String>> entry : headers.headerSet()) {
             List<String> values = entry.getValue();
             for (String value : values) {
                 if (value != null) {

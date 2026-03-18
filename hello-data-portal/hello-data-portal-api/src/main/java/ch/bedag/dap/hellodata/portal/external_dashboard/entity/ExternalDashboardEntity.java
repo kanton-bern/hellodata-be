@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.external_dashboard.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -37,6 +38,7 @@ import org.hibernate.validator.constraints.Length;
 @Setter
 @RequiredArgsConstructor
 @Entity(name = "external_dashboard")
+@Table(name = "external_dashboard")
 public class ExternalDashboardEntity extends BaseEntity {
     @Length(max = 255)
     private String url;

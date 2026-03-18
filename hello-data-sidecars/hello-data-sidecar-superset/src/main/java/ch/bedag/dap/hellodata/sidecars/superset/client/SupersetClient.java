@@ -483,13 +483,34 @@ public class SupersetClient {
         this.csrfToken = respBody.getAsJsonObject().get("result").getAsString();
     }
 
+    private static final int MAX_RETRIES_ON_RATE_LIMIT = 5;
+    private static final long INITIAL_RETRY_DELAY_MS = 1100; // just over 1 second to let the rate-limit window reset
+
     private ApiResponse executeRequest(HttpUriRequest request) throws IOException {
+        return executeRequestWithRetry(request, 0);
+    }
+
+    private ApiResponse executeRequestWithRetry(HttpUriRequest request, int attempt) throws IOException {
         try (CloseableHttpResponse response = client.execute(request)) {
             int code = response.getStatusLine().getStatusCode();
             HttpEntity entity = response.getEntity();
             String bodyAsString = null;
             if (entity != null) {
                 bodyAsString = EntityUtils.toString(entity);
+            }
+            if (code == 429) {
+                if (attempt < MAX_RETRIES_ON_RATE_LIMIT) {
+                    long delayMs = INITIAL_RETRY_DELAY_MS * (1L << attempt); // exponential backoff: 1.1s, 2.2s, 4.4s, ...
+                    log.warn("Rate limited (429) on {}. Retrying in {} ms (attempt {}/{})", request.getURI(), delayMs, attempt + 1, MAX_RETRIES_ON_RATE_LIMIT);
+                    try {
+                        Thread.sleep(delayMs);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new IOException("Interrupted while waiting for rate-limit retry", e);
+                    }
+                    return executeRequestWithRetry(request, attempt + 1);
+                }
+                throw new UnexpectedResponseException(request.getURI().toString(), code, bodyAsString);
             }
             if (code >= 300 || code < 200) {
                 throw new UnexpectedResponseException(request.getURI().toString(), code, bodyAsString);

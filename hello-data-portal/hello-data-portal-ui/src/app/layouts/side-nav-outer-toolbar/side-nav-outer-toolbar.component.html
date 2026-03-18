@@ -1,4 +1,5 @@
-<div class="sidebar close" [class.minimized]="sidebarMinimized" id="appSidebar">
+<div class="sidebar close" [class.minimized]="sidebarMinimized" id="appSidebar"
+     [ngStyle]="environment.color && { 'background-color': environment.color, '--sidebar-bg': environment.color, '--sidebar-menu-hover': 'rgba(0,0,0,0.07)' } || null">
   <div class="logo-details"
        [class.logo-details-env]="environment.showEnvironment"
        [ngStyle]="environment.color && { 'background-color': environment.color } || null">
@@ -9,7 +10,7 @@
   @if ((navItems$ | async); as navItems) {
     <ul class="nav-links">
       @for (item of navItems; track item.id) {
-        <li>
+        <li (mouseenter)="repositionSecondLevelMenu($event)">
           <a class="flex flex-col items-center justify-center first-level-item" (click)="openWindow(item)">
             <span [class]="item.icon" class="p-menuitem-icon text-center" style="font-size: 2rem"></span>
             <span class="text-center first-level-label"
@@ -18,7 +19,7 @@
           @if (item.items && item.items.length) {
             <ul class="second-level-menu">
               @for (sub of item.items; track sub.id || sub.label || $index) {
-                <li>
+                <li (mouseenter)="repositionThirdLevelMenu($event)">
                   <a class="flex items-center" (click)="openWindow(sub)">
                     @if (sub.icon) {
                       <span [class]="sub.icon" class="p-menuitem-icon"></span>
@@ -29,18 +30,28 @@
                     }
                   </a>
                   @if (sub.items && sub.items.length) {
-                    <ul class="third-level-menu">
-                      @for (third of sub.items; track third.id || third.label || $index) {
-                        <li>
-                          <a class="flex items-center" (click)="openWindow(third)">
-                            @if (third.icon) {
-                              <span [class]="third.icon" class="p-menuitem-icon"></span>
-                            }
-                            <span class="ml-2">{{ third.label | transloco }}</span>
-                          </a>
-                        </li>
-                      }
-                    </ul>
+                    <div class="third-level-menu">
+                      <div class="scroll-indicator scroll-indicator--up"
+                           (click)="scrollThirdLevel($event, -480)">
+                        <i class="pi pi-chevron-up"></i>
+                      </div>
+                      <ul class="third-level-menu__list" (scroll)="onThirdLevelScroll($event)">
+                        @for (third of sub.items; track third.id || third.label || $index) {
+                          <li>
+                            <a class="flex items-center" (click)="openWindow(third)">
+                              @if (third.icon) {
+                                <span [class]="third.icon" class="p-menuitem-icon"></span>
+                              }
+                              <span class="ml-2">{{ third.label | transloco }}</span>
+                            </a>
+                          </li>
+                        }
+                      </ul>
+                      <div class="scroll-indicator scroll-indicator--down"
+                           (click)="scrollThirdLevel($event, 480)">
+                        <i class="pi pi-chevron-down"></i>
+                      </div>
+                    </div>
                   }
                 </li>
               }
@@ -50,7 +61,8 @@
       }
     </ul>
   }
-  <div class="sidebar-toggle-btn" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()">
+  <div class="sidebar-toggle-btn" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()"
+       [ngStyle]="environment.color && { 'background-color': environment.color } || null">
     @if (sidebarMinimized) {
       <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
     } @else {

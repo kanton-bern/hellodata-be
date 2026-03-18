@@ -48,7 +48,9 @@ public class TestJwtAuthorizationFilter extends OncePerRequestFilter {
             Authentication authentication = testJwtProvider.getAuthentication(request);
 
             if (authentication != null) {
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                org.springframework.security.core.context.SecurityContext context = SecurityContextHolder.createEmptyContext();
+                context.setAuthentication(authentication);
+                SecurityContextHolder.setContext(context);
             }
             filterChain.doFilter(request, response);
         }

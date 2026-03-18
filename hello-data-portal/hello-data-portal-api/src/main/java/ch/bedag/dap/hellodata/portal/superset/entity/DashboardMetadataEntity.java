@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.superset.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -37,6 +38,7 @@ import org.hibernate.validator.constraints.Length;
 @Setter
 @RequiredArgsConstructor
 @Entity(name = "dashboard_metadata")
+@Table(name = "dashboard_metadata")
 public class DashboardMetadataEntity extends BaseEntity {
     private int subsystemId;
     @Length(max = 255)

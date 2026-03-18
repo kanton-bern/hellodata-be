@@ -138,10 +138,8 @@ public class SecurityConfig {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable); //cloudbeaver has it's own
     }
 
-    private void configureCors(ServerHttpSecurity http) {
-        if (env.matchesProfiles("disable-cors")) {
-            http.cors(ServerHttpSecurity.CorsSpec::disable);
-        }
+    private void configureCors(ServerHttpSecurity http) {//NOSONAR
+        // CORS is disabled by default in Spring Security 7; no-op when "disable-cors" profile is active
     }
 
     private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter(CbJwtAuthenticationConverter cbJwtAuthenticationConverter) {

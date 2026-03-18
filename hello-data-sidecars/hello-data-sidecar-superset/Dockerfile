@@ -25,13 +25,12 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM eclipse-temurin:17.0.9_9-jre
+FROM eclipse-temurin:21-jre
 LABEL MAINTAINER="HelloData Team"
 
 # add 'app' user with uid 3012 and corresponding group
 RUN useradd -d /app -m -s /bin/bash -u 3012 app -U
-RUN apt-get update && apt-get install -y python3 python3-pip
-RUN pip install PyYAML
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-yaml && rm -rf /var/lib/apt/lists/*
 ADD src/main/python/export_check.py /app/export_check.py
 RUN chown app /app/export_check.py
 RUN chmod +x /app/export_check.py

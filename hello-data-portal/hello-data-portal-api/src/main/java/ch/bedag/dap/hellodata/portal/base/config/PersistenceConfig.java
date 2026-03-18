@@ -26,14 +26,14 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@EntityScan(basePackages = { "ch.bedag.dap.hellodata" })
-@EnableJpaRepositories(basePackages = { "ch.bedag.dap.hellodata" })
+@EntityScan(basePackages = {"ch.bedag.dap.hellodata"})
+@EnableJpaRepositories(basePackages = {"ch.bedag.dap.hellodata"})
 public class PersistenceConfig {
 }

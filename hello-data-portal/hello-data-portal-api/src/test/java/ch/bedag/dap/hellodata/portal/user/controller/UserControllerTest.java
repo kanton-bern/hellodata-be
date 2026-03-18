@@ -27,21 +27,21 @@
 package ch.bedag.dap.hellodata.portal.user.controller;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.service.KeycloakService;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
@@ -49,13 +49,13 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@ContextConfiguration(classes = {UserController.class})
 class UserControllerTest extends HDControllerTest {
 
     @MockitoBean
@@ -83,8 +83,9 @@ class UserControllerTest extends HDControllerTest {
         when(userService.createUser("test@test.com", "Test", "User", AdUserOrigin.LOCAL)).thenReturn(userId.toString());
 
         // when then
-        mockMvc.perform(post("/users").header("authorization", generateToken(currentUserId)).contentType(MediaType.APPLICATION_JSON).content(asJsonString(createUserRequestDto)))
-                .andExpect(status().isForbidden());
+        MockHttpServletResponse response = mockMvc.perform(post("/users").header("authorization", generateToken(currentUserId))
+                .contentType(MediaType.APPLICATION_JSON).content(asJsonString(createUserRequestDto))).andReturn().getResponse();
+        assertThat(response.getStatus()).isEqualTo(403);
     }
 
     @Test
@@ -372,4 +373,3 @@ class UserControllerTest extends HDControllerTest {
                 .content(asJsonString(updateContextRoles))).andExpect(status().isOk());
     }
 }
-

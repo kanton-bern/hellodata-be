@@ -28,10 +28,7 @@ package ch.bedag.dap.hellodata.portal.faq.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqMessage;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -47,6 +44,7 @@ import java.util.Map;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "faq")
+@Table(name = "faq")
 public class FaqEntity extends BaseEntity {
 
     /**

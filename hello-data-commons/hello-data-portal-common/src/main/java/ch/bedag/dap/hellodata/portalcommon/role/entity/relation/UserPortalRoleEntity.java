@@ -40,6 +40,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 @Entity(name = "user_portal_role")
+@Table(name = "user_portal_role")
 public class UserPortalRoleEntity extends BaseEntity {
 
     @ManyToOne

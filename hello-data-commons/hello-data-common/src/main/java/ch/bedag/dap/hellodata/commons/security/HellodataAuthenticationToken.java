@@ -62,7 +62,7 @@ public class HellodataAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getPrincipal() {
-        return null;
+        return email;
     }
 
     public boolean isSuperuser() {

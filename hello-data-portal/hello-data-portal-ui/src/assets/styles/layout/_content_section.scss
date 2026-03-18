@@ -462,3 +462,7 @@ fieldset, p-iconfield > input {
 p-divider {
   border: 1px solid rgba(0, 0, 0, 0.02);
 }
+
+.ql-editor ol li[data-list=bullet]:before {
+  content: "" !important;
+}

@@ -29,10 +29,7 @@ package ch.bedag.dap.hellodata.portalcommon.role.entity;
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -45,6 +42,7 @@ import org.hibernate.annotations.NaturalId;
 @Setter
 @RequiredArgsConstructor
 @Entity(name = "role")
+@Table(name = "role")
 public class RoleEntity extends BaseEntity {
 
     @NaturalId

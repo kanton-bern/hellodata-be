@@ -26,10 +26,6 @@
  */
 package ch.bedag.dap.hellodata.portal.base;
 
-import jakarta.servlet.*;
-import org.modelmapper.Converter;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,20 +34,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
-import org.springframework.security.web.debug.DebugFilter;
-import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.security.web.firewall.RequestRejectedHandler;
-import org.springframework.web.filter.CompositeFilter;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.List;
 
 /**
  * Used to disable keycloak resource server and use custom one to mock jwt token
@@ -62,32 +46,12 @@ import java.util.List;
 public class TestSecurityConfig {
 
     @Bean
-    static BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor() {
-        return registry -> registry.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME).setBeanClassName(CompositeFilterChainProxy.class.getName());
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-                .cors(cors -> {})
                 .csrf(AbstractHttpConfigurer::disable);
         http.addFilterBefore(accessTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
-    }
-
-    @Bean
-    public ModelMapper modelMapper() {
-        ModelMapper mapper = new ModelMapper();
-
-        Converter<OffsetDateTime, LocalDateTime> offsetToLocal =
-                ctx -> ctx.getSource() == null ? null : ctx.getSource().toLocalDateTime();
-        mapper.addConverter(offsetToLocal);
-
-        Converter<OffsetDateTime, Long> offsetToEpochMilli =
-                ctx -> ctx.getSource() == null ? null : ctx.getSource().toInstant().toEpochMilli();
-        mapper.addConverter(offsetToEpochMilli);
-        return new ModelMapper();
     }
 
     @Bean
@@ -101,85 +65,9 @@ public class TestSecurityConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<TestJwtAuthorizationFilter> accessTokenFilterRegistrationBean() {
-        FilterRegistrationBean<TestJwtAuthorizationFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(accessTokenFilter());
-        registrationBean.addUrlPatterns("/*"); // Apply the filter to all requests
-        return registrationBean;
-    }
-
-    static class CompositeFilterChainProxy extends FilterChainProxy {
-
-        private final Filter doFilterDelegate;
-
-        private final FilterChainProxy springSecurityFilterChain;
-
-        CompositeFilterChainProxy(List<? extends Filter> filters) {
-            this.doFilterDelegate = createDoFilterDelegate(filters);
-            this.springSecurityFilterChain = findFilterChainProxy(filters);
-        }
-
-        private static Filter createDoFilterDelegate(List<? extends Filter> filters) {
-            CompositeFilter delegate = new CompositeFilter();
-            delegate.setFilters(filters);
-            return delegate;
-        }
-
-        private static FilterChainProxy findFilterChainProxy(List<? extends Filter> filters) {
-            for (Filter filter : filters) {
-                if (filter instanceof FilterChainProxy fcp) {
-                    return fcp;
-                }
-                if (filter instanceof DebugFilter debugFilter) {
-                    return debugFilter.getFilterChainProxy();
-                }
-            }
-            throw new IllegalStateException("Couldn't find FilterChainProxy in " + filters);
-        }
-
-        @Override
-        public void afterPropertiesSet() {
-            this.springSecurityFilterChain.afterPropertiesSet();
-        }
-
-        @Override
-        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-            this.doFilterDelegate.doFilter(request, response, chain);
-        }
-
-        @Override
-        public List<Filter> getFilters(String url) {
-            return this.springSecurityFilterChain.getFilters(url);
-        }
-
-        @Override
-        public List<SecurityFilterChain> getFilterChains() {
-            return this.springSecurityFilterChain.getFilterChains();
-        }
-
-        @Override
-        public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
-            this.springSecurityFilterChain.setSecurityContextHolderStrategy(securityContextHolderStrategy);
-        }
-
-        @Override
-        public void setFilterChainValidator(FilterChainValidator filterChainValidator) {
-            this.springSecurityFilterChain.setFilterChainValidator(filterChainValidator);
-        }
-
-        @Override
-        public void setFilterChainDecorator(FilterChainDecorator filterChainDecorator) {
-            this.springSecurityFilterChain.setFilterChainDecorator(filterChainDecorator);
-        }
-
-        @Override
-        public void setFirewall(HttpFirewall firewall) {
-            this.springSecurityFilterChain.setFirewall(firewall);
-        }
-
-        @Override
-        public void setRequestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
-            this.springSecurityFilterChain.setRequestRejectedHandler(requestRejectedHandler);
-        }
+    public FilterRegistrationBean<TestJwtAuthorizationFilter> disableAutoRegistration() {
+        FilterRegistrationBean<TestJwtAuthorizationFilter> registration = new FilterRegistrationBean<>(accessTokenFilter());
+        registration.setEnabled(false);
+        return registration;
     }
 }

@@ -27,10 +27,7 @@
 package ch.bedag.dap.hellodata.portalcommon.user.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -39,6 +36,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 @Entity(name = "default_user")
+@Table(name = "default_user")
 public class DefaultUserEntity extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)

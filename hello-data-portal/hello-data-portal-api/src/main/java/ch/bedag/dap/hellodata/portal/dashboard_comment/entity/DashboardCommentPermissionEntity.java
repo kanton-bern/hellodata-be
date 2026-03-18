@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.dashboard_comment.entity;
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -39,6 +40,7 @@ import java.util.UUID;
 @Setter
 @RequiredArgsConstructor
 @Entity(name = "dashboard_comment_permission")
+@Table(name = "dashboard_comment_permission")
 public class DashboardCommentPermissionEntity extends BaseEntity {
 
     @Column(name = "user_id", nullable = false)

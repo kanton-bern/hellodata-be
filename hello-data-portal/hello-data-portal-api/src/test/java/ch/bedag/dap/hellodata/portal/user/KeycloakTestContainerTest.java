@@ -40,13 +40,18 @@ import io.nats.client.Connection;
 import io.restassured.RestAssured;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
@@ -55,7 +60,26 @@ import java.time.Duration;
 @SuppressWarnings("unused")
 @ActiveProfiles("tc-keycloak")
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@EnableAutoConfiguration(excludeName = {
+        "org.springdoc.webmvc.ui.SwaggerConfig",
+        "org.springdoc.webmvc.core.configuration.SpringDocWebMvcConfiguration",
+        "org.springdoc.webmvc.core.configuration.MultipleOpenApiSupportConfiguration",
+        "org.springdoc.core.configuration.SpringDocConfiguration",
+        "org.springdoc.core.properties.SpringDocConfigProperties",
+        "org.springdoc.core.properties.SwaggerUiConfigProperties",
+        "org.springdoc.core.properties.SwaggerUiOAuthProperties",
+        "org.springdoc.core.configuration.SpringDocSecurityConfiguration"
+})
+@Import(KeycloakTestContainerTest.WebClientBuilderConfig.class)
 public abstract class KeycloakTestContainerTest {
+
+    @TestConfiguration
+    static class WebClientBuilderConfig {
+        @Bean
+        WebClient.Builder webClientBuilder() {
+            return WebClient.builder();
+        }
+    }
 
     static final KeycloakContainer KEYCLOAK_CONTAINER = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
             .withAdminUsername("admin")

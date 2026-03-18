@@ -1,17 +1,25 @@
 package ch.bedag.dap.hellodata.jupyterhub.sidecar.controller;
 
-import ch.bedag.dap.hellodata.commons.nats.actuator.NatsHealthIndicator;
-import ch.bedag.dap.hellodata.jupyterhub.sidecar.config.datasource.DwhJdbcTemplateConfig;
 import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user.TemporaryUserService;
 import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user.dto.TemporaryUserResponseDto;
-import io.nats.client.Connection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -25,27 +33,46 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(TemporaryUserController.class)
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest
+@ContextConfiguration(classes = {
+        TemporaryUserController.class,
+        TemporaryUserControllerTest.TestSecurityConfig.class
+})
 class TemporaryUserControllerTest {
+
+    @Configuration
+    @EnableWebSecurity
+    static class TestSecurityConfig {
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) {
+            http.csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                    .httpBasic(Customizer.withDefaults())
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            return http.build();
+        }
+
+        @Bean
+        public UserDetailsService users() {
+            UserDetails user = User.builder()
+                    .username("user")
+                    .password("{noop}password")
+                    .roles("USER")
+                    .build();
+            return new InMemoryUserDetailsManager(user);
+        }
+    }
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
     private TemporaryUserService temporaryUserService;
-    @MockitoBean
-    private Connection connection;
-    @MockitoBean
-    private NatsHealthIndicator natsHealthIndicator;
-    @MockitoBean
-    private DwhJdbcTemplateConfig dwhJdbcTemplateConfig;
 
     private TemporaryUserResponseDto responseDto;
 
     @BeforeEach
     void setUp() {
-        // Set up a mock response
         responseDto = new TemporaryUserResponseDto();
         responseDto.setUsername("temp_user_" + UUID.randomUUID().toString().substring(0, 8));
         responseDto.setPassword("password123");
@@ -57,10 +84,8 @@ class TemporaryUserControllerTest {
 
     @Test
     void createTemporaryUser_ShouldReturnTemporaryUserResponseDto() throws Exception {
-        // Arrange
         when(temporaryUserService.createTemporaryUser()).thenReturn(responseDto);
 
-        // Act and Assert
         mockMvc.perform(
                         get("/create-temporary-user")
                                 .with(httpBasic("user", "password"))
@@ -74,7 +99,6 @@ class TemporaryUserControllerTest {
                 .andExpect(jsonPath("$.host").value(responseDto.getHost()))
                 .andExpect(jsonPath("$.port").value(responseDto.getPort()))
                 .andExpect(jsonPath("$.databaseName").value(responseDto.getDatabaseName()));
-
     }
 
     @Test

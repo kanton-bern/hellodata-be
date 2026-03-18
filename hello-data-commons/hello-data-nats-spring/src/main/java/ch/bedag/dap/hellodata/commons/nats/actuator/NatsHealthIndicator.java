@@ -37,8 +37,8 @@ import io.nats.client.api.StreamInfo;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.health.AbstractHealthIndicator;
-import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.health.contributor.AbstractHealthIndicator;
+import org.springframework.boot.health.contributor.Health;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -133,4 +133,5 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
             builder.down();
         }
     }
+
 }

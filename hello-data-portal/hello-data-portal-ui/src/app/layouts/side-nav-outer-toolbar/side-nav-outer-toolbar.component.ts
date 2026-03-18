@@ -70,6 +70,10 @@ export class SideNavOuterToolbarComponent {
       showEnvironment: environment.deploymentEnvironment.showEnvironment ?? true,
       color: environment.deploymentEnvironment.headerColor ? environment.deploymentEnvironment.headerColor : ''
     };
+    // Expose headerColor as a CSS custom property so global p-menu popups can use it
+    if (this.environment.color) {
+      document.documentElement.style.setProperty('--header-menu-bg', this.environment.color);
+    }
   }
 
   toggleSidebar(): void {
@@ -103,6 +107,130 @@ export class SideNavOuterToolbarComponent {
       }));
 
     }
+  }
+
+  /**
+   * Repositions the second-level flyout menu (position:absolute) so it
+   * stays within the viewport with PADDING px at the top and bottom.
+   * Does NOT set overflow or maxHeight — the second-level must keep
+   * overflow visible so the third-level can fly out.
+   */
+  repositionSecondLevelMenu(event: MouseEvent): void {
+    const li = event.currentTarget as HTMLElement;
+    const submenu = li.querySelector('.second-level-menu') as HTMLElement;
+    if (!submenu) {
+      return;
+    }
+    // Reset so measurements are accurate
+    submenu.style.top = '0';
+
+    requestAnimationFrame(() => {
+      const PADDING = 8;
+      const rect = submenu.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      if (rect.bottom > viewportHeight - PADDING) {
+        const overflow = rect.bottom - (viewportHeight - PADDING);
+        const newTop = -overflow;
+        const minTop = -(rect.top - PADDING);
+        submenu.style.top = `${Math.max(newTop, minTop)}px`;
+      }
+    });
+  }
+
+  /**
+   * Repositions the third-level flyout menu (position:absolute) so it
+   * stays within the viewport with PADDING px at the top and bottom.
+   * Also initialises the scroll-indicator arrows.
+   */
+  repositionThirdLevelMenu(event: MouseEvent): void {
+    const li = event.currentTarget as HTMLElement;
+    const submenu = li.querySelector('.third-level-menu') as HTMLElement;
+    if (!submenu) {
+      return;
+    }
+    // Reset so measurements are accurate
+    submenu.style.top = '0';
+
+    requestAnimationFrame(() => {
+      const PADDING = 8;
+      const rect = submenu.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      if (rect.bottom > viewportHeight - PADDING) {
+        const overflow = rect.bottom - (viewportHeight - PADDING);
+        const newTop = -overflow;
+        const minTop = -(rect.top - PADDING);
+        submenu.style.top = `${Math.max(newTop, minTop)}px`;
+      }
+      submenu.style.maxHeight = `${viewportHeight - 2 * PADDING}px`;
+
+      // Update scroll indicators
+      const list = submenu.querySelector('.third-level-menu__list') as HTMLElement;
+      if (list) {
+        this.updateScrollIndicators(submenu, list);
+      }
+    });
+  }
+
+  /**
+   * Handle scroll events on the third-level list to update arrow indicators.
+   */
+  onThirdLevelScroll(event: Event): void {
+    const list = event.target as HTMLElement;
+    const submenu = list.closest('.third-level-menu') as HTMLElement;
+    if (submenu && list) {
+      this.updateScrollIndicators(submenu, list);
+    }
+  }
+
+  /**
+   * Scroll the third-level list by `delta` pixels when an arrow is clicked.
+   * Uses a custom eased animation so larger distances are clearly visible.
+   */
+  scrollThirdLevel(event: MouseEvent, delta: number): void {
+    event.stopPropagation();
+    const indicator = event.currentTarget as HTMLElement;
+    const wrapper = indicator.closest('.third-level-menu') as HTMLElement;
+    const list = wrapper?.querySelector('.third-level-menu__list') as HTMLElement;
+    if (!list) {
+      return;
+    }
+
+    const duration = 400; // ms
+    const start = list.scrollTop;
+    const startTime = performance.now();
+
+    const easeInOutCubic = (t: number): number =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const step = (now: number) => {
+      const elapsed = Math.min((now - startTime) / duration, 1);
+      list.scrollTop = start + delta * easeInOutCubic(elapsed);
+      if (elapsed < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+    requestAnimationFrame(step);
+  }
+
+  /**
+   * Show/hide scroll-indicator arrows based on current scroll position.
+   * Uses CSS class toggling for smooth transitions.
+   */
+  private updateScrollIndicators(wrapper: HTMLElement, list: HTMLElement): void {
+    const upArrow = wrapper.querySelector('.scroll-indicator--up') as HTMLElement;
+    const downArrow = wrapper.querySelector('.scroll-indicator--down') as HTMLElement;
+    if (!upArrow || !downArrow) {
+      return;
+    }
+
+    const isScrollable = list.scrollHeight > list.clientHeight;
+    const atTop = list.scrollTop <= 1;
+    const atBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 1;
+
+    upArrow.classList.toggle('visible', isScrollable && !atTop);
+    downArrow.classList.toggle('visible', isScrollable && !atBottom);
   }
 
 }

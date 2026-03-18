@@ -32,9 +32,8 @@ import ch.bedag.dap.hellodata.portal.external_dashboard.data.ExternalDashboardDt
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.UpdateExternalDashboardDto;
 import ch.bedag.dap.hellodata.portal.external_dashboard.service.ExternalDashboardService;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -48,7 +47,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ExternalDashboardController.class)
-@ContextConfiguration(classes = {ExternalDashboardController.class})
 class ExternalDashboardControllerTest extends HDControllerTest {
 
     @MockitoBean
