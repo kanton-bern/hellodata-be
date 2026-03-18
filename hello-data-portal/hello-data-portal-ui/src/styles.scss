@@ -71,6 +71,25 @@
   border-radius: 0 0 var(--p-menu-border-radius, 4px) var(--p-menu-border-radius, 4px);
 }
 
+// When headerColor is set, apply it to the p-menu popup background
+// and keep the hover state consistent with the sidebar menus.
+:root[style*="--header-menu-bg"] .p-menu {
+  background-color: var(--header-menu-bg);
+  // Override PrimeNG's own CSS custom properties used for hover/focus
+  --p-menu-item-focus-background: rgba(0, 0, 0, 0.07);
+  --p-menu-item-active-background: rgba(0, 0, 0, 0.07);
+}
+
+:root[style*="--header-menu-bg"] .p-menu .p-menu-item-content:hover,
+:root[style*="--header-menu-bg"] .p-menu .p-menu-item.p-focus > .p-menu-item-content,
+:root[style*="--header-menu-bg"] .p-menu .p-menu-item:not(.p-disabled) > .p-menu-item-content:hover {
+  background: rgba(0, 0, 0, 0.07) !important;
+}
+
+:root[style*="--header-menu-bg"] .layout-topbar .layout-topbar-button:hover {
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+
 body {
   background-color: var(--p-surface-ground, #fafafa);
 }

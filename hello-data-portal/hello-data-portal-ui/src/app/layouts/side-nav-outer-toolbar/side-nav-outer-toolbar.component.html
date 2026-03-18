@@ -1,5 +1,5 @@
 <div class="sidebar close" [class.minimized]="sidebarMinimized" id="appSidebar"
-     [ngStyle]="environment.color && { 'background-color': environment.color, '--sidebar-bg': environment.color } || null">
+     [ngStyle]="environment.color && { 'background-color': environment.color, '--sidebar-bg': environment.color, '--sidebar-menu-hover': 'rgba(0,0,0,0.07)' } || null">
   <div class="logo-details"
        [class.logo-details-env]="environment.showEnvironment"
        [ngStyle]="environment.color && { 'background-color': environment.color } || null">
@@ -30,18 +30,28 @@
                     }
                   </a>
                   @if (sub.items && sub.items.length) {
-                    <ul class="third-level-menu">
-                      @for (third of sub.items; track third.id || third.label || $index) {
-                        <li>
-                          <a class="flex items-center" (click)="openWindow(third)">
-                            @if (third.icon) {
-                              <span [class]="third.icon" class="p-menuitem-icon"></span>
-                            }
-                            <span class="ml-2">{{ third.label | transloco }}</span>
-                          </a>
-                        </li>
-                      }
-                    </ul>
+                    <div class="third-level-menu">
+                      <div class="scroll-indicator scroll-indicator--up"
+                           (click)="scrollThirdLevel($event, -480)">
+                        <i class="pi pi-chevron-up"></i>
+                      </div>
+                      <ul class="third-level-menu__list" (scroll)="onThirdLevelScroll($event)">
+                        @for (third of sub.items; track third.id || third.label || $index) {
+                          <li>
+                            <a class="flex items-center" (click)="openWindow(third)">
+                              @if (third.icon) {
+                                <span [class]="third.icon" class="p-menuitem-icon"></span>
+                              }
+                              <span class="ml-2">{{ third.label | transloco }}</span>
+                            </a>
+                          </li>
+                        }
+                      </ul>
+                      <div class="scroll-indicator scroll-indicator--down"
+                           (click)="scrollThirdLevel($event, 480)">
+                        <i class="pi pi-chevron-down"></i>
+                      </div>
+                    </div>
                   }
                 </li>
               }

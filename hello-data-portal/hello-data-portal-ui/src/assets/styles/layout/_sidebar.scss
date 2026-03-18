@@ -296,7 +296,7 @@ body {
   position: absolute;
   left: 100%;
   top: 0;
-  background: $background-color;
+  background: var(--sidebar-bg, #{$background-color});
   list-style: none;
   padding: 0;
   margin: 0;
@@ -312,16 +312,73 @@ body {
 
 // The second-level must keep overflow visible so the absolutely-positioned
 // third-level can fly out. JS repositions it to stay within the viewport.
-// Only the third-level menu scrolls because it can contain many items.
+// .third-level-menu is now a wrapper <div>; the scrollable list is inside
+// .third-level-menu__list.
 .sidebar.close .nav-links li .third-level-menu {
+  display: flex;
+  flex-direction: column;
   max-height: calc(100vh - 16px);
-  overflow-y: auto;
   white-space: normal;
   overflow-wrap: break-word;
   word-break: break-word;
-  min-width: 280px;
   width: max-content;
   max-width: min(500px, calc(100vw - 200px));
+}
+
+.sidebar.close .nav-links li .third-level-menu__list {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  scrollbar-width: thin; // Firefox — thin overlay scrollbar
+  scrollbar-color: transparent transparent; // Firefox — hidden by default
+  &:hover {
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent; // Firefox — show on hover
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 3px;
+    transition: background 0.2s ease;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Scroll indicator arrows
+.scroll-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  color: var(--p-text-muted-color, #6c757d);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.2s ease, max-height 0.2s ease, padding 0.2s ease;
+}
+
+.scroll-indicator.visible {
+  max-height: 24px;
+  opacity: 1;
+  padding: 4px 0;
+  cursor: pointer;
 }
 
 .sidebar.close .nav-links li:hover > .second-level-menu {
@@ -333,6 +390,11 @@ body {
 .sidebar.close .nav-links .second-level-menu li:hover > .third-level-menu {
   opacity: 1;
   transform: translateX(0);
+  pointer-events: auto;
+}
+
+// Only enable pointer-events on scroll indicators when the menu is visible
+.sidebar.close .nav-links .second-level-menu li:hover > .third-level-menu .scroll-indicator.visible {
   pointer-events: auto;
 }
 
@@ -355,7 +417,7 @@ body {
 
 .sidebar .nav-links .second-level-menu li:hover > a,
 .sidebar .nav-links .third-level-menu li:hover > a {
-  background-color: var(--p-menu-item-focus-background, var(--surface-hover));
+  background-color: var(--sidebar-menu-hover, var(--p-menu-item-focus-background, var(--surface-hover)));
 }
 
 .sidebar .nav-links .second-level-menu li:first-child:hover > a,
@@ -412,7 +474,7 @@ body {
 
 .sidebar.close > .nav-links > li:hover {
   color: var(--text-color);
-  background-color: var(--p-menu-item-focus-background, var(--surface-hover));
+  background-color: var(--sidebar-menu-hover, var(--p-menu-item-focus-background, var(--surface-hover)));
   border-radius: 4px;
 }
 
@@ -466,6 +528,7 @@ body {
   cursor: pointer;
   padding-top: 8px;
   padding-bottom: 10px;
+  color: $menu-item-text-color;
 }
 
 .sidebar.close .nav-links li a .link_name {
