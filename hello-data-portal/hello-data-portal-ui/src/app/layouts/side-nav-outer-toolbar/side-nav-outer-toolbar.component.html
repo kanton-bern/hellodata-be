@@ -10,7 +10,7 @@
   @if ((navItems$ | async); as navItems) {
     <ul class="nav-links">
       @for (item of navItems; track item.id) {
-        <li>
+        <li (mouseenter)="repositionSecondLevelMenu($event)">
           <a class="flex flex-col items-center justify-center first-level-item" (click)="openWindow(item)">
             <span [class]="item.icon" class="p-menuitem-icon text-center" style="font-size: 2rem"></span>
             <span class="text-center first-level-label"
@@ -19,7 +19,7 @@
           @if (item.items && item.items.length) {
             <ul class="second-level-menu">
               @for (sub of item.items; track sub.id || sub.label || $index) {
-                <li>
+                <li (mouseenter)="repositionThirdLevelMenu($event)">
                   <a class="flex items-center" (click)="openWindow(sub)">
                     @if (sub.icon) {
                       <span [class]="sub.icon" class="p-menuitem-icon"></span>

@@ -105,4 +105,61 @@ export class SideNavOuterToolbarComponent {
     }
   }
 
+  /**
+   * Repositions the second-level flyout menu (position:absolute) so it
+   * stays within the viewport with PADDING px at the top and bottom.
+   * Does NOT set overflow or maxHeight — the second-level must keep
+   * overflow visible so the third-level can fly out.
+   */
+  repositionSecondLevelMenu(event: MouseEvent): void {
+    const li = event.currentTarget as HTMLElement;
+    const submenu = li.querySelector('.second-level-menu') as HTMLElement;
+    if (!submenu) {
+      return;
+    }
+    // Reset so measurements are accurate
+    submenu.style.top = '0';
+
+    requestAnimationFrame(() => {
+      const PADDING = 8;
+      const rect = submenu.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      if (rect.bottom > viewportHeight - PADDING) {
+        const overflow = rect.bottom - (viewportHeight - PADDING);
+        const newTop = -overflow;
+        const minTop = -(rect.top - PADDING);
+        submenu.style.top = `${Math.max(newTop, minTop)}px`;
+      }
+    });
+  }
+
+  /**
+   * Repositions the third-level flyout menu (position:absolute) so it
+   * stays within the viewport with PADDING px at the top and bottom.
+   */
+  repositionThirdLevelMenu(event: MouseEvent): void {
+    const li = event.currentTarget as HTMLElement;
+    const submenu = li.querySelector('.third-level-menu') as HTMLElement;
+    if (!submenu) {
+      return;
+    }
+    // Reset so measurements are accurate
+    submenu.style.top = '0';
+
+    requestAnimationFrame(() => {
+      const PADDING = 8;
+      const rect = submenu.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      if (rect.bottom > viewportHeight - PADDING) {
+        const overflow = rect.bottom - (viewportHeight - PADDING);
+        const newTop = -overflow;
+        const minTop = -(rect.top - PADDING);
+        submenu.style.top = `${Math.max(newTop, minTop)}px`;
+      }
+      submenu.style.maxHeight = `${viewportHeight - 2 * PADDING}px`;
+    });
+  }
+
 }

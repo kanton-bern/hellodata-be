@@ -310,12 +310,18 @@ body {
   z-index: 300;
 }
 
-// Only the third-level menu scrolls — the second-level must keep
-// overflow visible so the absolutely-positioned third-level can fly out.
+// The second-level must keep overflow visible so the absolutely-positioned
+// third-level can fly out. JS repositions it to stay within the viewport.
+// Only the third-level menu scrolls because it can contain many items.
 .sidebar.close .nav-links li .third-level-menu {
   max-height: calc(100vh - 16px);
   overflow-y: auto;
-  scrollbar-width: thin;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 280px;
+  width: max-content;
+  max-width: min(500px, calc(100vw - 200px));
 }
 
 .sidebar.close .nav-links li:hover > .second-level-menu {
