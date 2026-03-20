@@ -21,16 +21,16 @@ public class PageUtil {
         log.debug("Creating page {} of size {}", page, size);
         sort = StringUtils.defaultIfEmpty(sort, defaultDirection.name().toLowerCase(Locale.ROOT));
 
-        Sort sorting = Sort.by(Sort.Direction.ASC, defaultSortField);
+        Sort.Order order = new Sort.Order(Sort.Direction.ASC, defaultSortField);
         if (sort != null && !sort.isEmpty()) {
             String[] sortParams = sort.split(",");
             if (sortParams.length == 2) {
                 String sortField = sortParams[0];
                 Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
-                sorting = Sort.by(direction, sortField);
+                order = new Sort.Order(direction, sortField, Sort.NullHandling.NULLS_LAST);
             }
-            log.debug("Sorting by {} {}", sorting, sort);
+            log.debug("Sorting by {} {}", order, sort);
         }
-        return PageRequest.of(page, size, sorting);
+        return PageRequest.of(page, size, Sort.by(order));
     }
 }
