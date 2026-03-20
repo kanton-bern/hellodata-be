@@ -35,7 +35,7 @@ RUN pip install PyYAML
 ADD src/main/python/export_check.py /app/export_check.py
 RUN chown app /app/export_check.py
 RUN chmod +x /app/export_check.py
-USER app
+USER 3012
 WORKDIR app
 
 COPY target/*.jar /app/app.jar
