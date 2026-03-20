@@ -27,7 +27,10 @@ public class PageUtil {
             if (sortParams.length == 2) {
                 String sortField = sortParams[0];
                 Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
-                order = new Sort.Order(direction, sortField, Sort.NullHandling.NULLS_LAST);
+                Sort.NullHandling nullHandling = direction == Sort.Direction.DESC
+                        ? Sort.NullHandling.NULLS_LAST
+                        : Sort.NullHandling.NULLS_FIRST;
+                order = new Sort.Order(direction, sortField, nullHandling);
             }
             log.debug("Sorting by {} {}", order, sort);
         }
