@@ -49,7 +49,7 @@ spring:
 hello-data:
   log-cleanup:
     cron-expression: "*/30 * * * * *"
-    olderThanInDays: 1
+    olderThanInDays: 365
 
 server:
   port: 8087
