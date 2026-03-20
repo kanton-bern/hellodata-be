@@ -36,6 +36,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import java.util.Collection;
 import java.util.Locale;
 
@@ -46,6 +48,12 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
     public static String toCbRolesHeader(Collection<? extends GrantedAuthority> authorities) {
         StringBuilder sb = new StringBuilder();
         for (GrantedAuthority grantedAuthority : authorities) {
+            // Only include application-level roles (SimpleGrantedAuthority).
+            // Spring Security 7+ adds internal FactorGrantedAuthority entries
+            // (e.g. FACTOR_BEARER) that are not CloudBeaver teams.
+            if (!(grantedAuthority instanceof SimpleGrantedAuthority)) {
+                continue;
+            }
             if (!sb.isEmpty()) {
                 sb.append("|"); // roles are split with |
             }
