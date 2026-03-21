@@ -30,9 +30,10 @@ LABEL MAINTAINER="HelloData Team"
 
 # add 'app' user with uid 3012 and corresponding group
 RUN groupadd -r -g 3012 app && useradd -r -u 3012 -g app -d /app app
-USER 3012
 WORKDIR /app
 RUN chown -R 3012:3012 /app
+USER 3012
+
 
 COPY target/*.jar /app/app.jar
 CMD ["java", "-jar", "/app/app.jar"]
