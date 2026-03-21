@@ -76,7 +76,13 @@ RUN echo "window.environment = { \
 			} \
           }" > /app/config/environment.js
 
-RUN chown -R nginx: /app
+WORKDIR /app
+
+# Set ownership and group write permissions for /app and /etc/nginx
+RUN chown -R 3012:app /app && chmod -R g+w /app && \
+    chown -R 3012:app /etc/nginx && chmod -R g+w /etc/nginx
+
+USER 3012
 
 EXPOSE 80
 
