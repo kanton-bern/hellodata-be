@@ -29,14 +29,15 @@ FROM eclipse-temurin:17.0.9_9-jre
 LABEL MAINTAINER="HelloData Team"
 
 # add 'app' user with uid 3012 and corresponding group
-RUN useradd -d /app -m -s /bin/bash -u 3012 app -U
+RUN groupadd -r -g 3012 app && useradd -r -u 3012 -g app -d /app app
 RUN apt-get update && apt-get install -y python3 python3-pip
 RUN pip install PyYAML
 ADD src/main/python/export_check.py /app/export_check.py
-RUN chown app /app/export_check.py
+RUN chown -R 3012:3012 /app
 RUN chmod +x /app/export_check.py
+WORKDIR /app
 USER 3012
-WORKDIR app
+
 
 COPY target/*.jar /app/app.jar
 CMD ["java", "-jar", "/app/app.jar"]
