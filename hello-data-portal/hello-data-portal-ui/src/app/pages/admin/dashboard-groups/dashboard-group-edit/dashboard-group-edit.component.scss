@@ -56,3 +56,8 @@
   line-height: 1.3;
 }
 
+/* Keep consistent height across pages so pagination controls don't jump */
+.user-page-container {
+  min-height: 340px;
+}
+

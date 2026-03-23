@@ -80,11 +80,11 @@
       <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
         <p-tablist>
           <p-tab value="0">
-            <i class="fas fa-chart-pie mr-2"></i>
+            <span class="fas fa-chart-pie mr-2"></span>
             {{ '@Dashboards' | transloco }} ({{ selectedDashboardIds.size }})
           </p-tab>
           <p-tab value="1">
-            <i class="fas fa-users mr-2"></i>
+            <span class="fas fa-users mr-2"></span>
             {{ '@Users' | transloco }} ({{ selectedUserIds.size }})
           </p-tab>
         </p-tablist>
@@ -102,6 +102,7 @@
                 <p-inputicon class="pi pi-search"/>
                 <input pInputText [(ngModel)]="dashboardSearchFilter" [ngModelOptions]="{standalone: true}"
                        (ngModelChange)="onDashboardSearchChange()"
+                       [attr.aria-label]="'@Search dashboards' | transloco"
                        placeholder="{{ '@Search dashboards' | transloco }}" type="text"/>
               </p-iconfield>
             </div>
@@ -139,29 +140,43 @@
                 <p-inputicon class="pi pi-search"/>
                 <input pInputText [(ngModel)]="userSearchFilter" [ngModelOptions]="{standalone: true}"
                        (ngModelChange)="onUserSearchChange()"
+                       [attr.aria-label]="'@Search users' | transloco"
                        placeholder="{{ '@Search users' | transloco }}" type="text"/>
               </p-iconfield>
             </div>
-            <div class="user-list max-h-96 overflow-y-auto border border-surface rounded-border p-2">
+            <div class="user-list border border-surface rounded-border p-2">
               @if (filteredUsers.length === 0) {
                 <div class="text-gray-400 p-4 text-center text-sm">{{ '@No users available' | transloco }}</div>
               } @else {
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
-                  @for (user of filteredUsers; track user.id) {
-                    <div class="flex items-start gap-2 p-1 hover:bg-surface-100 rounded-border">
-                      <p-checkbox class="mt-0.5" [ngModel]="isUserSelected(user.id)"
-                                  [ngModelOptions]="{standalone: true}"
-                                  (ngModelChange)="onUserSelectionChange(user.id, $event, editedDashboardGroup)"
-                                  [binary]="true" [inputId]="'user-' + user.id"/>
-                      <label [for]="'user-' + user.id" class="cursor-pointer flex-1 text-xs leading-tight">
-                        <span class="font-medium block truncate">{{ user.firstName }} {{ user.lastName }}</span>
-                        <span class="text-gray-500 block truncate">{{ user.email }}</span>
-                        <span
-                          class="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] bg-blue-100 text-blue-700 rounded">{{ formatRoleName(user.roleName) }}</span>
-                      </label>
-                    </div>
-                  }
+                <div class="user-page-container">
+                  <div #userGrid class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
+                    @for (user of paginatedUsers; track user.id) {
+                      <div class="flex items-start gap-2 p-1 hover:bg-surface-100 rounded-border">
+                        <p-checkbox class="mt-0.5" [ngModel]="isUserSelected(user.id)"
+                                    [ngModelOptions]="{standalone: true}"
+                                    (ngModelChange)="onUserSelectionChange(user.id, $event, editedDashboardGroup)"
+                                    [binary]="true" [inputId]="'user-' + user.id"/>
+                        <label [for]="'user-' + user.id" class="cursor-pointer flex-1 text-xs leading-tight">
+                          <span class="font-medium block truncate">{{ user.firstName }} {{ user.lastName }}</span>
+                          <span class="text-gray-500 block truncate">{{ user.email }}</span>
+                          <span
+                            class="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] bg-blue-100 text-blue-700 rounded">{{ formatRoleName(user.roleName) }}</span>
+                        </label>
+                      </div>
+                    }
+                  </div>
                 </div>
+                @if (userTotalPages > 1) {
+                  <div class="flex items-center justify-center gap-3 mt-3 pt-2 border-t border-surface">
+                    <p-button icon="pi pi-chevron-left" [text]="true" [rounded]="true" severity="secondary"
+                              [disabled]="userPage === 0" (onClick)="prevUserPage()" pRipple
+                              [attr.aria-label]="'Previous page'"/>
+                    <span class="text-sm text-color-secondary">{{ userPage + 1 }} / {{ userTotalPages }}</span>
+                    <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary"
+                              [disabled]="userPage >= userTotalPages - 1" (onClick)="nextUserPage()" pRipple
+                              [attr.aria-label]="'Next page'"/>
+                  </div>
+                }
               }
             </div>
           </p-tabpanel>
@@ -193,5 +208,4 @@
     </form>
   }
 </p-card>
-<br>
-<app-delete-dashboard-group-popup [action]="getDeletionAction()"/>
+<app-delete-dashboard-group-popup class="mt-3 block" [action]="getDeletionAction()"/>

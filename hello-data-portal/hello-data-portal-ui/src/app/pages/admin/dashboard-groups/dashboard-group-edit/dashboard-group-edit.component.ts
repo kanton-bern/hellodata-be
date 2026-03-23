@@ -25,8 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {Observable, Subscription, tap} from 'rxjs';
+import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Observable, Subject, Subscription, tap} from 'rxjs';
 import {
   AbstractControl,
   FormBuilder,
@@ -85,7 +85,7 @@ import {
 import {SupersetDashboard} from '../../../../store/my-dashboards/my-dashboards.model';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {Checkbox} from 'primeng/checkbox';
-import {filter, take} from 'rxjs/operators';
+import {filter, take, takeUntil} from 'rxjs/operators';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {Card} from 'primeng/card';
@@ -107,56 +107,44 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   allEligibleUsers: DashboardGroupDomainUser[] = [];
 
   dashboardGroupForm!: FormGroup;
-  formValueChangedSub!: Subscription;
 
-  // Selected items
   selectedDashboardIds: Set<number> = new Set();
   selectedUserIds: Set<string> = new Set();
 
-  // Search filters
   dashboardSearchFilter = '';
   userSearchFilter = '';
 
-  // Select all state
   selectAllDashboards = false;
   selectAllUsers = false;
 
+  userPage = 0;
+  usersPerPage = 15;
+
+  @ViewChild('userGrid') userGridRef?: ElementRef<HTMLElement>;
+
   currentContextKey = '';
   currentDomainName = '';
-
-  // Active tab persisted via sessionStorage
-  private static readonly TAB_STORAGE_KEY = 'dashboardGroupEditActiveTab';
-  activeTab: string = sessionStorage.getItem(DashboardGroupEditComponent.TAB_STORAGE_KEY) || '0';
-
-  onTabChange(tabValue: string | number | undefined) {
-    this.activeTab = String(tabValue ?? '0');
-    sessionStorage.setItem(DashboardGroupEditComponent.TAB_STORAGE_KEY, this.activeTab);
-  }
-
-  /**
-   * Formats role name for display by replacing underscores with spaces
-   */
-  formatRoleName(roleName: string): string {
-    return roleName.replace(/_/g, ' ');
-  }
+  activeTab: string;
 
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroy$ = new Subject<void>();
+  private static readonly TAB_STORAGE_KEY = 'dashboardGroupEditActiveTab';
   private allDashboardGroups: DashboardGroup[] = [];
   private currentGroupId?: string;
+  private formValueChangedSub?: Subscription;
 
   constructor() {
     super();
+    this.activeTab = sessionStorage.getItem(DashboardGroupEditComponent.TAB_STORAGE_KEY) || '0';
     this.store.dispatch(loadMyDashboards());
 
-    // Load dashboard group by ID from route params (handles page refresh)
     const groupId = this.route.snapshot.paramMap.get('groupId');
     const contextKey = this.route.snapshot.paramMap.get('contextKey');
     if (groupId) {
       this.store.dispatch(loadDashboardGroupById());
     } else if (contextKey) {
-      // Create mode: initialize empty dashboard group with contextKey from route
       this.store.dispatch(setActiveContextKey({contextKey}));
       this.store.dispatch(openDashboardGroupEdition({dashboardGroup: null}));
     }
@@ -164,20 +152,17 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     this.editedDashboardGroup$ = this.store.select(selectEditedDashboardGroup);
     this.eligibleUsers$ = this.store.select(selectEligibleUsers);
 
-    // Subscribe to dashboards for the current domain
-    this.store.select(selectMyDashboards).subscribe(dashboards => {
+    this.store.select(selectMyDashboards).pipe(takeUntil(this.destroy$)).subscribe(dashboards => {
       this.allDashboards = dashboards.filter(d => d.contextKey === this.currentContextKey);
       this.applyDashboardFilter();
     });
 
-    // Subscribe to eligible users
-    this.eligibleUsers$.subscribe(users => {
+    this.eligibleUsers$.pipe(takeUntil(this.destroy$)).subscribe(users => {
       this.allEligibleUsers = users;
       this.applyUserFilter();
     });
 
-    // Load all dashboard groups for validation
-    this.store.select(selectDashboardGroups).subscribe(groups => {
+    this.store.select(selectDashboardGroups).pipe(takeUntil(this.destroy$)).subscribe(groups => {
       this.allDashboardGroups = groups;
     });
   }
@@ -185,6 +170,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   override ngOnInit(): void {
     super.ngOnInit();
     this.editedDashboardGroup$ = this.store.select(selectEditedDashboardGroup).pipe(
+      takeUntil(this.destroy$),
       tap((dashboardGroup) => {
         if (dashboardGroup) {
           this.currentContextKey = dashboardGroup.contextKey;
@@ -233,29 +219,21 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     this.store.dispatch(navigate({url: `${naviElements.dashboardGroups.path}/list/${this.currentContextKey}`}));
   }
 
+  onTabChange(tabValue: string | number | undefined) {
+    this.activeTab = String(tabValue ?? '0');
+    sessionStorage.setItem(DashboardGroupEditComponent.TAB_STORAGE_KEY, this.activeTab);
+  }
+
+  formatRoleName(roleName: string): string {
+    return roleName.replace(/_/g, ' ');
+  }
+
   saveDashboardGroup(editedDashboardGroup: DashboardGroup) {
-    const formValue = this.dashboardGroupForm.getRawValue();
-
-    const entries: DashboardGroupEntry[] = this.allDashboards
-      .filter(d => this.selectedDashboardIds.has(d.id))
-      .map(d => ({dashboardId: d.id, dashboardTitle: d.dashboardTitle}));
-
-    const users: DashboardGroupUserEntry[] = this.allEligibleUsers
-      .filter(u => this.selectedUserIds.has(u.id))
-      .map(u => ({id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName, roleName: u.roleName}));
-
-    const dashboardGroup: DashboardGroupCreateUpdate = {
-      id: editedDashboardGroup.id,
-      name: formValue.name,
-      contextKey: this.currentContextKey,
-      entries,
-      users
-    };
+    const dashboardGroup = this.buildDashboardGroupPayload(editedDashboardGroup);
     this.store.dispatch(saveChangesToDashboardGroup({dashboardGroup}));
 
-    // Update breadcrumbs with new name after save
-    if (editedDashboardGroup.id && formValue.name) {
-      this.createEditBreadcrumbs(formValue.name);
+    if (editedDashboardGroup.id && dashboardGroup.name) {
+      this.createEditBreadcrumbs(dashboardGroup.name);
     }
   }
 
@@ -301,9 +279,9 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     if (!this.dashboardSearchFilter) {
       this.filteredDashboards = [...this.allDashboards];
     } else {
-      const filter = this.dashboardSearchFilter.toLowerCase();
+      const searchTerm = this.dashboardSearchFilter.toLowerCase();
       this.filteredDashboards = this.allDashboards.filter(d =>
-        d.dashboardTitle.toLowerCase().includes(filter)
+        d.dashboardTitle.toLowerCase().includes(searchTerm)
       );
     }
   }
@@ -341,18 +319,52 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   onUserSearchChange() {
     this.applyUserFilter();
     this.updateSelectAllUsersState();
+    this.userPage = 0;
+  }
+
+  get paginatedUsers(): DashboardGroupDomainUser[] {
+    const start = this.userPage * this.usersPerPage;
+    return this.filteredUsers.slice(start, start + this.usersPerPage);
+  }
+
+  get userTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredUsers.length / this.usersPerPage));
+  }
+
+  prevUserPage() {
+    if (this.userPage > 0) {
+      this.userPage--;
+      this.animatePageTransition('-30px');
+    }
+  }
+
+  nextUserPage() {
+    if (this.userPage < this.userTotalPages - 1) {
+      this.userPage++;
+      this.animatePageTransition('30px');
+    }
+  }
+
+  private animatePageTransition(direction: string) {
+    const el = this.userGridRef?.nativeElement;
+    if (el) {
+      el.animate([
+        {opacity: 0, transform: `translateX(${direction})`},
+        {opacity: 1, transform: 'translateX(0)'}
+      ], {duration: 200, easing: 'ease-out'});
+    }
   }
 
   private applyUserFilter() {
     if (!this.userSearchFilter) {
       this.filteredUsers = [...this.allEligibleUsers];
     } else {
-      const filter = this.userSearchFilter.toLowerCase();
+      const searchTerm = this.userSearchFilter.toLowerCase();
       this.filteredUsers = this.allEligibleUsers.filter(u =>
-        u.firstName.toLowerCase().includes(filter) ||
-        u.lastName.toLowerCase().includes(filter) ||
-        u.email.toLowerCase().includes(filter) ||
-        u.roleName.toLowerCase().includes(filter)
+        u.firstName.toLowerCase().includes(searchTerm) ||
+        u.lastName.toLowerCase().includes(searchTerm) ||
+        u.email.toLowerCase().includes(searchTerm) ||
+        u.roleName.toLowerCase().includes(searchTerm)
       );
     }
   }
@@ -363,6 +375,8 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.unsubFormValueChanges();
   }
 
@@ -418,6 +432,14 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   }
 
   private onChange(editedDashboardGroup: DashboardGroup) {
+    const dashboardGroup = this.buildDashboardGroupPayload(editedDashboardGroup);
+    this.store.dispatch(markUnsavedChanges({
+      action: saveChangesToDashboardGroup({dashboardGroup}),
+      stayOnPage: editedDashboardGroup.id === undefined
+    }));
+  }
+
+  private buildDashboardGroupPayload(editedDashboardGroup: DashboardGroup): DashboardGroupCreateUpdate {
     const formValue = this.dashboardGroupForm.getRawValue();
 
     const entries: DashboardGroupEntry[] = this.allDashboards
@@ -428,17 +450,13 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       .filter(u => this.selectedUserIds.has(u.id))
       .map(u => ({id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName, roleName: u.roleName}));
 
-    const dashboardGroup: DashboardGroupCreateUpdate = {
+    return {
       id: editedDashboardGroup.id,
       name: formValue.name,
       contextKey: this.currentContextKey,
       entries,
       users
     };
-    this.store.dispatch(markUnsavedChanges({
-      action: saveChangesToDashboardGroup({dashboardGroup}),
-      stayOnPage: editedDashboardGroup.id === undefined
-    }));
   }
 
   private createCreateBreadcrumbs() {
@@ -476,12 +494,6 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
         }
       ]
     }));
-  }
-
-  updateBreadcrumbsWithGroupName(groupName: string) {
-    if (this.currentGroupId) {
-      this.createEditBreadcrumbs(groupName);
-    }
   }
 
   private unsubFormValueChanges() {
