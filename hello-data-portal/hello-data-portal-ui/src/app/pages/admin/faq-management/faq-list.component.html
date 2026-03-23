@@ -1,5 +1,6 @@
 <h2 class="content-block">{{ '@Faq management' | transloco }}</h2>
-@if ((selectedLanguage$ | async); as selectedLanguage) {
+@if ((defaultLanguage$ | async); as defaultLanguage) {
+  @if ((selectedLanguage$ | async); as selectedLanguage) {
   <p-card>
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
@@ -35,7 +36,7 @@
             </ng-template>
             <ng-template let-faqItem pTemplate="body" let-expanded="expanded">
               <tr>
-                <td>{{ getTitle(faqItem, selectedLanguage) }}</td>
+                <td>{{ getTitle(faqItem, selectedLanguage, defaultLanguage) }}</td>
                 <td>
                   @if (faqItem.contextName) {
                     {{ faqItem.contextName }}
@@ -108,6 +109,7 @@
       </div>
     }
   </p-card>
+  }
 }
 <br/>
 <app-delete-faq-popup [action]="getDeletionAction()"/>

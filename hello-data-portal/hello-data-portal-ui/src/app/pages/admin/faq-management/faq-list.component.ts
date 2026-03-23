@@ -35,7 +35,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {deleteFaq, loadFaq, openFaqEdition, showDeleteFaqPopup} from "../../../store/faq/faq.action";
-import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {AsyncPipe} from '@angular/common';
 import {Toolbar} from 'primeng/toolbar';
 import {PrimeTemplate, SharedModule} from 'primeng/api';
@@ -47,6 +47,7 @@ import {Card} from 'primeng/card';
 import {DeleteFaqPopupComponent} from './delete-faq-popup/delete-faq-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import {TranslateService} from "../../../shared/services/translate.service";
 
 @Component({
   selector: 'app-faq-list',
@@ -57,9 +58,11 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 export class FaqListComponent extends BaseComponent implements OnInit {
   faq$: Observable<any>;
   selectedLanguage$: Observable<any>;
+  defaultLanguage$: Observable<any>;
   expandedRows: { [key: string]: boolean } = {};
   private readonly store = inject<Store<AppState>>(Store);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly translateService = inject(TranslateService);
 
   constructor() {
     super();
@@ -67,6 +70,7 @@ export class FaqListComponent extends BaseComponent implements OnInit {
 
     this.faq$ = this.store.select(selectFilteredFaq);
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
+    this.defaultLanguage$ = this.store.select(selectDefaultLanguage);
     store.dispatch(loadFaq());
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -98,18 +102,30 @@ export class FaqListComponent extends BaseComponent implements OnInit {
     return deleteFaq();
   }
 
-  private static readonly DEFAULT_LOCALE = 'de_CH';
-
-  getTitle(faq: Faq, selectedLanguage: any): string | undefined {
-    const title = faq?.messages?.[selectedLanguage.code]?.title;
+  getTitle(faq: Faq, selectedLanguage: any, defaultLanguage: string): string | undefined {
+    const code = selectedLanguage.code;
+    const title = this.findMessage(faq, code)?.title;
     if (title) {
       return title;
     }
-    const fallbackTitle = faq?.messages?.[FaqListComponent.DEFAULT_LOCALE]?.title;
+    const fallbackTitle = this.findMessage(faq, defaultLanguage)?.title;
     if (fallbackTitle) {
-      return `${fallbackTitle} [Translation not available, fallback to DE]`;
+      return `${fallbackTitle} [${this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()})}]`;
     }
     return undefined;
+  }
+
+  /**
+   * Finds a FAQ message by locale code, falling back to prefix matching
+   * (e.g., 'de' matches 'de_CH') when exact match is not found.
+   */
+  private findMessage(faq: Faq, code: string | null | undefined) {
+    if (!code || !faq?.messages) return undefined;
+    const exact = faq.messages[code];
+    if (exact) return exact;
+    const prefix = code.slice(0, 2).toLowerCase();
+    const matchedKey = Object.keys(faq.messages).find(k => k.slice(0, 2).toLowerCase() === prefix);
+    return matchedKey ? faq.messages[matchedKey] : undefined;
   }
 
 

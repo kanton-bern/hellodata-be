@@ -70,20 +70,33 @@ export class FaqComponent implements OnInit {
   }
 
   getTitle(faq: Faq, selectedLanguage: string, defaultLanguage: any): string | undefined {
-    const title = faq?.messages?.[selectedLanguage]?.title;
+    const title = this.findMessage(faq, selectedLanguage)?.title;
     if (!title) {
-      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + faq?.messages?.[defaultLanguage]?.title
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + this.findMessage(faq, defaultLanguage)?.title
     }
     return title;
   }
 
   getMessage(faq: Faq, selectedLanguage: string, defaultLanguage: any): SafeHtml {
-    const message = faq?.messages?.[selectedLanguage]?.message;
+    const message = this.findMessage(faq, selectedLanguage)?.message;
     if (!message) {
-      const fallback = '<p>' + this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '</p>' + (faq?.messages?.[defaultLanguage]?.message || '');
+      const fallback = '<p>' + this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '</p>' + (this.findMessage(faq, defaultLanguage)?.message || '');
       return this.sanitizer.bypassSecurityTrustHtml(fallback);
     }
     return this.sanitizer.bypassSecurityTrustHtml(message);
+  }
+
+  /**
+   * Finds a FAQ message by locale code, falling back to prefix matching
+   * (e.g., 'de' matches 'de_CH') when exact match is not found.
+   */
+  private findMessage(faq: Faq, code: string | null | undefined) {
+    if (!code || !faq?.messages) return undefined;
+    const exact = faq.messages[code];
+    if (exact) return exact;
+    const prefix = code.slice(0, 2).toLowerCase();
+    const matchedKey = Object.keys(faq.messages).find(k => k.slice(0, 2).toLowerCase() === prefix);
+    return matchedKey ? faq.messages[matchedKey] : undefined;
   }
 
   private _getGroupedFaqs(): Observable<GroupedFaq[]> {
