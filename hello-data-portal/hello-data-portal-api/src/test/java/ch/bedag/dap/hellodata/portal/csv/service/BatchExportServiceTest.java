@@ -113,7 +113,7 @@ class BatchExportServiceTest {
                 List.of(new DataDomainRoleDto("Domain A", "domain_a", HdRoleName.DATA_DOMAIN_VIEWER)));
 
         MetaInfoResourceEntity supersetResource = createSupersetResource("domain_a",
-                List.of(createSubsystemUser("dave@example.com", List.of("D_dashboard_1", "RLS_01", "Admin", "BI_VIEWER"))));
+                List.of(createSubsystemUser("dave@example.com", List.of("D_dashboard_1", "RLS_01", "Admin", "BI_VIEWER", "sql_lab"))));
 
         when(userService.getAllUsersWithBusinessDomainRole()).thenReturn(List.of(user));
         when(metaInfoResourceService.findAllByModuleTypeAndKind(eq(ModuleType.SUPERSET), any(String.class)))
@@ -129,7 +129,7 @@ class BatchExportServiceTest {
     }
 
     @Test
-    void testSupersetRolesFilterExcludesAdminAndBiRoles() {
+    void testSupersetRolesFilterExcludesAdminAndBiRolesAndSqlLab() {
         assertTrue(BatchExportService.isExportableSupersetRole("D_my_dashboard"));
         assertTrue(BatchExportService.isExportableSupersetRole("RLS_01"));
         assertTrue(BatchExportService.isExportableSupersetRole("Public"));
@@ -137,6 +137,7 @@ class BatchExportServiceTest {
         assertFalse(BatchExportService.isExportableSupersetRole("BI_ADMIN"));
         assertFalse(BatchExportService.isExportableSupersetRole("BI_VIEWER"));
         assertFalse(BatchExportService.isExportableSupersetRole("BI_EDITOR"));
+        assertFalse(BatchExportService.isExportableSupersetRole("sql_lab"));
     }
 
     @Test

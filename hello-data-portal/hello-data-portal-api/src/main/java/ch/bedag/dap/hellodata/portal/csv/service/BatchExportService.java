@@ -56,6 +56,7 @@ public class BatchExportService {
     private static final String ROLE_DELIMITER = ",";
     private static final String ADMIN_ROLE = "Admin";
     private static final String BI_ROLE_PREFIX = "BI_";
+    private static final String SQL_LAB_ROLE = "sql_lab";
 
     private final UserService userService;
     private final MetaInfoResourceService metaInfoResourceService;
@@ -140,7 +141,9 @@ public class BatchExportService {
     }
 
     static boolean isExportableSupersetRole(String roleName) {
-        return !ADMIN_ROLE.equals(roleName) && !roleName.startsWith(BI_ROLE_PREFIX);
+        return !ADMIN_ROLE.equals(roleName)
+                && !roleName.startsWith(BI_ROLE_PREFIX)
+                && !SQL_LAB_ROLE.equals(roleName);
     }
 
     List<String> getDataDomainContextKeys() {
