@@ -95,6 +95,37 @@
               <td [attr.colspan]="3">
                 <div class="p-3">
                   <div class="subsystem-details-grid">
+                    <!-- Context Roles tile (always first) -->
+                    <div class="subsystem-detail-card context-roles-card">
+                      <div class="subsystem-detail-header">{{ '@Context Roles' | transloco }}</div>
+                      <div class="subsystem-detail-body context-roles-body">
+                        <div class="context-role-section">
+                          <span class="context-role-label">{{ '@Business Domain' | transloco }}:</span>
+                          @if (row['_businessDomainRole'] && row['_businessDomainRole'] !== 'NONE') {
+                            <p-tag [value]="formatRoleName(row['_businessDomainRole'])"
+                                   [class.filter-highlight]="matchesFilter(row['_businessDomainRole'])"
+                                   severity="info" class="m-1"/>
+                          } @else {
+                            <span class="context-role-none">{{ '@None' | transloco }}</span>
+                          }
+                        </div>
+                        @if (row['_dataDomainRoles']?.length > 0) {
+                          @for (ddr of row['_dataDomainRoles']; track ddr.contextKey) {
+                            <div class="context-role-section">
+                              <span class="context-role-label">{{ ddr.contextName }}:</span>
+                              @if (ddr.role && ddr.role !== 'NONE') {
+                                <p-tag [value]="formatRoleName(ddr.role)"
+                                       [class.filter-highlight]="matchesFilter(ddr.role)"
+                                       severity="secondary" class="m-1"/>
+                              } @else {
+                                <span class="context-role-none">{{ '@None' | transloco }}</span>
+                              }
+                            </div>
+                          }
+                        }
+                      </div>
+                    </div>
+                    <!-- Subsystem tiles -->
                     @for (col of dynamicColumns; track col.field) {
                       <div class="subsystem-detail-card">
                         <div class="subsystem-detail-header">{{ translateValue(col.header) }}</div>

@@ -47,6 +47,7 @@ import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
+import ch.bedag.dap.hellodata.portal.metainfo.data.DataDomainRoleDto;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
@@ -143,8 +144,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<UserWithBusinessRoleDto> getAllUsersWithBusinessDomainRole() {
         List<UserEntity> allPortalUsers = userRepository.findAll();
+        Map<String, String> contextKeyToName = contextRepository.findAll().stream()
+                .collect(Collectors.toMap(HdContextEntity::getContextKey, HdContextEntity::getName, (a, b) -> a));
         return allPortalUsers.stream()
-                .map(this::mapWithBusinessDomainRole)
+                .map(user -> mapWithBusinessDomainRole(user, contextKeyToName))
                 .toList();
     }
 
@@ -755,14 +758,22 @@ public class UserService {
         return dashboardForUserDto;
     }
 
-    private UserWithBusinessRoleDto mapWithBusinessDomainRole(UserEntity userEntity) {
+    private UserWithBusinessRoleDto mapWithBusinessDomainRole(UserEntity userEntity, Map<String, String> contextKeyToName) {
         UserDto userDto = UserDtoMapper.map(userEntity);
         UserWithBusinessRoleDto userDtoWithBusinessRole;
         if (userDto != null) {
             userDtoWithBusinessRole = modelMapper.map(userDto, UserWithBusinessRoleDto.class);
-            Optional<UserContextRoleEntity> businessDomainRole = userEntity.getContextRoles().stream()
-                    .filter(userContextRoleEntity -> userContextRoleEntity.getContextKey().equalsIgnoreCase(helloDataContextConfig.getBusinessContext().getKey())).findAny();
-            businessDomainRole.ifPresent(userContextRoleEntity -> userDtoWithBusinessRole.setBusinessDomainRole(userContextRoleEntity.getRole().getName()));
+            String businessContextKey = helloDataContextConfig.getBusinessContext().getKey();
+            List<DataDomainRoleDto> dataDomainRoles = new ArrayList<>();
+            for (UserContextRoleEntity ucr : userEntity.getContextRoles()) {
+                if (ucr.getContextKey().equalsIgnoreCase(businessContextKey)) {
+                    userDtoWithBusinessRole.setBusinessDomainRole(ucr.getRole().getName());
+                } else {
+                    String contextName = contextKeyToName.getOrDefault(ucr.getContextKey(), ucr.getContextKey());
+                    dataDomainRoles.add(new DataDomainRoleDto(contextName, ucr.getContextKey(), ucr.getRole().getName()));
+                }
+            }
+            userDtoWithBusinessRole.setDataDomainRoles(dataDomainRoles);
             return userDtoWithBusinessRole;
         } else {
             return null;

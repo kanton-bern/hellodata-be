@@ -11,5 +11,6 @@ public record SubsystemUserDto(String name,
                                List<String> roles,
                                String subsystemName,
                                HdRoleName businessDomainRole,
+                               List<DataDomainRoleDto> dataDomainRoles,
                                boolean enabled) {
 }

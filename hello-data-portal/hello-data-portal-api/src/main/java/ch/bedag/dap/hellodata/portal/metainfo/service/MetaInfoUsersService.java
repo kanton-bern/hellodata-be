@@ -121,6 +121,7 @@ public class MetaInfoUsersService {
                 u.getRoles().stream().map(SubsystemRole::getName).toList(),
                 instanceName,
                 userDto.getBusinessDomainRole(),
+                userDto.getDataDomainRoles() != null ? userDto.getDataDomainRoles() : List.of(),
                 userDto.getEnabled()
         );
     }
@@ -153,6 +154,7 @@ public class MetaInfoUsersService {
                 roles,
                 instanceName,
                 portalUser.getBusinessDomainRole(),
+                portalUser.getDataDomainRoles() != null ? portalUser.getDataDomainRoles() : List.of(),
                 portalUser.getEnabled()
         );
     }

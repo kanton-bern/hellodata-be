@@ -112,6 +112,12 @@ export interface AdUser {
   origin: string
 }
 
+export interface DataDomainRoleDto {
+  contextName: string;
+  contextKey: string;
+  role: string;
+}
+
 export interface SubsystemUserDto {
   name: string;
   surname: string;
@@ -121,6 +127,7 @@ export interface SubsystemUserDto {
   subsystemName: string;
   enabled: boolean;
   businessDomainRole?: string;
+  dataDomainRoles?: DataDomainRoleDto[];
 }
 
 export interface SubsystemUsersResultDto {

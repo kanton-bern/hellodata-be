@@ -308,11 +308,22 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
       const user = subsystem.users.find((u: any) => u.email === row.email);
       if (user) {
         row['enabled'] = '' + user.enabled;
+        if (!row['_businessDomainRole'] && user.businessDomainRole) {
+          row['_businessDomainRole'] = user.businessDomainRole;
+        }
+        if (!row['_dataDomainRoles'] && user.dataDomainRoles?.length > 0) {
+          row['_dataDomainRoles'] = user.dataDomainRoles;
+        }
       }
       row[subsystem.instanceName] = user
         ? user.roles.join(', ') || SubsystemUsersComponent.NO_PERMISSIONS
         : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
     });
+  }
+
+  formatRoleName(role: string): string {
+    if (!role) return '';
+    return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).replace(/\bDomain\b/gi, 'Domain');
   }
 
   private createBreadcrumbs(): void {
