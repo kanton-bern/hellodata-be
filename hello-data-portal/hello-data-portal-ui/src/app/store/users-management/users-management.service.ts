@@ -88,6 +88,12 @@ export class UsersManagementService {
     return this.httpClient.get<DashboardUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview/clear-cache`);
   }
 
+  public downloadBatchExportCsv(): Observable<Blob> {
+    return this.httpClient.get(`${this.baseMetainfoUrl}/resources/subsystem-users/batch-export`, {
+      responseType: 'blob'
+    });
+  }
+
   public getSyncStatus(): Observable<string> {
     return this.httpClient.get<string>(`${this.baseUsersSyncUrl}/status`);
   }

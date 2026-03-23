@@ -22,6 +22,13 @@
                           label="{{ '@Export' | transloco }}"/>
               </div>
               <div style="text-align: left">
+                <p-button (onClick)="exportBatchCsv()" pRipple
+                          [disabled]="(dataLoading$ | async) ?? false"
+                          icon="pi pi-file-export"
+                          label="{{ '@Export for batch import' | transloco }}"
+                          severity="warn"/>
+              </div>
+              <div style="text-align: left">
                 <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
                           icon="pi pi-replay" pRipple
                           label="{{ '@Reload' | transloco }}"

@@ -179,6 +179,7 @@
   "@Environment": "Environnement",
   "@Error": "Erreur",
   "@Export": "Exporter",
+  "@Export for batch import": "Exporter pour import par lots",
   "@Export comments": "Exporter les commentaires",
   "@Export dashboard": "Exporter les tableaux de bord",
   "@Export failed": "Échec de l'exportation",

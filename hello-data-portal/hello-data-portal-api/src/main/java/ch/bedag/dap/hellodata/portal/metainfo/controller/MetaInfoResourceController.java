@@ -30,13 +30,17 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceServ
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
+import ch.bedag.dap.hellodata.portal.csv.service.BatchExportService;
 import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +65,7 @@ public class MetaInfoResourceController {
 
     private final MetaInfoResourceService metaInfoResourceService;
     private final MetaInfoUsersService metaInfoUsersService;
+    private final BatchExportService batchExportService;
 
     @PreAuthorize("hasAnyAuthority('WORKSPACES')")
     @GetMapping(value = "/resources/filtered/by-app-info")
@@ -116,6 +122,26 @@ public class MetaInfoResourceController {
     @GetMapping(value = "/resources/users-dashboards-overview/clear-cache")
     public void clearUsersWithRolesForDashboardsCache() {
         log.info("Cleared up users with dashboards cache by {}", SecurityUtils.getCurrentUserEmail());
+    }
+
+    /**
+     * Exports all users with their context roles and superset roles as a CSV file
+     * compatible with the batch users import format.
+     *
+     * @return CSV file as a downloadable response
+     */
+    @PreAuthorize("hasAnyAuthority('WORKSPACES')")
+    @GetMapping(value = "/resources/subsystem-users/batch-export", produces = "text/csv")
+    public ResponseEntity<byte[]> exportBatchUsersCsv() {
+        log.info("Batch export of users requested by {}", SecurityUtils.getCurrentUserEmail());
+        String csvContent = batchExportService.generateBatchExportCsv();
+        byte[] csvBytes = csvContent.getBytes(StandardCharsets.UTF_8);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("text", "csv", StandardCharsets.UTF_8));
+        headers.setContentDispositionFormData("attachment", "batch-users-export.csv");
+
+        return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
     }
 
 

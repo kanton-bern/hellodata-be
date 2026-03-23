@@ -52,6 +52,7 @@ import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
 import {Ripple} from "primeng/ripple";
 import {Tooltip} from "primeng/tooltip";
+import {UsersManagementService} from "../../../store/users-management/users-management.service";
 
 interface TableRow {
   email: string;
@@ -82,6 +83,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   private allFilterFields: string[] = ['email'];
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
+  private readonly usersManagementService = inject(UsersManagementService);
   private readonly destroy$ = new Subject<void>();
 
   constructor() {
@@ -270,6 +272,16 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     link.download = 'subsystem-users.csv';
     link.click();
     URL.revokeObjectURL(link.href);
+  }
+
+  exportBatchCsv() {
+    this.usersManagementService.downloadBatchExportCsv().subscribe(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'batch-users-export.csv';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
   }
 
   private saveFilterTerms(): void {
