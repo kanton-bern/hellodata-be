@@ -97,10 +97,10 @@
                   <div class="subsystem-details-grid">
                     <!-- Context Roles tile (always first) -->
                     <div class="subsystem-detail-card context-roles-card">
-                      <div class="subsystem-detail-header">{{ '@Context Roles' | transloco }}</div>
+                      <div class="subsystem-detail-header">{{ '@Context roles' | transloco }}</div>
                       <div class="subsystem-detail-body context-roles-body">
                         <div class="context-role-section">
-                          <span class="context-role-label">{{ '@Business Domain' | transloco }}:</span>
+                          <span class="context-role-label">{{ '@Business domain' | transloco }}:</span>
                           @if (row['_businessDomainRole'] && row['_businessDomainRole'] !== 'NONE') {
                             <p-tag [value]="formatRoleName(row['_businessDomainRole'])"
                                    [class.filter-highlight]="matchesFilter(row['_businessDomainRole'])"

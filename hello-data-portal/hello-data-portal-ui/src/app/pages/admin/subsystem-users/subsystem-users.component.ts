@@ -236,12 +236,25 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
 
   exportCsv(tableData: TableRow[], dynamicColumns: any[]) {
     const dataToExport: TableRow[] = this.table.filteredValue || tableData;
-    const fixedHeaders = ['Email', 'Enabled'];
+    const contextRolesHeader = this.translateService.translate('@Context roles');
+    const fixedHeaders = ['Email', 'Enabled', contextRolesHeader];
     const dynamicHeaders = dynamicColumns.map(c => this.translateValue(c.header));
     const headers = [...fixedHeaders, ...dynamicHeaders];
 
     const rows = dataToExport.map(row => {
-      const fixedValues = [row['email'], row['enabled'] || ''];
+      const contextRoleParts: string[] = [];
+      if (row['_businessDomainRole'] && row['_businessDomainRole'] !== 'NONE') {
+        contextRoleParts.push(this.translateService.translate('@Business domain') + ': ' + this.formatRoleName(row['_businessDomainRole']));
+      }
+      if (row['_dataDomainRoles']?.length > 0) {
+        for (const ddr of row['_dataDomainRoles']) {
+          if (ddr.role && ddr.role !== 'NONE') {
+            contextRoleParts.push(ddr.contextName + ': ' + this.formatRoleName(ddr.role));
+          }
+        }
+      }
+      const contextRolesValue = contextRoleParts.join('; ');
+      const fixedValues = [row['email'], row['enabled'] || '', contextRolesValue];
       const dynamicValues = dynamicColumns.map(c => row[c.field] || '');
       return [...fixedValues, ...dynamicValues];
     });
@@ -323,7 +336,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
 
   formatRoleName(role: string): string {
     if (!role) return '';
-    return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).replace(/\bDomain\b/gi, 'Domain');
+    return role.replace(/_/g, ' ');
   }
 
   private createBreadcrumbs(): void {
