@@ -46,10 +46,25 @@
     font-size: 0.9rem;
     line-height: 1.7;
     word-break: break-word;
-    white-space: pre-wrap;
-
     p {
       margin: 0 0 0.5rem 0;
+    }
+
+    ol, ul {
+      padding-left: 1.5rem;
+      margin: 0.25rem 0 0.5rem 0;
+    }
+
+    ol {
+      list-style-type: decimal;
+    }
+
+    ul {
+      list-style-type: disc;
+    }
+
+    li {
+      margin-bottom: 0.25rem;
     }
 
     img {

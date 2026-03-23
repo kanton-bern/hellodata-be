@@ -80,7 +80,7 @@ export class FaqComponent implements OnInit {
   getMessage(faq: Faq, selectedLanguage: string, defaultLanguage: any): SafeHtml {
     const message = faq?.messages?.[selectedLanguage]?.message;
     if (!message) {
-      const fallback = this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + (faq?.messages?.[defaultLanguage]?.message || '');
+      const fallback = '<p>' + this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '</p>' + (faq?.messages?.[defaultLanguage]?.message || '');
       return this.sanitizer.bypassSecurityTrustHtml(fallback);
     }
     return this.sanitizer.bypassSecurityTrustHtml(message);
