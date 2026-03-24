@@ -153,3 +153,44 @@
   }
 }
 
+.info-panel {
+  background: var(--p-surface-50, #f9fafb);
+  border: 1px solid var(--p-surface-200, #e5e7eb);
+  border-radius: 8px;
+  margin: 0 40px 1rem 40px;
+  font-size: 0.875rem;
+}
+
+.info-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  color: var(--p-text-muted-color, #6b7280);
+
+  &:hover {
+    color: var(--p-text-color, #1f2937);
+  }
+}
+
+.info-panel-title {
+  font-weight: 600;
+}
+
+.info-panel-content {
+  padding: 0 1rem 0.75rem 1rem;
+  color: var(--p-text-color, #374151);
+  line-height: 1.6;
+
+  ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  li {
+    margin-bottom: 0.35rem;
+  }
+}
+

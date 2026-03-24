@@ -80,6 +80,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   filterTerms: string[] = [];
   currentFilterInput = '';
   expandedRows: { [s: string]: boolean } = {};
+  showInfoPanel = false;
   private allFilterFields: string[] = ['email'];
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);

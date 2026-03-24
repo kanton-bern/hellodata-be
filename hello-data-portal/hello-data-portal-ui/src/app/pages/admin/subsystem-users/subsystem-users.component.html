@@ -1,5 +1,25 @@
 <h2 class="content-block">{{ '@Subsystem users' | transloco }}</h2>
 @if ((tableData$ | async); as tableData) {
+  <div class="info-panel">
+    <div class="info-panel-header" (click)="showInfoPanel = !showInfoPanel"
+         (keydown.enter)="showInfoPanel = !showInfoPanel" tabindex="0"
+         role="button" [attr.aria-expanded]="showInfoPanel">
+      <span class="pi" [class.pi-chevron-down]="showInfoPanel" [class.pi-chevron-right]="!showInfoPanel"
+            aria-hidden="true"></span>
+      <span class="info-panel-title">{{ '@Usage guide' | transloco }}</span>
+    </div>
+    @if (showInfoPanel) {
+      <div class="info-panel-content">
+        <ul>
+          <li><strong>{{ '@Export' | transloco }}</strong> — {{ '@Export hint' | transloco }}</li>
+          <li><strong>{{ '@Export for batch import' | transloco }}</strong> — {{ '@Batch export hint' | transloco }}</li>
+          <li><strong>{{ '@Reload' | transloco }}</strong> — {{ '@Reload hint' | transloco }}</li>
+          <li><strong>{{ '@Clear cache' | transloco }}</strong> — {{ '@Clear cache hint' | transloco }}</li>
+          <li><strong>{{ '@Search' | transloco }}</strong> — {{ '@Search hint' | transloco }}</li>
+        </ul>
+      </div>
+    }
+  </div>
   <p-card>
     @if ((dynamicColumns$ | async); as dynamicColumns) {
       <div>
