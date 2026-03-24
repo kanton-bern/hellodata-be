@@ -42,11 +42,11 @@
               <tr>
                 <td>
                   @if (announcement.published) {
-                    <i class="fa-solid fa-circle" style="color: #008000;"
-                       [pTooltip]="'@Announcement published' | transloco"></i>
+                    <span class="fa-solid fa-circle status-published" aria-hidden="true"
+                       [pTooltip]="'@Announcement published' | transloco"></span>
                   } @else {
-                    <i class="fa-solid fa-circle" style="color: #ff0000;"
-                       [pTooltip]="'@Announcement unpublished' | transloco"></i>
+                    <span class="fa-solid fa-circle status-unpublished" aria-hidden="true"
+                       [pTooltip]="'@Announcement unpublished' | transloco"></span>
                   }
                 </td>
                 <td>
@@ -122,5 +122,6 @@
     }
   </p-card>
 }
-<br/>
-<app-delete-announcement-popup [action]="getDeletionAction()"/>
+<div class="mt-3">
+  <app-delete-announcement-popup [action]="getDeletionAction()"/>
+</div>

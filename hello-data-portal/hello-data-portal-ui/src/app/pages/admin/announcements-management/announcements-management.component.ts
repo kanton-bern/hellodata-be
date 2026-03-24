@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -59,20 +59,19 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
   styleUrls: ['./announcements-management.component.scss'],
   imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Tooltip, SharedModule, Button, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
-export class AnnouncementsManagementComponent extends BaseComponent implements OnInit {
-  allAnnouncements$: Observable<any>;
-  selectedLanguage$: Observable<any>;
+export class AnnouncementsManagementComponent extends BaseComponent {
+  allAnnouncements$: Observable<Announcement[]>;
+  selectedLanguage$: Observable<{ code: string; typeTranslationKey: string }>;
   expandedRows: { [key: string]: boolean } = {};
+
   private readonly store = inject<Store<AppState>>(Store);
   private readonly sanitizer = inject(DomSanitizer);
 
   constructor() {
     super();
-    const store = this.store;
-
     this.allAnnouncements$ = this.store.select(selectAllAnnouncements);
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
-    store.dispatch(loadAllAnnouncements());
+    this.store.dispatch(loadAllAnnouncements());
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -81,10 +80,6 @@ export class AnnouncementsManagementComponent extends BaseComponent implements O
         }
       ]
     }));
-  }
-
-  override ngOnInit(): void {
-    super.ngOnInit();
   }
 
   createAnnouncement() {
@@ -104,8 +99,17 @@ export class AnnouncementsManagementComponent extends BaseComponent implements O
   }
 
   getMessage(announcement: Announcement, selectedLanguage: any): SafeHtml {
-    const message = announcement?.messages?.[selectedLanguage.code] || '';
+    const message = this.findAnnouncementMessage(announcement, selectedLanguage.code) || '';
     return this.sanitizer.bypassSecurityTrustHtml(message);
+  }
+
+  private findAnnouncementMessage(announcement: Announcement, code: string | null | undefined): string | undefined {
+    if (!code || !announcement?.messages) return undefined;
+    const exact = announcement.messages[code];
+    if (exact) return exact;
+    const prefix = code.slice(0, 2).toLowerCase();
+    const matchedKey = Object.keys(announcement.messages).find(k => k.slice(0, 2).toLowerCase() === prefix);
+    return matchedKey ? announcement.messages[matchedKey] : undefined;
   }
 
   getTranslations(announcement: Announcement): { locale: string; displayLocale: string; message: SafeHtml }[] {
