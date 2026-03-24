@@ -36,6 +36,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
 import ch.bedag.dap.hellodata.portal.metainfo.data.DataDomainRoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserWithBusinessRoleDto;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
@@ -51,7 +53,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class BatchExportService {
 
-    static final String CSV_HEADER = "email;businessDomainRole;context;dataDomainRole;supersetRole";
+    static final String CSV_HEADER = "email;businessDomainRole;context;dataDomainRole;supersetRole;dashboardGroup";
     private static final char CSV_DELIMITER = ';';
     private static final String ROLE_DELIMITER = ",";
     private static final String ADMIN_ROLE = "Admin";
@@ -61,18 +63,20 @@ public class BatchExportService {
     private final UserService userService;
     private final MetaInfoResourceService metaInfoResourceService;
     private final HdContextRepository contextRepository;
+    private final DashboardGroupRepository dashboardGroupRepository;
 
     @Transactional(readOnly = true)
     public String generateBatchExportCsv() {
         List<UserWithBusinessRoleDto> allUsers = userService.getAllUsersWithBusinessDomainRole();
         Map<String, Map<String, List<String>>> supersetRolesMap = buildSupersetRolesMap();
         List<String> dataDomainContextKeys = getDataDomainContextKeys();
+        Map<String, Map<String, List<String>>> dashboardGroupMap = buildDashboardGroupMap();
 
         StringBuilder csv = new StringBuilder();
         csv.append(CSV_HEADER).append('\n');
 
         for (UserWithBusinessRoleDto user : allUsers) {
-            appendUserRows(csv, user, supersetRolesMap, dataDomainContextKeys);
+            appendUserRows(csv, user, supersetRolesMap, dataDomainContextKeys, dashboardGroupMap);
         }
 
         return csv.toString();
@@ -80,8 +84,10 @@ public class BatchExportService {
 
     void appendUserRows(StringBuilder csv, UserWithBusinessRoleDto user,
                         Map<String, Map<String, List<String>>> supersetRolesMap,
-                        List<String> dataDomainContextKeys) {
+                        List<String> dataDomainContextKeys,
+                        Map<String, Map<String, List<String>>> dashboardGroupMap) {
         String email = user.getEmail();
+        String userId = user.getId();
         String bdRole = user.getBusinessDomainRole() != null
                 ? user.getBusinessDomainRole().name()
                 : HdRoleName.NONE.name();
@@ -93,16 +99,15 @@ public class BatchExportService {
             for (DataDomainRoleDto ddRole : ddRoles) {
                 coveredContextKeys.add(ddRole.contextKey());
                 String supersetRoles = formatSupersetRoles(supersetRolesMap, email, ddRole.contextKey());
-                appendRow(csv, email, bdRole, ddRole.contextKey(), ddRole.role().name(), supersetRoles);
+                String dashboardGroups = formatDashboardGroups(dashboardGroupMap, userId, ddRole.contextKey());
+                appendRow(csv, email, bdRole, ddRole.contextKey(), ddRole.role().name(), supersetRoles, dashboardGroups);
             }
         }
 
-        // For data domains where user has no role, export NONE so the import
-        // produces the same state (setRoleForAllRemainingDataDomainsToNone).
-        // At minimum one row per user is needed to preserve the business domain role.
         for (String contextKey : dataDomainContextKeys) {
             if (!coveredContextKeys.contains(contextKey)) {
-                appendRow(csv, email, bdRole, contextKey, HdRoleName.NONE.name(), "");
+                String dashboardGroups = formatDashboardGroups(dashboardGroupMap, userId, contextKey);
+                appendRow(csv, email, bdRole, contextKey, HdRoleName.NONE.name(), "", dashboardGroups);
             }
         }
     }
@@ -168,12 +173,52 @@ public class BatchExportService {
     }
 
     private void appendRow(StringBuilder csv, String email, String businessDomainRole,
-                           String context, String dataDomainRole, String supersetRoles) {
+                           String context, String dataDomainRole, String supersetRoles, String dashboardGroups) {
         csv.append(email).append(CSV_DELIMITER)
                 .append(businessDomainRole).append(CSV_DELIMITER)
                 .append(context).append(CSV_DELIMITER)
                 .append(dataDomainRole).append(CSV_DELIMITER)
-                .append(supersetRoles)
+                .append(supersetRoles).append(CSV_DELIMITER)
+                .append(dashboardGroups)
                 .append('\n');
+    }
+
+    /**
+     * Builds a map of userId → contextKey → list of dashboard group names.
+     */
+    Map<String, Map<String, List<String>>> buildDashboardGroupMap() {
+        List<DashboardGroupEntity> allGroups = dashboardGroupRepository.findAll();
+        Map<String, Map<String, List<String>>> result = new HashMap<>();
+
+        for (DashboardGroupEntity group : allGroups) {
+            if (group.getUsers() == null || group.getContextKey() == null) {
+                continue;
+            }
+            for (var userEntry : group.getUsers()) {
+                if (userEntry.getId() == null) {
+                    continue;
+                }
+                result.computeIfAbsent(userEntry.getId(), k -> new HashMap<>())
+                        .computeIfAbsent(group.getContextKey(), k -> new ArrayList<>())
+                        .add(group.getName());
+            }
+        }
+        return result;
+    }
+
+    String formatDashboardGroups(Map<String, Map<String, List<String>>> dashboardGroupMap,
+                                 String userId, String contextKey) {
+        if (userId == null) {
+            return "";
+        }
+        Map<String, List<String>> contextGroups = dashboardGroupMap.get(userId);
+        if (contextGroups == null) {
+            return "";
+        }
+        List<String> groups = contextGroups.get(contextKey);
+        if (groups == null || groups.isEmpty()) {
+            return "";
+        }
+        return String.join(ROLE_DELIMITER, groups);
     }
 }
