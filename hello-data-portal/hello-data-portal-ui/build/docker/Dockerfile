@@ -48,6 +48,6 @@ RUN chown -R 3012:app /app && chmod -R g+w /app && \
 
 USER 3012
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["sh", "-c", "envsubst < /etc/nginx/conf.d/csp.conf.template > /etc/nginx/conf.d/csp.conf && nginx -g 'daemon off;'"]
