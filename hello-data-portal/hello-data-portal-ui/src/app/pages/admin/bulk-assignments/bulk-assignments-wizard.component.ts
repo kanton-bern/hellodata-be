@@ -32,6 +32,7 @@ import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
 import {BaseComponent} from '../../../shared/components/base/base.component';
 import {createBreadcrumbs} from '../../../store/breadcrumb/breadcrumb.action';
+import {showSuccess} from '../../../store/app/app.action';
 import {naviElements} from '../../../app-navi-elements';
 import {Subject, takeUntil} from 'rxjs';
 import {selectAllAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.selector';
@@ -70,6 +71,7 @@ import {Ripple} from 'primeng/ripple';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {Tooltip} from 'primeng/tooltip';
+import {Carousel} from 'primeng/carousel';
 import {SupersetDashboardWithMetadata} from '../../../store/start-page/start-page.model';
 
 interface DomainAssignmentConfig {
@@ -132,11 +134,11 @@ const EXCLUDED_BUSINESS_ROLES = new Set([HELLODATA_ADMIN_ROLE, BUSINESS_DOMAIN_A
     IconField,
     InputIcon,
     Tooltip,
+    Carousel,
   ]
 })
 export class BulkAssignmentsWizardComponent extends BaseComponent implements OnDestroy {
   @ViewChild('userGrid') userGridRef?: ElementRef;
-  @ViewChild('carouselContent') carouselContentRef?: ElementRef;
 
   activeStep = 1;
 
@@ -184,11 +186,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   // Step 4 - Summary
   isSubmitting = false;
   result: BulkAssignmentResult | null = null;
-  summaryPageIndex = 0;
-  maxVisitedPage = 0;
   cachedDomainSummary: DomainSummaryItem[] = [];
   cachedSelectedUsers: User[] = [];
-  summaryReviewed = false;
 
   private readonly store = inject<Store<AppState>>(Store);
   private readonly usersManagementService = inject(UsersManagementService);
@@ -473,47 +472,9 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     return role.replace(/_/g, ' ');
   }
 
-  nextSummaryPage(): void {
-    const total = this.cachedDomainSummary.length;
-    if (this.summaryPageIndex < total - 1) {
-      this.animateCarousel('30px');
-      this.summaryPageIndex++;
-      if (this.summaryPageIndex > this.maxVisitedPage) {
-        this.maxVisitedPage = this.summaryPageIndex;
-      }
-      if (this.maxVisitedPage >= total - 1) {
-        this.summaryReviewed = true;
-      }
-    }
-  }
-
-  prevSummaryPage(): void {
-    if (this.summaryPageIndex > 0) {
-      this.animateCarousel('-30px');
-      this.summaryPageIndex--;
-    }
-  }
-
-  private animateCarousel(direction: string): void {
-    const el = this.carouselContentRef?.nativeElement;
-    if (el) {
-      el.animate([
-        {opacity: 0, transform: `translateX(${direction})`},
-        {opacity: 1, transform: 'translateX(0)'}
-      ], {duration: 250, easing: 'ease-out'});
-    }
-  }
-
-  allSummaryPagesReviewed(): boolean {
-    return this.summaryReviewed;
-  }
-
   goToSummary(activateCallback: (val: number) => void): void {
-    this.summaryPageIndex = 0;
-    this.maxVisitedPage = 0;
     this.cachedDomainSummary = this.getSelectedDomainNames();
     this.cachedSelectedUsers = this.getSelectedUsers();
-    this.summaryReviewed = this.cachedDomainSummary.length <= 1;
     activateCallback(4);
   }
 
@@ -570,6 +531,9 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       next: (res) => {
         this.result = res;
         this.isSubmitting = false;
+        if (res.failedCount === 0) {
+          this.store.dispatch(showSuccess({message: '@Bulk assignment applied successfully'}));
+        }
         this.cdr.markForCheck();
       },
       error: (err) => {

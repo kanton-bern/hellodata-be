@@ -301,77 +301,6 @@
     font-size: 1rem;
   }
 
-  &.review-complete {
-    background: var(--p-green-50, #f0fdf4);
-    border-color: var(--p-green-200, #bbf7d0);
-    color: var(--p-green-700, #15803d);
-    margin-top: 0.75rem;
-  }
-}
-
-.carousel-progress {
-  width: 100%;
-  margin-bottom: 1rem;
-}
-
-.carousel-progress-label {
-  font-size: 0.85rem;
-  color: var(--p-surface-600);
-  margin-bottom: 0.4rem;
-  text-align: center;
-}
-
-.carousel-progress-bar {
-  width: 100%;
-  height: 10px;
-  background: var(--p-surface-200);
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-.carousel-progress-fill {
-  height: 100%;
-  background: var(--p-blue-500, #3b82f6);
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-.summary-carousel {
-  display: flex;
-  align-items: stretch;
-  gap: 0.5rem;
-  width: 100%;
-}
-
-.carousel-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  min-width: 40px;
-  border: 1px solid var(--p-surface-200);
-  border-radius: 8px;
-  background: var(--p-surface-50);
-  color: var(--p-surface-600);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 1.2rem;
-
-  &:hover:not(:disabled) {
-    background: var(--p-surface-100);
-    color: var(--p-primary-500);
-  }
-
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-}
-
-.carousel-content {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
 }
 
 .summary-flow {
@@ -585,7 +514,3 @@
   margin-bottom: 2rem;
 }
 
-:host ::ng-deep .apply-disabled {
-  cursor: not-allowed !important;
-  opacity: 0.5;
-}

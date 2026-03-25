@@ -227,13 +227,10 @@
           <div class="step-content">
             <h3>{{ '@Summary' | transloco }}</h3>
             @if (!result && !isSubmitting) {
-              <!-- Review info (instruction) -->
-              @if (!summaryReviewed) {
-                <div class="review-info">
-                  <i class="fas fa-info-circle"></i>
-                  <span>{{ '@Review all domains info' | transloco }}</span>
-                </div>
-              }
+              <div class="review-info">
+                <i class="fas fa-info-circle"></i>
+                <span>{{ '@Review summary info' | transloco }}</span>
+              </div>
 
               <div class="summary-section">
                 <!-- Users shown once at top -->
@@ -247,44 +244,17 @@
                 </div>
                 <div class="summary-flow-arrow center-arrow"><i class="pi pi-arrow-down"></i></div>
 
-                <!-- Carousel -->
-                <div class="summary-carousel">
-                  <button type="button" class="carousel-nav carousel-prev"
-                          [disabled]="summaryPageIndex === 0"
-                          (click)="prevSummaryPage()">
-                    <i class="pi pi-chevron-left"></i>
-                  </button>
-                  <div class="carousel-content" #carouselContent>
-                    @if (cachedDomainSummary[summaryPageIndex]) {
-                      <ng-container *ngTemplateOutlet="domainSummaryFlow; context: { $implicit: cachedDomainSummary[summaryPageIndex] }" />
-                    }
-                  </div>
-                  <button type="button" class="carousel-nav carousel-next"
-                          [disabled]="summaryPageIndex === cachedDomainSummary.length - 1"
-                          (click)="nextSummaryPage()">
-                    <i class="pi pi-chevron-right"></i>
-                  </button>
-                </div>
+                <!-- PrimeNG Carousel -->
+                <p-carousel [value]="cachedDomainSummary"
+                            [numVisible]="1"
+                            [numScroll]="1"
+                            [showIndicators]="cachedDomainSummary.length > 1"
+                            [showNavigators]="cachedDomainSummary.length > 1">
+                  <ng-template #item let-item>
+                    <ng-container *ngTemplateOutlet="domainSummaryFlow; context: { $implicit: item }" />
+                  </ng-template>
+                </p-carousel>
               </div>
-
-              <!-- Progress bar -->
-              <div class="carousel-progress">
-                <div class="carousel-progress-label">
-                  {{ '@Review progress' | transloco }}: {{ summaryPageIndex + 1 }} / {{ cachedDomainSummary.length }}
-                </div>
-                <div class="carousel-progress-bar">
-                  <div class="carousel-progress-fill"
-                       [style.width.%]="((maxVisitedPage + 1) / cachedDomainSummary.length) * 100"></div>
-                </div>
-              </div>
-
-              <!-- Review complete message -->
-              @if (summaryReviewed) {
-                <div class="review-info review-complete">
-                  <i class="fas fa-check-circle"></i>
-                  <span>{{ '@Review complete' | transloco }}</span>
-                </div>
-              }
 
               <div class="step-actions">
                 <p-button label="{{ '@Back' | transloco }}"
@@ -294,8 +264,6 @@
                 <p-button label="{{ '@Apply bulk assignments' | transloco }}"
                           icon="pi pi-check"
                           severity="success"
-                          [disabled]="!summaryReviewed"
-                          [styleClass]="summaryReviewed ? '' : 'apply-disabled'"
                           (onClick)="confirmApply()" pRipple />
               </div>
             }
@@ -358,7 +326,7 @@
     <!-- Domain -->
     <div class="summary-flow-item domain-header">
       <i class="fas fa-database"></i>
-      <span class="flow-label">{{ item.name }}</span>
+      <span class="flow-label">{{ '@Data domain' | transloco }}: {{ item.name }}</span>
     </div>
     <div class="summary-flow-arrow"><i class="pi pi-arrow-down"></i></div>
 
