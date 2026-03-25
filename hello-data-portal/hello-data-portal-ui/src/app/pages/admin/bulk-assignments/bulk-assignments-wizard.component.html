@@ -161,34 +161,6 @@
                               [placeholder]="'@Select role' | transloco"/>
                   </div>
                   @if (showDashboardSelection(getRoleForDomain(domainKey))) {
-                    <div class="dashboard-selection">
-                      <div class="select-all-row">
-                        <h4>{{ '@Dashboards' | transloco }}</h4>
-                        <p-checkbox
-                          [inputId]="'selectAllDash-' + domainKey"
-                          [binary]="true"
-                          [ngModel]="areAllDashboardsSelected(domainKey)"
-                          (onChange)="onSelectAllDashboards(domainKey, $event.checked)"/>
-                        <label [for]="'selectAllDash-' + domainKey">{{ '@Select all' | transloco }}</label>
-                      </div>
-                      <div class="checkbox-grid">
-                        @for (dashboard of getDashboardsForDomain(domainKey); track dashboard.id) {
-                          <div class="checkbox-item">
-                            <p-checkbox
-                              [inputId]="'dash-' + domainKey + '-' + dashboard.id"
-                              [binary]="true"
-                              [ngModel]="isDashboardSelected(domainKey, dashboard.id)"
-                              (onChange)="onDashboardSelectionChange(domainKey, dashboard, $event.checked)"/>
-                            <label
-                              [for]="'dash-' + domainKey + '-' + dashboard.id">{{ dashboard.dashboardTitle }}</label>
-                          </div>
-                        }
-                        @if (getDashboardsForDomain(domainKey).length === 0) {
-                          <span class="no-data-inline">{{ '@No dashboards available' | transloco }}</span>
-                        }
-                      </div>
-                    </div>
-                    <hr class="section-divider"/>
                     <div class="dashboard-group-selection">
                       <div class="select-all-row">
                         <h4>{{ '@Dashboard groups' | transloco }}</h4>
@@ -225,6 +197,34 @@
                       @if (getDashboardGroupsForDomain(domainKey).length === 0) {
                         <span class="no-data-inline">{{ '@No data found' | transloco }}</span>
                       }
+                    </div>
+                    <hr class="section-divider"/>
+                    <div class="dashboard-selection">
+                      <div class="select-all-row">
+                        <h4>{{ '@Dashboards' | transloco }}</h4>
+                        <p-checkbox
+                          [inputId]="'selectAllDash-' + domainKey"
+                          [binary]="true"
+                          [ngModel]="areAllDashboardsSelected(domainKey)"
+                          (onChange)="onSelectAllDashboards(domainKey, $event.checked)"/>
+                        <label [for]="'selectAllDash-' + domainKey">{{ '@Select all' | transloco }}</label>
+                      </div>
+                      <div class="checkbox-grid">
+                        @for (dashboard of getDashboardsForDomain(domainKey); track dashboard.id) {
+                          <div class="checkbox-item">
+                            <p-checkbox
+                              [inputId]="'dash-' + domainKey + '-' + dashboard.id"
+                              [binary]="true"
+                              [ngModel]="isDashboardSelected(domainKey, dashboard.id)"
+                              (onChange)="onDashboardSelectionChange(domainKey, dashboard, $event.checked)"/>
+                            <label
+                              [for]="'dash-' + domainKey + '-' + dashboard.id">{{ dashboard.dashboardTitle }}</label>
+                          </div>
+                        }
+                        @if (getDashboardsForDomain(domainKey).length === 0) {
+                          <span class="no-data-inline">{{ '@No dashboards available' | transloco }}</span>
+                        }
+                      </div>
                     </div>
                   }
                 </div>
@@ -267,7 +267,7 @@
                     }
                   </div>
                 </div>
-                <div class="summary-flow-arrow center-arrow main-arrow"><i class="pi pi-arrow-down"></i></div>
+                <div class="summary-flow-arrow center-arrow main-arrow"><i class="fa-solid fa-angles-down"></i></div>
 
                 <!-- PrimeNG Carousel -->
                 <p-carousel [value]="cachedDomainSummary"
@@ -401,7 +401,7 @@
       <i class="fas fa-database"></i>
       <span class="flow-label">{{ '@Data domain' | transloco }}: {{ item.name }}</span>
     </div>
-    <div class="summary-flow-arrow"><i class="pi pi-arrow-down"></i></div>
+    <div class="summary-flow-arrow medium-arrow"><i class="fa-solid fa-angles-down"></i></div>
 
     <!-- Role -->
     <div class="summary-flow-item role-block">
@@ -410,7 +410,7 @@
       </div>
     </div>
     @if (item.roleName === 'DATA_DOMAIN_VIEWER' || item.roleName === 'DATA_DOMAIN_BUSINESS_SPECIALIST') {
-      <div class="summary-flow-arrow"><i class="pi pi-arrow-down"></i></div>
+      <div class="summary-flow-arrow small-arrow"><i class="fa-solid fa-angles-down"></i></div>
 
       <!-- Dashboards & Groups side by side -->
       <div class="summary-flow-resources">
