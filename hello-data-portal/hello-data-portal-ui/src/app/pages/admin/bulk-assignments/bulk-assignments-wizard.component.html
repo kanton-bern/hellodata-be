@@ -157,7 +157,15 @@
                 </div>
                 @if (showDashboardSelection(getRoleForDomain(domainKey))) {
                   <div class="dashboard-selection">
-                    <h4>{{ '@Dashboards' | transloco }}</h4>
+                    <div class="select-all-row">
+                      <h4>{{ '@Dashboards' | transloco }}</h4>
+                      <p-checkbox
+                        [inputId]="'selectAllDash-' + domainKey"
+                        [binary]="true"
+                        [ngModel]="areAllDashboardsSelected(domainKey)"
+                        (onChange)="onSelectAllDashboards(domainKey, $event.checked)" />
+                      <label [for]="'selectAllDash-' + domainKey">{{ '@Select all' | transloco }}</label>
+                    </div>
                     <div class="checkbox-grid">
                       @for (dashboard of getDashboardsForDomain(domainKey); track dashboard.id) {
                         <div class="checkbox-item">
@@ -176,7 +184,15 @@
                   </div>
                   <hr class="section-divider" />
                   <div class="dashboard-group-selection">
-                    <h4>{{ '@Dashboard groups' | transloco }}</h4>
+                    <div class="select-all-row">
+                      <h4>{{ '@Dashboard groups' | transloco }}</h4>
+                      <p-checkbox
+                        [inputId]="'selectAllGroups-' + domainKey"
+                        [binary]="true"
+                        [ngModel]="areAllDashboardGroupsSelected(domainKey)"
+                        (onChange)="onSelectAllDashboardGroups(domainKey, $event.checked)" />
+                      <label [for]="'selectAllGroups-' + domainKey">{{ '@Select all' | transloco }}</label>
+                    </div>
                     <table class="group-table">
                       <thead>
                         <tr>
@@ -231,31 +247,39 @@
                 <i class="fas fa-info-circle"></i>
                 <span>{{ '@Review summary info' | transloco }}</span>
               </div>
+            }
 
-              <div class="summary-section">
-                <!-- Users shown once at top -->
-                <div class="summary-flow-item users-block">
-                  <div class="flow-title"><i class="fas fa-users"></i> {{ '@Selected users' | transloco }} ({{ selectedUserIds.size }})</div>
-                  <div class="flow-chips">
-                    @for (user of cachedSelectedUsers; track user.id) {
-                      <span class="flow-chip user-chip">{{ user.firstName }} {{ user.lastName }}</span>
-                    }
-                  </div>
+            <div class="summary-section">
+              <!-- Users shown once at top -->
+              <div class="summary-flow-item users-block" [class.users-block-wide]="cachedSelectedUsers.length > 5">
+                <div class="flow-title"><i class="fas fa-users"></i> {{ '@Selected users' | transloco }} ({{ selectedUserIds.size }})</div>
+                <div class="flow-chips">
+                  @for (user of cachedSelectedUsers; track user.id) {
+                    <span class="flow-chip user-chip">{{ user.firstName }} {{ user.lastName }}</span>
+                  }
                 </div>
-                <div class="summary-flow-arrow center-arrow"><i class="pi pi-arrow-down"></i></div>
-
-                <!-- PrimeNG Carousel -->
-                <p-carousel [value]="cachedDomainSummary"
-                            [numVisible]="1"
-                            [numScroll]="1"
-                            [showIndicators]="cachedDomainSummary.length > 1"
-                            [showNavigators]="cachedDomainSummary.length > 1">
-                  <ng-template #item let-item>
-                    <ng-container *ngTemplateOutlet="domainSummaryFlow; context: { $implicit: item }" />
-                  </ng-template>
-                </p-carousel>
               </div>
+              <div class="summary-flow-arrow center-arrow main-arrow"><i class="pi pi-arrow-down"></i></div>
 
+              <!-- PrimeNG Carousel -->
+              <p-carousel [value]="cachedDomainSummary"
+                          [numVisible]="1"
+                          [numScroll]="1"
+                          [showIndicators]="cachedDomainSummary.length > 1"
+                          [showNavigators]="cachedDomainSummary.length > 1">
+                <ng-template #item let-item>
+                  <ng-container *ngTemplateOutlet="domainSummaryFlow; context: { $implicit: item }" />
+                </ng-template>
+              </p-carousel>
+            </div>
+
+            @if (isSubmitting) {
+              <div class="submitting-panel">
+                <p-progressSpinner strokeWidth="4" />
+              </div>
+            }
+
+            @if (!result && !isSubmitting) {
               <div class="step-actions">
                 <p-button label="{{ '@Back' | transloco }}"
                           icon="pi pi-arrow-left"
@@ -267,11 +291,7 @@
                           (onClick)="confirmApply()" pRipple />
               </div>
             }
-            @if (isSubmitting) {
-              <div class="submitting-panel">
-                <p-progressSpinner strokeWidth="4" />
-              </div>
-            }
+
             @if (result) {
               <div class="result-panel">
                 <h4>{{ '@Bulk assignment result' | transloco }}</h4>
@@ -332,8 +352,7 @@
 
     <!-- Role -->
     <div class="summary-flow-item role-block">
-      <div class="flow-title"><i class="fas fa-shield-alt"></i> {{ '@Role assignment' | transloco }}</div>
-      <p-tag [value]="formatRoleName(item.roleName)" />
+      <div class="flow-title"><i class="fas fa-shield-alt"></i> {{ '@Role assignment' | transloco }}: <p-tag [value]="formatRoleName(item.roleName)" /></div>
     </div>
     @if (item.roleName === 'DATA_DOMAIN_VIEWER' || item.roleName === 'DATA_DOMAIN_BUSINESS_SPECIALIST') {
       <div class="summary-flow-arrow"><i class="pi pi-arrow-down"></i></div>

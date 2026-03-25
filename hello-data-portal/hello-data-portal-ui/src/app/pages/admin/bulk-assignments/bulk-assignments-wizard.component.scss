@@ -5,7 +5,7 @@
 }
 
 .step-content {
-  padding: 1.5rem 0;
+  padding: 1.5rem 0 0;
 
   h3 {
     margin-top: 0;
@@ -204,6 +204,10 @@
     font-size: 1rem;
     font-weight: 600;
   }
+
+  .select-all-row h4 {
+    margin-bottom: 0;
+  }
 }
 
 .section-divider {
@@ -271,6 +275,12 @@
 }
 
 // Step 4 - Summary
+:host ::ng-deep .p-carousel {
+  border: 1px solid var(--p-surface-200);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
 .summary-section {
   .summary-row {
     display: flex;
@@ -311,7 +321,10 @@
 }
 
 .summary-flow-item {
+  max-width: 600px;
   width: 100%;
+  margin-left: auto;
+  margin-right: auto;
   padding: 1rem 1.5rem;
   border: 1px solid var(--p-surface-200);
   border-radius: 8px;
@@ -336,9 +349,16 @@
   padding: 0.5rem 0;
   color: var(--p-surface-400);
   font-size: 1.1rem;
+
+  &.main-arrow {
+    font-size: 1.5rem;
+    color: var(--p-surface-500);
+  }
 }
 
 .flow-title {
+  display: flex;
+  align-items: center;
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--p-surface-700);
@@ -347,6 +367,11 @@
     margin-right: 0.5rem;
     color: var(--p-surface-500);
   }
+}
+
+.role-block .flow-title {
+  margin-bottom: 0;
+  gap: 0.5rem;
 }
 
 .flow-chips {
@@ -365,6 +390,10 @@
 .user-chip {
   background: var(--p-surface-100);
   color: var(--p-surface-700);
+}
+
+.users-block-wide {
+  max-width: none;
 }
 
 .dashboard-chip {
@@ -420,6 +449,8 @@
 }
 
 .result-panel {
+  margin-top: 2rem;
+
   h4 {
     margin-top: 0;
     margin-bottom: 1rem;

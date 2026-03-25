@@ -420,6 +420,46 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     }
   }
 
+  areAllDashboardsSelected(domainKey: string): boolean {
+    const dashboards = this.getDashboardsForDomain(domainKey);
+    if (dashboards.length === 0) return false;
+    return dashboards.every(d => this.isDashboardSelected(domainKey, d.id));
+  }
+
+  onSelectAllDashboards(domainKey: string, checked: boolean): void {
+    const assignment = this.domainAssignments.get(domainKey);
+    if (!assignment) return;
+    if (checked) {
+      for (const d of this.getDashboardsForDomain(domainKey)) {
+        assignment.dashboards.set(d.id, {
+          id: d.id,
+          title: d.dashboardTitle,
+          instanceName: d.instanceName,
+        });
+      }
+    } else {
+      assignment.dashboards.clear();
+    }
+  }
+
+  areAllDashboardGroupsSelected(domainKey: string): boolean {
+    const groups = this.getDashboardGroupsForDomain(domainKey);
+    if (groups.length === 0) return false;
+    return groups.every(g => this.isDashboardGroupSelected(domainKey, g.groupId));
+  }
+
+  onSelectAllDashboardGroups(domainKey: string, checked: boolean): void {
+    const assignment = this.domainAssignments.get(domainKey);
+    if (!assignment) return;
+    if (checked) {
+      for (const g of this.getDashboardGroupsForDomain(domainKey)) {
+        assignment.dashboardGroupIds.add(g.groupId);
+      }
+    } else {
+      assignment.dashboardGroupIds.clear();
+    }
+  }
+
   loadDashboardGroupsForDomains(): void {
     for (const domainKey of this.selectedDomainKeys) {
       if (!this.dashboardGroupsByDomain.has(domainKey)) {
