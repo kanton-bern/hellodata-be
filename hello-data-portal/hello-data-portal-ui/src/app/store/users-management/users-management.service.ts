@@ -30,6 +30,8 @@ import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
   AdUser,
+  BulkAssignmentRequest,
+  BulkAssignmentResult,
   CommentPermissions,
   ContextDashboardsForUser,
   CreateUserForm,
@@ -39,7 +41,8 @@ import {
   DashboardResponse,
   DashboardUsersResultDto,
   SubsystemUsersResultDto,
-  User
+  User,
+  UserWithContextRolesDto
 } from "./users-management.model";
 import {ContextResponse} from "./context-role.model";
 import {environment} from "../../../environments/environment";
@@ -150,6 +153,10 @@ export class UsersManagementService {
     return this.httpClient.get<any>(`${this.baseUsersUrl}/${userId}/context-roles`);
   }
 
+  public getAllUsersWithContextRoles(): Observable<UserWithContextRolesDto[]> {
+    return this.httpClient.get<UserWithContextRolesDto[]>(`${this.baseUsersUrl}/context-roles`);
+  }
+
   public updateUserRoles(
     data: any,
     contextDashboardsForUser: ContextDashboardsForUser[],
@@ -218,6 +225,10 @@ export class UsersManagementService {
 
   public getAdminEmails(): Observable<string[]> {
     return this.httpClient.get<string[]>(`${this.baseUsersUrl}/admin-emails`);
+  }
+
+  public executeBulkAssignment(request: BulkAssignmentRequest): Observable<BulkAssignmentResult> {
+    return this.httpClient.post<BulkAssignmentResult>(`${this.baseUsersUrl}/bulk-assignments`, request);
   }
 
   private convertMapToJson(map: Map<any, any>): any {

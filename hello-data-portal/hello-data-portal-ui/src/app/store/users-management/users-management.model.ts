@@ -118,6 +118,15 @@ export interface DataDomainRoleDto {
   role: string;
 }
 
+export interface UserWithContextRolesDto {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  businessDomainRole: string;
+  dataDomainRoles: DataDomainRoleDto[];
+}
+
 export interface SubsystemUserDto {
   name: string;
   surname: string;
@@ -146,5 +155,30 @@ export interface DashboardGroupMembership {
   groupName: string;
   isMember: boolean;
   dashboardTitles: string[];
+}
+
+export interface BulkAssignmentRequest {
+  userIds: string[];
+  domainAssignments: BulkDomainAssignment[];
+}
+
+export interface BulkDomainAssignment {
+  contextKey: string;
+  roleName: string;
+  dashboards: BulkDashboardInfo[];
+  dashboardGroupIds: string[];
+}
+
+export interface BulkDashboardInfo {
+  id: number;
+  title: string;
+  instanceName: string;
+}
+
+export interface BulkAssignmentResult {
+  updatedCount: number;
+  skippedCount: number;
+  failedCount: number;
+  errors: string[];
 }
 

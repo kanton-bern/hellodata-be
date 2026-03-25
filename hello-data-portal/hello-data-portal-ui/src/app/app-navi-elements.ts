@@ -185,6 +185,10 @@ export const naviElements: any = {
     path: 'subsystem-users',
     label: '@Subsystem users'
   },
+  bulkAssignments: {
+    path: 'bulk-assignments',
+    label: '@Bulk assignments'
+  },
   usersOverview: {
     path: 'users-overview',
     label: '@Users overview'

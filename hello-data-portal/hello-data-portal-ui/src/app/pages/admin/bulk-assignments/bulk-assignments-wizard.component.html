@@ -1,0 +1,403 @@
+<h2 class="content-block">{{ '@Bulk assignments' | transloco }}</h2>
+<p-confirmDialog />
+<p-card styleClass="wizard-card">
+  <div class="wizard-container">
+    <p-stepper [(value)]="activeStep" [linear]="true">
+      <p-step-list>
+        <p-step [value]="1">{{ '@Select users' | transloco }}</p-step>
+        <p-step [value]="2">{{ '@Select data domains' | transloco }}</p-step>
+        <p-step [value]="3">{{ '@Assign roles' | transloco }}</p-step>
+        <p-step [value]="4">{{ '@Summary' | transloco }}</p-step>
+      </p-step-list>
+      <p-step-panels>
+        <!-- Step 1: Select Users -->
+        <p-step-panel [value]="1">
+          <ng-template #content let-activateCallback="activateCallback">
+            <div class="step-content">
+              <h3>{{ '@Select users' | transloco }}</h3>
+              @if (rolesLoading) {
+                <div class="roles-loading-hint">
+                  <p-progressSpinner strokeWidth="4" [style]="{ width: '20px', height: '20px' }" />
+                  <span>{{ '@Loading user roles' | transloco }}...</span>
+                </div>
+              }
+              <div class="user-filter-bar">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-search" />
+                  <input pInputText
+                         [(ngModel)]="userSearchFilter"
+                         (ngModelChange)="onUserSearchChange()"
+                         [placeholder]="'@Search users' | transloco"
+                         type="text" />
+                </p-iconfield>
+                <label class="filter-label" for="roleFilter">{{ '@Filter by role' | transloco }}:</label>
+                <p-select id="roleFilter"
+                          [options]="dataDomainRoleFilterOptions"
+                          optionLabel="label"
+                          optionValue="value"
+                          [(ngModel)]="dataDomainRoleFilter"
+                          (ngModelChange)="onRoleFilterChange()"
+                          appendTo="body"
+                          [placeholder]="'@Filter by role' | transloco" />
+                <span class="selected-count">{{ '@Selected users' | transloco }}: {{ selectedUserIds.size }}</span>
+              </div>
+              <div class="select-all-row">
+                <p-checkbox
+                  inputId="selectAllUsers"
+                  [binary]="true"
+                  [(ngModel)]="selectAllUsers"
+                  (onChange)="onSelectAllUsersChange($event.checked)" />
+                <label for="selectAllUsers">{{ '@Select all' | transloco }}</label>
+              </div>
+              <div class="user-grid" #userGrid>
+                @for (user of paginatedUsers; track user.id) {
+                  <div class="user-card" [class.selected]="userSelectedMap[user.id]"
+                       [pTooltip]="userTooltipMap[user.id] || ''" tooltipPosition="top" tooltipStyleClass="bulk-wizard-tooltip"
+                       (click)="onUserSelectionChange(user.id, !userSelectedMap[user.id])">
+                    <p-checkbox
+                      [binary]="true"
+                      [ngModel]="!!userSelectedMap[user.id]"
+                      (onChange)="onUserSelectionChange(user.id, $event.checked)"
+                      (click)="$event.stopPropagation()" />
+                    <div class="user-info">
+                      <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+                      <span class="user-email">{{ user.email }}</span>
+                    </div>
+                  </div>
+                }
+                @if (paginatedUsers.length === 0) {
+                  <div class="no-data">{{ '@No users available' | transloco }}</div>
+                }
+              </div>
+              @if (totalUserPages > 1) {
+                <div class="pagination-bar">
+                  <p-button icon="pi pi-chevron-left" [text]="true" [rounded]="true"
+                            [disabled]="userPage === 0"
+                            (onClick)="prevUserPage()" />
+                  <span class="page-info">{{ userPage + 1 }} / {{ totalUserPages }}</span>
+                  <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true"
+                            [disabled]="userPage >= totalUserPages - 1"
+                            (onClick)="nextUserPage()" />
+                </div>
+              }
+              <div class="step-actions">
+                <p-button label="{{ '@Next' | transloco }}"
+                          icon="pi pi-arrow-right" iconPos="right"
+                          severity="info"
+                          [disabled]="selectedUserIds.size === 0"
+                          (onClick)="onStepActivate(2, activateCallback)" pRipple />
+              </div>
+            </div>
+          </ng-template>
+        </p-step-panel>
+
+      <!-- Step 2: Select Data Domains -->
+      <p-step-panel [value]="2">
+        <ng-template #content let-activateCallback="activateCallback">
+          <div class="step-content">
+            <h3>{{ '@Select data domains' | transloco }}</h3>
+            <div class="select-all-row">
+              <p-checkbox
+                inputId="selectAllDomains"
+                [binary]="true"
+                [(ngModel)]="selectAllDomains"
+                (onChange)="onSelectAllDomainsChange($event.checked)" />
+              <label for="selectAllDomains">{{ '@Select all' | transloco }}</label>
+              <span class="selected-count">{{ '@Selected domains' | transloco }}: {{ selectedDomainKeys.size }}</span>
+            </div>
+            <div class="domain-list">
+              @for (domain of allDataDomains; track domain.key) {
+                <div class="domain-item" [class.selected]="isDomainSelected(domain.key)"
+                     (click)="onDomainSelectionChange(domain.key, !isDomainSelected(domain.key))">
+                  <p-checkbox
+                    [binary]="true"
+                    [ngModel]="isDomainSelected(domain.key)"
+                    (onChange)="onDomainSelectionChange(domain.key, $event.checked)"
+                    (click)="$event.stopPropagation()" />
+                  <span class="domain-name">{{ domain.name }}</span>
+                </div>
+              }
+              @if (allDataDomains.length === 0) {
+                <div class="no-data">{{ '@No domains selected' | transloco }}</div>
+              }
+            </div>
+            <div class="step-actions">
+              <p-button label="{{ '@Back' | transloco }}"
+                        icon="pi pi-arrow-left"
+                        severity="warn"
+                        (onClick)="activateCallback(1)" pRipple />
+              <p-button label="{{ '@Next' | transloco }}"
+                        icon="pi pi-arrow-right" iconPos="right"
+                        severity="info"
+                        [disabled]="selectedDomainKeys.size === 0"
+                        (onClick)="onStepActivate(3, activateCallback)" pRipple />
+            </div>
+          </div>
+        </ng-template>
+      </p-step-panel>
+
+      <!-- Step 3: Assign Roles & Resources -->
+      <p-step-panel [value]="3">
+        <ng-template #content let-activateCallback="activateCallback">
+          <div class="step-content">
+            <h3>{{ '@Assign roles' | transloco }}</h3>
+            @for (domainKey of selectedDomainKeysArray; track domainKey) {
+              <div class="domain-assignment-section">
+                <h4 class="domain-section-title">{{ getDomainName(domainKey) }}</h4>
+                <div class="role-selection">
+                  <label [for]="'roleSelect-' + domainKey">{{ '@Select role' | transloco }}</label>
+                  <p-select [id]="'roleSelect-' + domainKey"
+                            [options]="roleOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            [ngModel]="getRoleForDomain(domainKey)"
+                            (ngModelChange)="onRoleChange(domainKey, $event)"
+                            appendTo="body"
+                            [placeholder]="'@Select role' | transloco" />
+                </div>
+                @if (showDashboardSelection(getRoleForDomain(domainKey))) {
+                  <div class="dashboard-selection">
+                    <h4>{{ '@Dashboards' | transloco }}</h4>
+                    <div class="checkbox-grid">
+                      @for (dashboard of getDashboardsForDomain(domainKey); track dashboard.id) {
+                        <div class="checkbox-item">
+                          <p-checkbox
+                            [inputId]="'dash-' + domainKey + '-' + dashboard.id"
+                            [binary]="true"
+                            [ngModel]="isDashboardSelected(domainKey, dashboard.id)"
+                            (onChange)="onDashboardSelectionChange(domainKey, dashboard, $event.checked)" />
+                          <label [for]="'dash-' + domainKey + '-' + dashboard.id">{{ dashboard.dashboardTitle }}</label>
+                        </div>
+                      }
+                      @if (getDashboardsForDomain(domainKey).length === 0) {
+                        <span class="no-data-inline">{{ '@No dashboards available' | transloco }}</span>
+                      }
+                    </div>
+                  </div>
+                  <hr class="section-divider" />
+                  <div class="dashboard-group-selection">
+                    <h4>{{ '@Dashboard groups' | transloco }}</h4>
+                    <table class="group-table">
+                      <thead>
+                        <tr>
+                          <th scope="col" [attr.aria-label]="'@Select' | transloco"></th>
+                          <th scope="col">{{ '@Name' | transloco }}</th>
+                          <th scope="col">{{ '@Dashboards' | transloco }}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (group of getDashboardGroupsForDomain(domainKey); track group.groupId) {
+                          <tr>
+                            <td class="group-checkbox-cell">
+                              <p-checkbox
+                                [binary]="true"
+                                [ngModel]="isDashboardGroupSelected(domainKey, group.groupId)"
+                                (onChange)="onDashboardGroupSelectionChange(domainKey, group.groupId, $event.checked)" />
+                            </td>
+                            <td>{{ group.groupName }}</td>
+                            <td class="group-dashboards-cell">{{ group.dashboardTitles.join(', ') }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                    @if (getDashboardGroupsForDomain(domainKey).length === 0) {
+                      <span class="no-data-inline">{{ '@No data found' | transloco }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+            <div class="step-actions">
+              <p-button label="{{ '@Back' | transloco }}"
+                        icon="pi pi-arrow-left"
+                        severity="warn"
+                        (onClick)="activateCallback(2)" pRipple />
+              <p-button label="{{ '@Next' | transloco }}"
+                        icon="pi pi-arrow-right" iconPos="right"
+                        severity="info"
+                        (onClick)="goToSummary(activateCallback)" pRipple />
+            </div>
+          </div>
+        </ng-template>
+      </p-step-panel>
+
+      <!-- Step 4: Summary -->
+      <p-step-panel [value]="4">
+        <ng-template #content let-activateCallback="activateCallback">
+          <div class="step-content">
+            <h3>{{ '@Summary' | transloco }}</h3>
+            @if (!result && !isSubmitting) {
+              <!-- Review info (instruction) -->
+              @if (!summaryReviewed) {
+                <div class="review-info">
+                  <i class="fas fa-info-circle"></i>
+                  <span>{{ '@Review all domains info' | transloco }}</span>
+                </div>
+              }
+
+              <div class="summary-section">
+                <!-- Users shown once at top -->
+                <div class="summary-flow-item users-block">
+                  <div class="flow-title"><i class="fas fa-users"></i> {{ '@Selected users' | transloco }} ({{ selectedUserIds.size }})</div>
+                  <div class="flow-chips">
+                    @for (user of cachedSelectedUsers; track user.id) {
+                      <span class="flow-chip user-chip">{{ user.firstName }} {{ user.lastName }}</span>
+                    }
+                  </div>
+                </div>
+                <div class="summary-flow-arrow center-arrow"><i class="pi pi-arrow-down"></i></div>
+
+                <!-- Carousel -->
+                <div class="summary-carousel">
+                  <button type="button" class="carousel-nav carousel-prev"
+                          [disabled]="summaryPageIndex === 0"
+                          (click)="prevSummaryPage()">
+                    <i class="pi pi-chevron-left"></i>
+                  </button>
+                  <div class="carousel-content" #carouselContent>
+                    @if (cachedDomainSummary[summaryPageIndex]) {
+                      <ng-container *ngTemplateOutlet="domainSummaryFlow; context: { $implicit: cachedDomainSummary[summaryPageIndex] }" />
+                    }
+                  </div>
+                  <button type="button" class="carousel-nav carousel-next"
+                          [disabled]="summaryPageIndex === cachedDomainSummary.length - 1"
+                          (click)="nextSummaryPage()">
+                    <i class="pi pi-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Progress bar -->
+              <div class="carousel-progress">
+                <div class="carousel-progress-label">
+                  {{ '@Review progress' | transloco }}: {{ summaryPageIndex + 1 }} / {{ cachedDomainSummary.length }}
+                </div>
+                <div class="carousel-progress-bar">
+                  <div class="carousel-progress-fill"
+                       [style.width.%]="((maxVisitedPage + 1) / cachedDomainSummary.length) * 100"></div>
+                </div>
+              </div>
+
+              <!-- Review complete message -->
+              @if (summaryReviewed) {
+                <div class="review-info review-complete">
+                  <i class="fas fa-check-circle"></i>
+                  <span>{{ '@Review complete' | transloco }}</span>
+                </div>
+              }
+
+              <div class="step-actions">
+                <p-button label="{{ '@Back' | transloco }}"
+                          icon="pi pi-arrow-left"
+                          severity="warn"
+                          (onClick)="activateCallback(3)" pRipple />
+                <p-button label="{{ '@Apply bulk assignments' | transloco }}"
+                          icon="pi pi-check"
+                          severity="success"
+                          [disabled]="!summaryReviewed"
+                          [styleClass]="summaryReviewed ? '' : 'apply-disabled'"
+                          (onClick)="confirmApply()" pRipple />
+              </div>
+            }
+            @if (isSubmitting) {
+              <div class="submitting-panel">
+                <p-progressSpinner strokeWidth="4" />
+              </div>
+            }
+            @if (result) {
+              <div class="result-panel">
+                <h4>{{ '@Bulk assignment result' | transloco }}</h4>
+                <div class="result-grid">
+                  <div class="result-item success">
+                    <span class="result-label">{{ '@Users updated' | transloco }}</span>
+                    <span class="result-value">{{ result.updatedCount }}</span>
+                  </div>
+                  <div class="result-item warning">
+                    <span class="result-label">{{ '@Users skipped' | transloco }}</span>
+                    <span class="result-value">{{ result.skippedCount }}</span>
+                  </div>
+                  <div class="result-item error">
+                    <span class="result-label">{{ '@Users failed' | transloco }}</span>
+                    <span class="result-value">{{ result.failedCount }}</span>
+                  </div>
+                </div>
+                @if (result.errors.length > 0) {
+                  <div class="error-list">
+                    <h5>{{ '@Errors' | transloco }}:</h5>
+                    <ul>
+                      @for (error of result.errors; track error) {
+                        <li>{{ error }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+                <div class="result-actions">
+                  <p-button
+                    [label]="'@Back to user management' | transloco"
+                    icon="fas fa-arrow-left"
+                    severity="secondary"
+                    (onClick)="goToUserManagement()" />
+                  <p-button
+                    [label]="'@Start over' | transloco"
+                    icon="fas fa-redo"
+                    severity="info"
+                    (onClick)="startOver()" />
+                </div>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </p-step-panel>
+    </p-step-panels>
+  </p-stepper>
+  </div>
+</p-card>
+
+<ng-template #domainSummaryFlow let-item>
+  <div class="summary-flow">
+    <!-- Domain -->
+    <div class="summary-flow-item domain-header">
+      <i class="fas fa-database"></i>
+      <span class="flow-label">{{ item.name }}</span>
+    </div>
+    <div class="summary-flow-arrow"><i class="pi pi-arrow-down"></i></div>
+
+    <!-- Role -->
+    <div class="summary-flow-item role-block">
+      <div class="flow-title"><i class="fas fa-shield-alt"></i> {{ '@Role assignment' | transloco }}</div>
+      <p-tag [value]="formatRoleName(item.roleName)" />
+    </div>
+    @if (item.roleName === 'DATA_DOMAIN_VIEWER' || item.roleName === 'DATA_DOMAIN_BUSINESS_SPECIALIST') {
+      <div class="summary-flow-arrow"><i class="pi pi-arrow-down"></i></div>
+
+      <!-- Dashboards & Groups side by side -->
+      <div class="summary-flow-resources">
+        <div class="summary-flow-item resource-block">
+          <div class="flow-title"><i class="fas fa-chart-bar"></i> {{ '@Dashboards' | transloco }} ({{ item.dashboardNames.length }})</div>
+          @if (item.dashboardNames.length > 0) {
+            <div class="flow-chips">
+              @for (name of item.dashboardNames; track name) {
+                <span class="flow-chip dashboard-chip">{{ name }}</span>
+              }
+            </div>
+          } @else {
+            <span class="flow-empty">{{ '@None' | transloco }}</span>
+          }
+        </div>
+        <div class="resources-divider" aria-hidden="true"></div>
+        <div class="summary-flow-item resource-block">
+          <div class="flow-title"><i class="fas fa-layer-group"></i> {{ '@Dashboard groups' | transloco }} ({{ item.groupNames.length }})</div>
+          @if (item.groupNames.length > 0) {
+            <div class="flow-chips">
+              @for (name of item.groupNames; track name) {
+                <span class="flow-chip group-chip">{{ name }}</span>
+              }
+            </div>
+          } @else {
+            <span class="flow-empty">{{ '@None' | transloco }}</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</ng-template>

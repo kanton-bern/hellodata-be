@@ -71,6 +71,7 @@ import {
   showUserActionPopup,
   syncUsers
 } from "../../../store/users-management/users-management.action";
+import {navigate} from "../../../store/app/app.action";
 import {selectProfile} from "../../../store/auth/auth.selector";
 import {IUser} from "../../../store/auth/auth.model";
 import {IconField} from "primeng/iconfield";
@@ -85,7 +86,7 @@ import {Card} from 'primeng/card';
   imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
-  users$: Observable<any>;
+  users$: Observable<User[]>;
   syncStatus$: Observable<string>;
   usersLoading$: Observable<boolean>;
   usersTotalRecords = 0;
@@ -93,7 +94,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   inviteForm!: FormGroup;
   suggestedAdUsers: AdUser[] = [];
   filterValue = '';
-  syncStatusInterval$ = interval(30000);
+  private readonly syncStatusInterval$ = interval(30000);
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private readonly userService = inject(UsersManagementService);
@@ -107,10 +108,10 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
       this.store.select(selectUsersCopy),
       this.store.select(selectUsersTotalRecords)
     ]).pipe(
-      tap(([_, usersTotalRecords]) => {
-        this.usersTotalRecords = usersTotalRecords;
+      tap(([, totalRecords]) => {
+        this.usersTotalRecords = totalRecords;
       }),
-      map(([users, _]) => users),
+      map(([users]) => users),
     );
     this.syncStatus$ = this.store.select(selectSyncStatus);
     this.loggedInUser$ = this.store.select(selectProfile);
@@ -185,25 +186,30 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     this.store.dispatch(syncUsers());
   }
 
-  filterMails($event: any) {
-    const searchQuery = $event.query;
+  navigateToBulkAssignments(): void {
+    this.store.dispatch(navigate({url: naviElements.bulkAssignments.path}));
+  }
+
+  filterMails(event: { query: string }) {
+    const searchQuery = event.query;
     this.searchSubject.next(searchQuery?.trim());
     this.inviteForm.get('firstName')?.reset();
     this.inviteForm.get('lastName')?.reset();
   }
 
-  onSelectEmail($event: any) {
-    console.debug("onSelectEmail", $event);
-    this.inviteForm.get('firstName')?.setValue($event.value.firstName);
-    this.inviteForm.get('lastName')?.setValue($event.value.lastName);
+  onSelectEmail(event: { value: AdUser }) {
+    this.inviteForm.get('firstName')?.setValue(event.value.firstName);
+    this.inviteForm.get('lastName')?.setValue(event.value.lastName);
     this.inviteForm.get('user')?.setErrors(null);
   }
 
   loadUsers(event: TableLazyLoadEvent) {
+    const sortDirection = event.sortOrder && event.sortOrder > 0 ? 'asc' : 'desc';
+    const sort = event.sortField ? `${event.sortField}, ${sortDirection}` : '';
     this.store.dispatch(loadUsers({
       page: event.first as number / (event.rows as number),
       size: event.rows as number,
-      sort: event.sortField ? `${event.sortField}, ${event.sortOrder ? event.sortOrder > 0 ? 'asc' : 'desc' : ''}` : '',
+      sort,
       search: event.globalFilter ? event.globalFilter as string : ''
     }));
   }
@@ -220,9 +226,8 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
       .subscribe(
         (users: AdUser[]) => {
           this.suggestedAdUsers = this.enhanceSuggestedAdUsers(users);
-          return this.suggestedAdUsers;
         }
-      )
+      );
   }
 
   private createBreadcrumbs() {
@@ -247,11 +252,11 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     }
   }
 
-  private enhanceSuggestedAdUsers(users: AdUser[]) {
-    return users.map(user => {
-      user.label = user.email + " (" + user.firstName + " " + user.lastName + ")";
-      return user;
-    });
+  private enhanceSuggestedAdUsers(users: AdUser[]): AdUser[] {
+    return users.map(user => ({
+      ...user,
+      label: `${user.email} (${user.firstName} ${user.lastName})`,
+    }));
   }
 
   private createInterval(): void {
@@ -262,5 +267,3 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
       });
   }
 }
-
-

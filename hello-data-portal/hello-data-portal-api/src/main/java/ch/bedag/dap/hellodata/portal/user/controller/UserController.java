@@ -31,7 +31,22 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
-import ch.bedag.dap.hellodata.portal.user.data.*;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
+import ch.bedag.dap.hellodata.portal.user.data.BulkAssignmentRequestDto;
+import ch.bedag.dap.hellodata.portal.user.data.BulkAssignmentResultDto;
+import ch.bedag.dap.hellodata.portal.user.data.ContextsDto;
+import ch.bedag.dap.hellodata.portal.user.data.CreateUserRequestDto;
+import ch.bedag.dap.hellodata.portal.user.data.CreateUserResponseDto;
+import ch.bedag.dap.hellodata.portal.user.data.CurrentUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.DashboardGroupMembershipDto;
+import ch.bedag.dap.hellodata.portal.user.data.DashboardsDto;
+import ch.bedag.dap.hellodata.portal.user.data.DataDomainDto;
+import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
+import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user.data.UserWithBusinessRoleDto;
+import ch.bedag.dap.hellodata.portal.user.service.BulkAssignmentService;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import jakarta.validation.Valid;
@@ -46,10 +61,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 
 @Log4j2
 @RestController
@@ -59,6 +87,7 @@ public class UserController {
 
     private final UserService userService;
     private final DashboardGroupService dashboardGroupService;
+    private final BulkAssignmentService bulkAssignmentService;
     private final HelloDataContextConfig helloDataContextConfig;
     private final SystemProperties systemProperties;
 
@@ -80,7 +109,7 @@ public class UserController {
             log.error("Error on user creation", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));
         } catch (Exception e) {
-            log.error("", e);
+            log.error("Error on user creation", e);
             throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, e.getMessage());
         }
     }
@@ -210,6 +239,19 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void updateContextRolesForUser(@PathVariable UUID userId, @NotNull @Valid @RequestBody UpdateContextRolesForUserDto updateContextRolesForUserDto) {
         userService.updateContextRolesForUser(userId, updateContextRolesForUserDto, true);
+    }
+
+    @GetMapping("/context-roles")
+    @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
+    public List<UserWithBusinessRoleDto> getAllUsersWithContextRoles() {
+        return userService.getAllUsersWithBusinessDomainRole();
+    }
+
+    @PostMapping("/bulk-assignments")
+    @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
+    public ResponseEntity<BulkAssignmentResultDto> executeBulkAssignment(@NotNull @Valid @RequestBody BulkAssignmentRequestDto request) {
+        BulkAssignmentResultDto result = bulkAssignmentService.executeBulkAssignment(request);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{userId}/dashboard-groups-membership")

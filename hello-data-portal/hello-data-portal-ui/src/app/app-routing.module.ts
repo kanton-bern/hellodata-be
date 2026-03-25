@@ -110,6 +110,19 @@ const routes: Routes = [
     ]
   },
   {
+    path: naviElements.bulkAssignments.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['USER_MANAGEMENT'],
+    },
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/admin/bulk-assignments/bulk-assignments-wizard.component').then(m => m.BulkAssignmentsWizardComponent),
+      }
+    ]
+  },
+  {
     path: naviElements.dashboardAccess.path,
     canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
     data: {

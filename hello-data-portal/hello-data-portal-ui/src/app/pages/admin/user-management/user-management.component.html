@@ -104,6 +104,10 @@
                       [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
                       severity="success" pRipple/>
           }
+          <p-button (click)="navigateToBulkAssignments()" (keydown.enter)="navigateToBulkAssignments()"
+                    icon="pi pi-users"
+                    [label]="'@Bulk assignments' | transloco"
+                    severity="info" pRipple/>
         </div>
         <span class="p-input-icon-left">
           <p-iconfield>

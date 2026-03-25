@@ -36,6 +36,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -54,4 +55,12 @@ public interface UserContextRoleRepository extends JpaRepository<UserContextRole
     List<UserContextRoleEntity> findByContextKeyAndRoleNames(
             @Param("contextKey") String contextKey,
             @Param("roleNames") List<String> roleNames);
+
+    @Query(nativeQuery = true,
+           value = "SELECT r.name FROM user_context_role ucr " +
+                   "JOIN role r ON ucr.role_id = r.id " +
+                   "WHERE ucr.user_id = :userId AND ucr.context_key = :contextKey")
+    Optional<String> findRoleNameByUserIdAndContextKey(
+            @Param("userId") UUID userId,
+            @Param("contextKey") String contextKey);
 }
