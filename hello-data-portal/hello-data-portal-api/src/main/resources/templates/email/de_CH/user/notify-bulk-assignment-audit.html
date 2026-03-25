@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de" xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<head><title>Massen-Rollenzuweisung Audit</title></head>
+<body>
+<p>Hallo,</p>
+
+<p>
+    Eine Massen-Rollenzuweisung wurde in HelloDATA in der Fachdom&#228;ne
+    <span th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unbekannt_')}"/> von
+    <strong><span th:text="${#objects.nullSafe(PERFORMED_BY, '_Unbekannt_')}"/></strong> durchgef&#252;hrt.
+</p>
+
+<h3>Zusammenfassung</h3>
+<ul>
+    <li>Aktualisiert: <span th:text="${UPDATED_COUNT}"/></li>
+    <li>&#220;bersprungen: <span th:text="${SKIPPED_COUNT}"/></li>
+    <li>Fehlgeschlagen: <span th:text="${FAILED_COUNT}"/></li>
+</ul>
+
+<h3>Datendom&#228;nen-Zuweisungen</h3>
+<ul>
+    <li th:each="assignment : ${DOMAIN_ASSIGNMENTS}">
+        <span th:text="${assignment}"/>
+    </li>
+</ul>
+
+<div th:if="${!UPDATED_USERS.isEmpty()}">
+    <h3>Aktualisierte Benutzer</h3>
+    <table border="1" style="border-collapse: collapse; padding: 5px;">
+        <tr><th>Name</th><th>E-Mail</th></tr>
+        <tr th:each="user : ${UPDATED_USERS}">
+            <td th:text="${user.firstName + ' ' + user.lastName}"/><td th:text="${user.email}"/>
+        </tr>
+    </table>
+</div>
+
+<div th:if="${!SKIPPED_USERS.isEmpty()}">
+    <h3>&#220;bersprungene Benutzer</h3>
+    <table border="1" style="border-collapse: collapse; padding: 5px;">
+        <tr><th>Name</th><th>E-Mail</th><th>Grund</th></tr>
+        <tr th:each="user : ${SKIPPED_USERS}">
+            <td th:text="${user.firstName + ' ' + user.lastName}"/><td th:text="${user.email}"/><td th:text="${user.reason}"/>
+        </tr>
+    </table>
+</div>
+
+<div th:if="${!FAILED_USERS.isEmpty()}">
+    <h3>Fehlgeschlagene Benutzer</h3>
+    <table border="1" style="border-collapse: collapse; padding: 5px;">
+        <tr><th>Name</th><th>E-Mail</th><th>Grund</th></tr>
+        <tr th:each="user : ${FAILED_USERS}">
+            <td th:text="${user.firstName + ' ' + user.lastName}"/><td th:text="${user.email}"/><td th:text="${user.reason}"/>
+        </tr>
+    </table>
+</div>
+
+<p>Link zu Fachdom&#228;ne
+    <a th:href="${#objects.nullSafe(link, '_Unbekannt_')}"><span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unbekannt_')}"/></a>
+</p>
+
+<p>Freundliche Gr&#252;sse<br/>HelloDATA</p>
+
+</body>
+</html>

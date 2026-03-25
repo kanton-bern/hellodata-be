@@ -175,10 +175,20 @@ export interface BulkDashboardInfo {
   instanceName: string;
 }
 
+export interface BulkUserDetail {
+  email: string;
+  firstName: string;
+  lastName: string;
+  reason: string | null;
+}
+
 export interface BulkAssignmentResult {
   updatedCount: number;
   skippedCount: number;
   failedCount: number;
   errors: string[];
+  updatedUsers: BulkUserDetail[];
+  skippedUsers: BulkUserDetail[];
+  failedUsers: BulkUserDetail[];
 }
 

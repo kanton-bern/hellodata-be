@@ -34,13 +34,15 @@ import {BaseComponent} from '../../../shared/components/base/base.component';
 import {createBreadcrumbs} from '../../../store/breadcrumb/breadcrumb.action';
 import {showSuccess} from '../../../store/app/app.action';
 import {naviElements} from '../../../app-navi-elements';
-import {Subject, takeUntil} from 'rxjs';
+import {Subject, take, takeUntil} from 'rxjs';
 import {selectAllAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.selector';
+import {selectProfile} from '../../../store/auth/auth.selector';
 import {loadAvailableDataDomains, loadMyDashboards} from '../../../store/my-dashboards/my-dashboards.action';
 import {DataDomain} from '../../../store/my-dashboards/my-dashboards.model';
 import {
   BulkAssignmentRequest,
   BulkAssignmentResult,
+  BulkUserDetail,
   BulkDashboardInfo,
   BulkDomainAssignment,
   BUSINESS_DOMAIN_ADMIN_ROLE,
@@ -72,6 +74,7 @@ import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {Tooltip} from 'primeng/tooltip';
 import {Carousel} from 'primeng/carousel';
+import {jsPDF} from 'jspdf';
 import {SupersetDashboardWithMetadata} from '../../../store/start-page/start-page.model';
 
 interface DomainAssignmentConfig {
@@ -530,6 +533,185 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     });
   }
 
+  downloadReport(): void {
+    if (!this.result) return;
+
+    this.store.select(selectProfile).pipe(take(1)).subscribe(profile => {
+      this.generatePdf(profile);
+    });
+  }
+
+  private generatePdf(profile: { email?: string; firstName?: string; lastName?: string } | null): void {
+    const result = this.result!;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const marginLeft = 15;
+    const contentWidth = pageWidth - 2 * marginLeft;
+    const ctx = { doc, marginLeft, contentWidth, y: 20 };
+
+    this.pdfPrintTitle(ctx, profile);
+    this.pdfPrintSummary(ctx, result);
+    this.pdfPrintUserSection(ctx, result);
+    this.pdfPrintSelectedUsers(ctx);
+    this.pdfPrintDomainAssignments(ctx);
+
+    doc.save('bulk-assignment-report.pdf');
+  }
+
+  private pdfCheckPageBreak(ctx: { doc: jsPDF; y: number }, needed: number): void {
+    if (ctx.y + needed > ctx.doc.internal.pageSize.getHeight() - 15) {
+      ctx.doc.addPage();
+      ctx.y = 20;
+    }
+  }
+
+  private pdfPrintTitle(ctx: { doc: jsPDF; marginLeft: number; y: number },
+                        profile: { email?: string; firstName?: string; lastName?: string } | null): void {
+    const t = (key: string) => this.translateService.translate(key);
+    ctx.doc.setFontSize(18);
+    ctx.doc.setFont('helvetica', 'bold');
+    ctx.doc.text(t('@Bulk assignment result'), ctx.marginLeft, ctx.y);
+    ctx.y += 6;
+    ctx.doc.setFontSize(9);
+    ctx.doc.setFont('helvetica', 'normal');
+    ctx.doc.setTextColor(120);
+    const performedBy = profile?.email
+      ? `${profile.firstName || ''} ${profile.lastName || ''} (${profile.email})`.trim()
+      : '';
+    ctx.doc.text(`${new Date().toLocaleString()}${performedBy ? '  •  ' + performedBy : ''}`, ctx.marginLeft, ctx.y);
+    ctx.doc.setTextColor(0);
+    ctx.y += 10;
+  }
+
+  private pdfPrintSummary(ctx: { doc: jsPDF; marginLeft: number; y: number }, result: BulkAssignmentResult): void {
+    const t = (key: string) => this.translateService.translate(key);
+    ctx.doc.setFontSize(13);
+    ctx.doc.setFont('helvetica', 'bold');
+    ctx.doc.text(t('@Summary'), ctx.marginLeft, ctx.y);
+    ctx.y += 8;
+    ctx.doc.setFontSize(11);
+    ctx.doc.setFont('helvetica', 'normal');
+    ctx.doc.text(`${t('@Users updated')}: ${result.updatedCount}`, ctx.marginLeft, ctx.y);
+    ctx.y += 6;
+    ctx.doc.text(`${t('@Users skipped')}: ${result.skippedCount}`, ctx.marginLeft, ctx.y);
+    ctx.y += 6;
+    ctx.doc.text(`${t('@Users failed')}: ${result.failedCount}`, ctx.marginLeft, ctx.y);
+    ctx.y += 10;
+  }
+
+  private pdfPrintUserSection(ctx: { doc: jsPDF; marginLeft: number; contentWidth: number; y: number },
+                              result: BulkAssignmentResult): void {
+    const t = (key: string) => this.translateService.translate(key);
+    if (result.skippedUsers?.length > 0) {
+      this.pdfCheckPageBreak(ctx, 20);
+      ctx.doc.setFontSize(12);
+      ctx.doc.setFont('helvetica', 'bold');
+      ctx.doc.setTextColor(161, 98, 7);
+      ctx.doc.text(`${t('@Users skipped')} (${result.skippedUsers.length})`, ctx.marginLeft, ctx.y);
+      ctx.doc.setTextColor(0);
+      ctx.y += 7;
+      this.pdfPrintUserDetailTable(ctx, result.skippedUsers);
+      ctx.y += 3;
+    }
+    if (result.failedUsers?.length > 0) {
+      this.pdfCheckPageBreak(ctx, 20);
+      ctx.doc.setFontSize(12);
+      ctx.doc.setFont('helvetica', 'bold');
+      ctx.doc.setTextColor(180, 30, 30);
+      ctx.doc.text(`${t('@Users failed')} (${result.failedUsers.length})`, ctx.marginLeft, ctx.y);
+      ctx.doc.setTextColor(0);
+      ctx.y += 7;
+      this.pdfPrintUserDetailTable(ctx, result.failedUsers);
+      ctx.y += 3;
+    }
+  }
+
+  private pdfPrintUserDetailTable(ctx: { doc: jsPDF; marginLeft: number; contentWidth: number; y: number },
+                                  users: BulkUserDetail[]): void {
+    const t = (key: string) => this.translateService.translate(key);
+    const colName = ctx.marginLeft + 3;
+    const colEmail = ctx.marginLeft + 60;
+    const colReason = ctx.marginLeft + 120;
+
+    this.pdfCheckPageBreak(ctx, 12);
+    ctx.doc.setFontSize(9);
+    ctx.doc.setFont('helvetica', 'bold');
+    ctx.doc.setTextColor(100);
+    ctx.doc.text(t('@Name'), colName, ctx.y);
+    ctx.doc.text(t('@Email'), colEmail, ctx.y);
+    ctx.doc.text(t('@Reason'), colReason, ctx.y);
+    ctx.doc.setTextColor(0);
+    ctx.y += 5;
+
+    ctx.doc.setFont('helvetica', 'normal');
+    ctx.doc.setFontSize(9);
+    for (const u of users) {
+      this.pdfCheckPageBreak(ctx, 10);
+      ctx.doc.text(`${u.firstName} ${u.lastName}`, colName, ctx.y);
+      ctx.doc.text(u.email || '', colEmail, ctx.y);
+      if (u.reason) {
+        const reasonLines = ctx.doc.splitTextToSize(u.reason, ctx.contentWidth - 120);
+        ctx.doc.text(reasonLines, colReason, ctx.y);
+        ctx.y += Math.max(reasonLines.length * 4, 5);
+      } else {
+        ctx.y += 5;
+      }
+    }
+    ctx.y += 3;
+  }
+
+  private pdfPrintSelectedUsers(ctx: { doc: jsPDF; marginLeft: number; y: number }): void {
+    const t = (key: string) => this.translateService.translate(key);
+    this.pdfCheckPageBreak(ctx, 20);
+    ctx.doc.setFontSize(13);
+    ctx.doc.setFont('helvetica', 'bold');
+    ctx.doc.text(`${t('@Selected users')} (${this.cachedSelectedUsers.length})`, ctx.marginLeft, ctx.y);
+    ctx.y += 7;
+    ctx.doc.setFontSize(10);
+    ctx.doc.setFont('helvetica', 'normal');
+    for (const user of this.cachedSelectedUsers) {
+      this.pdfCheckPageBreak(ctx, 7);
+      ctx.doc.text(`• ${user.firstName} ${user.lastName} (${user.email})`, ctx.marginLeft + 3, ctx.y);
+      ctx.y += 5;
+    }
+    ctx.y += 8;
+  }
+
+  private pdfPrintDomainAssignments(ctx: { doc: jsPDF; marginLeft: number; contentWidth: number; y: number }): void {
+    const t = (key: string) => this.translateService.translate(key);
+    for (const domain of this.cachedDomainSummary) {
+      this.pdfCheckPageBreak(ctx, 30);
+      ctx.doc.setFontSize(13);
+      ctx.doc.setFont('helvetica', 'bold');
+      ctx.doc.text(`${t('@Data domain')}: ${domain.name}`, ctx.marginLeft, ctx.y);
+      ctx.y += 7;
+      ctx.doc.setFontSize(11);
+      ctx.doc.setFont('helvetica', 'normal');
+      ctx.doc.text(`${t('@Role assignment')}: ${this.formatRoleName(domain.roleName)}`, ctx.marginLeft + 3, ctx.y);
+      ctx.y += 7;
+      this.pdfPrintBulletList(ctx, `${t('@Dashboards')} (${domain.dashboardNames.length}):`, domain.dashboardNames);
+      this.pdfPrintBulletList(ctx, `${t('@Dashboard groups')} (${domain.groupNames.length}):`, domain.groupNames);
+      ctx.y += 5;
+    }
+  }
+
+  private pdfPrintBulletList(ctx: { doc: jsPDF; marginLeft: number; contentWidth: number; y: number },
+                             header: string, items: string[]): void {
+    if (items.length === 0) return;
+    this.pdfCheckPageBreak(ctx, 12);
+    ctx.doc.setFont('helvetica', 'bold');
+    ctx.doc.text(header, ctx.marginLeft + 3, ctx.y);
+    ctx.y += 5;
+    ctx.doc.setFont('helvetica', 'normal');
+    for (const name of items) {
+      this.pdfCheckPageBreak(ctx, 7);
+      const lines = ctx.doc.splitTextToSize(`• ${name}`, ctx.contentWidth - 10);
+      ctx.doc.text(lines, ctx.marginLeft + 6, ctx.y);
+      ctx.y += lines.length * 5;
+    }
+    ctx.y += 3;
+  }
+
   getDomainName(key: string): string {
     return this.allDataDomains.find(d => d.key === key)?.name || key;
   }
@@ -582,6 +764,9 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
           skippedCount: 0,
           failedCount: this.selectedUserIds.size,
           errors: [err.message || 'Unknown error occurred'],
+          updatedUsers: [],
+          skippedUsers: [],
+          failedUsers: [],
         };
         this.isSubmitting = false;
         this.cdr.markForCheck();

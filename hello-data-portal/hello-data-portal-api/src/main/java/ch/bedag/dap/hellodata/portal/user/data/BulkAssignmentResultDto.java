@@ -41,20 +41,33 @@ public class BulkAssignmentResultDto {
     private int skippedCount;
     private int failedCount;
     private List<String> errors = new ArrayList<>();
+    private List<UserDetail> updatedUsers = new ArrayList<>();
+    private List<UserDetail> skippedUsers = new ArrayList<>();
+    private List<UserDetail> failedUsers = new ArrayList<>();
 
-    public void incrementUpdated() {
+    public void addUpdated(String email, String firstName, String lastName) {
         updatedCount++;
+        updatedUsers.add(new UserDetail(email, firstName, lastName, null));
     }
 
-    public void incrementFailed() {
-        failedCount++;
-    }
-
-    public void incrementSkipped() {
+    public void addSkipped(String email, String firstName, String lastName, String reason) {
         skippedCount++;
+        skippedUsers.add(new UserDetail(email, firstName, lastName, reason));
     }
 
-    public void addError(String error) {
-        errors.add(error);
+    public void addFailed(String email, String firstName, String lastName, String reason) {
+        failedCount++;
+        failedUsers.add(new UserDetail(email, firstName, lastName, reason));
+        errors.add(email + ": " + reason);
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserDetail {
+        private String email;
+        private String firstName;
+        private String lastName;
+        private String reason;
     }
 }

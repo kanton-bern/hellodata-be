@@ -3,6 +3,7 @@ package ch.bedag.dap.hellodata.portal.user.service;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
+import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.BulkAssignmentRequestDto;
@@ -11,6 +12,7 @@ import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
 import ch.bedag.dap.hellodata.portal.user.data.ContextsDto;
 import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
+import ch.bedag.dap.hellodata.portal.user.data.UserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -43,6 +45,8 @@ class BulkAssignmentServiceTest {
     private RoleService roleService;
     @Mock
     private DashboardGroupService dashboardGroupService;
+    @Mock
+    private EmailNotificationService emailNotificationService;
     @InjectMocks
     private BulkAssignmentService bulkAssignmentService;
 
@@ -58,6 +62,13 @@ class BulkAssignmentServiceTest {
         when(roleService.getAll()).thenReturn(allRoles);
         when(userService.getAvailableContexts()).thenReturn(availableContexts);
         when(dashboardGroupService.getDashboardGroupMembership(any(UUID.class), anyString())).thenReturn(List.of());
+
+        UserDto mockUser = new UserDto();
+        mockUser.setEmail("test@example.com");
+        mockUser.setFirstName("Test");
+        mockUser.setLastName("User");
+        when(userService.getUserById(anyString())).thenReturn(mockUser);
+        when(userService.findHelloDataAdminUsers()).thenReturn(List.of());
     }
 
     @Test

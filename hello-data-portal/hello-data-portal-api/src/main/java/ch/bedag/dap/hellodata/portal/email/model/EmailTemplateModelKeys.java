@@ -41,4 +41,12 @@ public class EmailTemplateModelKeys {
     public static final String COMMENT_DECLINE_REASON_PARAM = "COMMENT_DECLINE_REASON";
     public static final String COMMENT_DELETION_REASON_PARAM = "COMMENT_DELETION_REASON";
     public static final String DASHBOARD_NAME_PARAM = "DASHBOARD_NAME";
+    public static final String PERFORMED_BY_PARAM = "PERFORMED_BY";
+    public static final String UPDATED_COUNT_PARAM = "UPDATED_COUNT";
+    public static final String SKIPPED_COUNT_PARAM = "SKIPPED_COUNT";
+    public static final String FAILED_COUNT_PARAM = "FAILED_COUNT";
+    public static final String DOMAIN_ASSIGNMENTS_PARAM = "DOMAIN_ASSIGNMENTS";
+    public static final String UPDATED_USERS_PARAM = "UPDATED_USERS";
+    public static final String SKIPPED_USERS_PARAM = "SKIPPED_USERS";
+    public static final String FAILED_USERS_PARAM = "FAILED_USERS";
 }

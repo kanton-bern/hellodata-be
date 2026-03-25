@@ -35,7 +35,8 @@ public enum EmailTemplate {
     COMMENT_STATUS_DECLINED("Notify_comment_status_declined", "comment/notify-comment-status-declined"),
     COMMENT_SENT_FOR_REVIEW("Notify_comment_sent_for_review", "comment/notify-comment-sent-for-review"),
     COMMENT_DELETED("Notify_comment_deleted", "comment/notify-comment-deleted"),
-    COMMENT_EDITED_BY_REVIEWER("Notify_comment_edited_by_reviewer", "comment/notify-comment-edited-by-reviewer");
+    COMMENT_EDITED_BY_REVIEWER("Notify_comment_edited_by_reviewer", "comment/notify-comment-edited-by-reviewer"),
+    BULK_ASSIGNMENT_AUDIT("Notify_bulk_assignment_audit", "user/notify-bulk-assignment-audit");
 
     private final String subjectKey;
     private final String templateKey;

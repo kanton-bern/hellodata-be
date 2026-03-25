@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<head><title>Audit d'attribution de r&#244;les en masse</title></head>
+<body>
+<p>Bonjour,</p>
+
+<p>
+    Une attribution de r&#244;les en masse a &#233;t&#233; effectu&#233;e dans HelloDATA dans le domaine professionnel
+    <span th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Inconnu_')}"/> par
+    <strong><span th:text="${#objects.nullSafe(PERFORMED_BY, '_Inconnu_')}"/></strong>.
+</p>
+
+<h3>R&#233;sum&#233;</h3>
+<ul>
+    <li>Mis &#224; jour: <span th:text="${UPDATED_COUNT}"/></li>
+    <li>Ignor&#233;s: <span th:text="${SKIPPED_COUNT}"/></li>
+    <li>&#201;chou&#233;s: <span th:text="${FAILED_COUNT}"/></li>
+</ul>
+
+<h3>Attributions de domaines de donn&#233;es</h3>
+<ul>
+    <li th:each="assignment : ${DOMAIN_ASSIGNMENTS}">
+        <span th:text="${assignment}"/>
+    </li>
+</ul>
+
+<div th:if="${!UPDATED_USERS.isEmpty()}">
+    <h3>Utilisateurs mis &#224; jour</h3>
+    <table border="1" style="border-collapse: collapse; padding: 5px;">
+        <tr><th>Nom</th><th>E-mail</th></tr>
+        <tr th:each="user : ${UPDATED_USERS}">
+            <td th:text="${user.firstName + ' ' + user.lastName}"/><td th:text="${user.email}"/>
+        </tr>
+    </table>
+</div>
+
+<div th:if="${!SKIPPED_USERS.isEmpty()}">
+    <h3>Utilisateurs ignor&#233;s</h3>
+    <table border="1" style="border-collapse: collapse; padding: 5px;">
+        <tr><th>Nom</th><th>E-mail</th><th>Raison</th></tr>
+        <tr th:each="user : ${SKIPPED_USERS}">
+            <td th:text="${user.firstName + ' ' + user.lastName}"/><td th:text="${user.email}"/><td th:text="${user.reason}"/>
+        </tr>
+    </table>
+</div>
+
+<div th:if="${!FAILED_USERS.isEmpty()}">
+    <h3>Utilisateurs &#233;chou&#233;s</h3>
+    <table border="1" style="border-collapse: collapse; padding: 5px;">
+        <tr><th>Nom</th><th>E-mail</th><th>Raison</th></tr>
+        <tr th:each="user : ${FAILED_USERS}">
+            <td th:text="${user.firstName + ' ' + user.lastName}"/><td th:text="${user.email}"/><td th:text="${user.reason}"/>
+        </tr>
+    </table>
+</div>
+
+<p>Lien vers le domaine professionnel
+    <a th:href="${#objects.nullSafe(link, '_Inconnu_')}"><span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Inconnu_')}"/></a>
+</p>
+
+<p>Cordialement<br/>HelloDATA</p>
+
+</body>
+</html>

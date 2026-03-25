@@ -30,6 +30,8 @@ import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.portal.email.model.EmailTemplate;
 import ch.bedag.dap.hellodata.portal.email.model.EmailTemplateData;
+import ch.bedag.dap.hellodata.portal.user.data.BulkAssignmentRequestDto;
+import ch.bedag.dap.hellodata.portal.user.data.BulkAssignmentResultDto;
 import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
 import jakarta.validation.constraints.NotNull;
@@ -149,6 +151,33 @@ public class EmailNotificationService {
         emailTemplateData.getReceivers().add(authorEmail);
         emailTemplateData.setLocale(locale);
         emailSendService.sendEmailFromTemplate(emailTemplateData);
+    }
+
+    public void notifyAdminsAboutBulkAssignment(String performedBy, BulkAssignmentRequestDto request,
+                                                    BulkAssignmentResultDto result, List<String> adminEmails) {
+        if (adminEmails.isEmpty()) {
+            log.warn("No admin emails found for bulk assignment audit notification");
+            return;
+        }
+
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.BULK_ASSIGNMENT_AUDIT);
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
+        emailTemplateData.getTemplateModel().put(PERFORMED_BY_PARAM, performedBy);
+        emailTemplateData.getTemplateModel().put(UPDATED_COUNT_PARAM, result.getUpdatedCount());
+        emailTemplateData.getTemplateModel().put(SKIPPED_COUNT_PARAM, result.getSkippedCount());
+        emailTemplateData.getTemplateModel().put(FAILED_COUNT_PARAM, result.getFailedCount());
+
+        List<String> domainAssignmentDescriptions = request.getDomainAssignments().stream()
+                .map(a -> a.getContextKey() + " \u2192 " + a.getRoleName())
+                .toList();
+        emailTemplateData.getTemplateModel().put(DOMAIN_ASSIGNMENTS_PARAM, domainAssignmentDescriptions);
+        emailTemplateData.getTemplateModel().put(UPDATED_USERS_PARAM, result.getUpdatedUsers());
+        emailTemplateData.getTemplateModel().put(SKIPPED_USERS_PARAM, result.getSkippedUsers());
+        emailTemplateData.getTemplateModel().put(FAILED_USERS_PARAM, result.getFailedUsers());
+
+        emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
+        emailTemplateData.getReceivers().addAll(adminEmails);
+        emailSendService.sendMultiLangEmailFromTemplate(emailTemplateData);
     }
 
     private void fillCommonParamsAndSend(String editedUserFirstName, String createdUserEmail, EmailTemplateData emailTemplateData, Locale locale) {

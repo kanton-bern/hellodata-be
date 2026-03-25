@@ -26,11 +26,13 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
+import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
+import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.BulkAssignmentRequestDto;
@@ -40,6 +42,8 @@ import ch.bedag.dap.hellodata.portal.user.data.ContextsDto;
 import ch.bedag.dap.hellodata.portal.user.data.DashboardGroupMembershipDto;
 import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
+import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -69,6 +73,7 @@ public class BulkAssignmentService {
     private final UserService userService;
     private final RoleService roleService;
     private final DashboardGroupService dashboardGroupService;
+    private final EmailNotificationService emailNotificationService;
 
     @Transactional
     public BulkAssignmentResultDto executeBulkAssignment(BulkAssignmentRequestDto request) {
@@ -86,25 +91,32 @@ public class BulkAssignmentService {
         for (int i = 0; i < userIds.size(); i++) {
             UUID userId = userIds.get(i);
             boolean isLast = (i == userIds.size() - 1);
-            processUser(userId, assignmentsByKey, contextsByKey, allRoles, isLast, result);
+            UserDto user = userService.getUserById(userId.toString());
+            processUser(userId, user, assignmentsByKey, contextsByKey, allRoles, isLast, result);
         }
+
+        sendAuditNotification(request, result);
 
         return result;
     }
 
     private void processUser(UUID userId,
+                             UserDto user,
                              Map<String, BulkAssignmentRequestDto.DomainAssignment> assignmentsByKey,
                              Map<String, ContextDto> contextsByKey,
                              List<RoleDto> allRoles,
                              boolean isLastUser,
                              BulkAssignmentResultDto result) {
+        String email = user != null ? user.getEmail() : userId.toString();
+        String firstName = user != null ? user.getFirstName() : "";
+        String lastName = user != null ? user.getLastName() : "";
         try {
             List<UserContextRoleDto> existingRoles = userService.getContextRolesForUser(userId);
             Map<String, List<String>> existingGroupIds = loadExistingDashboardGroupIds(userId, contextsByKey.keySet());
 
             if (isAlreadyUpToDate(existingRoles, assignmentsByKey, existingGroupIds)) {
                 log.debug("Skipping user {} — assignments already match", userId);
-                result.incrementSkipped();
+                result.addSkipped(email, firstName, lastName, "Assignments already match");
                 return;
             }
 
@@ -112,11 +124,10 @@ public class BulkAssignmentService {
                     existingRoles, assignmentsByKey, contextsByKey, allRoles, existingGroupIds);
 
             userService.updateContextRolesForUser(userId, updateDto, isLastUser);
-            result.incrementUpdated();
+            result.addUpdated(email, firstName, lastName);
         } catch (Exception e) {
             log.error("Failed to process bulk assignment for user {}", userId, e);
-            result.incrementFailed();
-            result.addError("User " + userId + ": " + e.getMessage());
+            result.addFailed(email, firstName, lastName, e.getMessage());
         }
     }
 
@@ -271,6 +282,19 @@ public class BulkAssignmentService {
         perm.setWriteComments(perms[1]);
         perm.setReviewComments(perms[2]);
         return perm;
+    }
+
+    private void sendAuditNotification(BulkAssignmentRequestDto request, BulkAssignmentResultDto result) {
+        try {
+            String performedBy = SecurityUtils.getCurrentUserFullName();
+            List<String> adminEmails = userService.findHelloDataAdminUsers().stream()
+                    .map(UserEntity::getEmail)
+                    .filter(email -> email != null && !email.isBlank())
+                    .toList();
+            emailNotificationService.notifyAdminsAboutBulkAssignment(performedBy, request, result, adminEmails);
+        } catch (Exception e) {
+            log.error("Failed to send bulk assignment audit notification", e);
+        }
     }
 
     private Map<String, List<String>> loadExistingDashboardGroupIds(UUID userId, Set<String> contextKeys) {
