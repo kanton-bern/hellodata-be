@@ -31,7 +31,16 @@ import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
-import ch.bedag.dap.hellodata.portal.user.data.*;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
+import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
+import ch.bedag.dap.hellodata.portal.user.data.CreateUserRequestDto;
+import ch.bedag.dap.hellodata.portal.user.data.CurrentUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.DashboardsDto;
+import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
+import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user.service.BulkAssignmentService;
 import ch.bedag.dap.hellodata.portal.user.service.KeycloakService;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -60,6 +69,8 @@ class UserControllerTest extends HDControllerTest {
 
     @MockitoBean
     private UserService userService;
+    @MockitoBean
+    private BulkAssignmentService bulkAssignmentService;
     @MockitoBean
     private ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService dashboardGroupService;
     @MockitoBean
