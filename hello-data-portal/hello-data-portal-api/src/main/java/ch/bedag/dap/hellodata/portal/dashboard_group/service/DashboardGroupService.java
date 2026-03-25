@@ -60,6 +60,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class DashboardGroupService {
+    private static final List<String> ELIGIBLE_ROLE_NAMES = List.of("DATA_DOMAIN_VIEWER", "DATA_DOMAIN_BUSINESS_SPECIALIST");
+
     private final DashboardGroupRepository dashboardGroupRepository;
     private final UserContextRoleRepository userContextRoleRepository;
     private final UserRepository userRepository;
@@ -244,19 +246,34 @@ public class DashboardGroupService {
             return;
         }
         String userIdStr = userId.toString();
-        DashboardGroupUserEntry userEntry = createDashboardGroupUserEntry(userIdStr, userEntity);
 
         for (Map.Entry<String, List<String>> entry : selectedDashboardGroupIdsForUser.entrySet()) {
-            processContextGroupMemberships(userIdStr, userEntry, entry.getKey(), entry.getValue());
+            String contextKey = entry.getKey();
+            String userRoleName = getUserRoleForContext(userId, contextKey);
+
+            if (userRoleName == null || !ELIGIBLE_ROLE_NAMES.contains(userRoleName)) {
+                log.warn("Skipping dashboard group update for user {} in context '{}' — role '{}' is not eligible",
+                        userIdStr, contextKey, userRoleName);
+                continue;
+            }
+
+            DashboardGroupUserEntry userEntry = createDashboardGroupUserEntry(userIdStr, userEntity, userRoleName);
+            processContextGroupMemberships(userIdStr, userEntry, contextKey, entry.getValue());
         }
     }
 
-    private DashboardGroupUserEntry createDashboardGroupUserEntry(String userIdStr, UserEntity userEntity) {
+    private String getUserRoleForContext(UUID userId, String contextKey) {
+        return userContextRoleRepository.findRoleNameByUserIdAndContextKey(userId, contextKey)
+                .orElse(null);
+    }
+
+    private DashboardGroupUserEntry createDashboardGroupUserEntry(String userIdStr, UserEntity userEntity, String roleName) {
         DashboardGroupUserEntry userEntry = new DashboardGroupUserEntry();
         userEntry.setId(userIdStr);
         userEntry.setEmail(userEntity.getEmail());
         userEntry.setFirstName(userEntity.getFirstName());
         userEntry.setLastName(userEntity.getLastName());
+        userEntry.setRoleName(roleName);
         return userEntry;
     }
 
@@ -298,8 +315,7 @@ public class DashboardGroupService {
 
     @Transactional(readOnly = true)
     public List<DashboardGroupDomainUserDto> getEligibleUsersForDomain(String contextKey) {
-        List<String> roleNames = List.of("DATA_DOMAIN_VIEWER", "DATA_DOMAIN_BUSINESS_SPECIALIST");
-        List<UserContextRoleEntity> userContextRoles = userContextRoleRepository.findByContextKeyAndRoleNames(contextKey, roleNames);
+        List<UserContextRoleEntity> userContextRoles = userContextRoleRepository.findByContextKeyAndRoleNames(contextKey, ELIGIBLE_ROLE_NAMES);
         return userContextRoles.stream()
                 .map(ucr -> new DashboardGroupDomainUserDto(
                         ucr.getUser().getId().toString(),
