@@ -30,6 +30,7 @@ import {selectRouteParam} from "../router/router.selectors";
 import {createSelector} from "@ngrx/store";
 import {AnnouncementState} from "./announcement.state";
 import {AuthState} from "../auth/auth.state";
+import {Announcement} from "./announcement.model";
 
 const announcementsState = (state: AppState) => state.announcements;
 const authState = (state: AppState) => state.auth;
@@ -41,6 +42,13 @@ export const selectAllAnnouncements = createSelector(
   (state: AnnouncementState) => state.allAnnouncements
 );
 
+function hasMessageForLanguage(announcement: Announcement, lang: string | null): boolean {
+  if (!lang || !announcement?.messages) return false;
+  if (announcement.messages[lang]) return true;
+  const prefix = lang.slice(0, 2).toLowerCase();
+  return Object.keys(announcement.messages).some(k => k.slice(0, 2).toLowerCase() === prefix);
+}
+
 export const selectAllAnnouncementsByPublishedFlag = (published: boolean) => createSelector(
   announcementsState,
   authState,
@@ -48,7 +56,7 @@ export const selectAllAnnouncementsByPublishedFlag = (published: boolean) => cre
     const firstPublishedDate = a1.publishedDate ? a1.publishedDate : 0;
     const secondPublishedDate = a2.publishedDate ? a2.publishedDate : 0;
     return secondPublishedDate - firstPublishedDate;
-  }).filter(a => a.messages && authState.defaultLanguage && a.messages[authState.defaultLanguage])
+  }).filter(a => hasMessageForLanguage(a, authState.defaultLanguage))
 );
 
 export const selectPublishedAndFilteredAnnouncements = createSelector(
@@ -59,7 +67,7 @@ export const selectPublishedAndFilteredAnnouncements = createSelector(
       const firstPublishedDate = a1.publishedDate ? a1.publishedDate : 0;
       const secondPublishedDate = a2.publishedDate ? a2.publishedDate : 0;
       return secondPublishedDate - firstPublishedDate;
-    }).filter(a => a.messages && authState.defaultLanguage && a.messages[authState.defaultLanguage])
+    }).filter(a => hasMessageForLanguage(a, authState.defaultLanguage))
   }
 );
 

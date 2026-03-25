@@ -43,12 +43,22 @@ export class PublishedAnnouncementsComponent implements OnInit {
     this.defaultLanguage$ = store.select(selectDefaultLanguage);
   }
 
-  getMessage(announcement: Announcement, selectedLanguage: string, defaultLanguage: any): string | undefined {
-    const message = announcement?.messages?.[selectedLanguage];
+  getMessage(announcement: Announcement, selectedLanguage: string, defaultLanguage: string): string | undefined {
+    const message = this.findMessage(announcement, selectedLanguage);
     if (!message || message.trim() === '') {
-      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + announcement?.messages?.[defaultLanguage];
+      const fallback = this.findMessage(announcement, defaultLanguage);
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + (fallback ?? '');
     }
     return message;
+  }
+
+  private findMessage(announcement: Announcement, code: string | null | undefined): string | undefined {
+    if (!code || !announcement?.messages) return undefined;
+    const exact = announcement.messages[code];
+    if (exact) return exact;
+    const prefix = code.slice(0, 2).toLowerCase();
+    const matchedKey = Object.keys(announcement.messages).find(k => k.slice(0, 2).toLowerCase() === prefix);
+    return matchedKey ? announcement.messages[matchedKey] : undefined;
   }
 
   ngOnInit(): void {
