@@ -74,7 +74,7 @@ RUN uv pip install flask-cors
 
 ##################### Add Liquibase to manage custom database scripts ######################
 # Make /liquibase directory and change owner to superset
-RUN mkdir /liquibase && chown superset /liquibase
+RUN mkdir /liquibase && chown 1000 /liquibase
 WORKDIR /liquibase
 
 # Symbolic link will be broken until later
@@ -94,9 +94,9 @@ RUN tar -xzf liquibase-${LIQUIBASE_VERSION}.tar.gz
 
 
 # add liquibase migrations
-COPY --chown=superset ./db/changelog /db/changelog
-COPY --chown=superset ./wait-and-migrate.sh /db/wait-and-migrate.sh
-COPY --chown=superset ./entrypoint.sh /db/entrypoint.sh
+COPY --chown=1000:1000 ./db/changelog /db/changelog
+COPY --chown=1000:1000 ./wait-and-migrate.sh /db/wait-and-migrate.sh
+COPY --chown=1000:1000 ./entrypoint.sh /db/entrypoint.sh
 #RUN set -xe \
 #    && chmod +x /db/wait-and-migrate.sh \
 #    && chown -R superset:superset /db
@@ -104,7 +104,7 @@ COPY --chown=superset ./entrypoint.sh /db/entrypoint.sh
 RUN chmod a+x /db/*.sh
 
 # Switching back to using the `superset` user
-USER superset
+USER 1000
 WORKDIR /app
 
 CMD ["/bin/sh", "-c", "/db/entrypoint.sh"]

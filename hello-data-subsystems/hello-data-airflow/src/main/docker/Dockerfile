@@ -50,7 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 ## Install needed airflow dependencies
-USER airflow
+USER 65533
 RUN python -m pip install --upgrade pip
 RUN pip install --upgrade pip  \
   &&  pip install --no-cache-dir psycopg2-binary Redis authlib==${AUTHLIB_VERSION} \
@@ -87,7 +87,7 @@ RUN apt-get update && \
     apt-get install --no-install-recommends -y wget
 
 # Make /liquibase directory and change owner to superset
-RUN mkdir /liquibase && chown airflow /liquibase
+RUN mkdir /liquibase && chown 65533:0 /liquibase
 WORKDIR /liquibase
 
 # Symbolic link will be broken until later
@@ -107,9 +107,9 @@ RUN tar -xzf liquibase-${LIQUIBASE_VERSION}.tar.gz
 
 
 # add liquibase migrations
-COPY --chown=airflow:root ./db/changelog /db/changelog
-COPY --chown=airflow:root ./db/wait-and-migrate.sh /db/wait-and-migrate.sh
-COPY --chown=airflow:root ./entrypoint.sh /app/entrypoint.sh
+COPY --chown=65533:0 ./db/changelog /db/changelog
+COPY --chown=65533:0 ./db/wait-and-migrate.sh /db/wait-and-migrate.sh
+COPY --chown=65533:0 ./entrypoint.sh /app/entrypoint.sh
 
 RUN chmod a+x /db/*.sh
 RUN chmod a+x /app/*.sh
@@ -118,7 +118,7 @@ RUN chmod a+x /app/*.sh
 RUN dos2unix /db/wait-and-migrate.sh && apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt/lists/*
 
 # Switching back to using the `airflow` user
-USER airflow
+USER 65533
 
 # Copy standard DAGs to the image
 # Have a look at entrypoint.sh to see how the DAGs are copied to the right place
