@@ -4260,55 +4260,55 @@ __metadata:
   linkType: hard
 
 "@ngrx/effects@npm:^21.0.0":
-  version: 21.0.1
-  resolution: "@ngrx/effects@npm:21.0.1"
+  version: 21.1.0
+  resolution: "@ngrx/effects@npm:21.1.0"
   dependencies:
     tslib: "npm:^2.0.0"
   peerDependencies:
     "@angular/core": ^21.0.0
-    "@ngrx/store": 21.0.1
+    "@ngrx/store": 21.1.0
     rxjs: ^6.5.3 || ^7.5.0
-  checksum: 10c0/4949cf645fd50e8dbd55848400cdb6eeeeee04f97ceabbbef774b20035906cb8d4c847329e315ca957c8d423cc5286cf932109afe23b1ecb65ad637364995c30
+  checksum: 10c0/928d353d8b277e7632d0892352bfb6078fd095bd8914cabb81d219374073e6504165a46e255b99e16c9a7aac5fec51d6ee928c8f937ba82202b9ac4a7b2f6029
   languageName: node
   linkType: hard
 
 "@ngrx/router-store@npm:^21.0.0":
-  version: 21.0.1
-  resolution: "@ngrx/router-store@npm:21.0.1"
+  version: 21.1.0
+  resolution: "@ngrx/router-store@npm:21.1.0"
   dependencies:
     tslib: "npm:^2.0.0"
   peerDependencies:
     "@angular/common": ^21.0.0
     "@angular/core": ^21.0.0
     "@angular/router": ^21.0.0
-    "@ngrx/store": 21.0.1
+    "@ngrx/store": 21.1.0
     rxjs: ^6.5.3 || ^7.5.0
-  checksum: 10c0/efacc8f96755c5501e71d8408d51907139b16551e84d28dccaa636b0f805fd57f7a50fe14d560c089ebfd43338c34bdee58387a60e07e4e1dae47693b1f763bd
+  checksum: 10c0/ecb48a8109e2d273c15823744ca7f319e9a46aaed8d2face4691aceeb6a6e2664f3ba37ba37e8bd782d3cf3571f23064a4270d1e1ddc430cfe5be544b660c226
   languageName: node
   linkType: hard
 
 "@ngrx/store-devtools@npm:^21.0.0":
-  version: 21.0.1
-  resolution: "@ngrx/store-devtools@npm:21.0.1"
+  version: 21.1.0
+  resolution: "@ngrx/store-devtools@npm:21.1.0"
   dependencies:
     tslib: "npm:^2.0.0"
   peerDependencies:
     "@angular/core": ^21.0.0
-    "@ngrx/store": 21.0.1
+    "@ngrx/store": 21.1.0
     rxjs: ^6.5.3 || ^7.5.0
-  checksum: 10c0/59bcef519943e7cdde3a3288a5a06aea03b710cab1fdad7caaed47fd317767f471d52bca38da88dd7f6681ffee3e9fd32c2ba6ab2001cf4b0832824bb721162a
+  checksum: 10c0/38d1c6637d0e2d57406b2c5fe1a958f03f5dd27bfb3198c588ded516a204979721602945de13769709baa23ee9d39083ee9f8db4806961b950146151ceb55aac
   languageName: node
   linkType: hard
 
 "@ngrx/store@npm:^21.0.0":
-  version: 21.0.1
-  resolution: "@ngrx/store@npm:21.0.1"
+  version: 21.1.0
+  resolution: "@ngrx/store@npm:21.1.0"
   dependencies:
     tslib: "npm:^2.0.0"
   peerDependencies:
     "@angular/core": ^21.0.0
     rxjs: ^6.5.3 || ^7.5.0
-  checksum: 10c0/23ef45b0d2108a5821a98d84b79f6889b1cfe23b6dc965cfde910af7e3e84a65259e93eff377f35df119a25515cb7e07ed18c9655ead68cc70e541f2e956b38c
+  checksum: 10c0/c24b5046f8bd1dc6699b0d6a8c97d703d4553c07e0346583d0982065970add37ea7dd01cb255851a4b09620fab4a01e2925b817049ad3513dce05de152cc4260
   languageName: node
   linkType: hard
 
