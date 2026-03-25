@@ -25,6 +25,7 @@ import {TranslocoPipe} from "@jsverse/transloco";
     @if ((defaultLanguage$ | async); as defaultLanguage) {
       <div>
         @if ((selectedLanguage$ | async); as selectedLanguage) {
+          @if (selectedLanguage.code) {
           <div>
             @for (announcement of publishedAnnouncements$ | async; track announcement) {
               <div id="ghettobox">
@@ -52,6 +53,7 @@ import {TranslocoPipe} from "@jsverse/transloco";
               </div>
             }
           </div>
+          }
         }
       </div>
     }`,

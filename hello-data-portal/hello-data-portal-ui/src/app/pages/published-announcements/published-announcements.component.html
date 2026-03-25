@@ -1,6 +1,7 @@
 @if ((defaultLanguage$ | async); as defaultLanguage) {
   <div>
     @if ((selectedLanguage$ | async); as selectedLanguage) {
+      @if (selectedLanguage.code) {
       <div>
         @if ((announcements$ | async); as announcements) {
           <div>
@@ -35,6 +36,7 @@
           </div>
         }
       </div>
+      }
     }
   </div>
 }
