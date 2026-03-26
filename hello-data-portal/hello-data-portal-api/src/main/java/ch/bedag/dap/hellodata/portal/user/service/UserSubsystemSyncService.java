@@ -234,7 +234,7 @@ public class UserSubsystemSyncService {
      * Builds dashboard permissions for all contexts where the user has roles.
      * Used during batch synchronization of all users.
      */
-    private Map<String, List<DashboardForUserDto>> buildDashboardsForAllContexts(UUID userId) {
+    public Map<String, List<DashboardForUserDto>> buildDashboardsForAllContexts(UUID userId) {
         Map<String, List<DashboardForUserDto>> allDashboards = new HashMap<>();
 
         List<MetaInfoResourceEntity> dashboardResources = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS);

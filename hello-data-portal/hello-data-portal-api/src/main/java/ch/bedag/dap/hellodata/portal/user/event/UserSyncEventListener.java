@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.user.event;
 
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.user.service.UserSubsystemSyncService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
@@ -37,6 +38,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -80,8 +83,12 @@ public class UserSyncEventListener {
         log.info("Received UserFullSyncEvent for user {}", event.userId());
         try {
             UserEntity userEntity = getUserEntity(event.userId());
+            Map<String, List<DashboardForUserDto>> dashboards = event.dashboardsPerContext();
+            if (dashboards == null) {
+                dashboards = userSubsystemSyncService.buildDashboardsForAllContexts(event.userId());
+            }
             userSubsystemSyncService.synchronizeUser(userEntity, event.sendBackUsersList(),
-                    event.extraModuleRoles(), event.dashboardsPerContext());
+                    event.extraModuleRoles(), dashboards);
         } catch (Exception e) {
             log.error("Failed to perform full sync for user {}: {}", event.userId(), e.getMessage());
         }
