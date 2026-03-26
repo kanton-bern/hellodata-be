@@ -163,8 +163,8 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
       this.expandedRows = {};
       return;
     }
-    // Clear PrimeNG filter to get the full dataset, then apply custom matching
-    this.table.filterGlobal('', 'contains');
+    // Use full dataset for custom matching (don't rely on PrimeNG pre-filter)
+    this.table.filteredValue = null;
     const allData = this.table.value || [];
     this.table.filteredValue = allData.filter(row => this.rowMatchesAllTerms(row));
     this.table.totalRecords = this.table.filteredValue.length;
@@ -197,8 +197,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
 
       if (row['_dataDomainRoles']?.length > 0) {
         return row['_dataDomainRoles'].some((ddr: any) =>
-          this.normalizeForSearch(ddr.role || '').includes(normalizedTerm) ||
-          this.normalizeForSearch(ddr.contextName || '').includes(normalizedTerm)
+          this.normalizeForSearch(ddr.role || '').includes(normalizedTerm)
         );
       }
 
