@@ -2,14 +2,18 @@
 
 ## Overview
 
-The **Bulk Assignments** feature allows administrators to assign data domain roles, dashboards, and dashboard groups to multiple users at once. Instead of editing each user individually through the user management page, administrators can use a guided wizard to apply role and resource assignments in bulk across one or more data domains.
+The **Bulk Assignments** feature allows administrators to assign data domain roles, dashboards, and dashboard groups to
+multiple users at once. Instead of editing each user individually through the user management page, administrators can
+use a guided wizard to apply role and resource assignments in bulk across one or more data domains.
 
 !!! info "Required permissions"
-    Only users with the **USER_MANAGEMENT** permission (typically HELLODATA_ADMIN or BUSINESS_DOMAIN_ADMIN) can access and use the Bulk Assignments feature.
+Only users with the **USER_MANAGEMENT** permission (typically HELLODATA_ADMIN or BUSINESS_DOMAIN_ADMIN) can access and
+use the Bulk Assignments feature.
 
 ## Accessing Bulk Assignments
 
-Navigate to **User Management** and click the **Bulk Assignments** button. This opens the Bulk Assignments wizard — a four-step guided process.
+Navigate to **User Management** and click the **Bulk Assignments** button. This opens the Bulk Assignments wizard — a
+four-step guided process.
 
 ## Wizard Steps
 
@@ -18,12 +22,14 @@ Navigate to **User Management** and click the **Bulk Assignments** button. This 
 The first step presents a paginated grid of all eligible users.
 
 - **Search**: Use the search field to filter users by first name, last name, or email.
-- **Filter by role**: Use the dropdown to filter users by their current data domain role (e.g., show only users with `DATA_DOMAIN_VIEWER`).
+- **Filter by role**: Use the dropdown to filter users by their current data domain role (e.g., show only users with
+  `DATA_DOMAIN_VIEWER`).
 - **Select all**: Use the checkbox to select/deselect all visible (filtered) users at once.
 - **Tooltips**: Hover over a user card to see their current data domain role assignments.
 
 !!! info "Excluded users"
-    Users with **HELLODATA_ADMIN** or **BUSINESS_DOMAIN_ADMIN** business domain roles are automatically excluded from the list, as their permissions are managed at a higher level.
+Users with **HELLODATA_ADMIN** or **BUSINESS_DOMAIN_ADMIN** business domain roles are automatically excluded from the
+list, as their permissions are managed at a higher level.
 
 Click **Next** to proceed once at least one user is selected.
 
@@ -45,13 +51,13 @@ For each selected data domain, configure the following:
 
 Choose one of the available data domain roles:
 
-| Role | Description |
-|------|-------------|
-| `DATA_DOMAIN_ADMIN` | Full access to all resources in the data domain |
-| `DATA_DOMAIN_EDITOR` | Read/write access to dashboards, SQL lab, data marts |
-| `DATA_DOMAIN_VIEWER` | Read access to specifically assigned dashboards only |
+| Role                              | Description                                          |
+|-----------------------------------|------------------------------------------------------|
+| `DATA_DOMAIN_ADMIN`               | Full access to all resources in the data domain      |
+| `DATA_DOMAIN_EDITOR`              | Read/write access to dashboards, SQL lab, data marts |
+| `DATA_DOMAIN_VIEWER`              | Read access to specifically assigned dashboards only |
 | `DATA_DOMAIN_BUSINESS_SPECIALIST` | Read access to specifically assigned dashboards only |
-| `NONE` | Removes the user's access to the data domain |
+| `NONE`                            | Removes the user's access to the data domain         |
 
 For a detailed description of each role's permissions, see [Roles & Authorization](role-authorization-concept.md).
 
@@ -60,10 +66,12 @@ For a detailed description of each role's permissions, see [Roles & Authorizatio
 When the selected role is **DATA_DOMAIN_VIEWER** or **DATA_DOMAIN_BUSINESS_SPECIALIST**, additional options appear:
 
 - **Dashboards**: Select individual dashboards the users should have access to.
-- **Dashboard Groups**: Select dashboard groups to assign. A dashboard group bundles multiple dashboards together for easier management.
+- **Dashboard Groups**: Select dashboard groups to assign. A dashboard group bundles multiple dashboards together for
+  easier management.
 
 !!! warning "Dashboard visibility"
-    Viewers and Business Specialists can only see dashboards that are explicitly assigned to them. If no dashboards are selected, the users will have the role but see no dashboards.
+Viewers and Business Specialists can only see dashboards that are explicitly assigned to them. If no dashboards are
+selected, the users will have the role but see no dashboards.
 
 Click **Next** to proceed to the summary.
 
@@ -82,7 +90,8 @@ The summary step presents a carousel view of all planned assignments, one data d
 4. The **Apply** button becomes enabled only after all domains have been reviewed.
 
 !!! info "Why review is required"
-    Bulk assignments can affect many users at once. The mandatory review ensures administrators verify all changes before they are applied.
+Bulk assignments can affect many users at once. The mandatory review ensures administrators verify all changes before
+they are applied.
 
 #### Applying Changes
 
@@ -112,8 +121,10 @@ For each user and each selected data domain:
 ### Dashboard & Group Assignment Logic
 
 - Dashboard and group selections **replace** existing assignments for the affected data domains.
-- If a role does not support dashboard selection (e.g., `DATA_DOMAIN_ADMIN`, `DATA_DOMAIN_EDITOR`), any previously assigned dashboards are cleared for that domain.
-- Dashboard group membership is validated server-side: only users with `DATA_DOMAIN_VIEWER` or `DATA_DOMAIN_BUSINESS_SPECIALIST` roles can be added to dashboard groups.
+- If a role does not support dashboard selection (e.g., `DATA_DOMAIN_ADMIN`, `DATA_DOMAIN_EDITOR`), any previously
+  assigned dashboards are cleared for that domain.
+- Dashboard group membership is validated server-side: only users with `DATA_DOMAIN_VIEWER` or
+  `DATA_DOMAIN_BUSINESS_SPECIALIST` roles can be added to dashboard groups.
 
 ### Skip Detection
 
@@ -128,7 +139,8 @@ This avoids unnecessary updates and reduces processing time.
 
 - If processing fails for one user, the wizard continues with the remaining users.
 - Failed users are reported with error details on the result page.
-- Common failure causes: user was deleted between selection and application, or a downstream service (e.g., Keycloak) is temporarily unavailable.
+- Common failure causes: user was deleted between selection and application, or a downstream service (e.g., Keycloak) is
+  temporarily unavailable.
 
 ## Example Scenarios
 
@@ -162,18 +174,9 @@ Remove data domain access for users who have left a project.
 ## Technical Notes
 
 - The bulk assignment endpoint is `POST /api/users/bulk-assignments`.
-- All user context roles (including the full list of available users with their roles) can be retrieved via `GET /api/users/context-roles`.
+- All user context roles (including the full list of available users with their roles) can be retrieved via
+  `GET /api/users/context-roles`.
 - Changes are applied transactionally per user — a failure for one user does not roll back changes for others.
-- After applying, the portal publishes NATS events to synchronize external tools (Superset, Airflow, etc.) with the updated role assignments.
+- After applying, the portal publishes NATS events to synchronize external tools (Superset, Airflow, etc.) with the
+  updated role assignments.
 
-## Previewing This Documentation Locally
-
-To view the documentation site in your browser:
-
-```bash
-cd docs
-pip install -r requirements.txt
-mkdocs serve
-```
-
-Then open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser. The site auto-reloads on file changes.
