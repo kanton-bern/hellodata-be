@@ -163,33 +163,51 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
       this.expandedRows = {};
       return;
     }
-    this.table.filterGlobal(this.filterTerms[0], 'contains');
+    // Clear PrimeNG filter to get the full dataset, then apply custom matching
+    this.table.filterGlobal('', 'contains');
+    const allData = this.table.value || [];
+    this.table.filteredValue = allData.filter(row => this.rowMatchesAllTerms(row));
+    this.table.totalRecords = this.table.filteredValue.length;
 
-    if (this.filterTerms.length > 1 && this.table.filteredValue) {
-      this.table.filteredValue = this.table.filteredValue.filter(row => this.rowMatchesAllTerms(row));
-    }
-    this.table.totalRecords = (this.table.filteredValue || this.table.value).length;
-
-    const filteredData: TableRow[] = this.table.filteredValue || this.table.value || [];
     const expanded: { [s: string]: boolean } = {};
-    filteredData.forEach(row => {
+    this.table.filteredValue.forEach(row => {
       expanded[row.email] = true;
     });
     this.expandedRows = expanded;
   }
 
+  private normalizeForSearch(value: string): string {
+    return value.toLowerCase().replace(/_/g, ' ');
+  }
+
   private rowMatchesAllTerms(row: TableRow): boolean {
     return this.filterTerms.every(term => {
-      const lowerTerm = term.toLowerCase();
-      return this.allFilterFields.some(field => {
+      const normalizedTerm = this.normalizeForSearch(term);
+
+      const matchesField = this.allFilterFields.some(field => {
         const val = row[field];
-        return val && String(val).toLowerCase().includes(lowerTerm);
+        return val && this.normalizeForSearch(String(val)).includes(normalizedTerm);
       });
+      if (matchesField) return true;
+
+      if (row['_businessDomainRole'] &&
+          this.normalizeForSearch(row['_businessDomainRole']).includes(normalizedTerm)) {
+        return true;
+      }
+
+      if (row['_dataDomainRoles']?.length > 0) {
+        return row['_dataDomainRoles'].some((ddr: any) =>
+          this.normalizeForSearch(ddr.role || '').includes(normalizedTerm) ||
+          this.normalizeForSearch(ddr.contextName || '').includes(normalizedTerm)
+        );
+      }
+
+      return false;
     });
   }
 
   onGlobalFilterChange(table: Table): void {
-    if (this.filterTerms.length > 1 && table.filteredValue) {
+    if (this.filterTerms.length > 0 && table.filteredValue) {
       table.filteredValue = table.filteredValue.filter(row => this.rowMatchesAllTerms(row));
       table.totalRecords = table.filteredValue.length;
     }
@@ -210,8 +228,8 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     if (this.filterTerms.length === 0) {
       return false;
     }
-    const lowerValue = value.toLowerCase();
-    return this.filterTerms.some(term => lowerValue.includes(term.toLowerCase()));
+    const normalizedValue = this.normalizeForSearch(value);
+    return this.filterTerms.some(term => normalizedValue.includes(this.normalizeForSearch(term)));
   }
 
   shouldShowTag(value: any): boolean {
