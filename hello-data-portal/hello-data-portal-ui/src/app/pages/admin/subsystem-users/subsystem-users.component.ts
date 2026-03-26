@@ -263,12 +263,12 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
 
     const rows = dataToExport.map(row => {
       const contextRoleParts: string[] = [];
-      if (row['_businessDomainRole'] && row['_businessDomainRole'] !== 'NONE') {
+      if (row['_businessDomainRole']) {
         contextRoleParts.push(this.translateService.translate('@Business domain') + ': ' + this.formatRoleName(row['_businessDomainRole']));
       }
       if (row['_dataDomainRoles']?.length > 0) {
         for (const ddr of row['_dataDomainRoles']) {
-          if (ddr.role && ddr.role !== 'NONE') {
+          if (ddr.role) {
             contextRoleParts.push(ddr.contextName + ': ' + this.formatRoleName(ddr.role));
           }
         }
