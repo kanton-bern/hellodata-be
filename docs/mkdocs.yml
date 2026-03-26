@@ -115,6 +115,7 @@ nav:
       - Workspace Troubleshoot: concepts/workspaces-troubleshoot.md
   - Manuals:
       - User Manual: manuals/user-manual.md
+      - Bulk Assignments: manuals/bulk-assignments.md
       - Roles & Authorization: manuals/role-authorization-concept.md
   - More:
       - Changelog: more/changelog.md

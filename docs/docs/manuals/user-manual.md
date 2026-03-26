@@ -435,6 +435,10 @@ And or give access to specific data domains:
 
 See more in [role-authorization-concept](role-authorization-concept.md).
 
+##### Bulk Assignments
+
+For assigning roles, dashboards, and dashboard groups to multiple users at once, use the **Bulk Assignments** wizard. See the dedicated [Bulk Assignments](bulk-assignments.md) guide for a full walkthrough.
+
 #### Portal Rollenverwaltung / Portal Role Management
 
 In this portal role management, you can see all the roles that exist.
