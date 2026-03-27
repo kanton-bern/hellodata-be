@@ -30,11 +30,45 @@ Sounds too good to be true? Give it a try. Do you want to know the best thing? I
 
 ## Quick Start for Developers
 
-Want to run HelloDATA BE and test it locally? Run the following command in the docker-compose directory to deploy all components:
+Want to run HelloDATA BE locally? Follow the steps below.
+
+### Prerequisites
+
+- **RAM**: at least 15 GB allocated to Docker (32 GB physical RAM recommended)
+- **Software**: Docker and Docker Compose installed
+- **Hosts file**: add `127.0.0.1 host.docker.internal` to `/etc/hosts` (Linux/macOS) or enable the WSL 2 setting in Docker Desktop (Windows)
+
+!!! tip "Mac (Apple Silicon)"
+    In Docker Desktop, enable **Use Rosetta for x86/amd64 emulation on Apple Silicon** under Settings → General, and **Use kernel networking for UDP** under Settings → Resources → Network.
+
+### Start Everything
 
 ```sh
 cd hello-data-deployment/docker-compose
+docker-compose pull
 docker-compose up -d
 ```
 
-**Note:** Please refer to our [docker-compose README](https://github.com/kanton-bern/hellodata-be/tree/main/hello-data-deployment/docker-compose/README.md) for more information; there are some must presets you need to configure.
+Once all containers are healthy, open [localhost:8080](http://localhost:8080) and log in with **admin / admin**.
+
+### Minimal Start (portal only)
+
+If you have limited resources, start only the portal and its core dependencies:
+
+```sh
+docker compose up -d hello-data-portal-ui
+```
+
+This brings up the Portal, Keycloak, dbt, and PostgreSQL. To add further services afterwards:
+
+```sh
+docker compose up -d hello-data-airflow-sidecar hello-data-superset-sidecar-default-data-domain hello-data-sftpgo-sidecar
+```
+
+### Stop and Clean Up
+
+```sh
+docker-compose down --volumes --remove-orphans
+```
+
+**Note:** For platform-specific instructions (Windows, Apple Silicon), troubleshooting, and FAQs see the [docker-compose README](https://github.com/kanton-bern/hellodata-be/tree/main/hello-data-deployment/docker-compose/README.md).
