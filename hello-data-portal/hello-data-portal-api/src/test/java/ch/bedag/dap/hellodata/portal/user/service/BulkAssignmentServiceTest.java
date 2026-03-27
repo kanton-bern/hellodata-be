@@ -58,6 +58,7 @@ class BulkAssignmentServiceTest {
 
     private List<RoleDto> allRoles;
     private ContextsDto availableContexts;
+    private static final String TEST_GROUP_ID = "00000000-0000-0000-0000-000000000001";
 
     @BeforeEach
     void setUp() {
@@ -69,6 +70,7 @@ class BulkAssignmentServiceTest {
         when(userService.getAvailableContexts()).thenReturn(availableContexts);
         when(dashboardGroupService.getDashboardGroupMembership(any(UUID.class), anyString())).thenReturn(List.of());
         when(userSelectedDashboardService.getSelectedDashboardIds(any(UUID.class), anyString())).thenReturn(Set.of());
+        when(dashboardGroupRepository.existsById(any(UUID.class))).thenReturn(true);
 
         UserDto mockUser = new UserDto();
         mockUser.setEmail("test@example.com");
@@ -159,7 +161,7 @@ class BulkAssignmentServiceTest {
         BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
         request.setUserIds(List.of(userId));
         request.setDomainAssignments(List.of(
-                createAssignment("domain_a", "DATA_DOMAIN_VIEWER", List.of(10, 20, 30), List.of("group-1"))
+                createAssignment("domain_a", "DATA_DOMAIN_VIEWER", List.of(10, 20, 30), List.of(TEST_GROUP_ID))
         ));
 
         bulkAssignmentService.executeBulkAssignment(request);
@@ -170,7 +172,7 @@ class BulkAssignmentServiceTest {
         UpdateContextRolesForUserDto dto = captor.getValue();
         assertNotNull(dto.getSelectedDashboardsForUser().get("domain_a"));
         assertEquals(3, dto.getSelectedDashboardsForUser().get("domain_a").size());
-        assertEquals(List.of("group-1"), dto.getSelectedDashboardGroupIdsForUser().get("domain_a"));
+        assertEquals(List.of(TEST_GROUP_ID), dto.getSelectedDashboardGroupIdsForUser().get("domain_a"));
     }
 
     @Test
