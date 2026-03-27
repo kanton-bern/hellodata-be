@@ -282,14 +282,10 @@
 
   .p-carousel-next-button,
   .p-carousel-prev-button {
-    background: var(--p-primary-100, #dbeafe);
-    color: var(--p-primary-700, #1d4ed8);
-    border: 1px solid var(--p-primary-200, #bfdbfe);
-    width: 2.5rem;
-    height: 2.5rem;
-
-    &:hover {
-      background: var(--p-primary-200, #bfdbfe);
+    .p-button {
+      background-color: var(--p-primary-color, #3B82F6) !important;
+      border-color: var(--p-primary-color, #3B82F6) !important;
+      color: #fff !important;
     }
   }
 }

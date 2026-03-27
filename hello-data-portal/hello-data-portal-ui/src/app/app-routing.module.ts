@@ -119,6 +119,7 @@ const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/admin/bulk-assignments/bulk-assignments-wizard.component').then(m => m.BulkAssignmentsWizardComponent),
+        canDeactivate: [(component: any) => component.canDeactivate ? component.canDeactivate() : true],
       }
     ]
   },

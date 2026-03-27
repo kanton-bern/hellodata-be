@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, inject, OnDestroy, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, inject, OnDestroy, ViewChild} from '@angular/core';
 import {NgTemplateOutlet} from '@angular/common';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -34,7 +34,7 @@ import {BaseComponent} from '../../../shared/components/base/base.component';
 import {createBreadcrumbs} from '../../../store/breadcrumb/breadcrumb.action';
 import {showSuccess} from '../../../store/app/app.action';
 import {naviElements} from '../../../app-navi-elements';
-import {Subject, take, takeUntil} from 'rxjs';
+import {Observable, of, Subject, take, takeUntil} from 'rxjs';
 import {selectAllAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.selector';
 import {selectProfile} from '../../../store/auth/auth.selector';
 import {loadAvailableDataDomains, loadMyDashboards} from '../../../store/my-dashboards/my-dashboards.action';
@@ -148,7 +148,6 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   @ViewChild('userGrid') userGridRef?: ElementRef;
 
   activeStep = 1;
-  stepperLinear = true;
 
   // Step 1 - Users
   allUsers: User[] = [];
@@ -207,12 +206,9 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
 
-  private static readonly STORAGE_KEY = 'bulk-assignments-wizard-state';
-
   constructor() {
     super();
     this.createBreadcrumbs();
-    this.restoreWizardState();
     this.loadUsers();
     this.store.dispatch(loadAvailableDataDomains());
     this.store.dispatch(loadMyDashboards());
@@ -228,6 +224,38 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasWizardProgress()) {
+      event.preventDefault();
+    }
+  }
+
+  hasWizardProgress(): boolean {
+    return this.selectedUserIds.size > 0 && this.result === null;
+  }
+
+  canDeactivate(): Observable<boolean> {
+    if (!this.hasWizardProgress()) {
+      return of(true);
+    }
+    return new Observable<boolean>(observer => {
+      this.confirmationService.confirm({
+        message: this.translateService.translate('@You have unsaved wizard progress. Are you sure you want to leave?'),
+        icon: 'fas fa-triangle-exclamation',
+        acceptButtonStyleClass: 'p-button-danger',
+        accept: () => {
+          observer.next(true);
+          observer.complete();
+        },
+        reject: () => {
+          observer.next(false);
+          observer.complete();
+        },
+      });
+    });
   }
 
   // Step 1 - Users
@@ -529,7 +557,6 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     this.cachedSelectedUsers = this.getSelectedUsers();
     this.currentCarouselPage = 0;
     this.activeStep = 4;
-    this.saveWizardState();
     activateCallback(4);
   }
 
@@ -670,7 +697,6 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       this.loadDashboardGroupsForDomains();
     }
     this.activeStep = nextStep;
-    this.saveWizardState();
     activateCallback(nextStep);
   }
 
@@ -703,7 +729,6 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       next: (res) => {
         this.result = res;
         this.isSubmitting = false;
-        sessionStorage.removeItem(BulkAssignmentsWizardComponent.STORAGE_KEY);
         if (res.failedCount === 0) {
           this.store.dispatch(showSuccess({message: '@Bulk assignment applied successfully'}));
         }
@@ -860,70 +885,14 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   }
 
   startOver(): void {
-    sessionStorage.removeItem(BulkAssignmentsWizardComponent.STORAGE_KEY);
+    this.result = null;
     this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
       this.router.navigate([naviElements.bulkAssignments.path]);
     });
   }
 
   goToUserManagement(): void {
-    sessionStorage.removeItem(BulkAssignmentsWizardComponent.STORAGE_KEY);
+    this.result = null;
     this.router.navigate([naviElements.userManagement.path]);
-  }
-
-  private saveWizardState(): void {
-    try {
-      const state = {
-        activeStep: this.activeStep,
-        selectedUserIds: [...this.selectedUserIds],
-        selectedDomainKeys: [...this.selectedDomainKeys],
-        domainAssignments: Object.fromEntries(
-          [...this.domainAssignments].map(([key, val]) => [key, {
-            roleName: val.roleName,
-            dashboards: Object.fromEntries(val.dashboards),
-            dashboardGroupIds: [...val.dashboardGroupIds],
-          }])
-        ),
-      };
-      sessionStorage.setItem(BulkAssignmentsWizardComponent.STORAGE_KEY, JSON.stringify(state));
-    } catch {
-      // Ignore storage errors
-    }
-  }
-
-  private restoreWizardState(): void {
-    try {
-      const raw = sessionStorage.getItem(BulkAssignmentsWizardComponent.STORAGE_KEY);
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      if (state.activeStep && state.activeStep > 1) {
-        this.stepperLinear = false;
-        this.activeStep = state.activeStep;
-        setTimeout(() => this.stepperLinear = true, 0);
-      }
-      if (state.selectedUserIds) {
-        this.selectedUserIds = new Set(state.selectedUserIds);
-        this.rebuildUserSelectedMap();
-      }
-      if (state.selectedDomainKeys) {
-        this.selectedDomainKeys = new Set(state.selectedDomainKeys);
-        this.selectedDomainKeysArray = [...this.selectedDomainKeys];
-      }
-      if (state.domainAssignments) {
-        for (const [key, val] of Object.entries<any>(state.domainAssignments)) {
-          const dashboardMap = new Map<number, BulkDashboardInfo>();
-          for (const [k, v] of Object.entries<any>(val.dashboards || {})) {
-            dashboardMap.set(Number(k), v);
-          }
-          this.domainAssignments.set(key, {
-            roleName: val.roleName,
-            dashboards: dashboardMap,
-            dashboardGroupIds: new Set(val.dashboardGroupIds || []),
-          });
-        }
-      }
-    } catch {
-      sessionStorage.removeItem(BulkAssignmentsWizardComponent.STORAGE_KEY);
-    }
   }
 }

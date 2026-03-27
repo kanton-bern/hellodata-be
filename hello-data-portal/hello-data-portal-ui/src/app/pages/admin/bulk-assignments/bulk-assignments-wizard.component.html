@@ -2,7 +2,7 @@
 <p-confirmDialog/>
 <p-card class="wizard-card">
   <div class="wizard-container">
-    <p-stepper [(value)]="activeStep" [linear]="stepperLinear">
+    <p-stepper [(value)]="activeStep" [linear]="true">
       <p-step-list>
         <p-step [value]="1">{{ '@Select users' | transloco }}</p-step>
         <p-step [value]="2">{{ '@Select data domains' | transloco }}</p-step>
