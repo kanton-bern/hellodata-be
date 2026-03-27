@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
+import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
@@ -46,8 +47,10 @@ import ch.bedag.dap.hellodata.portal.user.data.UserDto;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +75,9 @@ public class BulkAssignmentService {
 
     private final UserService userService;
     private final RoleService roleService;
+    private final DashboardGroupRepository dashboardGroupRepository;
     private final DashboardGroupService dashboardGroupService;
+    private final UserSelectedDashboardService userSelectedDashboardService;
     private final EmailNotificationService emailNotificationService;
 
     @Transactional
@@ -86,6 +91,8 @@ public class BulkAssignmentService {
 
         Map<String, BulkAssignmentRequestDto.DomainAssignment> assignmentsByKey = request.getDomainAssignments().stream()
                 .collect(Collectors.toMap(BulkAssignmentRequestDto.DomainAssignment::getContextKey, a -> a, (a, b) -> a));
+
+        validateReferencedGroupsExist(assignmentsByKey);
 
         List<UUID> userIds = request.getUserIds();
         for (int i = 0; i < userIds.size(); i++) {
@@ -113,8 +120,9 @@ public class BulkAssignmentService {
         try {
             List<UserContextRoleDto> existingRoles = userService.getContextRolesForUser(userId);
             Map<String, List<String>> existingGroupIds = loadExistingDashboardGroupIds(userId, contextsByKey.keySet());
+            Map<String, Set<Integer>> existingDashboardIds = loadExistingDashboardIds(userId, contextsByKey.keySet());
 
-            if (isAlreadyUpToDate(existingRoles, assignmentsByKey, existingGroupIds)) {
+            if (isAlreadyUpToDate(existingRoles, assignmentsByKey, existingGroupIds, existingDashboardIds)) {
                 log.debug("Skipping user {} — assignments already match", userId);
                 result.addSkipped(email, firstName, lastName, "Assignments already match");
                 return;
@@ -133,7 +141,8 @@ public class BulkAssignmentService {
 
     private boolean isAlreadyUpToDate(List<UserContextRoleDto> existingRoles,
                                       Map<String, BulkAssignmentRequestDto.DomainAssignment> assignmentsByKey,
-                                      Map<String, List<String>> existingGroupIds) {
+                                      Map<String, List<String>> existingGroupIds,
+                                      Map<String, Set<Integer>> existingDashboardIds) {
         for (var entry : assignmentsByKey.entrySet()) {
             String contextKey = entry.getKey();
             BulkAssignmentRequestDto.DomainAssignment assignment = entry.getValue();
@@ -154,6 +163,17 @@ public class BulkAssignmentService {
             List<String> requestedGroups = assignment.getDashboardGroupIds() != null
                     ? assignment.getDashboardGroupIds() : List.of();
             if (!Set.copyOf(existingGroups).equals(Set.copyOf(requestedGroups))) {
+                return false;
+            }
+
+            // Check individual dashboard selection match
+            Set<Integer> existingDashboards = existingDashboardIds.getOrDefault(contextKey, Set.of());
+            Set<Integer> requestedDashboards = assignment.getDashboards() != null
+                    ? assignment.getDashboards().stream()
+                        .map(BulkAssignmentRequestDto.DashboardInfo::getId)
+                        .collect(Collectors.toSet())
+                    : Set.of();
+            if (!existingDashboards.equals(requestedDashboards)) {
                 return false;
             }
         }
@@ -195,6 +215,8 @@ public class BulkAssignmentService {
                 RoleDto role = findRoleByName(allRoles, assignment.getRoleName());
                 roleDto.setRole(role);
                 buildDashboardSelections(assignment, contextKey, selectedDashboards);
+                // Ensure context key always has an entry — empty list clears old selections
+                selectedDashboards.putIfAbsent(contextKey, List.of());
                 selectedGroupIds.put(contextKey, assignment.getDashboardGroupIds() != null
                         ? assignment.getDashboardGroupIds() : List.of());
                 commentPermissions.add(buildCommentPermission(contextKey, role));
@@ -297,6 +319,17 @@ public class BulkAssignmentService {
         }
     }
 
+    private Map<String, Set<Integer>> loadExistingDashboardIds(UUID userId, Set<String> contextKeys) {
+        Map<String, Set<Integer>> result = new HashMap<>();
+        for (String contextKey : contextKeys) {
+            Set<Integer> dashboardIds = userSelectedDashboardService.getSelectedDashboardIds(userId, contextKey);
+            if (!dashboardIds.isEmpty()) {
+                result.put(contextKey, dashboardIds);
+            }
+        }
+        return result;
+    }
+
     private Map<String, List<String>> loadExistingDashboardGroupIds(UUID userId, Set<String> contextKeys) {
         Map<String, List<String>> result = new HashMap<>();
         for (String contextKey : contextKeys) {
@@ -310,5 +343,28 @@ public class BulkAssignmentService {
             }
         }
         return result;
+    }
+
+    private void validateReferencedGroupsExist(Map<String, BulkAssignmentRequestDto.DomainAssignment> assignmentsByKey) {
+        List<String> missingGroups = new ArrayList<>();
+        for (var entry : assignmentsByKey.entrySet()) {
+            BulkAssignmentRequestDto.DomainAssignment assignment = entry.getValue();
+            if (assignment.getDashboardGroupIds() != null) {
+                for (String groupId : assignment.getDashboardGroupIds()) {
+                    try {
+                        if (!dashboardGroupRepository.existsById(UUID.fromString(groupId))) {
+                            missingGroups.add(groupId);
+                        }
+                    } catch (IllegalArgumentException e) {
+                        missingGroups.add(groupId);
+                    }
+                }
+            }
+        }
+        if (!missingGroups.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "The following dashboard groups no longer exist: " + String.join(", ", missingGroups) +
+                    ". Please go back and update your selection.");
+        }
     }
 }

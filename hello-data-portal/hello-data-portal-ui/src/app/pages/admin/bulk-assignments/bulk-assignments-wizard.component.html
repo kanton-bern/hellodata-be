@@ -2,7 +2,7 @@
 <p-confirmDialog/>
 <p-card class="wizard-card">
   <div class="wizard-container">
-    <p-stepper [(value)]="activeStep" [linear]="true">
+    <p-stepper [(value)]="activeStep" [linear]="stepperLinear">
       <p-step-list>
         <p-step [value]="1">{{ '@Select users' | transloco }}</p-step>
         <p-step [value]="2">{{ '@Select data domains' | transloco }}</p-step>
@@ -270,11 +270,18 @@
                 <div class="summary-flow-arrow center-arrow main-arrow"><i class="fa-solid fa-angles-down"></i></div>
 
                 <!-- PrimeNG Carousel -->
+                @if (cachedDomainSummary.length > 1) {
+                  <div class="carousel-page-indicator">
+                    <span>{{ '@Data domain' | transloco }} {{ currentCarouselPage + 1 }} / {{ cachedDomainSummary.length }}</span>
+                    <span class="carousel-hint">{{ '@Use arrows to navigate' | transloco }}</span>
+                  </div>
+                }
                 <p-carousel [value]="cachedDomainSummary"
                             [numVisible]="1"
                             [numScroll]="1"
                             [showIndicators]="cachedDomainSummary.length > 1"
-                            [showNavigators]="cachedDomainSummary.length > 1">
+                            [showNavigators]="cachedDomainSummary.length > 1"
+                            (onPage)="onCarouselPage($event)">
                   <ng-template #item let-item>
                     <ng-container *ngTemplateOutlet="domainSummaryFlow; context: { $implicit: item }"/>
                   </ng-template>

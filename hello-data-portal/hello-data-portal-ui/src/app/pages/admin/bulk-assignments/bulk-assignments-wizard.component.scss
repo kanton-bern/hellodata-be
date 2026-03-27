@@ -279,6 +279,36 @@
   border: 1px solid var(--p-surface-200);
   border-radius: 8px;
   padding: 1rem;
+
+  .p-carousel-next-button,
+  .p-carousel-prev-button {
+    background: var(--p-primary-100, #dbeafe);
+    color: var(--p-primary-700, #1d4ed8);
+    border: 1px solid var(--p-primary-200, #bfdbfe);
+    width: 2.5rem;
+    height: 2.5rem;
+
+    &:hover {
+      background: var(--p-primary-200, #bfdbfe);
+    }
+  }
+}
+
+.carousel-page-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--p-primary-700, #1d4ed8);
+
+  .carousel-hint {
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: var(--p-surface-500);
+  }
 }
 
 .summary-section {
