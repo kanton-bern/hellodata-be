@@ -2,6 +2,7 @@ package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
@@ -23,6 +24,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,7 +46,11 @@ class BulkAssignmentServiceTest {
     @Mock
     private RoleService roleService;
     @Mock
+    private DashboardGroupRepository dashboardGroupRepository;
+    @Mock
     private DashboardGroupService dashboardGroupService;
+    @Mock
+    private UserSelectedDashboardService userSelectedDashboardService;
     @Mock
     private EmailNotificationService emailNotificationService;
     @InjectMocks
@@ -62,6 +68,7 @@ class BulkAssignmentServiceTest {
         when(roleService.getAll()).thenReturn(allRoles);
         when(userService.getAvailableContexts()).thenReturn(availableContexts);
         when(dashboardGroupService.getDashboardGroupMembership(any(UUID.class), anyString())).thenReturn(List.of());
+        when(userSelectedDashboardService.getSelectedDashboardIds(any(UUID.class), anyString())).thenReturn(Set.of());
 
         UserDto mockUser = new UserDto();
         mockUser.setEmail("test@example.com");
