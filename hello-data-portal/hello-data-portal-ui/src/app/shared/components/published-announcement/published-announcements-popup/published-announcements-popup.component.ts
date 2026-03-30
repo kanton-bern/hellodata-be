@@ -1,13 +1,9 @@
-import {Component, ComponentRef, inject, OnInit, Renderer2, RendererFactory2, ViewContainerRef} from "@angular/core";
+import {Component, inject, OnDestroy} from "@angular/core";
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
 import {Announcement} from "../../../../store/announcement/announcement.model";
-import {DialogService} from "primeng/dynamicdialog";
-import {
-  PublishedAnnouncementsPopupHeaderComponent
-} from "./published-annoucements-popup-header/published-announcements-popup-header.component";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../../store/auth/auth.selector";
 import {TranslateService} from "../../../services/translate.service";
 import {Divider} from "primeng/divider";
@@ -17,72 +13,67 @@ import {Editor} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
 import {SharedModule} from "primeng/api";
 import {TranslocoPipe} from "@jsverse/transloco";
+import {Checkbox} from "primeng/checkbox";
+import {DynamicDialogRef} from "primeng/dynamicdialog";
 
 @Component({
-  providers: [DialogService],
   template: `
-    <p-divider/>
+    <div class="flex items-center justify-end gap-2 px-1 pt-2 pb-3">
+      <p-checkbox [binary]="true" inputId="dont-show-again" [(ngModel)]="dontShowAgain"></p-checkbox>
+      <label for="dont-show-again" class="cursor-pointer select-none">{{ '@Do not show again' | transloco }}</label>
+    </div>
+    <p-divider styleClass="mt-0"/>
     @if ((defaultLanguage$ | async); as defaultLanguage) {
-      <div>
-        @if ((selectedLanguage$ | async); as selectedLanguage) {
-          @if (selectedLanguage.code) {
-          <div>
-            @for (announcement of publishedAnnouncements$ | async; track announcement) {
-              <div id="ghettobox">
-                <p-toolbar>
-                  <div class="p-toolbar-group-start">
-                    <span class="fas fa-circle-info" aria-hidden="true"></span>
-                  </div>
-                  <div class="p-toolbar-group-center" style="width: 65%">
-                    <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)"
-                              [disabled]="true"
-                              [readonly]="true" class="p-editor-readonly"
-                              [style]="{width: '100%'}">
-                      <p-header hidden/>
-                    </p-editor>
-                  </div>
-                  <div class="p-toolbar-group-end">
-                    @if (announcement.publishedDate) {
-                      <div class="published-date">
-                        {{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}
-                      </div>
-                    }
-                  </div>
-                </p-toolbar>
-                <p-divider/>
-              </div>
-            }
-          </div>
+      @if ((selectedLanguage$ | async); as selectedLanguage) {
+        @if (selectedLanguage.code) {
+          @for (announcement of publishedAnnouncements$ | async; track announcement) {
+            <div>
+              <p-toolbar>
+                <div class="p-toolbar-group-start">
+                  <span class="fas fa-circle-info" aria-hidden="true"></span>
+                </div>
+                <div class="p-toolbar-group-center" style="width: 65%">
+                  <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)"
+                            [disabled]="true"
+                            [readonly]="true" class="p-editor-readonly"
+                            [style]="{width: '100%'}">
+                    <p-header hidden/>
+                  </p-editor>
+                </div>
+                <div class="p-toolbar-group-end">
+                  @if (announcement.publishedDate) {
+                    <div class="published-date">
+                      {{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}
+                    </div>
+                  }
+                </div>
+              </p-toolbar>
+              <p-divider/>
+            </div>
           }
         }
-      </div>
+      }
     }`,
-  imports: [Divider, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [Divider, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe, Checkbox]
 })
-export class PublishedAnnouncementsPopupComponent implements OnInit {
+export class PublishedAnnouncementsPopupComponent implements OnDestroy {
   publishedAnnouncements$: Observable<Announcement[]>;
   selectedLanguage$: Observable<{ code: string; typeTranslationKey: string }>;
   defaultLanguage$: Observable<string>;
+  dontShowAgain = false;
 
   private readonly store = inject<Store<AppState>>(Store);
-  private readonly viewContainerRef = inject(ViewContainerRef);
-  private readonly rendererFactory = inject(RendererFactory2);
   private readonly translateService = inject(TranslateService);
-  private readonly renderer: Renderer2;
-  private headerComponentRef!: ComponentRef<PublishedAnnouncementsPopupHeaderComponent>;
+  private readonly ref = inject(DynamicDialogRef);
 
   constructor() {
     this.publishedAnnouncements$ = this.store.select(selectPublishedAndFilteredAnnouncements);
-    this.renderer = this.rendererFactory.createRenderer(null, null);
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     this.defaultLanguage$ = this.store.select(selectDefaultLanguage);
   }
 
-  ngOnInit(): void {
-    this.headerComponentRef = this.viewContainerRef.createComponent(PublishedAnnouncementsPopupHeaderComponent);
-    const titleSpan = document.getElementsByClassName('p-dialog-title')[0];
-    titleSpan.setAttribute('style', 'width: 100%');
-    this.renderer.appendChild(titleSpan, this.headerComponentRef.location.nativeElement);
+  ngOnDestroy(): void {
+    this.ref.close({dontShowAgain: this.dontShowAgain});
   }
 
   getMessage(announcement: Announcement, selectedLanguage: string, defaultLanguage: string): string | undefined {
