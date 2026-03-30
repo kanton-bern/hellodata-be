@@ -866,10 +866,15 @@ public class DashboardCommentService {
         // Try to get author's preferred language from user entity
         Optional<UserEntity> authorUser = userRepository.findUserEntityByEmailIgnoreCase(authorEmail);
         if (authorUser.isPresent()) {
-            if (authorUser.get().getFirstName() != null) {
-                authorFirstName = authorUser.get().getFirstName();
+            UserEntity author = authorUser.get();
+            if (!author.isEnabled()) {
+                log.debug("Author {} is disabled, skipping notification for comment {}", authorEmail, comment.getId());
+                return;
             }
-            authorLocale = authorUser.get().getSelectedLanguage();
+            if (author.getFirstName() != null) {
+                authorFirstName = author.getFirstName();
+            }
+            authorLocale = author.getSelectedLanguage();
         }
 
         String dashboardName = getDashboardTitle(contextKey, dashboardId);
@@ -911,27 +916,34 @@ public class DashboardCommentService {
                 commentPermissionRepository.findByContextKeyAndReviewCommentsTrue(contextKey);
 
         for (DashboardCommentPermissionEntity reviewerPerm : reviewerPermissions) {
-            try {
-                Optional<UserEntity> reviewerUser = userRepository.findById(reviewerPerm.getUserId());
-                if (reviewerUser.isPresent()) {
-                    UserEntity reviewer = reviewerUser.get();
-                    String reviewerEmail = reviewer.getEmail();
+            notifySingleReviewer(reviewerPerm, comment, currentUserEmail, commentText, dashboardName, senderFullName);
+        }
+    }
 
-                    // Don't notify the user who sent the comment for review
-                    boolean isSelf = reviewerEmail != null && reviewerEmail.equalsIgnoreCase(currentUserEmail);
-                    if (!isSelf) {
-                        String reviewerFirstName = reviewer.getFirstName() != null ? reviewer.getFirstName() : reviewerEmail;
-                        Locale reviewerLocale = reviewer.getSelectedLanguage();
-
-                        emailNotificationService.notifyAboutCommentSentForReview(
-                                reviewerFirstName, reviewerEmail, commentText, dashboardName, senderFullName, reviewerLocale);
-                    } else {
-                        log.debug("Skipping self-notification for reviewer {} on comment {}", reviewerEmail, comment.getId());
-                    }
-                }
-            } catch (Exception e) {
-                log.warn("Failed to send sent-for-review notification to reviewer {}: {}", reviewerPerm.getUserId(), e.getMessage());
+    private void notifySingleReviewer(DashboardCommentPermissionEntity reviewerPerm, DashboardCommentEntity comment,
+                                      String currentUserEmail, String commentText, String dashboardName, String senderFullName) {
+        try {
+            Optional<UserEntity> reviewerUser = userRepository.findById(reviewerPerm.getUserId());
+            if (reviewerUser.isEmpty()) {
+                return;
             }
+            UserEntity reviewer = reviewerUser.get();
+            if (!reviewer.isEnabled()) {
+                log.debug("Reviewer {} is disabled, skipping notification for comment {}", reviewer.getEmail(), comment.getId());
+                return;
+            }
+            String reviewerEmail = reviewer.getEmail();
+            boolean isSelf = reviewerEmail != null && reviewerEmail.equalsIgnoreCase(currentUserEmail);
+            if (isSelf) {
+                log.debug("Skipping self-notification for reviewer {} on comment {}", reviewerEmail, comment.getId());
+                return;
+            }
+            String reviewerFirstName = reviewer.getFirstName() != null ? reviewer.getFirstName() : reviewerEmail;
+            Locale reviewerLocale = reviewer.getSelectedLanguage();
+            emailNotificationService.notifyAboutCommentSentForReview(
+                    reviewerFirstName, reviewerEmail, commentText, dashboardName, senderFullName, reviewerLocale);
+        } catch (Exception e) {
+            log.warn("Failed to send sent-for-review notification to reviewer {}: {}", reviewerPerm.getUserId(), e.getMessage());
         }
     }
 
@@ -958,10 +970,15 @@ public class DashboardCommentService {
         // Try to get author's preferred language from user entity
         Optional<UserEntity> authorUser = userRepository.findUserEntityByEmailIgnoreCase(authorEmail);
         if (authorUser.isPresent()) {
-            if (authorUser.get().getFirstName() != null) {
-                authorFirstName = authorUser.get().getFirstName();
+            UserEntity author = authorUser.get();
+            if (!author.isEnabled()) {
+                log.debug("Author {} is disabled, skipping deletion notification for comment {}", authorEmail, comment.getId());
+                return;
             }
-            authorLocale = authorUser.get().getSelectedLanguage();
+            if (author.getFirstName() != null) {
+                authorFirstName = author.getFirstName();
+            }
+            authorLocale = author.getSelectedLanguage();
         }
 
         String dashboardName = getDashboardTitle(contextKey, dashboardId);
@@ -1000,10 +1017,15 @@ public class DashboardCommentService {
 
         Optional<UserEntity> authorUser = userRepository.findUserEntityByEmailIgnoreCase(authorEmail);
         if (authorUser.isPresent()) {
-            if (authorUser.get().getFirstName() != null) {
-                authorFirstName = authorUser.get().getFirstName();
+            UserEntity author = authorUser.get();
+            if (!author.isEnabled()) {
+                log.debug("Author {} is disabled, skipping edited-by-reviewer notification for comment {}", authorEmail, comment.getId());
+                return;
             }
-            authorLocale = authorUser.get().getSelectedLanguage();
+            if (author.getFirstName() != null) {
+                authorFirstName = author.getFirstName();
+            }
+            authorLocale = author.getSelectedLanguage();
         }
 
         String dashboardName = getDashboardTitle(contextKey, dashboardId);
