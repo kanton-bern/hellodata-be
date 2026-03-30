@@ -39,14 +39,17 @@ export class AnnouncementService {
 
 
   baseUrl = `${environment.portalApi}/announcements`;
-  public hiddenAnnouncements = new BehaviorSubject<Announcement[]>([]);
+  public hiddenAnnouncementIds = new BehaviorSubject<string[]>([]);
   private readonly HIDDEN_ANNOUNCEMENTS_KEY = 'hidden_announcements';
 
   constructor() {
-    const announcementsStringLocalStorage = localStorage.getItem(this.HIDDEN_ANNOUNCEMENTS_KEY);
-    if (announcementsStringLocalStorage) {
-      const announcements = JSON.parse(announcementsStringLocalStorage);
-      this.hiddenAnnouncements.next(announcements);
+    const stored = localStorage.getItem(this.HIDDEN_ANNOUNCEMENTS_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Migrate from legacy format (full Announcement objects) to ID-only
+      const ids: string[] = parsed.map((item: any) => typeof item === 'string' ? item : item.id);
+      localStorage.setItem(this.HIDDEN_ANNOUNCEMENTS_KEY, JSON.stringify(ids));
+      this.hiddenAnnouncementIds.next(ids);
     }
   }
 
@@ -75,22 +78,19 @@ export class AnnouncementService {
   }
 
   public hideAnnouncement(announcement: Announcement) {
-    console.debug('Hiding announcement', announcement);
-    const hiddenAnnouncementsFromStorage = localStorage.getItem(this.HIDDEN_ANNOUNCEMENTS_KEY);
-    let announcements: Announcement[];
-    if (hiddenAnnouncementsFromStorage) {
-      announcements = JSON.parse(hiddenAnnouncementsFromStorage);
-      announcements.push(announcement);
-    } else {
-      announcements = [announcement];
+    console.debug('Hiding announcement', announcement.id);
+    const stored = localStorage.getItem(this.HIDDEN_ANNOUNCEMENTS_KEY);
+    const ids: string[] = stored ? JSON.parse(stored) : [];
+    if (!ids.includes(announcement.id)) {
+      ids.push(announcement.id);
     }
-    localStorage.setItem(this.HIDDEN_ANNOUNCEMENTS_KEY, JSON.stringify(announcements));
-    this.hiddenAnnouncements.next(announcements);
+    localStorage.setItem(this.HIDDEN_ANNOUNCEMENTS_KEY, JSON.stringify(ids));
+    this.hiddenAnnouncementIds.next(ids);
     return scheduled([announcement], asyncScheduler);
   }
 
-  public getHiddenAnnouncements(): Observable<Announcement[]> {
-    return this.hiddenAnnouncements.asObservable();
+  public getHiddenAnnouncementIds(): Observable<string[]> {
+    return this.hiddenAnnouncementIds.asObservable();
   }
 
 }

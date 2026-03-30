@@ -74,15 +74,13 @@ export class AnnouncementEffects {
   loadPublishedAnnouncements$ = createEffect(() => {
       return this._actions$.pipe(
         ofType(loadPublishedAnnouncementsFiltered),
-        switchMap(() => this._announcementService.getHiddenAnnouncements()),
-        switchMap((hiddenAnnouncements) => this._announcementService.getPublishedAnnouncements().pipe(
+        switchMap(() => this._announcementService.getHiddenAnnouncementIds()),
+        switchMap((hiddenIds) => this._announcementService.getPublishedAnnouncements().pipe(
           tap(publishedAnnouncements => {
             console.debug("published announcements", publishedAnnouncements)
           }),
           map(publishedAnnouncements => {
-            return publishedAnnouncements.filter(publishedAnnouncement => {
-              return !hiddenAnnouncements.some(hiddenAnnouncement => hiddenAnnouncement.id === publishedAnnouncement.id);
-            });
+            return publishedAnnouncements.filter(a => !hiddenIds.includes(a.id));
           })
         )),
         switchMap((result) => scheduled([loadPublishedAnnouncementsFilteredSuccess({payload: result})], asyncScheduler)),
