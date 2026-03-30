@@ -61,13 +61,6 @@
   border-radius: 4px;
   cursor: pointer;
   z-index: 2;
-
-  @media (max-width: 767px) {
-    position: static;
-    margin: 0.5rem;
-    width: 40px;
-    height: 40px;
-  }
 }
 
 .size-buttons {

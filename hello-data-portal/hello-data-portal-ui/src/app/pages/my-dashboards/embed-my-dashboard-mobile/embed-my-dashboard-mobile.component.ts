@@ -41,7 +41,6 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
-import {Drawer} from "primeng/drawer";
 import {CommentsFeed} from "../comments-feed/comments-feed.component";
 
 const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
@@ -50,7 +49,7 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
   selector: 'app-embed-my-dashboard-mobile',
   templateUrl: 'embed-my-dashboard-mobile.component.html',
   styleUrls: ['./embed-my-dashboard-mobile.component.scss'],
-  imports: [SubsystemIframeComponent, AsyncPipe, TranslocoPipe, Drawer, CommentsFeed]
+  imports: [SubsystemIframeComponent, AsyncPipe, TranslocoPipe, CommentsFeed]
 })
 export class EmbedMyDashboardMobileComponent extends BaseComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
@@ -80,11 +79,8 @@ export class EmbedMyDashboardMobileComponent extends BaseComponent implements On
     super.ngOnInit();
   }
 
-  openCommentsDrawer(): void {
-    this.isDrawerVisible = true;
-  }
-
-  onDrawerHide(): void {
+  toggleComments(): void {
+    this.isDrawerVisible = !this.isDrawerVisible;
   }
 
 

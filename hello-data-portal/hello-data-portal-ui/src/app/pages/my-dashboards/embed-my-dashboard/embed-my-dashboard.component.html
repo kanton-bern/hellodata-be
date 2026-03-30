@@ -1,7 +1,7 @@
 @if (currentMyDashboardInfo$ | async) {
   <div #dashboardGrid class="grid w-full h-full embedded-dashboard"
        [class.resizing]="isResizing"
-       [style.gridTemplateColumns]="canReadComments && !isMobile ? (isCommentsOpen ? commentsGridTemplate : '1fr 0px 30px') : '1fr'">
+       [style.gridTemplateColumns]="canReadComments ? (isCommentsOpen ? commentsGridTemplate : '1fr 0px 30px') : '1fr'">
     <div class="iframe-container h-full relative">
       <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="true"/>
       @if (isResizing) {
@@ -9,7 +9,7 @@
       }
     </div>
 
-    @if (canReadComments && !isMobile) {
+    @if (canReadComments) {
       <div class="resizer" [class.resizer-hidden]="!isCommentsOpen"
            (mousedown)="startResizing($event)"></div>
 
@@ -29,21 +29,4 @@
       </div>
     }
   </div>
-
-  @if (canReadComments && isMobile) {
-    @if (isCommentsOpen) {
-      <div class="mobile-comments-overlay">
-        <app-comments-toggle-panel [isOpen]="true"
-                                   (toggleComments)="toggleComments()"
-                                   (pointerUrlClick)="navigateToPointerUrl($event)"
-                                   class="w-full h-full"></app-comments-toggle-panel>
-      </div>
-    } @else {
-      <button type="button" class="mobile-comments-fab"
-              (click)="toggleComments()"
-              [attr.aria-label]="'@Comments' | transloco">
-        <i class="fa-solid fa-comments"></i>
-      </button>
-    }
-  }
 }

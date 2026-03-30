@@ -2,7 +2,7 @@
   <!-- Comments toggle panel at top (below header) -->
   <button class="mobile-comments-panel"
           type="button"
-          (click)="openCommentsDrawer()">
+          (click)="toggleComments()">
     <i class="fa-regular fa-comment-dots"></i>
     <span>{{ '@Comments' | transloco }}</span>
   </button>
@@ -12,19 +12,17 @@
     <app-subsystem-iframe [url]="url"></app-subsystem-iframe>
   </div>
 
-  <!-- Comments drawer from top -->
-  <p-drawer
-    [(visible)]="isDrawerVisible"
-    position="top"
-    [style]="{height: '80vh'}"
-    (onHide)="onDrawerHide()"
-    styleClass="comments-drawer-no-header">
-    <app-comments-feed
-      class="mobile-comments-feed"
-      [showCloseButton]="true"
-      (closePanel)="isDrawerVisible = false"
-      (pointerUrlClick)="navigateToPointerUrl($event); isDrawerVisible = false">
-    </app-comments-feed>
-  </p-drawer>
+  <!-- Comments overlay -->
+  @if (isDrawerVisible) {
+    <div class="comments-overlay">
+      <app-comments-feed
+        class="mobile-comments-feed"
+        [isOpen]="isDrawerVisible"
+        [showCloseButton]="true"
+        (closePanel)="isDrawerVisible = false"
+        (pointerUrlClick)="navigateToPointerUrl($event); isDrawerVisible = false">
+      </app-comments-feed>
+    </div>
+  }
 }
 

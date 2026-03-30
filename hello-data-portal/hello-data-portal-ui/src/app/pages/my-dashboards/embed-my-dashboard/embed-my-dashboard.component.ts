@@ -61,7 +61,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   private readonly route = inject(ActivatedRoute);
 
   private static readonly COMMENTS_WIDTH_KEY = 'hd_comments_panel_width_px';
-  private static readonly MOBILE_BREAKPOINT = 768;
 
   @ViewChild('dashboardGrid') dashboardGrid!: ElementRef<HTMLElement>;
 
@@ -69,7 +68,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   currentMyDashboardInfo$!: Observable<any>;
   isCommentsOpen = false;
   canReadComments = false;
-  isMobile = window.innerWidth < EmbedMyDashboardComponent.MOBILE_BREAKPOINT;
 
   commentsPanelWidth = this.loadSavedWidth();
   isResizing = false;
@@ -125,11 +123,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
 
   toggleComments(): void {
     this.isCommentsOpen = !this.isCommentsOpen;
-  }
-
-  @HostListener('window:resize')
-  onWindowResize(): void {
-    this.isMobile = window.innerWidth < EmbedMyDashboardComponent.MOBILE_BREAKPOINT;
   }
 
   startResizing(event: MouseEvent): void {
