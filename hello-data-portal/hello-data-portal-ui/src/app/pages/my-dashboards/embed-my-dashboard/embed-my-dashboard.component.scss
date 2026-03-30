@@ -95,3 +95,26 @@
     pointer-events: none;
   }
 }
+
+.mobile-comments-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--primary-color, #3B82F6);
+  color: #fff;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--primary-700, #2563EB);
+  }
+}

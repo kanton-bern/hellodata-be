@@ -1,8 +1,9 @@
 @if (currentMyDashboardInfo$ | async) {
   <div #dashboardGrid class="grid w-full h-full embedded-dashboard"
        [class.resizing]="isResizing"
-       [style.gridTemplateColumns]="canReadComments ? (isCommentsOpen ? commentsGridTemplate : '1fr 0px 30px') : '1fr'">
-    <div class="iframe-container h-full relative">
+       [class.mobile]="isMobile"
+       [style.gridTemplateColumns]="canReadComments ? (isCommentsOpen ? commentsGridTemplate : (isMobile ? '1fr' : '1fr 0px 30px')) : '1fr'">
+    <div class="iframe-container h-full relative" [hidden]="isMobile && isCommentsOpen">
       <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="true"/>
       @if (isResizing) {
         <div class="absolute inset-0 z-50 bg-transparent"></div>
@@ -10,12 +11,14 @@
     </div>
 
     @if (canReadComments) {
-      <div class="resizer" [class.resizer-hidden]="!isCommentsOpen"
+      <div class="resizer" [class.resizer-hidden]="!isCommentsOpen || isMobile"
+           [hidden]="isMobile"
            (mousedown)="startResizing($event)"></div>
 
       <div
         class="comments-panel h-full"
         [ngClass]="isCommentsOpen ? 'mt-2 pb-1 comments-panel-open' : 'mt-1 comments-panel-closed'"
+        [hidden]="isMobile && !isCommentsOpen"
       >
         <div [hidden]="isCommentsOpen" (click)="toggleComments()" (keydown)="toggleComments()"
              style="cursor: pointer">{{ '@Comments' | transloco }}
@@ -27,6 +30,14 @@
                                    (pointerUrlClick)="navigateToPointerUrl($event)"
                                    class="w-full h-full"></app-comments-toggle-panel>
       </div>
+
+      @if (isMobile && !isCommentsOpen) {
+        <button type="button" class="mobile-comments-fab"
+                (click)="toggleComments()"
+                [attr.aria-label]="'@Comments' | transloco">
+          <i class="fa-solid fa-comments"></i>
+        </button>
+      }
     }
   </div>
 }
