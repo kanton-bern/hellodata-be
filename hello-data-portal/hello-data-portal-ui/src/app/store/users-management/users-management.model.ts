@@ -192,3 +192,19 @@ export interface BulkAssignmentResult {
   failedUsers: BulkUserDetail[];
 }
 
+export interface UserSubsystemRolesDto {
+  email: string;
+  firstName: string;
+  lastName: string;
+  enabled: boolean;
+  businessDomainRole: string;
+  dataDomainRoles: DataDomainRoleDto[];
+  subsystemRoles: Record<string, string[]>;
+}
+
+export interface PaginatedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+}
+

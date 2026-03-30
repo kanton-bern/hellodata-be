@@ -34,7 +34,8 @@ import {
   DashboardUsersResultDto,
   SubsystemUsersResultDto,
   User,
-  UserActionForPopup
+  UserActionForPopup,
+  UserSubsystemRolesDto
 } from "./users-management.model";
 import {ContextResponse, Role} from "./context-role.model";
 
@@ -86,6 +87,10 @@ export enum UsersManagementActionType {
   LOAD_DASHBOARD_GROUP_MEMBERSHIPS_SUCCESS = '[USERS MANAGEMENT] Load dashboard group memberships SUCCESS',
   SET_DASHBOARD_GROUP_MEMBERSHIP_FOR_USER = '[USERS MANAGEMENT] Set dashboard group membership for user',
   CLEAR_DASHBOARD_GROUP_MEMBERSHIPS_FOR_CONTEXT = '[USERS MANAGEMENT] Clear dashboard group memberships for context',
+  LOAD_SUBSYSTEM_USERS_PAGINATED = '[USERS MANAGEMENT] Load Subsystem Users Paginated',
+  LOAD_SUBSYSTEM_USERS_PAGINATED_SUCCESS = '[USERS MANAGEMENT] Load Subsystem Users Paginated SUCCESS',
+  LOAD_DASHBOARD_USERS_PAGINATED = '[USERS MANAGEMENT] Load Dashboard Users Paginated',
+  LOAD_DASHBOARD_USERS_PAGINATED_SUCCESS = '[USERS MANAGEMENT] Load Dashboard Users Paginated SUCCESS',
 }
 
 export const loadUsers = createAction(
@@ -303,5 +308,25 @@ export const setDashboardGroupMembershipForUser = createAction(
 export const clearDashboardGroupMembershipsForContext = createAction(
   UsersManagementActionType.CLEAR_DASHBOARD_GROUP_MEMBERSHIPS_FOR_CONTEXT,
   props<{ contextKey: string }>()
+);
+
+export const loadSubsystemUsersPaginated = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS_PAGINATED,
+  props<{ page: number, size: number, sort: string, search: string }>()
+);
+
+export const loadSubsystemUsersPaginatedSuccess = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS_PAGINATED_SUCCESS,
+  props<{ users: UserSubsystemRolesDto[], totalElements: number }>()
+);
+
+export const loadDashboardUsersPaginated = createAction(
+  UsersManagementActionType.LOAD_DASHBOARD_USERS_PAGINATED,
+  props<{ page: number, size: number, sort: string, search: string }>()
+);
+
+export const loadDashboardUsersPaginatedSuccess = createAction(
+  UsersManagementActionType.LOAD_DASHBOARD_USERS_PAGINATED_SUCCESS,
+  props<{ users: UserSubsystemRolesDto[], totalElements: number }>()
 );
 

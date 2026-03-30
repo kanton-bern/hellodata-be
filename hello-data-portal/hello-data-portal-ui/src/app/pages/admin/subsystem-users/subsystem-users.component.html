@@ -1,13 +1,13 @@
 <h2 class="content-block">{{ '@Subsystem users' | transloco }}</h2>
-@if ((tableData$ | async); as tableData) {
+@if ((users$ | async); as users) {
+  <span style="display:none">{{ updateDynamicColumns(users) }}</span>
   <div class="info-panel">
-    <div class="info-panel-header" (click)="showInfoPanel = !showInfoPanel"
-         (keydown.enter)="showInfoPanel = !showInfoPanel" tabindex="0"
-         role="button" [attr.aria-expanded]="showInfoPanel">
+    <button type="button" class="info-panel-header" (click)="showInfoPanel = !showInfoPanel"
+         [attr.aria-expanded]="showInfoPanel">
       <span class="pi" [class.pi-chevron-down]="showInfoPanel" [class.pi-chevron-right]="!showInfoPanel"
             aria-hidden="true"></span>
       <span class="info-panel-title">{{ '@Usage guide' | transloco }}</span>
-    </div>
+    </button>
     @if (showInfoPanel) {
       <div class="info-panel-content">
         <ul>
@@ -21,171 +21,160 @@
     }
   </div>
   <p-card>
-    @if ((dynamicColumns$ | async); as dynamicColumns) {
-      <div>
-        <p-table #dt [value]="tableData"
-                 [loading]="(dataLoading$ | async) ?? false"
-                 [stripedRows]="true"
-                 dataKey="email"
-                 [expandedRowKeys]="expandedRows"
-                 [paginator]="true"
-                 [rows]="10"
-                 [rowsPerPageOptions]="[10, 20, 50, 100]"
-                 [globalFilterFields]="(globalFilterFields$ | async) ?? ['email']"
-                 (onFilter)="onGlobalFilterChange(dt)">
-          <ng-template pTemplate="caption">
-            <div class="flex flex-wrap align-items-center gap-2">
-              <div style="text-align: left">
-                <p-button (onClick)="exportCsv(tableData, dynamicColumns)" pRipple
-                          [disabled]="(dataLoading$ | async) ?? false"
-                          icon="pi pi-external-link"
-                          label="{{ '@Export' | transloco }}"/>
-              </div>
-              <div style="text-align: left">
-                <p-button (onClick)="exportBatchCsv()" pRipple
-                          [disabled]="(dataLoading$ | async) ?? false"
-                          icon="pi pi-file-export"
-                          label="{{ '@Export for batch import' | transloco }}"
-                          severity="warn"/>
-              </div>
-              <div style="text-align: left">
-                <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
-                          icon="pi pi-replay" pRipple
-                          label="{{ '@Reload' | transloco }}"
-                          severity="success"/>
-              </div>
-              <div style="text-align: left">
-                <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
-                          icon="pi pi-times-circle" pRipple
-                          label="{{ '@Clear cache' | transloco }}"
-                          severity="help"/>
-              </div>
-              <div class="ml-auto filter-search-area">
-                <span class="filter-hint">{{ '@Filter hint' | transloco }}</span>
-                <form (submit)="addFilterTerm($event)" class="filter-search-form">
-                  <p-iconfield>
-                    <p-inputicon class="pi pi-search"/>
-                    <input [(ngModel)]="currentFilterInput"
-                           name="filterInput"
-                           pInputText
-                           [placeholder]="getFilterPlaceholder()"
-                           type="text"/>
-                  </p-iconfield>
-                </form>
+    <div>
+      <p-table #dt [value]="users"
+               [loading]="(dataLoading$ | async) ?? false"
+               [stripedRows]="true"
+               dataKey="email"
+               [expandedRowKeys]="expandedRows"
+               [lazy]="true"
+               [paginator]="true"
+               [rows]="pageSize"
+               [totalRecords]="(totalRecords$ | async) ?? 0"
+               [rowsPerPageOptions]="[10, 25, 50, 100]"
+               (onLazyLoad)="onLazyLoad($event)">
+        <ng-template pTemplate="caption">
+          <div class="flex flex-wrap align-items-center gap-2">
+            <div style="text-align: left">
+              <p-button (onClick)="exportCsv()" pRipple
+                        [disabled]="(dataLoading$ | async) ?? false"
+                        icon="pi pi-external-link"
+                        label="{{ '@Export' | transloco }}"/>
+            </div>
+            <div style="text-align: left">
+              <p-button (onClick)="exportBatchCsv()" pRipple
+                        [disabled]="(dataLoading$ | async) ?? false"
+                        icon="pi pi-file-export"
+                        label="{{ '@Export for batch import' | transloco }}"
+                        severity="warn"/>
+            </div>
+            <div style="text-align: left">
+              <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
+                        icon="pi pi-replay" pRipple
+                        label="{{ '@Reload' | transloco }}"
+                        severity="success"/>
+            </div>
+            <div style="text-align: left">
+              <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
+                        icon="pi pi-times-circle" pRipple
+                        label="{{ '@Clear cache' | transloco }}"
+                        severity="help"/>
+            </div>
+            <div class="ml-auto filter-search-area">
+              <span class="filter-hint">{{ '@Filter hint' | transloco }}</span>
+              <form (submit)="addFilterTerm($event)" class="filter-search-form">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-search"/>
+                  <input [(ngModel)]="currentFilterInput"
+                         name="filterInput"
+                         pInputText
+                         [placeholder]="getFilterPlaceholder()"
+                         type="text"/>
+                </p-iconfield>
+              </form>
+            </div>
+          </div>
+          @if (filterTerms.length > 0) {
+            <div class="filter-chips-row">
+              <div class="filter-chips-list">
+                @for (term of filterTerms; track term; let i = $index) {
+                  <span class="filter-chip">
+                    <span class="filter-chip-label">{{ term }}</span>
+                    <i class="pi pi-times filter-chip-remove" (click)="removeFilterTerm(i)"
+                       (keydown.enter)="removeFilterTerm(i)"></i>
+                  </span>
+                }
+                <p-button (onClick)="clearAllFilters()" icon="pi pi-filter-slash"
+                          [text]="true" [rounded]="true"
+                          severity="secondary"
+                          pTooltip="{{ '@Clear all filters' | transloco }}"/>
               </div>
             </div>
-            @if (filterTerms.length > 0) {
-              <div class="filter-chips-row">
-                <div class="filter-chips-list">
-                  @for (term of filterTerms; track term; let i = $index) {
-                    <span class="filter-chip">
-                      <span class="filter-chip-label">{{ term }}</span>
-                      <i class="pi pi-times filter-chip-remove" (click)="removeFilterTerm(i)"
-                         (keydown.enter)="removeFilterTerm(i)"></i>
-                    </span>
-                  }
-                  <p-button (onClick)="clearAllFilters()" icon="pi pi-filter-slash"
-                            [text]="true" [rounded]="true"
-                            severity="secondary"
-                            pTooltip="{{ '@Clear all filters' | transloco }}"/>
-                </div>
-              </div>
-            }
-          </ng-template>
-          <ng-template pTemplate="header">
-            <tr>
-              <th scope="col">{{ '@Users' | transloco }}</th>
-              <th scope="col">{{ '@Enabled' | transloco }}</th>
-              <th scope="col" style="width: 3rem"></th>
-            </tr>
-          </ng-template>
-          <ng-template let-row pTemplate="body" let-expanded="expanded">
-            <tr>
-              <td><span [class.filter-highlight]="matchesFilter(row.email)">{{ row.email }}</span></td>
-              <td>
-                @if (row.enabled === 'true') {
-                  <i class="fa fa-check text-success"></i>
-                }
-                @if (row.enabled === 'false') {
-                  <i class="fa fa-times text-danger"></i>
-                }
-              </td>
-              <td>
-                <p-button type="button" pRipple [pRowToggler]="row"
-                          [text]="true" [rounded]="true" [plain]="true"
-                          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template let-row pTemplate="expandedrow">
-            <tr>
-              <td [attr.colspan]="3">
-                <div class="p-3">
-                  <div class="subsystem-details-grid">
-                    <!-- Context Roles tile (always first) -->
-                    <div class="subsystem-detail-card context-roles-card">
-                      <div class="subsystem-detail-header">{{ '@Context roles' | transloco }}</div>
-                      <div class="subsystem-detail-body context-roles-body">
-                        <div class="context-role-section">
-                          <span class="context-role-label">{{ '@Business domain' | transloco }}:</span>
-                          @if (row['_businessDomainRole'] && row['_businessDomainRole'] !== 'NONE') {
-                            <p-tag [value]="formatRoleName(row['_businessDomainRole'])"
-                                   [class.filter-highlight]="matchesFilter(row['_businessDomainRole'])"
-                                   severity="info" class="m-1"/>
-                          } @else {
-                            <span class="context-role-none">{{ '@None' | transloco }}</span>
+          }
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th scope="col">{{ '@Users' | transloco }}</th>
+            <th scope="col">{{ '@Enabled' | transloco }}</th>
+            <th scope="col" style="width: 3rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template let-user pTemplate="body" let-expanded="expanded">
+          <tr>
+            <td><span [class.filter-highlight]="matchesFilter(user.email)">{{ user.email }}</span></td>
+            <td>
+              @if (user.enabled) {
+                <i class="fa fa-check text-success"></i>
+              } @else {
+                <i class="fa fa-times text-danger"></i>
+              }
+            </td>
+            <td>
+              <p-button type="button" pRipple [pRowToggler]="user"
+                        [text]="true" [rounded]="true" [plain]="true"
+                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template let-user pTemplate="expandedrow">
+          <tr>
+            <td [attr.colspan]="3">
+              <div class="p-3">
+                <div class="subsystem-details-grid">
+                  <!-- Context Roles tile -->
+                  <div class="subsystem-detail-card context-roles-card">
+                    <div class="subsystem-detail-header">{{ '@Context roles' | transloco }}</div>
+                    <div class="subsystem-detail-body context-roles-body">
+                      <div class="context-role-section">
+                        <span class="context-role-label">{{ '@Business domain' | transloco }}:</span>
+                        @if (user.businessDomainRole && user.businessDomainRole !== 'NONE') {
+                          <p-tag [value]="formatRoleName(user.businessDomainRole)"
+                                 [class.filter-highlight]="matchesFilter(user.businessDomainRole)"
+                                 severity="info" class="m-1"/>
+                        } @else {
+                          <span class="context-role-none">{{ '@None' | transloco }}</span>
+                        }
+                      </div>
+                      @if (user.dataDomainRoles?.length > 0) {
+                        @for (ddr of user.dataDomainRoles; track ddr.contextKey) {
+                          <div class="context-role-section">
+                            <span class="context-role-label">{{ ddr.contextName }}:</span>
+                            @if (ddr.role && ddr.role !== 'NONE') {
+                              <p-tag [value]="formatRoleName(ddr.role)"
+                                     [class.filter-highlight]="matchesFilter(ddr.role)"
+                                     severity="secondary" class="m-1"/>
+                            } @else {
+                              <span class="context-role-none">{{ '@None' | transloco }}</span>
+                            }
+                          </div>
+                        }
+                      }
+                    </div>
+                  </div>
+                  <!-- Subsystem tiles -->
+                  @for (col of dynamicColumns; track col.field) {
+                    <div class="subsystem-detail-card">
+                      <div class="subsystem-detail-header">{{ translateValue(col.header) }}</div>
+                      <div class="subsystem-detail-body">
+                        @if (shouldShowTag(user.subsystemRoles[col.field] || [])) {
+                          @for (role of (user.subsystemRoles[col.field] || []); track role) {
+                            <p-tag [value]="role"
+                                   [class.filter-highlight]="matchesFilter(role)"
+                                   class="m-1"/>
                           }
-                        </div>
-                        @if (row['_dataDomainRoles']?.length > 0) {
-                          @for (ddr of row['_dataDomainRoles']; track ddr.contextKey) {
-                            <div class="context-role-section">
-                              <span class="context-role-label">{{ ddr.contextName }}:</span>
-                              @if (ddr.role && ddr.role !== 'NONE') {
-                                <p-tag [value]="formatRoleName(ddr.role)"
-                                       [class.filter-highlight]="matchesFilter(ddr.role)"
-                                       severity="secondary" class="m-1"/>
-                              } @else {
-                                <span class="context-role-none">{{ '@None' | transloco }}</span>
-                              }
-                            </div>
-                          }
+                        } @else {
+                          <span>{{ '@User not found in the instance' | transloco }}</span>
                         }
                       </div>
                     </div>
-                    <!-- Subsystem tiles -->
-                    @for (col of dynamicColumns; track col.field) {
-                      <div class="subsystem-detail-card">
-                        <div class="subsystem-detail-header">{{ translateValue(col.header) }}</div>
-                        <div class="subsystem-detail-body">
-                          @if (shouldShowTag(row[col.field])) {
-                            @for (value of row[col.field].split(','); track value) {
-                              <p-tag [value]="value.trim()"
-                                     [class.filter-highlight]="matchesFilter(value.trim())"
-                                     class="m-1"/>
-                            }
-                          } @else {
-                            @if (row[col.field] === 'true') {
-                              <i class="fa fa-check text-success"></i>
-                            }
-                            @if (row[col.field] === 'false') {
-                              <i class="fa fa-times text-danger"></i>
-                            }
-                            @if (row[col.field] !== 'true' && row[col.field] !== 'false') {
-                              <span
-                                [class.filter-highlight]="matchesFilter(translateValue(row[col.field]))">{{ translateValue(row[col.field]) }}</span>
-                            }
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
+                  }
                 </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-    }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
   </p-card>
 }
 <br/>

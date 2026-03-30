@@ -33,7 +33,8 @@ import {
   DashboardUsersResultDto,
   SubsystemUsersResultDto,
   User,
-  UserActionForPopup
+  UserActionForPopup,
+  UserSubsystemRolesDto
 } from "./users-management.model";
 import {Context, Role} from "./context-role.model";
 
@@ -62,7 +63,15 @@ export interface UsersManagementState {
   syncStatus: string,
   currentPagination: any,
   dashboardGroupMembershipsForUser: Record<string, DashboardGroupMembership[]>,
-  selectedDashboardGroupIdsForUser: Record<string, string[]>
+  selectedDashboardGroupIdsForUser: Record<string, string[]>,
+  // Paginated subsystem users
+  paginatedSubsystemUsers: UserSubsystemRolesDto[],
+  paginatedSubsystemUsersTotalRecords: number,
+  paginatedSubsystemUsersLoading: boolean,
+  // Paginated dashboard users
+  paginatedDashboardUsers: UserSubsystemRolesDto[],
+  paginatedDashboardUsersTotalRecords: number,
+  paginatedDashboardUsersLoading: boolean,
 }
 
 export const initialUsersManagementState: UsersManagementState = {
@@ -90,7 +99,13 @@ export const initialUsersManagementState: UsersManagementState = {
   syncStatus: 'COMPLETED',
   currentPagination: null,
   dashboardGroupMembershipsForUser: {},
-  selectedDashboardGroupIdsForUser: {}
+  selectedDashboardGroupIdsForUser: {},
+  paginatedSubsystemUsers: [],
+  paginatedSubsystemUsersTotalRecords: 0,
+  paginatedSubsystemUsersLoading: false,
+  paginatedDashboardUsers: [],
+  paginatedDashboardUsersTotalRecords: 0,
+  paginatedDashboardUsersLoading: false,
 }
 
 

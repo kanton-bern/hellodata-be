@@ -68,9 +68,13 @@ import {
   loadDashboardGroupMembershipsSuccess,
   loadDashboards,
   loadDashboardsSuccess,
+  loadDashboardUsersPaginated,
+  loadDashboardUsersPaginatedSuccess,
   loadSubsystemUsers,
   loadSubsystemUsersForDashboards,
   loadSubsystemUsersForDashboardsSuccess,
+  loadSubsystemUsersPaginated,
+  loadSubsystemUsersPaginatedSuccess,
   loadSubsystemUsersSuccess,
   loadSyncStatus,
   loadSyncStatusSuccess,
@@ -410,6 +414,36 @@ export class UsersManagementEffects {
       mergeMap(([action, userId]) =>
         this._usersManagementService.getDashboardGroupMemberships(userId as string, action.contextKey).pipe(
           map(memberships => loadDashboardGroupMembershipsSuccess({contextKey: action.contextKey, memberships})),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        )
+      )
+    )
+  });
+
+  loadSubsystemUsersPaginated$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadSubsystemUsersPaginated),
+      switchMap(({page, size, sort, search}) =>
+        this._usersManagementService.getSubsystemUsersPaginated(page, size, sort, search).pipe(
+          map(result => loadSubsystemUsersPaginatedSuccess({
+            users: result.content,
+            totalElements: result.totalElements
+          })),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        )
+      )
+    )
+  });
+
+  loadDashboardUsersPaginated$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadDashboardUsersPaginated),
+      switchMap(({page, size, sort, search}) =>
+        this._usersManagementService.getDashboardUsersPaginated(page, size, sort, search).pipe(
+          map(result => loadDashboardUsersPaginatedSuccess({
+            users: result.content,
+            totalElements: result.totalElements
+          })),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         )
       )

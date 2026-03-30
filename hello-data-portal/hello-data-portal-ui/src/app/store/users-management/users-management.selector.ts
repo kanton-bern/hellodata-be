@@ -286,3 +286,33 @@ export const selectSelectedDashboardGroupIdsForUser = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.selectedDashboardGroupIdsForUser
 );
+
+export const selectPaginatedSubsystemUsers = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.paginatedSubsystemUsers
+);
+
+export const selectPaginatedSubsystemUsersTotalRecords = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.paginatedSubsystemUsersTotalRecords
+);
+
+export const selectPaginatedSubsystemUsersLoading = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.paginatedSubsystemUsersLoading
+);
+
+export const selectPaginatedDashboardUsers = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.paginatedDashboardUsers
+);
+
+export const selectPaginatedDashboardUsersTotalRecords = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.paginatedDashboardUsersTotalRecords
+);
+
+export const selectPaginatedDashboardUsersLoading = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.paginatedDashboardUsersLoading
+);

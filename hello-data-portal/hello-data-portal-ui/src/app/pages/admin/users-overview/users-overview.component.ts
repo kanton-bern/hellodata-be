@@ -25,11 +25,11 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from "@angular/core";
 import {AsyncPipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {TranslocoPipe} from "@jsverse/transloco";
-import {Table, TableModule} from "primeng/table";
+import {TableLazyLoadEvent, TableModule} from "primeng/table";
 import {Tag} from "primeng/tag";
 import {Button} from "primeng/button";
 import {InputText} from "primeng/inputtext";
@@ -39,28 +39,24 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {combineLatest, first, map, Observable, Subject} from "rxjs";
+import {Observable, Subject, takeUntil} from "rxjs";
 import {
   clearSubsystemUsersForDashboardsCache,
-  loadSubsystemUsersForDashboards
+  loadDashboardUsersPaginated
 } from "../../../store/users-management/users-management.action";
 import {
-  selectSubsystemUsersForDashboards,
-  selectSubsystemUsersForDashboardsLoading
+  selectPaginatedDashboardUsers,
+  selectPaginatedDashboardUsersLoading,
+  selectPaginatedDashboardUsersTotalRecords
 } from "../../../store/users-management/users-management.selector";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {TranslateService} from "../../../shared/services/translate.service";
 import {PrimeTemplate} from "primeng/api";
 import {Ripple} from "primeng/ripple";
 import {Tooltip} from "primeng/tooltip";
-import {DashboardUsersResultDto} from "../../../store/users-management/users-management.model";
+import {UserSubsystemRolesDto} from "../../../store/users-management/users-management.model";
 import {Card} from 'primeng/card';
-
-interface TableRow {
-  email: string;
-
-  [key: string]: any; // To allow dynamic columns for instanceNames
-}
+import {UsersManagementService} from "../../../store/users-management/users-management.service";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,53 +65,40 @@ interface TableRow {
   styleUrls: ['./users-overview.component.scss'],
   imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple, Card, FormsModule, InputText, IconField, InputIcon, Tooltip]
 })
-export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy, AfterViewInit {
-  private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
+export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   private static readonly FILTER_STORAGE_KEY = 'users-overview-filter-terms';
-  readonly NO_TAG = '_no_tag';
-  @ViewChild('dt') table!: Table;
-  tableData$: Observable<TableRow[]>;
-  dynamicColumns$: Observable<any[]>;
-  globalFilterFields$: Observable<string[]>;
+
+  users$: Observable<UserSubsystemRolesDto[]>;
+  totalRecords$: Observable<number>;
   dataLoading$: Observable<boolean>;
+
   filterTerms: string[] = [];
   currentFilterInput = '';
   expandedRows: { [s: string]: boolean } = {};
-  private allFilterFields: string[] = ['email', 'businessDomainRole'];
+  dynamicColumns: { field: string; header: string }[] = [];
+
+  pageSize = 25;
+  currentPage = 0;
+  currentSort = 'email,asc';
+
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
+  private readonly usersManagementService = inject(UsersManagementService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
   constructor() {
     super();
-    const store = this.store;
-
     this.filterTerms = this.loadFilterTerms();
-
-    store.dispatch(loadSubsystemUsersForDashboards());
-    this.dynamicColumns$ = this.createDynamicColumns();
-    this.tableData$ = this.createTableData();
-    this.globalFilterFields$ = this.dynamicColumns$.pipe(
-      map(columns => {
-        const fields = ['email', 'businessDomainRole', ...columns.map(c => c.field)];
-        this.allFilterFields = fields;
-        return fields;
-      })
-    );
+    this.users$ = this.store.select(selectPaginatedDashboardUsers);
+    this.totalRecords$ = this.store.select(selectPaginatedDashboardUsersTotalRecords);
+    this.dataLoading$ = this.store.select(selectPaginatedDashboardUsersLoading);
     this.createBreadcrumbs();
-    this.dataLoading$ = this.store.select(selectSubsystemUsersForDashboardsLoading);
+    this.loadPage();
   }
 
-  ngAfterViewInit(): void {
-    // Re-apply restored filters once the table and data are ready
-    if (this.filterTerms.length > 0) {
-      this.tableData$.pipe(
-        first(data => data.length > 0)
-      ).subscribe(() => {
-        // Small delay to ensure the table has rendered with the data
-        setTimeout(() => this.applyCustomFilter(), 0);
-      });
-    }
+  override ngOnInit(): void {
+    super.ngOnInit();
   }
 
   ngOnDestroy(): void {
@@ -123,8 +106,14 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     this.destroy$.complete();
   }
 
-  override ngOnInit(): void {
-    super.ngOnInit();
+  onLazyLoad(event: TableLazyLoadEvent): void {
+    this.currentPage = Math.floor((event.first ?? 0) / (event.rows ?? this.pageSize));
+    this.pageSize = event.rows ?? this.pageSize;
+    if (event.sortField) {
+      const dir = event.sortOrder === 1 ? 'asc' : 'desc';
+      this.currentSort = `${event.sortField},${dir}`;
+    }
+    this.loadPage();
   }
 
   addFilterTerm(event: Event): void {
@@ -134,102 +123,38 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
       this.filterTerms = [...this.filterTerms, term];
       this.currentFilterInput = '';
       this.saveFilterTerms();
-      this.applyCustomFilter();
+      this.currentPage = 0;
+      this.loadPage();
     }
   }
 
   removeFilterTerm(index: number): void {
     this.filterTerms = this.filterTerms.filter((_, i) => i !== index);
     this.saveFilterTerms();
-    this.applyCustomFilter();
+    this.currentPage = 0;
+    this.loadPage();
   }
 
   clearAllFilters(): void {
     this.filterTerms = [];
     this.currentFilterInput = '';
     this.saveFilterTerms();
-    this.applyCustomFilter();
+    this.currentPage = 0;
+    this.loadPage();
   }
 
   getFilterPlaceholder(): string {
     return this.translateService.translate('@Search');
   }
 
-  private applyCustomFilter(): void {
-    if (!this.table) {
-      return;
-    }
-    if (this.filterTerms.length === 0) {
-      // Clear all filters
-      this.table.filterGlobal('', 'contains');
-      this.expandedRows = {};
-      return;
-    }
-    // Use the first term for PrimeNG's built-in global filter (keeps paginator etc. working)
-    // Then we refine with our custom callback
-    this.table.filterGlobal(this.filterTerms[0], 'contains');
-
-    // After PrimeNG applies the first filter, further narrow down with remaining terms (AND)
-    if (this.filterTerms.length > 1 && this.table.filteredValue) {
-      this.table.filteredValue = this.table.filteredValue.filter(row => this.rowMatchesAllTerms(row));
-    }
-    this.table.totalRecords = (this.table.filteredValue || this.table.value).length;
-
-    // Auto-expand filtered rows
-    const filteredData: TableRow[] = this.table.filteredValue || this.table.value || [];
-    const expanded: { [s: string]: boolean } = {};
-    filteredData.forEach(row => {
-      expanded[row.email] = true;
-    });
-    this.expandedRows = expanded;
-  }
-
-  private rowMatchesAllTerms(row: TableRow): boolean {
-    return this.filterTerms.every(term => {
-      const lowerTerm = term.toLowerCase();
-      return this.allFilterFields.some(field => {
-        const val = row[field];
-        return val && String(val).toLowerCase().includes(lowerTerm);
-      });
-    });
-  }
-
-  onGlobalFilterChange(table: Table): void {
-    // Called by (onFilter) event — further narrow results for multi-term AND
-    if (this.filterTerms.length > 1 && table.filteredValue) {
-      table.filteredValue = table.filteredValue.filter(row => this.rowMatchesAllTerms(row));
-      table.totalRecords = table.filteredValue.length;
-    }
-
-    if (this.filterTerms.length > 0) {
-      const filteredData: TableRow[] = table.filteredValue || table.value || [];
-      const expanded: { [s: string]: boolean } = {};
-      filteredData.forEach(row => {
-        expanded[row.email] = true;
-      });
-      this.expandedRows = expanded;
-    } else {
-      this.expandedRows = {};
-    }
-  }
-
-  /** Returns true if ANY active filter term matches the given value (used for highlight glow) */
   matchesFilter(value: string): boolean {
-    if (this.filterTerms.length === 0) {
-      return false;
-    }
+    if (!value || this.filterTerms.length === 0) return false;
     const lowerValue = value.toLowerCase();
     return this.filterTerms.some(term => lowerValue.includes(term.toLowerCase()));
   }
 
-  shouldShowTag(value: string, noTag: any): boolean {
-    if (noTag) {
-      return false;
-    }
-    if (value.includes(',') || !value.includes('@') && !value.includes('true') && !value.includes('false')) {
-      return true;
-    }
-    return false;
+  shouldShowTag(roles: string[]): boolean {
+    return roles && roles.length > 0;
   }
 
   getTagSeverity(value: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
@@ -247,44 +172,57 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 
   translateValue(value: string): string {
-    if (value.startsWith('@')) {
-      return this.translateService.translate(value);
-    } else {
-      return value; // No translation needed
-    }
+    return value?.startsWith('@') ? this.translateService.translate(value) : value;
   }
 
   clearCache() {
     this.store.dispatch(clearSubsystemUsersForDashboardsCache());
+    this.loadPage();
   }
 
   reload() {
-    this.store.dispatch(loadSubsystemUsersForDashboards());
+    this.loadPage();
   }
 
-  exportCsv(tableData: TableRow[], dynamicColumns: any[]) {
-    const dataToExport: TableRow[] = this.table.filteredValue || tableData;
-    const fixedHeaders = ['Email', 'Business Domain Role', 'Enabled'];
-    const dynamicHeaders = dynamicColumns.map(c => this.translateValue(c.header));
-    const headers = [...fixedHeaders, ...dynamicHeaders];
+  exportCsv(): void {
+    const search = this.filterTerms.join(' ');
+    this.usersManagementService.downloadDashboardUsersCsvExport(search)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'users-overview.csv';
+        link.click();
+        URL.revokeObjectURL(link.href);
+      });
+  }
 
-    const rows = dataToExport.map(row => {
-      const fixedValues = [row['email'], row['businessDomainRole'] || '', row['enabled'] || ''];
-      const dynamicValues = dynamicColumns.map(c => row[c.field] || '');
-      return [...fixedValues, ...dynamicValues];
-    });
+  getSubsystemKeys(user: UserSubsystemRolesDto): string[] {
+    return Object.keys(user.subsystemRoles || {});
+  }
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(r => r.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(','))
-    ].join('\n');
+  updateDynamicColumns(users: UserSubsystemRolesDto[]): void {
+    const colSet = new Set<string>();
+    for (const user of users) {
+      for (const key of Object.keys(user.subsystemRoles || {})) {
+        colSet.add(key);
+      }
+    }
+    const newCols = Array.from(colSet).map(key => ({field: key, header: key}));
+    if (JSON.stringify(newCols) !== JSON.stringify(this.dynamicColumns)) {
+      this.dynamicColumns = newCols;
+      this.cdr.markForCheck();
+    }
+  }
 
-    const blob = new Blob(['\ufeff' + csvContent], {type: 'text/csv;charset=utf-8;'});
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'users-overview.csv';
-    link.click();
-    URL.revokeObjectURL(link.href);
+  private loadPage(): void {
+    const search = this.filterTerms.join(' ');
+    this.store.dispatch(loadDashboardUsersPaginated({
+      page: this.currentPage,
+      size: this.pageSize,
+      sort: this.currentSort,
+      search
+    }));
   }
 
   private saveFilterTerms(): void {
@@ -304,54 +242,6 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     }
   }
 
-  private createDynamicColumns(): Observable<any[]> {
-    return this.store.select(selectSubsystemUsersForDashboards).pipe(
-      map((subsystemUsers) =>
-        subsystemUsers.map(subsystem => ({
-          field: subsystem.instanceName,
-          header: subsystem.contextName
-        }))
-      )
-    );
-  }
-
-  private createTableData(): Observable<TableRow[]> {
-    return combineLatest([
-      this.store.select(selectSubsystemUsersForDashboards),
-      this.translateService.selectTranslate(UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY)
-    ]).pipe(
-      map(([subsystemUsers, noPermissionsTranslation]) => {
-        const uniqueEmails = Array.from(
-          new Set(subsystemUsers.flatMap(su => su.users.map(user => user.email)))
-        );
-
-        const tableRows: TableRow[] = uniqueEmails.map(email => ({
-          email,
-        })).sort((a, b) => a.email.localeCompare(b.email));
-
-        tableRows.forEach(row => {
-          subsystemUsers.forEach(subsystem => {
-            this.createTableRow(subsystem, row, noPermissionsTranslation);
-          });
-        });
-
-        return tableRows;
-      }));
-  }
-
-  private createTableRow(subsystem: DashboardUsersResultDto, row: TableRow, noPermissionsTranslation: string) {
-    const user = subsystem.users.find(user => user.email === row.email);
-    if (user) {
-      row['enabled'] = '' + user.enabled;
-      row['businessDomainRole'] = user.businessDomainRole || '';
-    }
-    const value = user ? user.roles.join(', ') || noPermissionsTranslation : noPermissionsTranslation;
-    row[subsystem.instanceName] = value;
-    if (value === noPermissionsTranslation) {
-      row[subsystem.instanceName + this.NO_TAG] = true
-    }
-  }
-
   private createBreadcrumbs(): void {
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -363,5 +253,3 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     }));
   }
 }
-
-

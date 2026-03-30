@@ -40,8 +40,10 @@ import {
   DashboardGroupMembership,
   DashboardResponse,
   DashboardUsersResultDto,
+  PaginatedResponse,
   SubsystemUsersResultDto,
   User,
+  UserSubsystemRolesDto,
   UserWithContextRolesDto
 } from "./users-management.model";
 import {ContextResponse} from "./context-role.model";
@@ -95,6 +97,34 @@ export class UsersManagementService {
     return this.httpClient.get(`${this.baseMetainfoUrl}/resources/subsystem-users/batch-export`, {
       responseType: 'blob'
     });
+  }
+
+  public getSubsystemUsersPaginated(page: number, size: number, sort: string, search: string): Observable<PaginatedResponse<UserSubsystemRolesDto>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort || 'email,asc')
+      .set('search', search || '');
+    return this.httpClient.get<PaginatedResponse<UserSubsystemRolesDto>>(`${this.baseMetainfoUrl}/resources/subsystem-users/paginated`, {params});
+  }
+
+  public getDashboardUsersPaginated(page: number, size: number, sort: string, search: string): Observable<PaginatedResponse<UserSubsystemRolesDto>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort || 'email,asc')
+      .set('search', search || '');
+    return this.httpClient.get<PaginatedResponse<UserSubsystemRolesDto>>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview/paginated`, {params});
+  }
+
+  public downloadSubsystemUsersCsvExport(search: string): Observable<Blob> {
+    const params = new HttpParams().set('search', search || '');
+    return this.httpClient.get(`${this.baseMetainfoUrl}/resources/subsystem-users/export`, {params, responseType: 'blob'});
+  }
+
+  public downloadDashboardUsersCsvExport(search: string): Observable<Blob> {
+    const params = new HttpParams().set('search', search || '');
+    return this.httpClient.get(`${this.baseMetainfoUrl}/resources/users-dashboards-overview/export`, {params, responseType: 'blob'});
   }
 
   public getSyncStatus(): Observable<string> {

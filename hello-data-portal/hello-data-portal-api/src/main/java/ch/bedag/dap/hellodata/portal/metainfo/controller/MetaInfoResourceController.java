@@ -33,10 +33,14 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import ch.bedag.dap.hellodata.portal.csv.service.BatchExportService;
 import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUsersResultDto;
+import ch.bedag.dap.hellodata.portal.metainfo.data.UserSubsystemRolesDto;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
+import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,8 +53,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ch.bedag.dap.hellodata.commons.security.Permission.USER_MANAGEMENT;
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
@@ -144,5 +150,120 @@ public class MetaInfoResourceController {
         return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyAuthority('WORKSPACES')")
+    @GetMapping(value = "/resources/subsystem-users/paginated")
+    public ResponseEntity<Page<UserSubsystemRolesDto>> getSubsystemUsersPaginated(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String search) {
+        Pageable pageable = PageUtil.createPageable(page, size, sort, "email", org.springframework.data.domain.Sort.Direction.ASC);
+        return ResponseEntity.ok(metaInfoUsersService.getSubsystemUsersPaginated(pageable, search));
+    }
+
+    @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
+    @GetMapping(value = "/resources/users-dashboards-overview/paginated")
+    public ResponseEntity<Page<UserSubsystemRolesDto>> getDashboardUsersPaginated(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String search) {
+        Pageable pageable = PageUtil.createPageable(page, size, sort, "email", org.springframework.data.domain.Sort.Direction.ASC);
+        return ResponseEntity.ok(metaInfoUsersService.getDashboardUsersPaginated(pageable, search));
+    }
+
+    @PreAuthorize("hasAnyAuthority('WORKSPACES')")
+    @GetMapping(value = "/resources/subsystem-users/export", produces = "text/csv")
+    public ResponseEntity<byte[]> exportSubsystemUsersCsv(@RequestParam(required = false) String search) {
+        log.info("Subsystem users CSV export requested by {} with search='{}'", SecurityUtils.getCurrentUserEmail(), search);
+        List<UserSubsystemRolesDto> users = metaInfoUsersService.getSubsystemUsersForExport(search);
+        String csv = buildUserCentricCsv(users);
+        return buildCsvResponse(csv, "subsystem-users-export.csv");
+    }
+
+    @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
+    @GetMapping(value = "/resources/users-dashboards-overview/export", produces = "text/csv")
+    public ResponseEntity<byte[]> exportDashboardUsersCsv(@RequestParam(required = false) String search) {
+        log.info("Dashboard users CSV export requested by {} with search='{}'", SecurityUtils.getCurrentUserEmail(), search);
+        List<UserSubsystemRolesDto> users = metaInfoUsersService.getDashboardUsersForExport(search);
+        String csv = buildUserCentricCsv(users);
+        return buildCsvResponse(csv, "dashboard-users-export.csv");
+    }
+
+    private String buildUserCentricCsv(List<UserSubsystemRolesDto> users) {
+        Set<String> columnKeys = collectSubsystemColumnKeys(users);
+
+        StringBuilder sb = new StringBuilder();
+        appendCsvHeader(sb, columnKeys);
+        for (UserSubsystemRolesDto user : users) {
+            appendCsvRow(sb, user, columnKeys);
+        }
+        return sb.toString();
+    }
+
+    private Set<String> collectSubsystemColumnKeys(List<UserSubsystemRolesDto> users) {
+        Set<String> columnKeys = new LinkedHashSet<>();
+        for (UserSubsystemRolesDto user : users) {
+            if (user.subsystemRoles() != null) {
+                columnKeys.addAll(user.subsystemRoles().keySet());
+            }
+        }
+        return columnKeys;
+    }
+
+    private void appendCsvHeader(StringBuilder sb, Set<String> columnKeys) {
+        sb.append("email;firstName;lastName;enabled;businessDomainRole;dataDomainRoles");
+        for (String col : columnKeys) {
+            sb.append(';').append(col);
+        }
+        sb.append('\n');
+    }
+
+    private void appendCsvRow(StringBuilder sb, UserSubsystemRolesDto user, Set<String> columnKeys) {
+        sb.append(csvEscape(user.email())).append(';');
+        sb.append(csvEscape(user.firstName())).append(';');
+        sb.append(csvEscape(user.lastName())).append(';');
+        sb.append(user.enabled()).append(';');
+        String businessRole = user.businessDomainRole() != null ? user.businessDomainRole().name() : "";
+        sb.append(businessRole).append(';');
+        String ddr = formatDataDomainRoles(user);
+        sb.append(csvEscape(ddr));
+        for (String col : columnKeys) {
+            sb.append(';');
+            List<String> roles = user.subsystemRoles() != null
+                    ? user.subsystemRoles().getOrDefault(col, List.of())
+                    : List.of();
+            sb.append(csvEscape(String.join(", ", roles)));
+        }
+        sb.append('\n');
+    }
+
+    private String formatDataDomainRoles(UserSubsystemRolesDto user) {
+        if (user.dataDomainRoles() == null) {
+            return "";
+        }
+        return user.dataDomainRoles().stream()
+                .map(r -> {
+                    String roleName = r.role() != null ? r.role().name() : "";
+                    return r.contextName() + ":" + roleName;
+                })
+                .collect(Collectors.joining(", "));
+    }
+
+    private String csvEscape(String value) {
+        if (value == null) return "";
+        if (value.contains(";") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
+    }
+
+    private ResponseEntity<byte[]> buildCsvResponse(String csv, String filename) {
+        byte[] csvBytes = csv.getBytes(StandardCharsets.UTF_8);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("text", "csv", StandardCharsets.UTF_8));
+        headers.setContentDispositionFormData("attachment", filename);
+        return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+    }
 
 }

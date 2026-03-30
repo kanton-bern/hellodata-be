@@ -38,9 +38,13 @@ import {
   loadCommentPermissionsSuccess,
   loadDashboardGroupMembershipsSuccess,
   loadDashboardsSuccess,
+  loadDashboardUsersPaginated,
+  loadDashboardUsersPaginatedSuccess,
   loadSubsystemUsers,
   loadSubsystemUsersForDashboards,
   loadSubsystemUsersForDashboardsSuccess,
+  loadSubsystemUsersPaginated,
+  loadSubsystemUsersPaginatedSuccess,
   loadSubsystemUsersSuccess,
   loadSyncStatusSuccess,
   loadUserByIdSuccess,
@@ -359,6 +363,34 @@ export const usersManagementReducer = createReducer(
         ...state.selectedDashboardGroupIdsForUser,
         [contextKey]: []
       }
+    };
+  }),
+  on(loadSubsystemUsersPaginated, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      paginatedSubsystemUsersLoading: true
+    };
+  }),
+  on(loadSubsystemUsersPaginatedSuccess, (state: UsersManagementState, {users, totalElements}): UsersManagementState => {
+    return {
+      ...state,
+      paginatedSubsystemUsers: users,
+      paginatedSubsystemUsersTotalRecords: totalElements,
+      paginatedSubsystemUsersLoading: false
+    };
+  }),
+  on(loadDashboardUsersPaginated, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      paginatedDashboardUsersLoading: true
+    };
+  }),
+  on(loadDashboardUsersPaginatedSuccess, (state: UsersManagementState, {users, totalElements}): UsersManagementState => {
+    return {
+      ...state,
+      paginatedDashboardUsers: users,
+      paginatedDashboardUsersTotalRecords: totalElements,
+      paginatedDashboardUsersLoading: false
     };
   }),
 );
