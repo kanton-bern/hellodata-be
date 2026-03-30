@@ -120,9 +120,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   }
 
   get commentsGridTemplate(): string {
-    if (this.isMobile) {
-      return '0px 0px 1fr';
-    }
     return `1fr 4px ${this.commentsPanelWidth}px`;
   }
 
