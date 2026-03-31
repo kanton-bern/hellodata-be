@@ -12,25 +12,37 @@ This project uses open-source software:
 
 ## Python
 
-| Component       | Version | License                    |
-|-----------------|---------|----------------------------|
-| Apache Airflow  | 2.8.1   | Apache-2.0                 |
-| Apache Superset | 5.x     | Apache-2.0                 |
-| dbt             |         | Apache-2.0                 |
-| authlib         | 1.6.9   | BSD-2-Clause               |
-| celery          |         | BSD-3-Clause               |
-| cryptography    |         | Apache-2.0 or BSD-3-Clause |
-| flask           |         | BSD-3-Clause               |
-| flask-oidc      | 2.4.0   | BSD-2-Clause               |
-| flask-openid    | 1.3.1   | BSD-2-Clause               |
-| flask-talisman  | 1.1.0   | MIT                        |
-| jmespath        | 1.0.1   | MIT                        |
-| mkdocs-material |         | MIT                        |
-| psycopg2-binary | 2.9.11  | LGPL-2.1+                  |
-| redis (Python)  | 7.1.0   | MIT                        |
-| requests        |         | Apache-2.0                 |
-| werkzeug        |         | BSD-3-Clause               |
-| pyyaml          |         | MIT                        |
+| Component        | Version | License                    |
+|------------------|---------|----------------------------|
+| Apache Airflow   | 2.8.1   | Apache-2.0                 |
+| Apache Superset  | 5.x     | Apache-2.0                 |
+| dbt-core         |         | Apache-2.0                 |
+| dbt-postgres     |         | Apache-2.0                 |
+| authlib          | 1.6.9   | BSD-2-Clause               |
+| celery           |         | BSD-3-Clause               |
+| cryptography     |         | Apache-2.0 or BSD-3-Clause |
+| flask            |         | BSD-3-Clause               |
+| flask-appbuilder |         | BSD-3-Clause               |
+| flask-cors       |         | MIT                        |
+| flask-login      |         | MIT                        |
+| flask-oidc       | 2.4.0   | BSD-2-Clause               |
+| flask-openid     | 1.3.1   | BSD-2-Clause               |
+| flask-talisman   | 1.1.0   | MIT                        |
+| flower           |         | BSD-2-Clause               |
+| gevent           |         | MIT                        |
+| jmespath         | 1.0.1   | MIT                        |
+| jwt (PyJWT)      |         | MIT                        |
+| mkdocs-material  |         | MIT                        |
+| oracledb         |         | Apache-2.0                 |
+| psycopg2-binary  | 2.9.11  | LGPL-2.1+                  |
+| pyaxis           |         | Apache-2.0                 |
+| pygdaltools      |         | GPL-3.0                    |
+| pymssql          |         | LGPL-2.1+                  |
+| redis (Python)   | 7.1.0   | MIT                        |
+| requests         |         | Apache-2.0                 |
+| statsd           |         | MIT                        |
+| werkzeug         |         | BSD-3-Clause               |
+| pyyaml           |         | MIT                        |
 
 ## Java
 
