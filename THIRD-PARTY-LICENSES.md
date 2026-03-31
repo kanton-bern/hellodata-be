@@ -2,118 +2,131 @@
 
 - [Python](#python)
 - [Java](#java)
+- [Frontend (JavaScript / TypeScript)](#frontend-javascript--typescript)
+- [Infrastructure](#infrastructure)
 - [Licence SPDX](#licence-spdx)
 
 <!--toc:end-->
 
-This projces uses open-source software:
+This project uses open-source software:
 
 ## Python
 
-| Component       | License                    |
-|-----------------|----------------------------|
-| Apache Airflow  | Apache-2.0                 |
-| Apache Superset | Apache-2.0                 |
-| dbt             | Apache-2.0                 |
-| Pandas          | BSD 3-Clause License       |
-| Redis           | MIT                        |
-| authlib         | BSD-2-Clause               |
-| cx_Oracle       | BSD-2-Clause               |
-| flower          | BSD-2-Clause               |
-| gevent          | MIT                        |
-| jmespath        | MIT                        |
-| mkdocs-material | MIT                        |
-| psycopg2-binary | GNU                        |
-| pyaxis          | Apache-2.0                 |
-| pygdaltools     | GNU                        |
-| pymssql         | GNU                        |
-| base64          | BSD-2-Clause               |
-| cachelib        | BSD-3-Clause               |
-| celery          | BSD-3-Clause               |
-| cryptography    | Apache-2.0 or BSD-3-Clause |
-| flask           | BSD-3-Clause               |
-| jwt             | Apache-2.0                 |
-| requests        | Apache-2.0                 |
-| werkzeug        | BSD-3-Clause               |
-| pyyaml          | MIT                        |
+| Component       | Version | License                    |
+|-----------------|---------|----------------------------|
+| Apache Airflow  | 2.8.1   | Apache-2.0                 |
+| Apache Superset | 5.x     | Apache-2.0                 |
+| dbt             |         | Apache-2.0                 |
+| authlib         | 1.6.9   | BSD-2-Clause               |
+| celery          |         | BSD-3-Clause               |
+| cryptography    |         | Apache-2.0 or BSD-3-Clause |
+| flask           |         | BSD-3-Clause               |
+| flask-oidc      | 2.4.0   | BSD-2-Clause               |
+| flask-openid    | 1.3.1   | BSD-2-Clause               |
+| flask-talisman  | 1.1.0   | MIT                        |
+| jmespath        | 1.0.1   | MIT                        |
+| mkdocs-material |         | MIT                        |
+| psycopg2-binary | 2.9.11  | LGPL-2.1+                  |
+| redis (Python)  | 7.1.0   | MIT                        |
+| requests        |         | Apache-2.0                 |
+| werkzeug        |         | BSD-3-Clause               |
+| pyyaml          |         | MIT                        |
 
 ## Java
 
-| Component                                                                   | License                                       |
-|-----------------------------------------------------------------------------|-----------------------------------------------|
-| Apache Commons IO2.11.0                                                     | Apache-2.0                                    |
-| Apache HttpClient5.2.1                                                      | Apache-2.0                                    |
-| Apache HttpMime4.5.14                                                       | Apache-2.0                                    |
-| AspectJ weaver1.9.20                                                        | MEPL-2.0                                      |
-| Bean Validation API3.0.2                                                    | Apache-2.0                                    |
-| Caffeine cache3.1.8                                                         | Apache-2.0                                    |
-| google-gson2.10.1                                                           | Apache-2.0                                    |
-| Hibernate ORM - hibernate-micrometer6.2.7.Final                             | MLGPL-2.1+                                    |
-| Hibernate Validator8.0.1.Final                                              | Apache-2.0                                    |
-| hibernate-types-602.21.0                                                    | Apache-2.0                                    |
-| jackson-annotations2.15.2                                                   | Apache-2.0                                    |
-| jackson-databind2.15.2                                                      | Apache-2.0                                    |
-| jackson-databind2.15.1                                                      | Apache-2.0                                    |
-| Jackson-Datatype-JSR3102.15.1                                               | Apache-2.0                                    |
-| Jackson-Datatype-JSR3102.15.2                                               | Apache-2.0                                    |
-| jakarta.persistence-api3.1.0                                                | GPL-2.0-with-classpath-exception or 2 more... |
-| JavaMail API jar2.1.2                                                       | CDDL                                          |
-| jnats2.16.8                                                                 | Apache-2.0                                    |
-| JSON-java20230618                                                           | Public Domain                                 |
-| Keycloak Admin REST Client for Jakarta packages21.1.2                       | Apache-2.0                                    |
-| LiquiBase4.22.0                                                             | Apache-2.0                                    |
-| LiquiBase4.20.0                                                             | Apache-2.0                                    |
-| micrometer-registry-prometheus1.11.4                                        | Apache-2.0                                    |
-| micrometer-registry-prometheus1.11.3                                        | Apache-2.0                                    |
-| modelmapper3.1.1                                                            | Apache-2.0                                    |
-| nats-spring0.5.6                                                            | Apache-2.0                                    |
-| PostgreSQL JDBC Driver (pgjdbc)42.6.0                                       | BSD-2-Clause                                  |
-| Project Lombok1.18.28                                                       | MIT                                           |
-| Reactive Relational Database Connectivity - Connection Pooling1.0.1.RELEASE | Apache-2.0                                    |
-| Reactive Relational Database Connectivity - Postgresql1.0.2.RELEASE         | Apache-2.0                                    |
-| REST Assured5.2.0                                                           | Apache-2.0                                    |
-| Spring Boot3.1.3                                                            | Apache-2.0                                    |
-| Spring Boot Cache Starter3.1.3                                              | Apache-2.0                                    |
-| Spring Boot Configuration Processor3.1.3                                    | Apache-2.0                                    |
-| Spring Boot Data JDBC Starter3.1.3                                          | Apache-2.0                                    |
-| Spring Boot Data Redis Starter3.1.3                                         | Apache-2.0                                    |
-| Spring Boot Developer Tools3.1.3                                            | Apache-2.0                                    |
-| Spring Boot Mail Starter3.1.3                                               | Apache-2.0                                    |
-| Spring Boot OAuth2 Resource Server Starter3.1.3                             | Apache-2.0                                    |
-| Spring Boot OAuth2/OpenID Connect Client Starter3.1.3                       | Apache-2.0                                    |
-| Spring Framework6.0.11                                                      | Apache-2.0                                    |
-| Spring LDAP3.1.1                                                            | Apache-2.0                                    |
-| Spring Security6.1.3                                                        | Apache-2.0                                    |
-| spring-boot-admin-server3.1.3                                               | Apache-2.0                                    |
-| spring-boot-admin-server-ui3.1.3                                            | Apache-2.0                                    |
-| spring-boot-admin-starter-client3.0.4                                       | Apache-2.0                                    |
-| spring-boot-admin-starter-client3.0.0-M4                                    | Apache-2.0                                    |
-| spring-boot-admin-starter-client3.1.3                                       | Apache-2.0                                    |
-| spring-boot-starter-data-r2dbc3.1.3                                         | Apache-2.0                                    |
-| spring-cloud-starter-gateway4.0.6                                           | Apache-2.0                                    |
-| spring-cloud-starter-kubernetes-client-all3.0.2                             | Apache-2.0                                    |
-| spring-cloud-starter-sleuth3.0.4                                            | Apache-2.0                                    |
-| springdoc-openapi-starter-common2.0.0                                       | Apache-2.0                                    |
-| springdoc-openapi-starter-webmvc-api2.0.0                                   | Apache-2.0                                    |
-| springdoc-openapi-starter-webmvc-ui2.0.0                                    | Apache-2.0                                    |
-| Thymeleaf3.1.2.RELEASE                                                      | Apache-2.0                                    |
-| thymeleaf-extras-java8time3.0.4.RELEASE                                     | Apache-2.0                                    |
-| thymeleaf-layout-dialect2.5.3                                               | Apache-2.0                                    |
-| thymeleaf-spring43.0.12.RELEASE                                             | Apache-2.0                                    |
+| Component                      | Version       | License                                    |
+|--------------------------------|---------------|--------------------------------------------|
+| Apache Commons Collections     | 4.5.0         | Apache-2.0                                 |
+| Apache Commons CSV             | 1.14.1        | Apache-2.0                                 |
+| Apache Commons IO              | 2.21.0        | Apache-2.0                                 |
+| Apache Commons Validator       | 1.10.1        | Apache-2.0                                 |
+| Apache HttpClient              | 5.6           | Apache-2.0                                 |
+| Apache HttpMime                | 4.5.14        | Apache-2.0                                 |
+| Docker Java API                | 3.7.1         | Apache-2.0                                 |
+| Jackson Annotations            |               | Apache-2.0                                 |
+| Jackson Databind               |               | Apache-2.0                                 |
+| Jackson Databind Nullable      |               | Apache-2.0                                 |
+| Jakarta Persistence API        |               | EPL-2.0 / GPL-2.0-with-classpath-exception |
+| JNATS                          |               | Apache-2.0                                 |
+| Keycloak Admin REST Client     | 26.0.8        | Apache-2.0                                 |
+| Liquibase                      |               | Apache-2.0                                 |
+| Micrometer Prometheus Registry |               | Apache-2.0                                 |
+| ModelMapper                    | 3.2.6         | Apache-2.0                                 |
+| PostgreSQL JDBC Driver         |               | BSD-2-Clause                               |
+| Project Lombok                 | 1.18.44       | MIT                                        |
+| REST Assured                   | 6.0.0         | Apache-2.0                                 |
+| Spring Boot                    | 4.0.5         | Apache-2.0                                 |
+| Spring Cloud                   | 2025.1.0      | Apache-2.0                                 |
+| Spring LDAP                    |               | Apache-2.0                                 |
+| Spring Security                |               | Apache-2.0                                 |
+| Spring Boot Admin              |               | Apache-2.0                                 |
+| Spring Cloud Gateway           |               | Apache-2.0                                 |
+| Spring Cloud Kubernetes        |               | Apache-2.0                                 |
+| Spring WS Test                 | 5.0.1         | Apache-2.0                                 |
+| SpringDoc OpenAPI              | 3.0.2         | Apache-2.0                                 |
+| Testcontainers                 | 2.0.4         | MIT                                        |
+| Testcontainers Keycloak        | 4.1.1         | MIT                                        |
+| Thymeleaf                      | 3.1.3.RELEASE | Apache-2.0                                 |
+| Thymeleaf Layout Dialect       | 4.0.1         | Apache-2.0                                 |
 
-*The Java report is done automatically by Blackduck*
+*The Java report can be generated automatically by BlackDuck.*
+
+## Frontend (JavaScript / TypeScript)
+
+| Component                     | Version | License                 |
+|-------------------------------|---------|-------------------------|
+| Angular                       | 21      | MIT                     |
+| Angular CDK                   | 21      | MIT                     |
+| Angular Material              | 21      | MIT                     |
+| angular-auth-oidc-client      | 21      | MIT                     |
+| Axios                         | 1.x     | MIT                     |
+| ESLint                        | 10      | MIT                     |
+| Font Awesome                  | 7       | MIT / CC-BY-4.0 (icons) |
+| Jest                          | 30      | MIT                     |
+| NgRx (Store, Effects, Router) | 21      | MIT                     |
+| ngx-matomo-client             | 9       | MIT                     |
+| ngx-pipes                     | 3.x     | MIT                     |
+| pdfmake                       | 0.3.x   | MIT                     |
+| PostCSS                       | 8.x     | MIT                     |
+| PrimeNG                       | 21      | MIT                     |
+| PrimeIcons                    | 7       | MIT                     |
+| Quill                         | 2       | BSD-3-Clause            |
+| RxJS                          | 7.x     | Apache-2.0              |
+| Tailwind CSS                  | 4       | MIT                     |
+| Transloco (@jsverse)          | 8.x     | MIT                     |
+| TypeScript                    | 5.x     | Apache-2.0              |
+| Vite                          | 8       | MIT                     |
+| Zone.js                       | 0.16    | MIT                     |
+
+## Infrastructure
+
+| Component             | Version    | License                          |
+|-----------------------|------------|----------------------------------|
+| PostgreSQL            | 18         | PostgreSQL License (MIT-like)    |
+| Keycloak              | 26.4.4     | Apache-2.0                       |
+| Redis                 | latest     | BSD-3-Clause                     |
+| NATS                  | alpine3.20 | Apache-2.0                       |
+| CloudBeaver           |            | Apache-2.0                       |
+| JupyterHub            | latest     | BSD-3-Clause                     |
+| SFTPGo                | latest     | AGPL-3.0                         |
+| Matomo                | latest     | GPL-3.0                          |
+| MinIO                 | latest     | AGPL-3.0                         |
+| Nginx                 | alpine     | BSD-2-Clause                     |
+| Eclipse Temurin (JRE) | 21         | GPL-2.0-with-classpath-exception |
 
 ## Licence SPDX
 
 | Licence                          | Link                                                       |
 |----------------------------------|------------------------------------------------------------|
+| AGPL-3.0                         | https://opensource.org/license/agpl-v3/                    |
 | Apache-2.0                       | https://opensource.org/license/apache-2-0/                 |
 | BSD-2-Clause                     | https://opensource.org/license/bsd-2-clause/               |
 | BSD-3-Clause                     | https://opensource.org/license/bsd-3-clause/               |
-| CDDL                             | https://opensource.org/license/cddl-1-0/                   | 
-| GNU                              | https://opensource.org/license/lgpl-license-html/          |
+| CC-BY-4.0                        | https://creativecommons.org/licenses/by/4.0/               |
+| EPL-2.0                          | https://opensource.org/license/epl-2-0/                    |
 | GPL-2.0-with-classpath-exception | https://opensource.org/license/gpl-2-0/                    |
-| LGPL-2.1                         | https://opensource.org/license/lgpl-2-1/                   |
+| GPL-3.0                          | https://opensource.org/license/gpl-3-0/                    |
+| LGPL-2.1+                        | https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html |
 | MIT                              | https://opensource.org/license/mit/                        |
-| MLGPL-2.1+                       | https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html |
+| PostgreSQL License               | https://opensource.org/license/postgresql/                 |
 
