@@ -6,7 +6,7 @@ This chapter will explain the core architectural component, its context views, a
 
 ### Domain View
 
-We separate between two main domains, "Business and Data Domain.
+We separate between two main domains, "Business" and "Data" Domain.
 
 #### Business vs. Data Domain
 
@@ -19,23 +19,23 @@ We separate between two main domains, "Business and Data Domain.
   Within an existing Business Domain a Data Domain can be spawned using Kubernetes deployment features and scripts to
   set up the database objects.
 
-Resources encapsulated inside a**Data Domain**can be:
+Resources encapsulated inside a **Data Domain** can be:
 
 - Schema of the Data Domain
 - Data mart tables of the Data Domain
 - The entire DWH environment of the Data Domain
-- Data lineage documents of the DBT projects of the Data Domain.
+- Data lineage documents of the dbt projects of the Data Domain.
   Dashboards, charts, and datasets within the superset instance of a Data Domain.
 - Airflow DAGs of the Data Domain.
 - JupyterHub
 
-On top, you can add**subsystems**. This can be seen as extensions that make HelloDATA pluggable with additional tools.
-We now support[CloudBeaver](https://github.com/dbeaver/cloudbeaver)for viewing your Postgres databases, RtD, and Gitea.
+On top, you can add **subsystems**. This can be seen as extensions that make HelloDATA pluggable with additional tools.
+We now support [CloudBeaver](https://github.com/dbeaver/cloudbeaver) for viewing your Postgres databases, RtD, and Gitea.
 You can imagine adding almost infinite tools with capabilities you'd like to have (data catalog, semantic layer,
 specific BI tool, Jupyter Notebooks, etc.).
 
 Read more about Business and Data Domain access rights
-in[Roles / Authorization Concept](../manuals/role-authorization-concept.md).
+in [Roles / Authorization Concept](../manuals/role-authorization-concept.md).
 
 ![](../images/1040683243%201.png)
 
@@ -43,7 +43,7 @@ in[Roles / Authorization Concept](../manuals/role-authorization-concept.md).
 
 Zooming into several Data Domains that can exist within a Business domain, we see an example of Data Domain A-C. Each
 Data Domain has a persistent storage, in our case, Postgres (see more details in
-the[Infrastructure Storage](https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDTechArchitecture&Concepts-Storage(DataDomain))
+the [Infrastructure Storage](https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDTechArchitecture&Concepts-Storage(DataDomain))
 chapter below).
 
 Each data domain might import different source systems; some might even be used in several data domains, as illustrated.
@@ -82,10 +82,8 @@ the Landing and Data Storage and stored there for extended periods, often severa
 - A primary task of this layer is to integrate the data from different sources and store it in a thematically structured
   way rather than separated by origin.
 - Often, thematic sub-areas in the Core are called "Subject Areas."
-- The data is stored in the Core so that historical data can be determined at any later point in time.- The Core should
-                                                                                                        be the only data
-                                                                                                        source for the
-                                                                                                        Data Marts.
+- The data is stored in the Core so that historical data can be determined at any later point in time.
+- The Core should be the only data source for the Data Marts.
 - Direct access to the Core by users should be avoided as much as possible.
 
 ##### Data Mart
@@ -99,7 +97,7 @@ Subsets of the data from the Core are stored in a form suitable for user queries
   selection of goods, such as vegetables, meat, or cheese. The goods are presented so that they are accepted, i.e.,
   purchased, by the respective customer group.
 
-!!! note "Between the layers, we have lots of**Metadata**"
+!!! note "Between the layers, we have lots of **Metadata**"
 
     Different types of metadata are needed for the smooth operation of the Data Warehouse. Business metadata contains business descriptions of all attributes, drill paths, and aggregation rules for the front-end applications and code designations. Technical metadata describes, for example, data structures, mapping rules, and parameters for ETL control. Operational metadata contains all log tables, error messages, logging of ETL processes, and much more. The metadata forms the infrastructure of a DWH system and is described as "data about data".
 
@@ -119,9 +117,9 @@ sub-components of what Superset provides.
 As described in the intro. The portal is the heart of the HelloDATA application, with access to all critical
 applications.
 
-**Entry page of helloDATA**: When you enter the portal for the first time, you land on the dashboard where you have
+**Entry page of HelloDATA**: When you enter the portal for the first time, you land on the dashboard where you have
 
-1. Navigation to jump to the different capabilities of helloDATA
+1. Navigation to jump to the different capabilities of HelloDATA
 2. User and profile information of logged-in users
 3. Choosing the data domain you want to work within your business domain
 4. Overview of your dashboards (internal and external)
@@ -138,15 +136,16 @@ More technical details are in the "Module deployment view" chapter below.
 
 #### Modules
 
-Going one level deeper, we see that we use different modules to make the portal and helloDATA work.
+Going one level deeper, we see that we use different modules to make the portal and HelloDATA work.
 
 We have the following modules:
 
 - [Keycloak](https://www.keycloak.org/): Open-source identity and access management. This handles everything related to
-  user permissions and roles in a central place that we integrate into helloDATA.
+  user permissions and roles in a central place that we integrate into HelloDATA.
 - [Redis](https://redis.io/): open-source, in-memory data store that we use for persisting technical values for the
-  portal to work.- [NATS](https://nats.io/): Open-source connective technology for the cloud. It handles communication
-                   with the different tools we use.
+  portal to work.
+- [NATS](https://nats.io/): Open-source connective technology for the cloud. It handles communication
+  with the different tools we use.
 - **Data Stack**: We use the open-source data stack with dbt, Airflow, and Superset. See more information in the intro
   chapters above. Subsystems can be added on demand as extensible plugins.
 
@@ -154,7 +153,7 @@ We have the following modules:
 
 ##### What is Keycloak and how does it work?
 
-At the center are two components, NATS and Keycloak.**Keycloak**, together with the HelloDATA portal, handles the
+At the center are two components, NATS and Keycloak. **Keycloak**, together with the HelloDATA portal, handles the
 authentication, authorization, and permission management of HelloDATA components. Keycloak is a powerful open-source
 identity and access management system. Its primary benefits include:
 
@@ -180,8 +179,8 @@ identity and access management system. Its primary benefits include:
 9. **Fine-Grained Authorization Services**: Beyond role-based authorization, Keycloak provides fine-grained
    authorization services, enabling the management of permissions for all services from the Keycloak admin console. This
    allows for the creation of specific policies to meet unique needs. Within HelloDATA, the HelloDATA portal manages
-   authorization, yet if required by upcoming subsystems, this KeyCloak feature can be utilized in tandem.
-10. **Two-Factor Authentication (2FA)**: This optional feature of KeyCloak enhances security by requiring users to
+   authorization, yet if required by upcoming subsystems, this Keycloak feature can be utilized in tandem.
+10. **Two-Factor Authentication (2FA)**: This optional feature of Keycloak enhances security by requiring users to
     provide two forms of authentication before gaining access, adding an extra layer of protection to the authentication
     process.
 
@@ -194,13 +193,13 @@ stream processing.
 NATS focuses on hyper-connected moving parts and additional data each module generates. It supports location
 independence and mobility, whether the backend process is streaming or otherwise, and securely handles all of it.
 
-NATs let you connect mobile frontend or microservice to connect flexibly. There is no need for static 1:1 communication
+NATS let you connect mobile frontend or microservice to connect flexibly. There is no need for static 1:1 communication
 with a hostname, IP, or port. On the other hand, NATS lets you m:n connectivity based on subject instead. Still, you can
 use 1:1, but on top, you have things like load balancers, logs, system and network security models, proxies, and, most
-essential for us,**[sidecars](https://www.nginx.com/resources/glossary/sidecar/)**. We use sidecars heavily in
+essential for us, **[sidecars](https://www.nginx.com/resources/glossary/sidecar/)**. We use sidecars heavily in
 connection with NATS.
 
-NATS can be**deployed**nearly anywhere: on bare metal, in a VM, as a container, inside K8S, on a device, or in whichever
+NATS can be **deployed** nearly anywhere: on bare metal, in a VM, as a container, inside K8S, on a device, or in whichever
 environment you choose. And all fully secure.
 
 #### Subsystem communication
@@ -209,21 +208,21 @@ Here is an example of subsystem communication. NATS, obviously at the center, ha
 HelloDATA platform and the subsystems with its workers, as seen in the image below.
 
 The HelloDATA portal has workers. These workers are deployed as extra containers with sidecars, called "Sidecar
-Containers". Each module needing communicating needs a sidecar with these workers deployed to communicate with NATS.
+Containers". Each module needing to communicate needs a sidecar with these workers deployed to communicate with NATS.
 Therefore, the subsystem itself has its workers to share with NATS as well.
 
 ![](../images/1046873407.png)
 
 #### Messaging component workers
 
-Everything starts with a**web browser**session. The HelloDATA user accesses the**HelloDATA Portal**through HTTP. Before
+Everything starts with a **web browser** session. The HelloDATA user accesses the **HelloDATA Portal** through HTTP. Before
 you see any of your modules or components, you must authorize yourself again, Keycloak. Once logged in, you have a
 Single Sign-on Token that will give access to different business domains or data domains depending on your role.
 
-The HelloDATA portal sends an event to the EventWorkers via JDBC to the Portal database. The**portal database**persists
+The HelloDATA portal sends an event to the EventWorkers via JDBC to the Portal database. The **portal database** persists
 settings from the portal and necessary configurations.
 
-The**EventWorkers**, on the other side communicate with the different**HelloDATA Modules**discussed above (Keycloak,
+The **EventWorkers**, on the other side communicate with the different **HelloDATA Modules** discussed above (Keycloak,
 NATS, Data Stack with dbt, Airflow, and Superset) where needed. Each module is part of the domain view, which persists
 their data within their datastore.
 
@@ -231,7 +230,7 @@ their data within their datastore.
 
 #### Flow Chart
 
-In this flow chart, you see again what we discussed above in a different way. Here, we**assign a new user role**. Again,
+In this flow chart, you see again what we discussed above in a different way. Here, we **assign a new user role**. Again,
 everything starts with the HelloDATA Portal and an existing session from Keycloak. With that, the portal worker will
 publish a JSON message via UserRoleEvent to NATS. As the communication hub for HelloDATA, NATS knows what to do with
 each message and sends it to the respective subsystem worker.

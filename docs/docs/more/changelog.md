@@ -7,7 +7,7 @@
 
 ## 2024-08-28 Added new features
 
-- Added [Juypter Notebooks / Jupyter Hub](../architecture/data-stack.md) on the data stack page.
+- Added [Jupyter Notebooks / Jupyter Hub](../architecture/data-stack.md) on the data stack page.
 - Added [Data Publisher](../concepts/data-publisher.md) to the concept page.
 - Updated [User Manual](../manuals/user-manual.md) related to the new features.
 - Updated [Roadmap](../vision/roadmap.md).

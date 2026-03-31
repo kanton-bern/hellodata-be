@@ -22,7 +22,7 @@ We maintain our documentation in the main repository under the `/docs` (this fol
 4. Manually add your git changes, commit and push. 
 
 > [!WARNING]  
-> We did not automate this step to avoid acidental push something. But below you have the command to do so.
+> We did not automate this step to avoid accidentally pushing something. But below you have the command to do so.
 
 ```sh
 git add docs/ && \

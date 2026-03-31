@@ -47,12 +47,12 @@ graph TD
     %% classDef subsystem fill:#F1C40F,stroke:#333,stroke-width:2px;
     %% classDef services fill:#E74C3C,stroke:#333,stroke-width:1px;
 ```
-*A schematic overview of workspaces are embedded into HelloDATA-BE.*
+*A schematic overview of how workspaces are embedded into HelloDATA-BE.*
 <!--![](../images/workspaces-business-overview.png)--> 
 
 A workspace can have n-instances within a data domain. What does it mean? Each team can deal with its requirements to develop and build their project independently.
 
-Think of an ML engineer who needs heavy tools such as Tensorflow, etc., as an analyst might build simple dbt models. In contrast, another data engineer uses a specific tool from the [Modern Data Stack](https://glossary.airbyte.com/term/modern-data-stack/).
+Think of an ML engineer who needs heavy tools such as TensorFlow, etc., while an analyst might build simple dbt models. In contrast, another data engineer uses a specific tool from the [Modern Data Stack](https://glossary.airbyte.com/term/modern-data-stack/).
 
 ### When to use Workspaces
 Workspaces are best used for **development, implementing custom business logic, and modeling your data**. But there is no limit to what you build as long as it can be run as a DAG as an Airflow data pipeline.
@@ -70,7 +70,7 @@ Below, you see an example of two different Airflow DAGs deployed from two differ
 ![](../images/Pasted%20image%2020231130144943.png)
 
 ## How do I create my own Workspace?
-To implement your own Workspace, we created a [hellodata-be-workspace-starter](https://github.com/bedag/hellodata-be-workspace-starter). This repo contains a minimal set of artefacts in order to be deployed on HD.
+To implement your own Workspace, we created a [hellodata-be-workspace-starter](https://github.com/bedag/hellodata-be-workspace-starter). This repo contains a minimal set of artifacts in order to be deployed on HD.
 
 ### Pre-requisites
 - Install latest Docker Desktop
@@ -125,9 +125,9 @@ We generally have these boiler plate files:
 ```
 
 #### Important files: Business logic (DAG)
-Where as `query_duckdb.py` and the `boiler-example.py` DAG are in this case are my custom code that you'd change with your own code. 
+Whereas `query_duckdb.py` and the `boiler-example.py` DAG in this case are my custom code that you'd change with your own code. 
 
-Although the Airflow DAG can be re-used as we use `KubernetesPodOperator` that works works within HD and locally (check more below). Essentially you change the name and the schedule to your needs, the image name and your good to go.
+Although the Airflow DAG can be re-used as we use `KubernetesPodOperator` that works within HD and locally (check more below). Essentially you change the name and the schedule to your needs, the image name and you're good to go.
 
 Example of a Airflow DAG:
 ```python
@@ -195,11 +195,11 @@ For local deployment we have these **requirements**:
 
 - Local Docker installed (either native or Docker-Desktop)
 - make sure Kubernetes is enabled
-- copy you local kube-file to astro: `cp ~/.kube/config src/dags/airflow/include/.kube/`
+- copy your local kube-file to astro: `cp ~/.kube/config src/dags/airflow/include/.kube/`
   - attention, under Windows you find that file most probably under: `C:\Users\[YourIdHere]\.kube\config` 
-- make sure docker image is available locally (for Airflow to use it) -> `docker build` must have run (check with `docker image ls`
+- make sure docker image is available locally (for Airflow to use it) → `docker build` must have run (check with `docker image ls`)
 
-The `config` file is used from astro to run on local Kubernetes. Se more infos on [Run your Astro project in a local Airflow environment](https://docs.astronomer.io/astro/cli/run-airflow-locally).
+The `config` file is used from astro to run on local Kubernetes. See more info on [Run your Astro project in a local Airflow environment](https://docs.astronomer.io/astro/cli/run-airflow-locally).
 
 #### Install Requirements: `Dockerfile`
 
@@ -211,7 +211,7 @@ FROM python:3.10-slim
 
 RUN mkdir -p /opt/airflow/airflow_home/dags/
 
-# Copy your airflow DAGs which will be copied into bussiness domain Airflow (These DAGs will be executed by Airflow)
+# Copy your airflow DAGs which will be copied into business domain Airflow (These DAGs will be executed by Airflow)
 COPY ../src/dags/airflow/dags/* /opt/airflow/airflow_home/dags/
 
 WORKDIR /usr/src/app
@@ -230,7 +230,7 @@ CMD tail -f /dev/null
 
 #### Deployment: `deployment-needs.yaml`
 
-Below you see an an example of a deployment needs in `deployment-needs.yaml`, that defines:
+Below you see an example of a deployment needs in `deployment-needs.yaml`, that defines:
 
 - Docker image
 - Volume mounts you need
@@ -240,7 +240,7 @@ Below you see an an example of a deployment needs in `deployment-needs.yaml`, th
 
 !!! note "This part is the one that will change most likely"
 
-	All of which will be eventually more automated. Also let us know or just add missing specs to the file and we'll add the functionallity on the deployment side.	
+	All of which will be eventually more automated. Also let us know or just add missing specs to the file and we'll add the functionality on the deployment side.	
  
 
 ```yaml
@@ -278,22 +278,22 @@ airflow:
 
 ## Example with Airflow and dbt
 
-We've added another demo dag called `showcase-boiler.py` which is an DAG that download data from the web (animal statistics, ~150 CSVs), postgres tables are created, data inserted and a dbt run and docs is ran at the end.
+We've added another demo dag called `showcase-boiler.py` which is a DAG that downloads data from the web (animal statistics, ~150 CSVs), postgres tables are created, data inserted and a dbt run and docs are run at the end.
 
 ![](../images/showcase-boiler.png)
 
-In this case we use multiple task in a DAG, these have all the same image, but you could use different one for each step. Meaning you could use Python for download, R for transformatin and Java for machine learning. But as long as images are similar, I'd suggest to use the same image.
+In this case we use multiple task in a DAG, these have all the same image, but you could use different one for each step. Meaning you could use Python for download, R for transformation and Java for machine learning. But as long as images are similar, I'd suggest to use the same image.
 
 ### Volumes / PVC
 
-Another addition is the use of **voulmes**. These are a persistent storage also called `pvs` in Kubernetes, which allow to store intermediate storage outside of the container. Downloaded CSVs are stored there for the next task to pick up from that storage.
+Another addition is the use of **volumes**. These are a persistent storage also called `PVs` in Kubernetes, which allow to store intermediate storage outside of the container. Downloaded CSVs are stored there for the next task to pick up from that storage.
 
 Locally you need to create such a storage once, there is a script in case you want to apply it to you local Docker-Desktop setup. Run this command:
 ```sh
 kubectl apply -f src/volume_mount/pvc.yaml
 ```
 
-Be sure to use the same name, in this example we use `my-pvc` in your DAGs as well. See in the `showcase-boiler.py` how the volumnes are mounted like this:
+Be sure to use the same name, in this example we use `my-pvc` in your DAGs as well. See in the `showcase-boiler.py` how the volumes are mounted like this:
 ```
 volume_claim = k8s.V1PersistentVolumeClaimVolumeSource(claim_name="my-pvc")
 volume = k8s.V1Volume(name="my-volume", persistent_volume_claim=volume_claim)
@@ -308,5 +308,5 @@ I hope this has illustrated how to create your own workspace. Otherwise let us k
 
 ## Troubleshooting
 
-If you enconter errors, we collect them in [Troubleshooting](../concepts/workspaces-troubleshoot.md).
+If you encounter errors, we collect them in [Troubleshooting](../concepts/workspaces-troubleshoot.md).
 

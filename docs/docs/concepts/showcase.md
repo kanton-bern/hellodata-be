@@ -25,14 +25,14 @@ Below the technical details of the showcase are described. How the airflow pipel
 - _**insert_data**_  
   After the tables have been created, in this step, the source data from the CSV file is copied into the corresponding tables in the LZN database schema.
 - _**dbt_run**_  
-  After the preceding steps have been executed and the data foundation for the DBT framework has been established, the data processing steps in the database can be initiated using
-  DBT scripts. (described in the DBT section)
+  After the preceding steps have been executed and the data foundation for the dbt framework has been established, the data processing steps in the database can be initiated using
+  dbt scripts. (described in the dbt section)
 - _**dbt_docs**_  
-  Upon completion of generating the tables in the database, a documentation of the tables and their dependencies is generated using DBT.
+  Upon completion of generating the tables in the database, a documentation of the tables and their dependencies is generated using dbt.
 - _**dbt_docs_serve**_  
   For the visualization of the generated documentation, it is provided in the form of a website.
 
-### DBT: Data modeling
+### dbt: Data modeling
 
 #### fact_breeds_long 
 
@@ -51,7 +51,7 @@ The following tables from the [lzn] database schema are selected for the calcula
 
 #### fact_cattle_beefiness_fattissue 
 
-The fact table fact_catle_beefiness_fattissue describes key figures, which are used to derive the number of slaughtered cows by year and month.  
+The fact table fact_cattle_beefiness_fattissue describes key figures, which are used to derive the number of slaughtered cows by year and month.  
 Classification is done according to CH-TAX ([Trading Class Classification CHTAX System | VIEGUT AG](https://www.viegut.ch/de/marktinfo/chtax-tabellen/))
 
 The following tables from the [lzn] database schema are selected for the calculation of the key figure:
@@ -95,7 +95,7 @@ The fact table fact_cattle_pyr_long pivots all key figures from fact_cattle_pyr_
 
 The data foundation of the Superset visualizations in the form of Datasets, Dashboards, and Charts is realized through a Database Connection.
 
-In this case, a database connection to a database is established, which refers to a PostgreSQL database in which the above-described DBT scripts were executed.
+In this case, a database connection to a database is established, which refers to a PostgreSQL database in which the above-described dbt scripts were executed.
 
 #### Datasets
 

@@ -2,11 +2,11 @@
 
 ## Goal
 
-This use manual should enable you to use the HelloDATA platform and illustrate the features of the product and how to
+This user manual should enable you to use the HelloDATA platform and illustrate the features of the product and how to
 use them.
 
 → More about the Platform and its architecture you can find
-on[Architecture & Concepts](../architecture/architecture.md).
+on [Architecture & Concepts](../architecture/architecture.md).
 
 ## Navigation
 
@@ -18,7 +18,8 @@ The entry page of HelloDATA is the [Web Portal](../architecture/data-stack.md#co
 2. Extended status information about
     1. data pipelines, containers, performance and security
     2. documentation and subscriptions
-3. User and profile information of logged-in user.4. Overview of your dashboards
+3. User and profile information of logged-in user.
+4. Overview of your dashboards
 
 ![](../images/1068204566.png)
 
@@ -55,7 +56,7 @@ documentation such as:
 - columns and data types (4)
 - which table and model this selected object depends on (5)
 - the SQL code (6)
-    - as a template or complied
+    - as a template or compiled
 - and dependency graph (7)
     - which you can expand to full view (8) after clicking (7)
     - interactive data lineage view (9)
@@ -66,7 +67,7 @@ documentation such as:
 
 ### Data Marts Viewer
 
-This view let's you access the universaal data mart (udm) layer:
+This view lets you access the universal data mart (udm) layer:
 
 ![](../images/Pasted%20image%2020231130155512.png)
 
@@ -86,11 +87,11 @@ access roles with a provided tool ([CloudBeaver](https://github.com/dbeaver/clou
 
 ##### Create new SQL Query
 
-![](../images/Pasted%20image%2020231130154714.png)o
+![](../images/Pasted%20image%2020231130154714.png)
 
 ##### Choose Connection and stored queries
 
-You can chose pre-defined connections and query your data warehouse. Also you can store queries that other user can see
+You can choose pre-defined connections and query your data warehouse. Also you can store queries that other user can see
 and use as well. Run your queries with (1).
 
 ![](../images/Pasted%20image%2020231130154943.png)
@@ -100,7 +101,7 @@ and use as well. Run your queries with (1).
 You can set many settings, such as user status, and many more.
 
 ![](../images/Pasted%20image%2020231130154849.png)
-Please find all setting and features in the [CloudBeaver Documentation](https://dbeaver.com/docs/cloudbeaver/).
+Please find all settings and features in the [CloudBeaver Documentation](https://dbeaver.com/docs/cloudbeaver/).
 
 #### Orchestration
 
@@ -122,11 +123,11 @@ the latest runs and their status (successful, failed, etc.).
 ##### Helper Library for Scheduling Jobs on Kubernetes
 
 To unlock the full power of airflow on kubernetes, you will need to run your jobs in containers on the cluster.
-To make this a bit easier, we provide a (preinstalled helper library)[https://github.com/bedag/hellodata-be-airflow-pod-operator-params] for you to use.
+To make this a bit easier, we provide a [preinstalled helper library](https://github.com/bedag/hellodata-be-airflow-pod-operator-params) for you to use.
 
 ###### Library description
 
-The helper library consists mainly of a function, that returns properly formatted parameters to use with (airflows kubernetes pod operator)[https://airflow.apache.org/docs/apache-airflow/1.10.10/_api/airflow/contrib/operators/kubernetes_pod_operator/index.html].
+The helper library consists mainly of a function, that returns properly formatted parameters to use with [Airflow's Kubernetes Pod Operator](https://airflow.apache.org/docs/apache-airflow/1.10.10/_api/airflow/contrib/operators/kubernetes_pod_operator/index.html).
 It is named `hellodata_be_airflow_pod_operator_params` and can be imported with `import hellodata_be_airflow_pod_operator_params`.
 The two public objects are the function `get_pod_operator_params` and the class `EphemeralVolume`.
 
@@ -419,7 +420,7 @@ You should see something like this:
 
 ##### Changing Permissions
 
-1. Search the user you want to give or change permission
+1. Search the user you want to give or change permissions
 2. Scroll to the right
 3. Click the green edit icon
 
@@ -445,7 +446,7 @@ In this portal role management, you can see all the roles that exist.
 
 !!! warning
 
-    Creating new roles are not supported, despite the fact "Rolle erstellen" button exists. All roles are defined and hard coded.
+    Creating new roles is not supported, despite the fact "Rolle erstellen" button exists. All roles are defined and hard coded.
 
 ![](../images/Pasted%20image%2020231130152628.png)
 
@@ -489,20 +490,21 @@ everything in detail, and everyone can write to it. It will appear on the dashbo
 
 We provide two different ways of monitoring:
 
-- Status:- Workspaces
+- Status
+- Workspaces
 
 ![](../images/1068204614.png)
 
 #### Status
 
-It will show you details information on instances of HelloDATA, how is the situation for the Portal, is the monitoring
+It will show you detailed information on instances of HelloDATA, how is the situation for the Portal, is the monitoring
 running, etc.
 ![](../images/1068204616.png)
 
 #### Data Domains
 
 In Monitoring your data domains you see each system and the link to the native application. You can easily and quickly
-observer permission, roles and users by different subsystems (1). Click the one you want, and you can choose different
+observe permissions, roles and users by different subsystems (1). Click the one you want, and you can choose different
 levels (2) for each, and see its permissions (3).
 
 ![](../images/1068204622.png)
@@ -510,7 +512,7 @@ levels (2) for each, and see its permissions (3).
 ![](../images/1068204620.png)
 
 By clicking on the blue underlined `DBT Docs`, you will be navigated to the native dbt docs. Same is true if you click
-on a Airflow or Superset instance.
+on an Airflow or Superset instance.
 
 ### DevTools
 
@@ -521,8 +523,8 @@ FileBrowser).
 
 #### Mailbox
 
-You can check in Mailbox (we use[MailHog](https://github.com/mailhog/MailHog)) what emails have been sending or what
-accounts are updated.|
+You can check in Mailbox (we use [MailHog](https://github.com/mailhog/MailHog)) what emails have been sent or what
+accounts are updated.
 
 ![](../images/1068204627.png)
 

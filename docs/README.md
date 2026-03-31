@@ -6,18 +6,19 @@
 
 ## Serve documentation on GitHub
 
-* Currently, when something is pushed to the devel branch the documentation gets updated automatically ([see this GitHub Workflow](https://github.com/kanton-bern/hellodata-be/blob/develop/.github/workflows/deploy_docs.yml])) and is then available under https://kanton-bern.github.io/hellodata-be.
+* Currently, when something is pushed to the develop branch the documentation gets updated automatically ([see this GitHub Workflow](https://github.com/kanton-bern/hellodata-be/blob/develop/.github/workflows/deploy_docs.yml)) and is then available under https://kanton-bern.github.io/hellodata-be.
 
 ## Edit documentation on GitHub
 * The documentation can be changed and pushed within GitHub but this approach should only be used to hot fix major errors.
 * Generally we should handle documentation changes as usual within feature branches and with pull requests.
-* Under [ocs/test/examples.md](docs/test/examples.md) you'll find several examples for Markdown constructs.  
+* Under [docs/test/examples.md](docs/test/examples.md) you'll find several examples for Markdown constructs.
+
 ## Manage and serve documentation locally
 
 ### Local installation
-* To build and run the documentation locally you need to have Python 3 installed on your machine inclusive pip.
+* To build and run the documentation locally you need to have Python 3 installed on your machine, including pip.
 * Then run the following code once to create and activate your virtual environment and install MkDocs and its dependencies.
-* Linkchekcker is a local CLI tool to check all links from a webpage.
+* Linkchecker is a local CLI tool to check all links from a webpage.
 
 #### Linux/Mac
 ```bash

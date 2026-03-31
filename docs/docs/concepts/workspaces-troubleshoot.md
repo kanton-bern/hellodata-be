@@ -54,7 +54,7 @@ remote_pod: None; 225)
 ```
 
 
-## Docker image not build locally or missing
+## Docker image not built locally or missing
 
 If your name or image is not available locally (check `docker image ls`), you'll get an error on Airflow like this:
 

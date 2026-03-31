@@ -33,15 +33,15 @@ BUSINESS_DOMAIN_ADMIN is automatically DATA_DOMAIN_ADMIN in all Data Domains wit
 ### Data Domain
 
 A Data Domain encapsulates all data elements and tools that are of interest for a specific issue.  
-HalloDATA supports 1 - n Data Domains within a Business Domain.
+HelloDATA supports 1 - n Data Domains within a Business Domain.
 
 The resources to be protected within a Data Domain are:
 
 - Schema of the Data Domain.
 - Data mart tables of the Data Domain.
 - The entire DWH environment of the Data Domain.
-- Data lineage documents of the DBT projects of the Data Domain.
-- Dashboards, charts, datasets within the superset instance of a Data Domain.
+- Data lineage documents of the dbt projects of the Data Domain.
+- Dashboards, charts, datasets within the Superset instance of a Data Domain.
 - Airflow DAGs of the Data Domain.
 
 The following three logical roles are available within a Data Domain:
@@ -68,7 +68,7 @@ Same as DATA_DOMAIN_VIEWER plus:
 - The DATA_DOMAIN_EDITOR role is granted read and write access to the dashboards of a Data Domain. All dashboards are visible and editable for a DATA_DOMAIN_EDITOR. All charts used in the dashboards are visible and editable for a DATA_DOMAIN_EDITOR. All data sets used in the dashboards are visible and editable for a DATA_DOMAIN_EDITOR.
 - A DATA_DOMAIN_EDITOR can create new dashboards.
 - A DATA_DOMAIN_EDITOR can view the data marts of the Data Domain.
-- A DATA_DOMAIN_EDITOR has access to the SQL lab in the superset.
+- A DATA_DOMAIN_EDITOR has access to the SQL lab in Superset.
 
 #### DATA_DOMAIN_ADMIN
 
@@ -144,7 +144,7 @@ Row Level Security settings on Superset level can be used to additionally restri
 |---|---|---|
 |**System Role**|**Superset Role**|**Info**|
 |No Data Domain role|Public|User should not get access to Superset functions so he gets a role with no permissions.|
-|DATA_DOMAIN_VIEWER|BI_VIEWER plus roles forDashboards he was granted access to i. e. the slugified dashboard names with prefix "D_"|Example: User is "DATA_DOMAIN_VIEWER" in a Data Domain. We grant the user acces to the "Hello World" dashboard. Then user gets the role "BI_VIEWER" plus the role "D_hello_world" in Superset.|
+|DATA_DOMAIN_VIEWER|BI_VIEWER plus roles for Dashboards he was granted access to i. e. the slugified dashboard names with prefix "D_"|Example: User is "DATA_DOMAIN_VIEWER" in a Data Domain. We grant the user access to the "Hello World" dashboard. Then user gets the role "BI_VIEWER" plus the role "D_hello_world" in Superset.|
 |DATA_DOMAIN_EDITOR|BI_EDITOR|Has access to all Dashboards as he is owner of the dashboards  plus he gets SQL Lab permissions.|
 |DATA_DOMAIN_ADMIN|BI_EDITOR plus BI_ADMIN|Has access to all Dashboards as he is owner of the dashboards  plus he gets SQL Lab permissions.|
 
@@ -153,8 +153,8 @@ Row Level Security settings on Superset level can be used to additionally restri
 |   |   |   |
 |---|---|---|
 |**System Role**|**Airflow Role**|**Info**|
-|HELLO_DATA_ADMIN|Admin|User gets DATA_DOMAIN_ADMIN role for all exisitng Data Domains and thus gets his permissions by that roles.<br><br>User additionally gets the Admin role.|
-|BUSINESS_DOMAIN_ADMIN||User gets DATA_DOMAIN_ADMIN role for all exisitng Data Domains and thus gets his permissions by that roles.|
+|HELLO_DATA_ADMIN|Admin|User gets DATA_DOMAIN_ADMIN role for all existing Data Domains and thus gets his permissions by that roles.<br><br>User additionally gets the Admin role.|
+|BUSINESS_DOMAIN_ADMIN||User gets DATA_DOMAIN_ADMIN role for all existing Data Domains and thus gets his permissions by that roles.|
 |No Data Domain role|Public|User should not get access to Airflow functions so he gets a role with no permissions.|
 |DATA_DOMAIN_VIEWER|Public|User should not get access to Airflow functions so he gets a role with no permissions.|
 |DATA_DOMAIN_EDITOR|Public|User should not get access to Airflow functions so he gets a role with no permissions.|

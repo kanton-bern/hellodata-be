@@ -178,7 +178,7 @@ erDiagram
 ```
 
 
-## Icons and Emojs
+## Icons and Emojis
 
 :smile: 
 
