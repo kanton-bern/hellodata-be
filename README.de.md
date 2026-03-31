@@ -26,7 +26,7 @@ fördern. [Mehr erfahren](docs/docs/vision/vision-and-goal.md).
 1. **Einstellungen für Docker Desktop**: Mac-Benutzer sollten die Einstellungen von Docker Desktop für
    Multi-Plattform-Unterstützung anpassen (insbesondere für Benutzer mit einem
    Arm64-Chip). [Details](hello-data-deployment/docker-compose/README.md#mac).
-2. **Hosts-Datei-Eintrag**: Fügen Sie sicher, dass `127.0.0.1 host.docker.internal` in `/etc/hosts` hinzugefügt wurde.
+2. **Hosts-Datei-Eintrag**: Stellen Sie sicher, dass `127.0.0.1 host.docker.internal` in `/etc/hosts` hinzugefügt wurde.
    Unter Windows muss dies in den Docker Desktop WSL-Einstellungen aktiviert
    werden. [Anleitung](hello-data-deployment/docker-compose/README.md#prepare-environment).
 
@@ -114,7 +114,7 @@ auf.
 ## Lizenz
 
 HelloDATA BE wird unter der [BSD 3-Clause Lizenz](LICENSE) veröffentlicht.
-Copyright (c) 2024 Kanton Bern.
+Copyright (c) 2024-2026 Kanton Bern.
 
 ## Kontakt
 
