@@ -2,7 +2,7 @@
 
 ## 2026-03-31 Added new features
 
-- Updated [user manual](../manuals/user-manual.md)
+- Updated [user manual](../manuals/user-manual.md).
 - Updated [Roadmap](../vision/roadmap.md).
 
 ## 2024-08-28 Added new features
