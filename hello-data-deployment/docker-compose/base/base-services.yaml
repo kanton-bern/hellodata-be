@@ -214,6 +214,11 @@ services:
       # 6222 is a routing port for clustering.
       - 34222:4222
       - 38222:8222
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   nats-box:
     platform: ${HD_PLATFORM}
