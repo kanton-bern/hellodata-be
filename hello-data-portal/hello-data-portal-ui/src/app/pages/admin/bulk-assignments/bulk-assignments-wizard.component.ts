@@ -246,6 +246,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
         message: this.translateService.translate('@You have unsaved wizard progress. Are you sure you want to leave?'),
         icon: 'fas fa-triangle-exclamation',
         acceptButtonStyleClass: 'p-button-danger',
+        acceptLabel: this.translateService.translate('@Yes'),
+        rejectLabel: this.translateService.translate('@No'),
         accept: () => {
           observer.next(true);
           observer.complete();
@@ -570,6 +572,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       message: msg,
       icon: 'fas fa-triangle-exclamation',
       acceptButtonStyleClass: 'p-button-success',
+      acceptLabel: this.translateService.translate('@Yes'),
+      rejectLabel: this.translateService.translate('@No'),
       accept: () => {
         this.applyBulkAssignment();
       },

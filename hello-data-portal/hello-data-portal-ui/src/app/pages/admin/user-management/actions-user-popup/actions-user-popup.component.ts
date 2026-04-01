@@ -78,6 +78,8 @@ export class ActionsUserPopupComponent {
       this.confirmationService.confirm({
         message: msg,
         icon: 'fas fa-triangle-exclamation',
+        acceptLabel: this.translateService.translate('@Yes'),
+        rejectLabel: this.translateService.translate('@No'),
         accept: () => {
           this.store.dispatch(invokeActionFromUserPopup());
         },

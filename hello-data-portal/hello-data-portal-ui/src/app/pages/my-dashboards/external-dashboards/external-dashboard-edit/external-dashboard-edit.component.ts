@@ -199,6 +199,8 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
       message: this.translateService.translate('@Delete external dashboard question'),
       header: 'Confirm',
       icon: 'fas fa-triangle-exclamation',
+      acceptLabel: this.translateService.translate('@Yes'),
+      rejectLabel: this.translateService.translate('@No'),
       accept: () => {
         this.store.dispatch(clearUnsavedChanges());
         this.store.dispatch(deleteExternalDashboard({dashboard: externalDashboard}));

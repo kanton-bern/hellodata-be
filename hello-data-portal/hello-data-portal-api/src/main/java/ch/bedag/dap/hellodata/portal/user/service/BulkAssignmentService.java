@@ -67,7 +67,7 @@ public class BulkAssignmentService {
 
     private static final Map<HdRoleName, boolean[]> ROLE_COMMENT_PERMISSIONS = Map.of(
             HdRoleName.DATA_DOMAIN_ADMIN, new boolean[]{true, true, true},
-            HdRoleName.DATA_DOMAIN_EDITOR, new boolean[]{true, true, false},
+            HdRoleName.DATA_DOMAIN_EDITOR, new boolean[]{true, false, false},
             HdRoleName.DATA_DOMAIN_VIEWER, new boolean[]{true, false, false},
             HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST, new boolean[]{true, false, false},
             HdRoleName.NONE, new boolean[]{false, false, false}
