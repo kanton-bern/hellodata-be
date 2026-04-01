@@ -6,8 +6,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.query.response.super
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
@@ -26,6 +29,8 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class QueryListRequestListener {
 
+    private static final int DEFAULT_PAGE_SIZE = 1000;
+
     private final Connection natsConnection;
     private final SupersetClientProvider supersetClientProvider;
     private final ObjectMapper objectMapper;
@@ -43,20 +48,42 @@ public class QueryListRequestListener {
                 String jsonString = new String(msg.getData(), StandardCharsets.UTF_8);
                 JsonElement jsonElement = JsonParser.parseString(jsonString);
                 JsonArray filter;
-                if (jsonElement.isJsonArray()) {
+                int page = 0;
+                int pageSize = DEFAULT_PAGE_SIZE;
+
+                if (jsonElement.isJsonObject()) {
+                    JsonObject request = jsonElement.getAsJsonObject();
+                    filter = request.has("filters") ? request.getAsJsonArray("filters") : new JsonArray();
+                    if (request.has("page")) {
+                        page = request.get("page").getAsInt();
+                    }
+                    if (request.has("pageSize")) {
+                        pageSize = request.get("pageSize").getAsInt();
+                    }
+                } else if (jsonElement.isJsonArray()) {
+                    // Backward compatible: legacy callers send a plain JSON array of filters
                     filter = jsonElement.getAsJsonArray();
                 } else {
-                    throw new IllegalStateException("Expected a JSON array but received: " + jsonString);
+                    throw new IllegalStateException("Expected a JSON array or object but received: " + jsonString);
                 }
 
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-                SupersetQueryResponse queries = supersetClient.queriesFiltered(filter);
-                String result = objectMapper.writeValueAsString(queries.getResult());
+                SupersetQueryResponse queries = supersetClient.queriesFiltered(filter, page, pageSize);
+
+                ObjectNode responseNode = objectMapper.createObjectNode();
+                ArrayNode resultArray = objectMapper.valueToTree(queries.getResult());
+                responseNode.set("result", resultArray);
+                responseNode.put("count", queries.getCount());
+
+                String result = objectMapper.writeValueAsString(responseNode);
                 natsConnection.publish(msg.getReplyTo(), result.getBytes(StandardCharsets.UTF_8));
                 msg.ack();
             } catch (URISyntaxException | IOException | RuntimeException e) {
                 log.error("Error fetching query list", e);
-                natsConnection.publish(msg.getReplyTo(), e.getMessage().getBytes(StandardCharsets.UTF_8));
+                ObjectNode errorResponse = objectMapper.createObjectNode();
+                errorResponse.put("error", e.getMessage());
+                natsConnection.publish(msg.getReplyTo(), errorResponse.toString().getBytes(StandardCharsets.UTF_8));
+                msg.ack();
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);

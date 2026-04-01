@@ -187,8 +187,20 @@ public class SupersetApiRequestBuilder {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_QUERY_API_ENDPOINT);
     }
 
+    public static HttpUriRequest getListQueriesRequestFiltered(String host, int port, String authToken, JsonArray filters, int page, int pageSize) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_QUERY_API_ENDPOINT, page, pageSize);
+    }
+
+    public static HttpUriRequest getListQueriesRequestFiltered(String host, int port, String authToken, JsonArray columns, JsonArray filters, int page, int pageSize) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, columns, filters, LIST_QUERY_API_ENDPOINT, page, pageSize);
+    }
+
     public static HttpUriRequest getLisLogsRequestFiltered(String host, int port, String authToken, JsonArray filters) throws URISyntaxException {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_LOGS_API_ENDPOINT);
+    }
+
+    public static HttpUriRequest getLisLogsRequestFiltered(String host, int port, String authToken, JsonArray filters, int page, int pageSize) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_LOGS_API_ENDPOINT, page, pageSize);
     }
 
     public static ObjectMapper getObjectMapper() {
@@ -199,9 +211,14 @@ public class SupersetApiRequestBuilder {
 
     private static HttpUriRequest getHttpUriRequestWithBasicParams(String host, int port, String authToken, JsonArray columns, JsonArray filters, String listDashboardApiEndpoint) throws
             URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, columns, filters, listDashboardApiEndpoint, 0, Integer.MAX_VALUE);
+    }
+
+    private static HttpUriRequest getHttpUriRequestWithBasicParams(String host, int port, String authToken, JsonArray columns, JsonArray filters, String apiEndpoint, int page, int pageSize) throws //NOSONAR - params needed for API request construction
+            URISyntaxException {
         JsonObject param = new JsonObject();
-        param.addProperty("page", 0);
-        param.addProperty("page_size", Integer.MAX_VALUE);
+        param.addProperty("page", page);
+        param.addProperty("page_size", pageSize);
         if (columns != null) {
             param.add("columns", columns);
         }
@@ -209,7 +226,7 @@ public class SupersetApiRequestBuilder {
             param.add("filters", filters);
         }
 
-        URI apiUri = buildUri(host, port, listDashboardApiEndpoint, List.of(Pair.of("q", param.toString())));
+        URI apiUri = buildUri(host, port, apiEndpoint, List.of(Pair.of("q", param.toString())));
 
         return RequestBuilder.get() //
                 .setUri(apiUri) //
