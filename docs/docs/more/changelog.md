@@ -1,7 +1,7 @@
 # Changelog: HD-BE Documentation
 
 The latest HelloDATA BE releases with changelog can be found on
-the [releases page](https://github.com/HelloDATA/HD-BE/releases).
+the [releases page](https://github.com/kanton-bern/hellodata-be/releases).
 
 ### Documentation changes
 
