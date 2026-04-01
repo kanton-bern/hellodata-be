@@ -3,7 +3,7 @@
 The latest HelloDATA BE releases with changelog can be found on
 the [releases page](https://github.com/kanton-bern/hellodata-be/releases).
 
-### Documentation changes
+## Documentation changes:
 
 ## 2026-03-31 Updated documentation
 
