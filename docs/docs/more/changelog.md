@@ -1,6 +1,6 @@
 # Changelog: HD-BE Documentation
 
-## 2026-03-31 Added new features
+## 2026-03-31 Updated documentation
 
 - Updated [user manual](../manuals/user-manual.md).
 - Updated [Roadmap](../vision/roadmap.md).
