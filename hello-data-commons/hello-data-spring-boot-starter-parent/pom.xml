@@ -24,7 +24,7 @@
         <docker-maven-plugin.version>0.48.1</docker-maven-plugin.version>
         <docker.file>Dockerfile</docker.file>
         <docker.namespace>bedag</docker.namespace>
-        <git-commit-id-maven-plugin.version>9.1.0</git-commit-id-maven-plugin.version>
+        <git-commit-id-maven-plugin.version>9.2.0</git-commit-id-maven-plugin.version>
         <httpclient5.version>5.6</httpclient5.version>
         <httpmime.version>4.5.14</httpmime.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
