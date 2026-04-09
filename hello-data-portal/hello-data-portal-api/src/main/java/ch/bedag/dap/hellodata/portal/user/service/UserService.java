@@ -151,6 +151,19 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public Page<UserWithBusinessRoleDto> getAllUsersWithBusinessDomainRolePaginated(Pageable pageable, String search) {
+        Page<UserEntity> usersPage;
+        if (search == null || search.isEmpty()) {
+            usersPage = userRepository.findAll(pageable);
+        } else {
+            usersPage = userRepository.findAll(pageable, search);
+        }
+        Map<String, String> contextKeyToName = contextRepository.findAll().stream()
+                .collect(Collectors.toMap(HdContextEntity::getContextKey, HdContextEntity::getName, (a, b) -> a));
+        return usersPage.map(user -> mapWithBusinessDomainRole(user, contextKeyToName));
+    }
+
+    @Transactional(readOnly = true)
     public Page<UserDto> getAllUsersPageable(Pageable pageable, String search) {
         Page<UserEntity> allPortalUsers;
         if (search == null || search.isEmpty()) {

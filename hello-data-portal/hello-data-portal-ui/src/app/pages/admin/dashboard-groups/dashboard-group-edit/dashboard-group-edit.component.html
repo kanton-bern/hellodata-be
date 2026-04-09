@@ -145,7 +145,7 @@
               </p-iconfield>
             </div>
             <div class="user-list border border-surface rounded-border p-2">
-              @if (filteredUsers.length === 0) {
+              @if (paginatedUsers.length === 0) {
                 <div class="text-gray-400 p-4 text-center text-sm">{{ '@No users available' | transloco }}</div>
               } @else {
                 <div class="user-page-container">

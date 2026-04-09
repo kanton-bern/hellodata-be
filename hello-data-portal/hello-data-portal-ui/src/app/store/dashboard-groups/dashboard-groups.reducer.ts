@@ -77,10 +77,11 @@ export const dashboardGroupsReducer = createReducer(
       activeContextKey: contextKey
     };
   }),
-  on(loadEligibleUsersSuccess, (state: DashboardGroupsState, {users}): DashboardGroupsState => {
+  on(loadEligibleUsersSuccess, (state: DashboardGroupsState, {users, totalElements}): DashboardGroupsState => {
     return {
       ...state,
-      eligibleUsers: users
+      eligibleUsers: users,
+      eligibleUsersTotalElements: totalElements
     };
   }),
   on(showDeleteDashboardGroupPopup, (state: DashboardGroupsState, {dashboardGroup}): DashboardGroupsState => {

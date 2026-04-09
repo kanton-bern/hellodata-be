@@ -243,8 +243,13 @@ public class UserController {
 
     @GetMapping("/context-roles")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
-    public List<UserWithBusinessRoleDto> getAllUsersWithContextRoles() {
-        return userService.getAllUsersWithBusinessDomainRole();
+    public ResponseEntity<Page<UserWithBusinessRoleDto>> getAllUsersWithContextRoles(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String search) {
+        Pageable pageable = PageUtil.createPageable(page, size, null, "email", org.springframework.data.domain.Sort.Direction.ASC);
+        Page<UserWithBusinessRoleDto> result = userService.getAllUsersWithBusinessDomainRolePaginated(pageable, search);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/bulk-assignments")

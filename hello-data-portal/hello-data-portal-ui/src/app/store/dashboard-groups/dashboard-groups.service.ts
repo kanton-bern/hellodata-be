@@ -67,6 +67,17 @@ export class DashboardGroupsService {
     return this.httpClient.get<DashboardGroupDomainUser[]>(`${this.baseUrl}/eligible-users`, {params});
   }
 
+  public getEligibleUsersForDomainPaginated(contextKey: string, page: number, size: number, search?: string): Observable<PageResponse<DashboardGroupDomainUser>> {
+    let params = new HttpParams()
+      .set('contextKey', contextKey)
+      .set('page', page.toString())
+      .set('size', size.toString());
+    if (search) {
+      params = params.set('search', search);
+    }
+    return this.httpClient.get<PageResponse<DashboardGroupDomainUser>>(`${this.baseUrl}/eligible-users`, {params});
+  }
+
   public createDashboardGroup(dashboardGroup: DashboardGroupCreateUpdate): Observable<string> {
     return this.httpClient.post(this.baseUrl, dashboardGroup, {responseType: 'text'}).pipe(
       map(response => response.replace(/"/g, ''))

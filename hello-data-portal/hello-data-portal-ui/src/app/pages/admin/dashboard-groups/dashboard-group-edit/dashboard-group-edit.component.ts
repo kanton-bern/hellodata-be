@@ -26,7 +26,7 @@
 ///
 
 import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Observable, Subject, Subscription, tap} from 'rxjs';
+import {Observable, Subject, Subscription, tap, debounceTime, distinctUntilChanged} from 'rxjs';
 import {
   AbstractControl,
   FormBuilder,
@@ -42,7 +42,8 @@ import {AppState} from '../../../../store/app/app.state';
 import {
   selectDashboardGroups,
   selectEditedDashboardGroup,
-  selectEligibleUsers
+  selectEligibleUsers,
+  selectEligibleUsersTotalElements
 } from '../../../../store/dashboard-groups/dashboard-groups.selector';
 import {
   DashboardGroup,
@@ -104,13 +105,13 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   eligibleUsers$: Observable<DashboardGroupDomainUser[]>;
   allDashboards: SupersetDashboard[] = [];
   filteredDashboards: SupersetDashboard[] = [];
-  filteredUsers: DashboardGroupDomainUser[] = [];
-  allEligibleUsers: DashboardGroupDomainUser[] = [];
+  paginatedUsers: DashboardGroupDomainUser[] = [];
 
   dashboardGroupForm!: FormGroup;
 
   selectedDashboardIds: Set<number> = new Set();
   selectedUserIds: Set<string> = new Set();
+  selectedUserDetailsMap = new Map<string, DashboardGroupDomainUser>();
 
   dashboardSearchFilter = '';
   userSearchFilter = '';
@@ -121,6 +122,8 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   userPage = 0;
   usersPerPage = 15;
   readonly usersPerPageOptions = [15, 50, 100, 300];
+  userTotalPages = 1;
+  eligibleUsersTotalElements = 0;
 
   @ViewChild('userGrid') userGridRef?: ElementRef<HTMLElement>;
 
@@ -132,6 +135,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly destroy$ = new Subject<void>();
+  private readonly userSearch$ = new Subject<string>();
   private static readonly TAB_STORAGE_KEY = 'dashboardGroupEditActiveTab';
   private allDashboardGroups: DashboardGroup[] = [];
   private currentGroupId?: string;
@@ -160,12 +164,26 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     });
 
     this.eligibleUsers$.pipe(takeUntil(this.destroy$)).subscribe(users => {
-      this.allEligibleUsers = users;
-      this.applyUserFilter();
+      this.paginatedUsers = users;
+      this.updateSelectAllUsersState();
+    });
+
+    this.store.select(selectEligibleUsersTotalElements).pipe(takeUntil(this.destroy$)).subscribe(total => {
+      this.eligibleUsersTotalElements = total;
+      this.userTotalPages = Math.max(1, Math.ceil(total / this.usersPerPage));
     });
 
     this.store.select(selectDashboardGroups).pipe(takeUntil(this.destroy$)).subscribe(groups => {
       this.allDashboardGroups = groups;
+    });
+
+    this.userSearch$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.userPage = 0;
+      this.loadEligibleUsersPage();
     });
   }
 
@@ -183,7 +201,11 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
             size: 1000,
             sort: 'name,asc'
           }));
-          this.store.dispatch(loadEligibleUsers({contextKey: this.currentContextKey}));
+          this.store.dispatch(loadEligibleUsers({
+            contextKey: this.currentContextKey,
+            page: this.userPage,
+            size: this.usersPerPage,
+          }));
 
           // Get domain name and create breadcrumbs - wait for domains to be loaded
           this.store.select(selectAllAvailableDataDomains).pipe(
@@ -297,8 +319,13 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   onUserSelectionChange(userId: string, checked: boolean, editedDashboardGroup: DashboardGroup) {
     if (checked) {
       this.selectedUserIds.add(userId);
+      const user = this.paginatedUsers.find(u => u.id === userId);
+      if (user) {
+        this.selectedUserDetailsMap.set(userId, user);
+      }
     } else {
       this.selectedUserIds.delete(userId);
+      this.selectedUserDetailsMap.delete(userId);
     }
     this.updateSelectAllUsersState();
     this.onChange(editedDashboardGroup);
@@ -307,9 +334,15 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   onSelectAllUsersChange(checked: boolean, editedDashboardGroup: DashboardGroup) {
     this.selectAllUsers = checked;
     if (checked) {
-      this.filteredUsers.forEach(u => this.selectedUserIds.add(u.id));
+      this.paginatedUsers.forEach(u => {
+        this.selectedUserIds.add(u.id);
+        this.selectedUserDetailsMap.set(u.id, u);
+      });
     } else {
-      this.filteredUsers.forEach(u => this.selectedUserIds.delete(u.id));
+      this.paginatedUsers.forEach(u => {
+        this.selectedUserIds.delete(u.id);
+        this.selectedUserDetailsMap.delete(u.id);
+      });
     }
     this.onChange(editedDashboardGroup);
   }
@@ -319,23 +352,13 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   }
 
   onUserSearchChange() {
-    this.applyUserFilter();
-    this.updateSelectAllUsersState();
-    this.userPage = 0;
-  }
-
-  get paginatedUsers(): DashboardGroupDomainUser[] {
-    const start = this.userPage * this.usersPerPage;
-    return this.filteredUsers.slice(start, start + this.usersPerPage);
-  }
-
-  get userTotalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredUsers.length / this.usersPerPage));
+    this.userSearch$.next(this.userSearchFilter);
   }
 
   prevUserPage() {
     if (this.userPage > 0) {
       this.userPage--;
+      this.loadEligibleUsersPage();
       this.animatePageTransition('-30px');
     }
   }
@@ -343,12 +366,25 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   nextUserPage() {
     if (this.userPage < this.userTotalPages - 1) {
       this.userPage++;
+      this.loadEligibleUsersPage();
       this.animatePageTransition('30px');
     }
   }
 
   onUsersPerPageChange(): void {
     this.userPage = 0;
+    this.loadEligibleUsersPage();
+  }
+
+  private loadEligibleUsersPage(): void {
+    if (!this.currentContextKey) return;
+    const search = this.userSearchFilter?.trim() || undefined;
+    this.store.dispatch(loadEligibleUsers({
+      contextKey: this.currentContextKey,
+      page: this.userPage,
+      size: this.usersPerPage,
+      search,
+    }));
   }
 
   private animatePageTransition(direction: string) {
@@ -361,23 +397,9 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     }
   }
 
-  private applyUserFilter() {
-    if (!this.userSearchFilter) {
-      this.filteredUsers = [...this.allEligibleUsers];
-    } else {
-      const searchTerm = this.userSearchFilter.toLowerCase();
-      this.filteredUsers = this.allEligibleUsers.filter(u =>
-        u.firstName.toLowerCase().includes(searchTerm) ||
-        u.lastName.toLowerCase().includes(searchTerm) ||
-        u.email.toLowerCase().includes(searchTerm) ||
-        u.roleName.toLowerCase().includes(searchTerm)
-      );
-    }
-  }
-
   private updateSelectAllUsersState() {
-    this.selectAllUsers = this.filteredUsers.length > 0 &&
-      this.filteredUsers.every(u => this.selectedUserIds.has(u.id));
+    this.selectAllUsers = this.paginatedUsers.length > 0 &&
+      this.paginatedUsers.every(u => this.selectedUserIds.has(u.id));
   }
 
   ngOnDestroy(): void {
@@ -420,6 +442,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   private initSelectedItems(dashboardGroup: DashboardGroup) {
     this.selectedDashboardIds.clear();
     this.selectedUserIds.clear();
+    this.selectedUserDetailsMap.clear();
 
     if (dashboardGroup.entries) {
       dashboardGroup.entries.forEach(entry => {
@@ -430,6 +453,13 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     if (dashboardGroup.users) {
       dashboardGroup.users.forEach(user => {
         this.selectedUserIds.add(user.id);
+        this.selectedUserDetailsMap.set(user.id, {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          roleName: user.roleName,
+        });
       });
     }
 
@@ -452,8 +482,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       .filter(d => this.selectedDashboardIds.has(d.id))
       .map(d => ({dashboardId: d.id, dashboardTitle: d.dashboardTitle}));
 
-    const users: DashboardGroupUserEntry[] = this.allEligibleUsers
-      .filter(u => this.selectedUserIds.has(u.id))
+    const users: DashboardGroupUserEntry[] = Array.from(this.selectedUserDetailsMap.values())
       .map(u => ({id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName, roleName: u.roleName}));
 
     return {

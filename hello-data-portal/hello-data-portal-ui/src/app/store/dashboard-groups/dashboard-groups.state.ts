@@ -34,6 +34,7 @@ export interface DashboardGroupsState {
   editedDashboardGroup: DashboardGroup | null;
   dashboardGroupForDeletion: DashboardGroup | null;
   eligibleUsers: DashboardGroupDomainUser[];
+  eligibleUsersTotalElements: number;
   activeContextKey: string | null;
 }
 
@@ -44,5 +45,6 @@ export const initialDashboardGroupsState: DashboardGroupsState = {
   editedDashboardGroup: null,
   dashboardGroupForDeletion: null,
   eligibleUsers: [],
+  eligibleUsersTotalElements: 0,
   activeContextKey: null
 };

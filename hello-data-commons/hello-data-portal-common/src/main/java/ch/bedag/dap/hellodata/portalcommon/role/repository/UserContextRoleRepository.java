@@ -29,6 +29,8 @@ package ch.bedag.dap.hellodata.portalcommon.role.repository;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -55,6 +57,39 @@ public interface UserContextRoleRepository extends JpaRepository<UserContextRole
     List<UserContextRoleEntity> findByContextKeyAndRoleNames(
             @Param("contextKey") String contextKey,
             @Param("roleNames") List<String> roleNames);
+
+    @Query(nativeQuery = true,
+           value = "SELECT ucr.* FROM user_context_role ucr " +
+                   "JOIN role r ON ucr.role_id = r.id " +
+                   "WHERE ucr.context_key = :contextKey AND r.name IN (:roleNames)",
+           countQuery = "SELECT COUNT(*) FROM user_context_role ucr " +
+                   "JOIN role r ON ucr.role_id = r.id " +
+                   "WHERE ucr.context_key = :contextKey AND r.name IN (:roleNames)")
+    Page<UserContextRoleEntity> findByContextKeyAndRoleNamesPaginated(
+            @Param("contextKey") String contextKey,
+            @Param("roleNames") List<String> roleNames,
+            Pageable pageable);
+
+    @Query(nativeQuery = true,
+           value = "SELECT ucr.* FROM user_context_role ucr " +
+                   "JOIN role r ON ucr.role_id = r.id " +
+                   "JOIN user_ u ON ucr.user_id = u.id " +
+                   "WHERE ucr.context_key = :contextKey AND r.name IN (:roleNames) " +
+                   "AND (LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+                   "OR LOWER(u.first_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+                   "OR LOWER(u.last_name) LIKE LOWER(CONCAT('%', :search, '%')))",
+           countQuery = "SELECT COUNT(*) FROM user_context_role ucr " +
+                   "JOIN role r ON ucr.role_id = r.id " +
+                   "JOIN user_ u ON ucr.user_id = u.id " +
+                   "WHERE ucr.context_key = :contextKey AND r.name IN (:roleNames) " +
+                   "AND (LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+                   "OR LOWER(u.first_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+                   "OR LOWER(u.last_name) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<UserContextRoleEntity> findByContextKeyAndRoleNamesWithSearchPaginated(
+            @Param("contextKey") String contextKey,
+            @Param("roleNames") List<String> roleNames,
+            @Param("search") String search,
+            Pageable pageable);
 
     @Query(nativeQuery = true,
            value = "SELECT r.name FROM user_context_role ucr " +

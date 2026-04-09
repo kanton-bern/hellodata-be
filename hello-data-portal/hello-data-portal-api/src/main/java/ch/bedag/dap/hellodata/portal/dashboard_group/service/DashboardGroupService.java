@@ -327,6 +327,23 @@ public class DashboardGroupService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<DashboardGroupDomainUserDto> getEligibleUsersForDomainPaginated(String contextKey, Pageable pageable, String search) {
+        Page<UserContextRoleEntity> userContextRolesPage;
+        if (search == null || search.isEmpty()) {
+            userContextRolesPage = userContextRoleRepository.findByContextKeyAndRoleNamesPaginated(contextKey, ELIGIBLE_ROLE_NAMES, pageable);
+        } else {
+            userContextRolesPage = userContextRoleRepository.findByContextKeyAndRoleNamesWithSearchPaginated(contextKey, ELIGIBLE_ROLE_NAMES, search, pageable);
+        }
+        return userContextRolesPage.map(ucr -> new DashboardGroupDomainUserDto(
+                ucr.getUser().getId().toString(),
+                ucr.getUser().getEmail(),
+                ucr.getUser().getFirstName(),
+                ucr.getUser().getLastName(),
+                ucr.getRole().getName().name()
+        ));
+    }
+
     /**
      * Removes a user from all dashboard groups in a specific data domain.
      * This should be called when a user's role changes to something other than

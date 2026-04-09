@@ -25,7 +25,16 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, inject, OnDestroy, ViewChild} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  inject,
+  OnDestroy,
+  ViewChild
+} from '@angular/core';
 import {NgTemplateOutlet} from '@angular/common';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
@@ -34,7 +43,7 @@ import {BaseComponent} from '../../../shared/components/base/base.component';
 import {createBreadcrumbs} from '../../../store/breadcrumb/breadcrumb.action';
 import {showSuccess} from '../../../store/app/app.action';
 import {naviElements} from '../../../app-navi-elements';
-import {Observable, of, Subject, take, takeUntil} from 'rxjs';
+import {debounceTime, distinctUntilChanged, Observable, of, Subject, take, takeUntil} from 'rxjs';
 import {selectAllAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.selector';
 import {selectProfile} from '../../../store/auth/auth.selector';
 import {loadAvailableDataDomains, loadMyDashboards} from '../../../store/my-dashboards/my-dashboards.action';
@@ -42,17 +51,16 @@ import {DataDomain} from '../../../store/my-dashboards/my-dashboards.model';
 import {
   BulkAssignmentRequest,
   BulkAssignmentResult,
-  BulkUserDetail,
   BulkDashboardInfo,
   BulkDomainAssignment,
+  BulkUserDetail,
   BUSINESS_DOMAIN_ADMIN_ROLE,
   BUSINESS_DOMAIN_CONTEXT_TYPE,
   DashboardGroupMembership,
   DATA_DOMAIN_CONTEXT_TYPE,
   HELLODATA_ADMIN_ROLE,
   NONE_ROLE,
-  User,
-  UserWithContextRolesDto
+  User
 } from '../../../store/users-management/users-management.model';
 import {UsersManagementService} from '../../../store/users-management/users-management.service';
 import {DashboardGroupsService} from '../../../store/dashboard-groups/dashboard-groups.service';
@@ -60,7 +68,7 @@ import {ConfirmationService} from 'primeng/api';
 import {TranslateService} from '../../../shared/services/translate.service';
 import {FormsModule} from '@angular/forms';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {Stepper, StepList, Step, StepPanels, StepPanel} from 'primeng/stepper';
+import {Step, StepList, StepPanel, StepPanels, Stepper} from 'primeng/stepper';
 import {Button} from 'primeng/button';
 import {Checkbox} from 'primeng/checkbox';
 import {Select} from 'primeng/select';
@@ -77,9 +85,9 @@ import {Carousel} from 'primeng/carousel';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import type {Content, TDocumentDefinitions} from 'pdfmake/interfaces';
+import {SupersetDashboardWithMetadata} from '../../../store/start-page/start-page.model';
 
 (pdfMake as any).vfs = (pdfFonts as any).vfs;
-import {SupersetDashboardWithMetadata} from '../../../store/start-page/start-page.model';
 
 interface DomainAssignmentConfig {
   roleName: string;
@@ -151,7 +159,6 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
   // Step 1 - Users
   allUsers: User[] = [];
-  eligibleUsers: User[] = [];
   filteredUsers: User[] = [];
   selectedUserIds = new Set<string>();
   userSelectedMap: Record<string, boolean> = {};
@@ -164,6 +171,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   userTooltipMap: Record<string, string> = {};
   rolesLoading = false;
   dataDomainRoleFilter = '';
+  totalServerElements = 0;
+  private readonly userSearch$ = new Subject<string>();
   readonly dataDomainRoleFilterOptions: RoleFilterOption[] = [
     {label: 'All', value: ''},
     {label: 'DATA_DOMAIN_ADMIN', value: 'DATA_DOMAIN_ADMIN'},
@@ -210,9 +219,19 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   constructor() {
     super();
     this.createBreadcrumbs();
-    this.loadUsers();
     this.store.dispatch(loadAvailableDataDomains());
     this.store.dispatch(loadMyDashboards());
+
+    this.userSearch$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.userPage = 0;
+      this.loadUsersPage();
+    });
+
+    this.loadUsersPage();
 
     this.store.select(selectAllAvailableDataDomains).pipe(
       takeUntil(this.destroy$)
@@ -263,13 +282,12 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
   // Step 1 - Users
   onUserSearchChange(): void {
-    this.userPage = 0;
-    this.applyUserFilter();
+    this.userSearch$.next(this.userSearchFilter);
   }
 
   onRoleFilterChange(): void {
     this.userPage = 0;
-    this.applyUserFilter();
+    this.applyRoleFilter();
   }
 
   getUserTooltip(userId: string): string {
@@ -303,15 +321,14 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   totalUserPages = 0;
 
   private updatePagination(): void {
-    this.totalUserPages = Math.ceil(this.filteredUsers.length / this.usersPerPage);
-    const start = this.userPage * this.usersPerPage;
-    this.paginatedUsers = this.filteredUsers.slice(start, start + this.usersPerPage);
+    this.totalUserPages = Math.ceil(this.totalServerElements / this.usersPerPage);
+    this.applyRoleFilter();
   }
 
   nextUserPage(): void {
     if (this.userPage < this.totalUserPages - 1) {
       this.userPage++;
-      this.updatePagination();
+      this.loadUsersPage();
       this.animatePageTransition('20px');
     }
   }
@@ -319,14 +336,14 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   prevUserPage(): void {
     if (this.userPage > 0) {
       this.userPage--;
-      this.updatePagination();
+      this.loadUsersPage();
       this.animatePageTransition('-20px');
     }
   }
 
   onUsersPerPageChange(): void {
     this.userPage = 0;
-    this.updatePagination();
+    this.loadUsersPage();
   }
 
   onUserSelectionChange(userId: string, checked: boolean): void {
@@ -345,9 +362,9 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
   onSelectAllUsersChange(checked: boolean): void {
     if (checked) {
-      this.filteredUsers.forEach(u => this.selectedUserIds.add(u.id));
+      this.paginatedUsers.forEach(u => this.selectedUserIds.add(u.id));
     } else {
-      this.filteredUsers.forEach(u => this.selectedUserIds.delete(u.id));
+      this.paginatedUsers.forEach(u => this.selectedUserIds.delete(u.id));
     }
     this.selectAllUsers = checked;
     this.rebuildUserSelectedMap();
@@ -607,13 +624,13 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
     const docDefinition: TDocumentDefinitions = {
       content,
-      defaultStyle: { fontSize: 10 },
+      defaultStyle: {fontSize: 10},
       styles: {
-        title: { fontSize: 18, bold: true, margin: [0, 0, 0, 4] },
-        subtitle: { fontSize: 9, color: '#787878', margin: [0, 0, 0, 10] },
-        sectionHeader: { fontSize: 13, bold: true, margin: [0, 10, 0, 6] },
-        subHeader: { fontSize: 12, bold: true, margin: [0, 8, 0, 4] },
-        bulletItem: { fontSize: 10, margin: [6, 1, 0, 1] },
+        title: {fontSize: 18, bold: true, margin: [0, 0, 0, 4]},
+        subtitle: {fontSize: 9, color: '#787878', margin: [0, 0, 0, 10]},
+        sectionHeader: {fontSize: 13, bold: true, margin: [0, 10, 0, 6]},
+        subHeader: {fontSize: 12, bold: true, margin: [0, 8, 0, 4]},
+        bulletItem: {fontSize: 10, margin: [6, 1, 0, 1]},
       },
     };
 
@@ -622,29 +639,42 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
   private pdfAddTitle(content: Content[], t: (k: string) => string,
                       profile: { email?: string; firstName?: string; lastName?: string } | null): void {
-    content.push({ text: t('@Bulk assignment result'), style: 'title' });
+    content.push({text: t('@Bulk assignment result'), style: 'title'});
     const performedBy = profile?.email
       ? `${profile.firstName || ''} ${profile.lastName || ''} (${profile.email})`.trim()
       : '';
-    content.push({ text: `${new Date().toLocaleString()}${performedBy ? '  •  ' + performedBy : ''}`, style: 'subtitle' });
+    content.push({
+      text: `${new Date().toLocaleString()}${performedBy ? '  •  ' + performedBy : ''}`,
+      style: 'subtitle'
+    });
   }
 
   private pdfAddSummary(content: Content[], t: (k: string) => string, result: BulkAssignmentResult): void {
-    content.push({ text: t('@Summary'), style: 'sectionHeader' });
-    content.push({ ul: [
-      `${t('@Users updated')}: ${result.updatedCount}`,
-      `${t('@Users skipped')}: ${result.skippedCount}`,
-      `${t('@Users failed')}: ${result.failedCount}`,
-    ], margin: [0, 0, 0, 6] } as Content);
+    content.push({text: t('@Summary'), style: 'sectionHeader'});
+    content.push({
+      ul: [
+        `${t('@Users updated')}: ${result.updatedCount}`,
+        `${t('@Users skipped')}: ${result.skippedCount}`,
+        `${t('@Users failed')}: ${result.failedCount}`,
+      ], margin: [0, 0, 0, 6]
+    } as Content);
   }
 
   private pdfAddUserDetailSections(content: Content[], t: (k: string) => string, result: BulkAssignmentResult): void {
     if (result.skippedUsers?.length > 0) {
-      content.push({ text: `${t('@Users skipped')} (${result.skippedUsers.length})`, style: 'subHeader', color: '#A16207' });
+      content.push({
+        text: `${t('@Users skipped')} (${result.skippedUsers.length})`,
+        style: 'subHeader',
+        color: '#A16207'
+      });
       this.pdfAddUserTable(content, t, result.skippedUsers);
     }
     if (result.failedUsers?.length > 0) {
-      content.push({ text: `${t('@Users failed')} (${result.failedUsers.length})`, style: 'subHeader', color: '#B41E1E' });
+      content.push({
+        text: `${t('@Users failed')} (${result.failedUsers.length})`,
+        style: 'subHeader',
+        color: '#B41E1E'
+      });
       this.pdfAddUserTable(content, t, result.failedUsers);
     }
   }
@@ -656,9 +686,9 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
         widths: ['auto', 'auto', '*'],
         body: [
           [
-            { text: t('@Name'), bold: true, color: '#646464' },
-            { text: t('@Email'), bold: true, color: '#646464' },
-            { text: t('@Reason'), bold: true, color: '#646464' },
+            {text: t('@Name'), bold: true, color: '#646464'},
+            {text: t('@Email'), bold: true, color: '#646464'},
+            {text: t('@Reason'), bold: true, color: '#646464'},
           ],
           ...users.map(u => [
             `${u.firstName} ${u.lastName}`,
@@ -674,7 +704,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   }
 
   private pdfAddSelectedUsers(content: Content[], t: (k: string) => string): void {
-    content.push({ text: `${t('@Selected users')} (${this.cachedSelectedUsers.length})`, style: 'sectionHeader' });
+    content.push({text: `${t('@Selected users')} (${this.cachedSelectedUsers.length})`, style: 'sectionHeader'});
     content.push({
       ul: this.cachedSelectedUsers.map(u => `${u.firstName} ${u.lastName} (${u.email})`),
       style: 'bulletItem',
@@ -684,8 +714,11 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
   private pdfAddDomainAssignments(content: Content[], t: (k: string) => string): void {
     for (const domain of this.cachedDomainSummary) {
-      content.push({ text: `${t('@Data domain')}: ${domain.name}`, style: 'sectionHeader' });
-      content.push({ text: `${t('@Role assignment')}: ${this.formatRoleName(domain.roleName)}`, margin: [6, 0, 0, 4] } as Content);
+      content.push({text: `${t('@Data domain')}: ${domain.name}`, style: 'sectionHeader'});
+      content.push({
+        text: `${t('@Role assignment')}: ${this.formatRoleName(domain.roleName)}`,
+        margin: [6, 0, 0, 4]
+      } as Content);
       this.pdfAddBulletList(content, `${t('@Dashboard groups')} (${domain.groupNames.length}):`, domain.groupNames);
       this.pdfAddBulletList(content, `${t('@Dashboards')} (${domain.dashboardNames.length}):`, domain.dashboardNames);
     }
@@ -693,8 +726,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
   private pdfAddBulletList(content: Content[], header: string, items: string[]): void {
     if (items.length === 0) return;
-    content.push({ text: header, bold: true, margin: [6, 4, 0, 2] } as Content);
-    content.push({ ul: items, style: 'bulletItem' } as Content);
+    content.push({text: header, bold: true, margin: [6, 4, 0, 2]} as Content);
+    content.push({ul: items, style: 'bulletItem'} as Content);
   }
 
   getDomainName(key: string): string {
@@ -760,14 +793,15 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     });
   }
 
-  private loadUsers(): void {
+  private loadUsersPage(): void {
     this.rolesLoading = true;
-    this.usersManagementService.getAllUsersWithContextRoles().pipe(
+    const search = this.userSearchFilter?.trim() || undefined;
+    this.usersManagementService.getAllUsersWithContextRolesPaginated(this.userPage, this.usersPerPage, search).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (usersWithRoles: UserWithContextRolesDto[]) => {
-        // Build allUsers from the bulk response
-        this.allUsers = usersWithRoles.map(u => ({
+      next: (response) => {
+        // Build allUsers from the page response
+        this.allUsers = response.content.map(u => ({
           id: u.id,
           firstName: u.firstName || '',
           lastName: u.lastName || '',
@@ -776,9 +810,9 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
           superuser: false,
         } as User));
 
-        // Build context roles map from the bulk response
+        // Build context roles map from the page response
         this.userContextRoles.clear();
-        for (const u of usersWithRoles) {
+        for (const u of response.content) {
           const roles: UserContextRoleInfo[] = [];
           if (u.businessDomainRole) {
             roles.push({
@@ -802,9 +836,10 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
         }
 
         this.buildTooltipCache();
-        this.eligibleUsers = this.allUsers.filter(u => !this.isUserExcluded(u.id));
+        this.totalServerElements = response.totalElements;
+        this.totalUserPages = Math.ceil(response.totalElements / this.usersPerPage);
         this.rolesLoading = false;
-        this.applyUserFilter();
+        this.applyRoleFilter();
         this.cdr.markForCheck();
       },
       error: () => {
@@ -831,17 +866,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     });
   }
 
-  private applyUserFilter(): void {
-    const searchTerm = this.userSearchFilter.toLowerCase();
-    let result = [...this.eligibleUsers];
-
-    if (searchTerm) {
-      result = result.filter(u =>
-        u.firstName.toLowerCase().includes(searchTerm) ||
-        u.lastName.toLowerCase().includes(searchTerm) ||
-        u.email.toLowerCase().includes(searchTerm)
-      );
-    }
+  private applyRoleFilter(): void {
+    let result = this.allUsers.filter(u => !this.isUserExcluded(u.id));
 
     if (this.dataDomainRoleFilter) {
       result = result.filter(u => {
@@ -855,13 +881,13 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     }
 
     this.filteredUsers = result;
-    this.updatePagination();
+    this.paginatedUsers = result;
     this.updateSelectAllUsersState();
   }
 
   private updateSelectAllUsersState(): void {
-    this.selectAllUsers = this.filteredUsers.length > 0 &&
-      this.filteredUsers.every(u => this.selectedUserIds.has(u.id));
+    this.selectAllUsers = this.paginatedUsers.length > 0 &&
+      this.paginatedUsers.every(u => this.selectedUserIds.has(u.id));
   }
 
   private updateSelectAllDomainsState(): void {

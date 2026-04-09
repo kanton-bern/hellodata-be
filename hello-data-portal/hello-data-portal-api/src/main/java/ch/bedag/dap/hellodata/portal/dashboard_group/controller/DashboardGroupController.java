@@ -35,11 +35,11 @@ import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupServi
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -67,9 +67,13 @@ public class DashboardGroupController {
     }
 
     @GetMapping("/eligible-users")
-    public ResponseEntity<List<DashboardGroupDomainUserDto>> getEligibleUsersForDomain(
-            @RequestParam String contextKey) {
-        List<DashboardGroupDomainUserDto> users = dashboardGroupService.getEligibleUsersForDomain(contextKey);
+    public ResponseEntity<Page<DashboardGroupDomainUserDto>> getEligibleUsersForDomain(
+            @RequestParam String contextKey,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String search) {
+        Pageable pageable = PageUtil.createPageable(page, size, null, "user_id", Sort.Direction.ASC);
+        Page<DashboardGroupDomainUserDto> users = dashboardGroupService.getEligibleUsersForDomainPaginated(contextKey, pageable, search);
         return ResponseEntity.ok(users);
     }
 

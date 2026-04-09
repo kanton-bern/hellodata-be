@@ -170,8 +170,22 @@ export class DashboardGroupsEffects {
   loadEligibleUsers$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadEligibleUsers),
-      switchMap(action => this._dashboardGroupsService.getEligibleUsersForDomain(action.contextKey)),
-      switchMap(result => scheduled([loadEligibleUsersSuccess({users: result})], asyncScheduler)),
+      switchMap(action => {
+        if (action.page !== undefined && action.size !== undefined) {
+          return this._dashboardGroupsService.getEligibleUsersForDomainPaginated(
+            action.contextKey, action.page, action.size, action.search
+          ).pipe(
+            switchMap(result => scheduled([
+              loadEligibleUsersSuccess({users: result.content, totalElements: result.totalElements})
+            ], asyncScheduler))
+          );
+        }
+        return this._dashboardGroupsService.getEligibleUsersForDomain(action.contextKey).pipe(
+          switchMap(result => scheduled([
+            loadEligibleUsersSuccess({users: result, totalElements: result.length})
+          ], asyncScheduler))
+        );
+      }),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     );
   });

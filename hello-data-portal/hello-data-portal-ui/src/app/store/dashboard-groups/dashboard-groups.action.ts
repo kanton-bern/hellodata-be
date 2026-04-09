@@ -103,11 +103,11 @@ export const setActiveContextKey = createAction(
 
 export const loadEligibleUsers = createAction(
   DashboardGroupsActionType.LOAD_ELIGIBLE_USERS,
-  props<{ contextKey: string }>()
+  props<{ contextKey: string; page?: number; size?: number; search?: string }>()
 );
 
 export const loadEligibleUsersSuccess = createAction(
   DashboardGroupsActionType.LOAD_ELIGIBLE_USERS_SUCCESS,
-  props<{ users: DashboardGroupDomainUser[] }>()
+  props<{ users: DashboardGroupDomainUser[]; totalElements: number }>()
 );
 

@@ -81,3 +81,8 @@ export const selectEligibleUsers = createSelector(
   (state: DashboardGroupsState) => state.eligibleUsers
 );
 
+export const selectEligibleUsersTotalElements = createSelector(
+  dashboardGroupsState,
+  (state: DashboardGroupsState) => state.eligibleUsersTotalElements
+);
+

@@ -187,6 +187,14 @@ export class UsersManagementService {
     return this.httpClient.get<UserWithContextRolesDto[]>(`${this.baseUsersUrl}/context-roles`);
   }
 
+  public getAllUsersWithContextRolesPaginated(page: number, size: number, search?: string): Observable<PaginatedResponse<UserWithContextRolesDto>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (search) {
+      params = params.set('search', search);
+    }
+    return this.httpClient.get<PaginatedResponse<UserWithContextRolesDto>>(`${this.baseUsersUrl}/context-roles`, {params});
+  }
+
   public updateUserRoles(
     data: any,
     contextDashboardsForUser: ContextDashboardsForUser[],
