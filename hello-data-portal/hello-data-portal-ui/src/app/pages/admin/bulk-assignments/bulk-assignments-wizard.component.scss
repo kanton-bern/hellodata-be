@@ -129,6 +129,10 @@
     min-width: 60px;
     text-align: center;
   }
+
+  :host ::ng-deep .users-per-page-select {
+    width: 5rem;
+  }
 }
 
 .no-data {

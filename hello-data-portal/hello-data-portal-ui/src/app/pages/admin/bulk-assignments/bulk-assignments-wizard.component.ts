@@ -158,7 +158,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   selectAllUsers = false;
   userSearchFilter = '';
   userPage = 0;
-  readonly usersPerPage = 15;
+  usersPerPage = 15;
+  readonly usersPerPageOptions = [15, 50, 100, 300];
   userContextRoles = new Map<string, UserContextRoleInfo[]>();
   userTooltipMap: Record<string, string> = {};
   rolesLoading = false;
@@ -321,6 +322,11 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       this.updatePagination();
       this.animatePageTransition('-20px');
     }
+  }
+
+  onUsersPerPageChange(): void {
+    this.userPage = 0;
+    this.updatePagination();
   }
 
   onUserSelectionChange(userId: string, checked: boolean): void {

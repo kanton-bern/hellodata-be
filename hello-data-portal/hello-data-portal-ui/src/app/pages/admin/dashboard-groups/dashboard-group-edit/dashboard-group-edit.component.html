@@ -175,6 +175,11 @@
                     <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary"
                               [disabled]="userPage >= userTotalPages - 1" (onClick)="nextUserPage()" pRipple
                               [attr.aria-label]="'Next page'"/>
+                    <p-select [options]="usersPerPageOptions"
+                              [(ngModel)]="usersPerPage"
+                              (ngModelChange)="onUsersPerPageChange()"
+                              appendTo="body"
+                              style="width: 5rem"/>
                   </div>
                 }
               }

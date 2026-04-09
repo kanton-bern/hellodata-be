@@ -81,6 +81,11 @@
                   <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true"
                             [disabled]="userPage >= totalUserPages - 1"
                             (onClick)="nextUserPage()"/>
+                  <p-select [options]="usersPerPageOptions"
+                            [(ngModel)]="usersPerPage"
+                            (ngModelChange)="onUsersPerPageChange()"
+                            appendTo="body"
+                            styleClass="users-per-page-select"/>
                 </div>
               }
               <div class="step-actions">

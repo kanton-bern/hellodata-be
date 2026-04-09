@@ -89,6 +89,7 @@ import {filter, take, takeUntil} from 'rxjs/operators';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {Card} from 'primeng/card';
+import {Select} from 'primeng/select';
 
 @Component({
   selector: 'app-dashboard-group-edit',
@@ -96,7 +97,7 @@ import {Card} from 'primeng/card';
   styleUrls: ['./dashboard-group-edit.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, Button, Toolbar, Tooltip, InputText, Divider,
     DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple,
-    Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, IconField, InputIcon, Card]
+    Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, IconField, InputIcon, Card, Select]
 })
 export class DashboardGroupEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedDashboardGroup$: Observable<DashboardGroup | null>;
@@ -119,6 +120,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
 
   userPage = 0;
   usersPerPage = 15;
+  readonly usersPerPageOptions = [15, 50, 100, 300];
 
   @ViewChild('userGrid') userGridRef?: ElementRef<HTMLElement>;
 
@@ -343,6 +345,10 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       this.userPage++;
       this.animatePageTransition('30px');
     }
+  }
+
+  onUsersPerPageChange(): void {
+    this.userPage = 0;
   }
 
   private animatePageTransition(direction: string) {
