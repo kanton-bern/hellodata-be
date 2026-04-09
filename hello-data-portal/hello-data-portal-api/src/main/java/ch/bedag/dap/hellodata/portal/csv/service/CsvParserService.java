@@ -119,11 +119,14 @@ public class CsvParserService {
         List<CsvUserRole> records = new ArrayList<>();
         boolean hasDashboardGroupColumn = false;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.Builder.create()
-                     .setDelimiter(CSV_DELIMITER)
-                     .setSkipHeaderRecord(false)
-                     .setTrim(true)
-                     .build())) {
+             CSVParser csvParser = CSVParser.builder()
+                     .setReader(reader)
+                     .setFormat(CSVFormat.Builder.create()
+                             .setDelimiter(CSV_DELIMITER)
+                             .setSkipHeaderRecord(false)
+                             .setTrim(true)
+                             .get())
+                     .get()) {
 
             for (CSVRecord csvRecord : csvParser) {
                 String[] headerNames = Arrays.stream(csvRecord.values())
@@ -167,6 +170,28 @@ public class CsvParserService {
         return Arrays.copyOf(array, end);
     }
 
+    private List<String> parseDashboardGroups(CSVRecord csvRecord, boolean hasDashboardGroupColumn, String email) {
+        if (hasDashboardGroupColumn && csvRecord.size() > 5) {
+            String dashboardGroupRaw = csvRecord.get(5);
+            return dashboardGroupRaw.isEmpty() ? List.of() : List.of(dashboardGroupRaw.split(ROLE_DELIMITER));
+        }
+        if (!hasDashboardGroupColumn && csvRecord.size() > 5) {
+            verifyNoUnexpectedExtraFields(csvRecord, email);
+        }
+        return List.of();
+    }
+
+    private void verifyNoUnexpectedExtraFields(CSVRecord csvRecord, String email) {
+        for (int i = 5; i < csvRecord.size(); i++) {
+            if (!csvRecord.get(i).trim().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Row for user '%s' contains data beyond the 'supersetRole' column, but the CSV header does not include '%s'. "
+                                .formatted(email, DASHBOARD_GROUP)
+                                + "Please add '%s' to the header: %s".formatted(DASHBOARD_GROUP, Arrays.toString(CSV_HEADERS_WITH_DASHBOARD_GROUP)));
+            }
+        }
+    }
+
     private String getFieldOrEmpty(CSVRecord csvRecord, int index) {
         return index < csvRecord.size() ? csvRecord.get(index) : "";
     }
@@ -175,10 +200,18 @@ public class CsvParserService {
         String email = getFieldOrEmpty(csvRecord, 0);
         verifyEmail(email);
         String businessDomainRole = getFieldOrEmpty(csvRecord, 1).toUpperCase(Locale.ROOT);
+        if (businessDomainRole.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "businessDomainRole is required but was empty for user '%s'".formatted(email));
+        }
         verifyRoleName(businessDomainRole, HdContextType.BUSINESS_DOMAIN);
         String context = getFieldOrEmpty(csvRecord, 2);
         verifyContext(context);
         String dataDomainRole = getFieldOrEmpty(csvRecord, 3).toUpperCase(Locale.ROOT);
+        if (dataDomainRole.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "dataDomainRole is required but was empty for user '%s' in context '%s'".formatted(email, context));
+        }
         verifyRoleName(dataDomainRole, HdContextType.DATA_DOMAIN);
         String supersetRoleRaw = getFieldOrEmpty(csvRecord, 4);
         log.debug("Superset Roles Raw: {}", supersetRoleRaw);
@@ -189,22 +222,7 @@ public class CsvParserService {
                 ? supersetRoles
                 : new ArrayList<>();
 
-        List<String> dashboardGroups = List.of();
-        if (hasDashboardGroupColumn && csvRecord.size() > 5) {
-            String dashboardGroupRaw = csvRecord.get(5);
-            dashboardGroups = dashboardGroupRaw.isEmpty() ? List.of() : List.of(dashboardGroupRaw.split(ROLE_DELIMITER));
-        } else if (!hasDashboardGroupColumn && csvRecord.size() > 5) {
-            // Check if there are non-empty extra fields beyond supersetRole – this likely means the user
-            // intended to specify dashboard groups but forgot the dashboardGroup header
-            for (int i = 5; i < csvRecord.size(); i++) {
-                if (!csvRecord.get(i).trim().isEmpty()) {
-                    throw new IllegalArgumentException(
-                            "Row for user '%s' contains data beyond the 'supersetRole' column, but the CSV header does not include '%s'. "
-                                    .formatted(email, DASHBOARD_GROUP)
-                                    + "Please add '%s' to the header: %s".formatted(DASHBOARD_GROUP, Arrays.toString(CSV_HEADERS_WITH_DASHBOARD_GROUP)));
-                }
-            }
-        }
+        List<String> dashboardGroups = parseDashboardGroups(csvRecord, hasDashboardGroupColumn, email);
 
         return new CsvUserRole(email, businessDomainRole, context, dataDomainRole, roles, dashboardGroups);
     }

@@ -3,6 +3,8 @@ package ch.bedag.dap.hellodata.portal.csv.service;
 import ch.bedag.dap.hellodata.portal.csv.data.CsvUserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 
@@ -296,16 +298,18 @@ class CsvParserServiceTest {
         assertTrue(user.dashboardGroups().isEmpty());
     }
 
-    @Test
-    void testParseCsvFile_should_throw_exception_on_empty_context() {
-        String csvContent = """
-                email;businessDomainRole;context;dataDomainRole;supersetRole
-                blaba@dana.com;NONE;;DATA_DOMAIN_ADMIN;
-                """;
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+            "blaba@dana.com;NONE;;DATA_DOMAIN_ADMIN;  | Context must not be empty",
+            "user@example.com;NONE;ctx-key;;           | dataDomainRole is required but was empty for user 'user@example.com' in context 'ctx-key'",
+            "user@example.com;;ctx-key;DATA_DOMAIN_ADMIN; | businessDomainRole is required but was empty for user 'user@example.com'"
+    })
+    void testParseCsvFile_should_throw_exception_on_empty_required_field(String csvRow, String expectedMessage) {
+        String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" + csvRow.trim() + "\n";
         InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 csvParserService.parseCsvFile(inputStream));
-        assertEquals("Context must not be empty", exception.getMessage());
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
