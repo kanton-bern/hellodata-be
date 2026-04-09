@@ -91,7 +91,7 @@ class DashboardGroupControllerTest extends HDControllerTest {
     @Test
     void getEligibleUsers_userLoggedInNoPrivileges() throws Exception {
         // given / when / then
-        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups/eligible-users?contextKey=testDomain")
+        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups/eligible-users?contextKey=testDomain&page=0&size=15")
                 .header("authorization", generateToken(new HashSet<>()))
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }
@@ -99,7 +99,7 @@ class DashboardGroupControllerTest extends HDControllerTest {
     @Test
     void getEligibleUsers_userLoggedInHasPrivileges() throws Exception {
         // given / when / then
-        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups/eligible-users?contextKey=testDomain")
+        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups/eligible-users?contextKey=testDomain&page=0&size=15")
                 .header("authorization", generateToken(Set.of("DASHBOARD_GROUPS_MANAGEMENT")))
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
