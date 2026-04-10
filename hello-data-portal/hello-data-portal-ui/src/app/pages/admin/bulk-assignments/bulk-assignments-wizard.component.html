@@ -47,9 +47,14 @@
                   [binary]="true"
                   [(ngModel)]="selectAllUsers"
                   (onChange)="onSelectAllUsersChange($event.checked)"/>
-                <label for="selectAllUsers">{{ '@Select all' | transloco }}</label>
+                <label for="selectAllUsers">{{ '@Select all on page' | transloco }}</label>
               </div>
-              <div class="user-grid" #userGrid>
+              <div class="user-grid relative">
+                @if (rolesLoading) {
+                  <div class="absolute inset-0 flex justify-center items-center bg-surface-0/70 z-10 rounded-border">
+                    <i class="pi pi-spin pi-spinner text-2xl text-color-secondary"></i>
+                  </div>
+                }
                 @for (user of paginatedUsers; track user.id) {
                   <div class="user-card" [class.selected]="userSelectedMap[user.id]"
                        [pTooltip]="userTooltipMap[user.id] || ''" tooltipPosition="top"
@@ -72,8 +77,8 @@
                   <div class="no-data">{{ '@No users available' | transloco }}</div>
                 }
               </div>
-              @if (totalUserPages > 1) {
-                <div class="pagination-bar">
+              <div class="pagination-bar">
+                @if (totalUserPages > 1) {
                   <p-button icon="pi pi-chevron-left" [text]="true" [rounded]="true"
                             [disabled]="userPage === 0"
                             (onClick)="prevUserPage()"/>
@@ -81,13 +86,13 @@
                   <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true"
                             [disabled]="userPage >= totalUserPages - 1"
                             (onClick)="nextUserPage()"/>
-                  <p-select [options]="usersPerPageOptions"
-                            [(ngModel)]="usersPerPage"
-                            (ngModelChange)="onUsersPerPageChange()"
-                            appendTo="body"
-                            styleClass="users-per-page-select"/>
-                </div>
-              }
+                }
+                <p-select [options]="usersPerPageOptions"
+                          [(ngModel)]="usersPerPage"
+                          (ngModelChange)="onUsersPerPageChange()"
+                          appendTo="body"
+                          styleClass="users-per-page-select"/>
+              </div>
               <div class="step-actions">
                 <p-button label="{{ '@Next' | transloco }}"
                           icon="pi pi-arrow-right" iconPos="right"

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subject, Subscription, tap, debounceTime, distinctUntilChanged} from 'rxjs';
 import {
   AbstractControl,
@@ -42,8 +42,6 @@ import {AppState} from '../../../../store/app/app.state';
 import {
   selectDashboardGroups,
   selectEditedDashboardGroup,
-  selectEligibleUsers,
-  selectEligibleUsersTotalElements
 } from '../../../../store/dashboard-groups/dashboard-groups.selector';
 import {
   DashboardGroup,
@@ -59,7 +57,6 @@ import {
   deleteDashboardGroup,
   loadDashboardGroupById,
   loadDashboardGroups,
-  loadEligibleUsers,
   openDashboardGroupEdition,
   saveChangesToDashboardGroup,
   setActiveContextKey,
@@ -91,6 +88,7 @@ import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {Card} from 'primeng/card';
 import {Select} from 'primeng/select';
+import {DashboardGroupsService} from '../../../../store/dashboard-groups/dashboard-groups.service';
 
 @Component({
   selector: 'app-dashboard-group-edit',
@@ -102,7 +100,6 @@ import {Select} from 'primeng/select';
 })
 export class DashboardGroupEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedDashboardGroup$: Observable<DashboardGroup | null>;
-  eligibleUsers$: Observable<DashboardGroupDomainUser[]>;
   allDashboards: SupersetDashboard[] = [];
   filteredDashboards: SupersetDashboard[] = [];
   paginatedUsers: DashboardGroupDomainUser[] = [];
@@ -121,11 +118,9 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
 
   userPage = 0;
   usersPerPage = 15;
-  readonly usersPerPageOptions = [15, 50, 100, 300];
+  readonly usersPerPageOptions = [15, 50, 100];
   userTotalPages = 1;
-  eligibleUsersTotalElements = 0;
-
-  @ViewChild('userGrid') userGridRef?: ElementRef<HTMLElement>;
+  usersLoading = false;
 
   currentContextKey = '';
   currentDomainName = '';
@@ -134,11 +129,14 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  private readonly dashboardGroupsService = inject(DashboardGroupsService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
   private readonly userSearch$ = new Subject<string>();
   private static readonly TAB_STORAGE_KEY = 'dashboardGroupEditActiveTab';
   private allDashboardGroups: DashboardGroup[] = [];
   private currentGroupId?: string;
+  private eligibleUsersInitialized = false;
   private formValueChangedSub?: Subscription;
 
   constructor() {
@@ -156,21 +154,10 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     }
 
     this.editedDashboardGroup$ = this.store.select(selectEditedDashboardGroup);
-    this.eligibleUsers$ = this.store.select(selectEligibleUsers);
 
     this.store.select(selectMyDashboards).pipe(takeUntil(this.destroy$)).subscribe(dashboards => {
       this.allDashboards = dashboards.filter(d => d.contextKey === this.currentContextKey);
       this.applyDashboardFilter();
-    });
-
-    this.eligibleUsers$.pipe(takeUntil(this.destroy$)).subscribe(users => {
-      this.paginatedUsers = users;
-      this.updateSelectAllUsersState();
-    });
-
-    this.store.select(selectEligibleUsersTotalElements).pipe(takeUntil(this.destroy$)).subscribe(total => {
-      this.eligibleUsersTotalElements = total;
-      this.userTotalPages = Math.max(1, Math.ceil(total / this.usersPerPage));
     });
 
     this.store.select(selectDashboardGroups).pipe(takeUntil(this.destroy$)).subscribe(groups => {
@@ -194,46 +181,46 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       tap((dashboardGroup) => {
         if (dashboardGroup) {
           this.currentContextKey = dashboardGroup.contextKey;
-          this.store.dispatch(setActiveContextKey({contextKey: this.currentContextKey}));
-          this.store.dispatch(loadDashboardGroups({
-            contextKey: this.currentContextKey,
-            page: 0,
-            size: 1000,
-            sort: 'name,asc'
-          }));
-          this.store.dispatch(loadEligibleUsers({
-            contextKey: this.currentContextKey,
-            page: this.userPage,
-            size: this.usersPerPage,
-          }));
 
-          // Get domain name and create breadcrumbs - wait for domains to be loaded
-          this.store.select(selectAllAvailableDataDomains).pipe(
-            filter(domains => domains.length > 0),
-            take(1)
-          ).subscribe(domains => {
-            const domain = domains.find(d => d.key === this.currentContextKey);
-            if (domain) {
-              this.currentDomainName = domain.name;
-            } else {
-              this.currentDomainName = this.currentContextKey;
-            }
-            // Create breadcrumbs after domain name is resolved
-            if (dashboardGroup.id) {
-              this.createEditBreadcrumbs(dashboardGroup.name);
-            } else {
-              this.createCreateBreadcrumbs();
-            }
-          });
+          if (!this.eligibleUsersInitialized) {
+            this.eligibleUsersInitialized = true;
+            this.store.dispatch(setActiveContextKey({contextKey: this.currentContextKey}));
+            this.store.dispatch(loadDashboardGroups({
+              contextKey: this.currentContextKey,
+              page: 0,
+              size: 1000,
+              sort: 'name,asc'
+            }));
+            this.loadEligibleUsersPage();
 
-          // Reload dashboards for this domain
-          this.store.select(selectMyDashboards).pipe(take(1)).subscribe(dashboards => {
-            this.allDashboards = dashboards.filter(d => d.contextKey === this.currentContextKey);
-            this.applyDashboardFilter();
-          });
+            // Get domain name and create breadcrumbs - wait for domains to be loaded
+            this.store.select(selectAllAvailableDataDomains).pipe(
+              filter(domains => domains.length > 0),
+              take(1)
+            ).subscribe(domains => {
+              const domain = domains.find(d => d.key === this.currentContextKey);
+              if (domain) {
+                this.currentDomainName = domain.name;
+              } else {
+                this.currentDomainName = this.currentContextKey;
+              }
+              // Create breadcrumbs after domain name is resolved
+              if (dashboardGroup.id) {
+                this.createEditBreadcrumbs(dashboardGroup.name);
+              } else {
+                this.createCreateBreadcrumbs();
+              }
+            });
 
-          this.initForm(dashboardGroup);
-          this.initSelectedItems(dashboardGroup);
+            // Reload dashboards for this domain
+            this.store.select(selectMyDashboards).pipe(take(1)).subscribe(dashboards => {
+              this.allDashboards = dashboards.filter(d => d.contextKey === this.currentContextKey);
+              this.applyDashboardFilter();
+            });
+
+            this.initForm(dashboardGroup);
+            this.initSelectedItems(dashboardGroup);
+          }
         }
       })
     );
@@ -359,7 +346,6 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     if (this.userPage > 0) {
       this.userPage--;
       this.loadEligibleUsersPage();
-      this.animatePageTransition('-30px');
     }
   }
 
@@ -367,7 +353,6 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     if (this.userPage < this.userTotalPages - 1) {
       this.userPage++;
       this.loadEligibleUsersPage();
-      this.animatePageTransition('30px');
     }
   }
 
@@ -378,23 +363,25 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
 
   private loadEligibleUsersPage(): void {
     if (!this.currentContextKey) return;
+    this.usersLoading = true;
     const search = this.userSearchFilter?.trim() || undefined;
-    this.store.dispatch(loadEligibleUsers({
-      contextKey: this.currentContextKey,
-      page: this.userPage,
-      size: this.usersPerPage,
-      search,
-    }));
-  }
-
-  private animatePageTransition(direction: string) {
-    const el = this.userGridRef?.nativeElement;
-    if (el) {
-      el.animate([
-        {opacity: 0, transform: `translateX(${direction})`},
-        {opacity: 1, transform: 'translateX(0)'}
-      ], {duration: 200, easing: 'ease-out'});
-    }
+    this.dashboardGroupsService.getEligibleUsersForDomainPaginated(
+      this.currentContextKey, this.userPage, this.usersPerPage, search
+    ).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        this.paginatedUsers = response.content;
+        this.userTotalPages = Math.max(1, Math.ceil(response.totalElements / this.usersPerPage));
+        this.usersLoading = false;
+        this.updateSelectAllUsersState();
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.usersLoading = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   private updateSelectAllUsersState() {

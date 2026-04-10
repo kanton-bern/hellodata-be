@@ -134,7 +134,7 @@
                 <p-checkbox [(ngModel)]="selectAllUsers" [ngModelOptions]="{standalone: true}"
                             (ngModelChange)="onSelectAllUsersChange($event, editedDashboardGroup)"
                             [binary]="true" inputId="selectAllUsers"/>
-                <label for="selectAllUsers">{{ '@Select all' | transloco }}</label>
+                <label for="selectAllUsers">{{ '@Select all on page' | transloco }}</label>
               </div>
               <p-iconfield>
                 <p-inputicon class="pi pi-search"/>
@@ -144,12 +144,17 @@
                        placeholder="{{ '@Search users' | transloco }}" type="text"/>
               </p-iconfield>
             </div>
-            <div class="user-list border border-surface rounded-border p-2">
-              @if (paginatedUsers.length === 0) {
+            <div class="user-list border border-surface rounded-border p-2 relative">
+              @if (usersLoading) {
+                <div class="absolute inset-0 flex justify-center items-center bg-surface-0/70 z-10 rounded-border">
+                  <i class="pi pi-spin pi-spinner text-2xl text-color-secondary"></i>
+                </div>
+              }
+              @if (paginatedUsers.length === 0 && !usersLoading) {
                 <div class="text-gray-400 p-4 text-center text-sm">{{ '@No users available' | transloco }}</div>
               } @else {
                 <div class="user-page-container">
-                  <div #userGrid class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
                     @for (user of paginatedUsers; track user.id) {
                       <div class="flex items-start gap-2 p-1 hover:bg-surface-100 rounded-border">
                         <p-checkbox class="mt-0.5" [ngModel]="isUserSelected(user.id)"
@@ -166,8 +171,8 @@
                     }
                   </div>
                 </div>
-                @if (userTotalPages > 1) {
-                  <div class="flex items-center justify-center gap-3 mt-3 pt-2 border-t border-surface">
+                <div class="flex items-center justify-center gap-3 mt-3 pt-2 border-t border-surface">
+                  @if (userTotalPages > 1) {
                     <p-button icon="pi pi-chevron-left" [text]="true" [rounded]="true" severity="secondary"
                               [disabled]="userPage === 0" (onClick)="prevUserPage()" pRipple
                               [attr.aria-label]="'Previous page'"/>
@@ -175,13 +180,14 @@
                     <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary"
                               [disabled]="userPage >= userTotalPages - 1" (onClick)="nextUserPage()" pRipple
                               [attr.aria-label]="'Next page'"/>
-                    <p-select [options]="usersPerPageOptions"
-                              [(ngModel)]="usersPerPage"
-                              (ngModelChange)="onUsersPerPageChange()"
-                              appendTo="body"
-                              style="width: 5rem"/>
-                  </div>
-                }
+                  }
+                  <p-select [options]="usersPerPageOptions"
+                            [(ngModel)]="usersPerPage"
+                            [ngModelOptions]="{standalone: true}"
+                            (ngModelChange)="onUsersPerPageChange()"
+                            appendTo="body"
+                            style="width: 5.5rem"/>
+                </div>
               }
             </div>
           </p-tabpanel>

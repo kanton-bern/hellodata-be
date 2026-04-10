@@ -66,12 +66,13 @@ export class DashboardGroupsEffects {
   loadDashboardGroups$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadDashboardGroups),
-      switchMap(action => this._dashboardGroupsService.getDashboardGroups(action.contextKey, action.page, action.size, action.sort, action.search)),
-      switchMap(result => scheduled([loadDashboardGroupsSuccess({
-        payload: result.content,
-        totalElements: result.totalElements
-      })], asyncScheduler)),
-      catchError(e => scheduled([showError({error: e})], asyncScheduler))
+      switchMap(action => this._dashboardGroupsService.getDashboardGroups(action.contextKey, action.page, action.size, action.sort, action.search).pipe(
+        switchMap(result => scheduled([loadDashboardGroupsSuccess({
+          payload: result.content,
+          totalElements: result.totalElements
+        })], asyncScheduler)),
+        catchError(e => scheduled([showError({error: e})], asyncScheduler))
+      ))
     );
   });
 
@@ -94,9 +95,10 @@ export class DashboardGroupsEffects {
     return this._actions$.pipe(
       ofType(loadDashboardGroupById),
       withLatestFrom(this._store.select(selectParamDashboardGroupId)),
-      switchMap(([action, groupId]) => this._dashboardGroupsService.getDashboardGroupById(groupId as string)),
-      switchMap(result => scheduled([loadDashboardGroupByIdSuccess({dashboardGroup: result})], asyncScheduler)),
-      catchError(e => scheduled([showError({error: e})], asyncScheduler))
+      switchMap(([action, groupId]) => this._dashboardGroupsService.getDashboardGroupById(groupId as string).pipe(
+        switchMap(result => scheduled([loadDashboardGroupByIdSuccess({dashboardGroup: result})], asyncScheduler)),
+        catchError(e => scheduled([showError({error: e})], asyncScheduler))
+      ))
     );
   });
 
@@ -104,7 +106,7 @@ export class DashboardGroupsEffects {
     return this._actions$.pipe(
       ofType(saveChangesToDashboardGroup),
       switchMap(action => {
-        return action.dashboardGroup.id
+        const save$ = action.dashboardGroup.id
           ? this._dashboardGroupsService.updateDashboardGroup(action.dashboardGroup).pipe(
             tap(() => this._notificationService.success('@Dashboard group updated successfully')),
             map(() => saveChangesToDashboardGroupSuccess({}))
@@ -116,8 +118,10 @@ export class DashboardGroupsEffects {
               contextKey: action.dashboardGroup.contextKey
             }))
           );
-      }),
-      catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        return save$.pipe(
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
     );
   });
 
@@ -177,16 +181,17 @@ export class DashboardGroupsEffects {
           ).pipe(
             switchMap(result => scheduled([
               loadEligibleUsersSuccess({users: result.content, totalElements: result.totalElements})
-            ], asyncScheduler))
+            ], asyncScheduler)),
+            catchError(e => scheduled([showError({error: e})], asyncScheduler))
           );
         }
         return this._dashboardGroupsService.getEligibleUsersForDomain(action.contextKey).pipe(
           switchMap(result => scheduled([
             loadEligibleUsersSuccess({users: result, totalElements: result.length})
-          ], asyncScheduler))
+          ], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
-      }),
-      catchError(e => scheduled([showError({error: e})], asyncScheduler))
+      })
     );
   });
 }

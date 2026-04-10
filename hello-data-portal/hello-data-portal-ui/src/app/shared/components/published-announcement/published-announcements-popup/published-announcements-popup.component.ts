@@ -19,7 +19,7 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
 @Component({
   template: `
     <div class="flex items-center justify-end gap-2 px-1 pt-2 pb-3">
-      <p-checkbox [binary]="true" inputId="dont-show-again" [(ngModel)]="dontShowAgain"></p-checkbox>
+      <p-checkbox [binary]="true" inputId="dont-show-again" [(ngModel)]="dontShowAgain" [ngModelOptions]="{standalone: true}"></p-checkbox>
       <label for="dont-show-again" class="cursor-pointer select-none">{{ '@Do not show again' | transloco }}</label>
     </div>
     <p-divider styleClass="mt-0"/>
@@ -34,6 +34,7 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
                 </div>
                 <div class="p-toolbar-group-center" style="width: 65%">
                   <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)"
+                            [ngModelOptions]="{standalone: true}"
                             [disabled]="true"
                             [readonly]="true" class="p-editor-readonly"
                             [style]="{width: '100%'}">

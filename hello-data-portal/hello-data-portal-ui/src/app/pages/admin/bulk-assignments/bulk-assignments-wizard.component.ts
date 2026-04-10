@@ -29,11 +29,9 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
   HostListener,
   inject,
   OnDestroy,
-  ViewChild
 } from '@angular/core';
 import {NgTemplateOutlet} from '@angular/common';
 import {Router} from '@angular/router';
@@ -153,8 +151,6 @@ const EXCLUDED_BUSINESS_ROLES = new Set([HELLODATA_ADMIN_ROLE, BUSINESS_DOMAIN_A
   ]
 })
 export class BulkAssignmentsWizardComponent extends BaseComponent implements OnDestroy {
-  @ViewChild('userGrid') userGridRef?: ElementRef;
-
   activeStep = 1;
 
   // Step 1 - Users
@@ -166,7 +162,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   userSearchFilter = '';
   userPage = 0;
   usersPerPage = 15;
-  readonly usersPerPageOptions = [15, 50, 100, 300];
+  readonly usersPerPageOptions = [15, 50, 100];
   userContextRoles = new Map<string, UserContextRoleInfo[]>();
   userTooltipMap: Record<string, string> = {};
   rolesLoading = false;
@@ -329,7 +325,6 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     if (this.userPage < this.totalUserPages - 1) {
       this.userPage++;
       this.loadUsersPage();
-      this.animatePageTransition('20px');
     }
   }
 
@@ -337,7 +332,6 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     if (this.userPage > 0) {
       this.userPage--;
       this.loadUsersPage();
-      this.animatePageTransition('-20px');
     }
   }
 
@@ -893,16 +887,6 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   private updateSelectAllDomainsState(): void {
     this.selectAllDomains = this.allDataDomains.length > 0 &&
       this.allDataDomains.every(d => this.selectedDomainKeys.has(d.key));
-  }
-
-  private animatePageTransition(direction: string): void {
-    const el = this.userGridRef?.nativeElement;
-    if (el) {
-      el.animate([
-        {opacity: 0, transform: `translateX(${direction})`},
-        {opacity: 1, transform: 'translateX(0)'}
-      ], {duration: 200, easing: 'ease-out'});
-    }
   }
 
   private createBreadcrumbs(): void {
