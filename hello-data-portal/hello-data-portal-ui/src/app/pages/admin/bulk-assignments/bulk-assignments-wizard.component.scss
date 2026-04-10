@@ -434,6 +434,42 @@
   max-width: none;
 }
 
+.flow-user-list {
+  max-height: 12rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.flow-user-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background: var(--p-surface-50);
+
+  &:hover {
+    background: var(--p-surface-100);
+  }
+}
+
+.flow-user-name {
+  font-weight: 500;
+  color: var(--p-surface-800);
+  white-space: nowrap;
+}
+
+.flow-user-email {
+  color: var(--p-surface-500);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dashboard-chip {
   background: var(--p-blue-50, #eff6ff);
   color: var(--p-blue-700, #1d4ed8);

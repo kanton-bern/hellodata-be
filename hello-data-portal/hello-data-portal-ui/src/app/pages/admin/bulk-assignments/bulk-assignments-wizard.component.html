@@ -267,13 +267,16 @@
 
               <div class="summary-section">
                 <!-- Users shown once at top -->
-                <div class="summary-flow-item users-block" [class.users-block-wide]="cachedSelectedUsers.length > 5">
+                <div class="summary-flow-item users-block" [class.users-block-wide]="cachedSelectedUsers.length > 3">
                   <div class="flow-title"><i class="fas fa-users"></i> {{ '@Selected users' | transloco }}
                     ({{ selectedUserIds.size }})
                   </div>
-                  <div class="flow-chips">
+                  <div class="flow-user-list">
                     @for (user of cachedSelectedUsers; track user.id) {
-                      <span class="flow-chip user-chip">{{ user.firstName }} {{ user.lastName }}</span>
+                      <div class="flow-user-entry">
+                        <span class="flow-user-name">{{ user.firstName }} {{ user.lastName }}</span>
+                        <span class="flow-user-email">{{ user.email }}</span>
+                      </div>
                     }
                   </div>
                 </div>
