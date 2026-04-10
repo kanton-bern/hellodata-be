@@ -89,7 +89,7 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
         log.debug("[NATS connection check] Sending request to subjectBase: {}", subject);
         Message reply;
         try {
-            reply = natsConnection.request(subjectBase64, subject.getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(10));
+            reply = natsConnection.request(subjectBase64, subject.getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(1));
         } catch (Exception exception) {
             if (exception instanceof InterruptedException) {
                 log.error("[NATS connection check] Could not connect to NATS", exception);
