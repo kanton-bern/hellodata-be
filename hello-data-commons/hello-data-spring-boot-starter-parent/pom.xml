@@ -40,14 +40,14 @@
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.x targets Boot 4.0.x -->
         <spring-cloud.version>2025.1.0</spring-cloud.version>
         <spring-ws-test.version>5.0.1</spring-ws-test.version>
-        <springdoc.version>3.0.2</springdoc.version>
+        <springdoc.version>3.0.3</springdoc.version>
         <testcontainers-keycloak.version>4.2.0</testcontainers-keycloak.version>
         <testcontainers.version>2.0.4</testcontainers.version>
         <docker-java.version>3.7.0</docker-java.version>
         <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
         <thymeleaf-layout-dialect.version>4.0.1</thymeleaf-layout-dialect.version>
         <thymeleaf-spring4.version>3.0.15.RELEASE</thymeleaf-spring4.version>
-        <thymeleaf.version>3.1.3.RELEASE</thymeleaf.version>
+        <thymeleaf.version>3.1.4.RELEASE</thymeleaf.version>
     </properties>
 
     <dependencyManagement>
