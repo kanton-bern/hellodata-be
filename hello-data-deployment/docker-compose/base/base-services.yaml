@@ -449,11 +449,11 @@ services:
     ports:
       - 8086:8086
     restart: always
-    #    healthcheck:
-    #      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health/liveness" ]
-    #      interval: 30s
-    #      timeout: 10s
-    #      retries: 5
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health/liveness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
@@ -480,13 +480,8 @@ services:
       keycloak:
         condition: service_healthy
       hello-data-dbt-docs:
-        condition: service_started
+        condition: service_healthy
     restart: always
-    #    healthcheck:
-    #      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health/liveness" ]
-    #      interval: 30s
-    #      timeout: 10s
-    #      retries: 5
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
