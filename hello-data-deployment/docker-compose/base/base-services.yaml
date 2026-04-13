@@ -380,7 +380,7 @@ services:
     extra_hosts:
       - "keycloak.localhost:host-gateway"
     healthcheck:
-      test: [ "CMD-SHELL", "perl -e 'use IO::Socket::INET; my $s = IO::Socket::INET->new(PeerAddr => \"localhost\", PeerPort => 8080, Timeout => 5) or exit 1;'" ]
+      test: ["CMD", "perl", "-MIO::Socket::INET", "-e", "exit(! IO::Socket::INET->new('localhost:8080'))"]
       interval: 30s
       timeout: 10s
       retries: 5
