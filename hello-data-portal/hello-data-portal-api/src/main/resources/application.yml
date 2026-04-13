@@ -140,8 +140,8 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 200MB
-      max-request-size: 200MB
+      max-file-size: 5GB
+      max-request-size: 5GB
 #  logging:
 #    level:
 #      org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: WARN # Auf INFO werden hier sehr viele Informationen gelogged.
@@ -185,13 +185,6 @@ management:
   endpoint:
     health:
       access: read_only
-      probes:
-        enabled: true
-      group:
-        readiness:
-          include: db, nats, ldap, readinessState
-        liveness:
-          include: livenessState
     info:
       access: read_only
     prometheus:
