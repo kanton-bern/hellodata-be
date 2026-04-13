@@ -142,7 +142,7 @@ services:
       - HELLO_DATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://postgres:5432/hellodata_product_development_default_data_domain_dwh
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:35432/hd_metainfo
       - NATS_SPRING_SERVER=nats://nats:4222
-      - HELLO_DATA_INSTANCE_URL=http://localhost:8002/
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8000/
       - HELLO_DATA_INSTANCE_NAME=Jupyterhub Default Data Domain
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
