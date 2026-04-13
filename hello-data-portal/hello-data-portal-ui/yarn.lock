@@ -2828,11 +2828,11 @@ __metadata:
   linkType: hard
 
 "@hono/node-server@npm:^1.19.10":
-  version: 1.19.13
-  resolution: "@hono/node-server@npm:1.19.13"
+  version: 1.19.14
+  resolution: "@hono/node-server@npm:1.19.14"
   peerDependencies:
     hono: ^4
-  checksum: 10c0/e6a13a4831acd6ad2d80f20e9921b9a4207a3c18d78f457647ed102581bd5bbbd3464903b89544a88e5571e470badf105d9ef5c4657a7c2f47f5d0a7beafe51d
+  checksum: 10c0/41a099bb3705d96aac44b7a8db8805f2a22ce8a0f767a27b6d10b74a9964925df01c5f35d3631e882f8bcdeee3518884c30f40588ac8c960d88bf71048ba0df3
   languageName: node
   linkType: hard
 
@@ -9906,8 +9906,8 @@ __metadata:
   linkType: hard
 
 "jest-preset-angular@npm:^16.0.0":
-  version: 16.1.2
-  resolution: "jest-preset-angular@npm:16.1.2"
+  version: 16.1.4
+  resolution: "jest-preset-angular@npm:16.1.4"
   dependencies:
     "@jest/environment-jsdom-abstract": "npm:^30.0.0"
     bs-logger: "npm:^0.2.6"
@@ -9927,7 +9927,7 @@ __metadata:
   dependenciesMeta:
     esbuild:
       optional: true
-  checksum: 10c0/233acd3e507a9d7e882fd9c82c2759548785bb3c7fc767acd40ef68bb21c2a7d5208888a657981bfdd2cc232c1cfeededf5e6d661e13bd05d40ed78a71a803bf
+  checksum: 10c0/4a1438f2d36786d3e1e24a070d83a477de23741047f6f50fbd1395ded35f9b1c0fdb3a9c55115c24bea09695fb474e2aed92d5bf5c66ab71e58e7354865567d6
   languageName: node
   linkType: hard
 
@@ -13926,9 +13926,9 @@ __metadata:
   linkType: hard
 
 "undici@npm:^7.24.0":
-  version: 7.24.7
-  resolution: "undici@npm:7.24.7"
-  checksum: 10c0/779c67e81677324763ea00ea547ba74757472ebe2625d046d592434ee19d9d148fe0eaef7006c0185096614249ac0f179e7f559b202b518af8d587e9548559b6
+  version: 7.24.8
+  resolution: "undici@npm:7.24.8"
+  checksum: 10c0/5b3cb18b1c6ccff564c37390547b2f137c666ada5083af6d5b5671dc12f73530ae2872e16fab1e3948b46013fed7c81ed10bce23f7dbf21b73794244b70b7eea
   languageName: node
   linkType: hard
 
@@ -14346,8 +14346,8 @@ __metadata:
   linkType: hard
 
 "webpack@npm:^5.104.1":
-  version: 5.106.0
-  resolution: "webpack@npm:5.106.0"
+  version: 5.106.1
+  resolution: "webpack@npm:5.106.1"
   dependencies:
     "@types/eslint-scope": "npm:^3.7.7"
     "@types/estree": "npm:^1.0.8"
@@ -14379,7 +14379,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 10c0/6ae5889438c3138691abbc030162fa4112968c01ccc6c8bb5e215d37c290d999eb47479212897590d9b1391985d928b90599c0aade0531bffa0bcc11e5565c08
+  checksum: 10c0/eb56ba99564e185c83fb8d898253c0e6b91fcfcab54e3716bc6bc4df2636511686edb79073313ad9394b757c912b9489e28c7a5bd33d4d386d3103ba9608ca47
   languageName: node
   linkType: hard
 
