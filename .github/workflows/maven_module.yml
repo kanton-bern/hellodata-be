@@ -39,6 +39,14 @@ on:
           - hello-data-subsystems/hello-data-monitoring-storage
           - hello-data-subsystems/hello-data-cleanup-logs
           - hello-data-subsystems/hello-data-jupyterhub-gateway
+          # Deployment
+          - hello-data-deployment/hello-data-dc-cloudbeaver
+          - hello-data-deployment/hello-data-dc-keycloak
+          - hello-data-deployment/hello-data-dc-portal
+          - hello-data-deployment/hello-data-dc-postgres
+          - hello-data-deployment/hello-data-dc-airflow
+          - hello-data-deployment/hello-data-dc-superset
+          - hello-data-deployment/hello-data-showcase
 
 jobs:
 
