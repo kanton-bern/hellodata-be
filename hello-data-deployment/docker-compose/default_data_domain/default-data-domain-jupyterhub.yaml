@@ -112,6 +112,26 @@ services:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
 
+  hd-package-proxy-default-data-domain:
+    build:
+      context: ./base/jupyterhub
+      dockerfile: Dockerfile.package_proxy
+    container_name: hd-package-proxy-default-data-domain
+    restart: always
+    ports:
+      - "8888:8888"
+    volumes:
+      - "./base/jupyterhub/allowlist.yaml:/app/allowlist.yaml:ro"
+    environment:
+      - UPSTREAM_INDEX=https://pypi.org/simple/
+      - LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8888/healthz')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   hello-data-jupyterhub-gateway-default-data-domain:
     image: bedag/hello-data-jupyterhub-gateway
     profiles:

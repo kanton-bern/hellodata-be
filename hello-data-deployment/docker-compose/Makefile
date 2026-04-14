@@ -27,7 +27,7 @@ start-airflow:
 	docker-compose up -d --build airflow-webserver airflow-scheduler airflow-worker airflow-triggerer airflow-init flower hello-data-airflow-sidecar
 
 start-jupyterhub: start-portal
-	docker-compose up -d --build hello-data-sidecar-jupyterhub-default-data-domain jupyterhub-notebook-default-data-domain jupyterhub-proxy-default-data-domain jupyterhub-default-data-domain
+	docker-compose up -d --build hd-package-proxy-default-data-domain hello-data-sidecar-jupyterhub-default-data-domain jupyterhub-notebook-default-data-domain jupyterhub-proxy-default-data-domain jupyterhub-default-data-domain
 
 stop-all:
 	docker-compose down --volumes --remove-orphans
