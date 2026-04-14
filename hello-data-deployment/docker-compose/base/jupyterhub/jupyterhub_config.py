@@ -114,10 +114,7 @@ engine = create_engine(db_conn_url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 c.DockerSpawner.environment = {
-    "API_URL": os.environ['SIDECAR_API_URL'],
-    # Package allowlist proxy — all pip installs go through this proxy
-    "PIP_INDEX_URL": os.environ.get('PACKAGE_PROXY_URL', 'http://hd-package-proxy-default-data-domain:8888/simple/'),
-    "PIP_TRUSTED_HOST": os.environ.get('PACKAGE_PROXY_HOST', 'hd-package-proxy-default-data-domain'),
+    "API_URL": os.environ['SIDECAR_API_URL']
 }
 
 class HelloDataBearerTokenAuthenticator(GenericOAuthenticator):
