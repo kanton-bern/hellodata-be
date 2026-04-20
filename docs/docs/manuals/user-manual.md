@@ -124,13 +124,28 @@ the latest runs and their status (successful, failed, etc.).
 To unlock the full power of airflow on kubernetes, you will need to run your jobs in containers on the cluster.
 To make this a bit easier, we provide a (preinstalled helper library)[https://github.com/bedag/hellodata-be-airflow-pod-operator-params] for you to use.
 
-###### Library description
+The `get_pod_operator_params` function generates parameters for Airflow's Kubernetes Pod Operator.
+It creates a configuration dictionary with namespace, image settings, resource requests/limits,
+secrets, configmaps, startup timeout, and environment variables.
 
-The helper library consists mainly of a function, that returns properly formatted parameters to use with (airflows kubernetes pod operator)[https://airflow.apache.org/docs/apache-airflow/1.10.10/_api/airflow/contrib/operators/kubernetes_pod_operator/index.html].
-It is named `hellodata_be_airflow_pod_operator_params` and can be imported with `import hellodata_be_airflow_pod_operator_params`.
-The two public objects are the function `get_pod_operator_params` and the class `EphemeralVolume`.
+###### Function Signature
 
-Call the function `get_pod_operator_params` to get a dictionary with parameters to be passed to `kubernetes_pod_operator`.
+```python
+def get_pod_operator_params(
+    image: str,
+    namespace: str = "default",
+    image_pull_secrets: Optional[List[str]] = None,
+    secrets: Optional[List[str]] = None,
+    configmaps: Optional[List[str]] = None,
+    cpus: float = 1.0,
+    memory_in_Gi: float = 1.0,
+    storage_in_Gi: float = 1.0,
+    startup_timeout_in_seconds: int = 2 * 60,
+    env_vars: Optional[Dict[str, str]] = None,
+) -> Dict[str, Any]:
+```
+
+**Parameters**
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
@@ -141,77 +156,83 @@ Call the function `get_pod_operator_params` to get a dictionary with parameters 
 | `configmaps` | `Optional[List[str]]` | `false` | `None` | List of Kubernetes configmap names to mount in the pod as environment variables |
 | `cpus` | `float` | `false` | `1.0` | Number of CPU cores to allocate to the pod |
 | `memory_in_Gi` | `float` | `false` | `1.0` | Amount of memory in GiB to allocate to the pod |
-| `local_ephemeral_storage_in_Gi` | `float` | `false` | `1.0` | Amount of local ephemeral storage in GiB to allocate to the pod |
+| `storage_in_Gi` | `float` | `false` | `1.0` | Amount of ephemeral storage in GiB to allocate to the pod |
 | `startup_timeout_in_seconds` | `int` | `false` | `120` | Timeout in seconds for the pod to start up |
-| `large_ephemeral_storage_volume` | `Optional[EphemeralVolume]` | `false` | `None` | Large ephemeral storage volume to allocate to the pod |
 | `env_vars` | `Optional[Dict[str, str]]` | `false` | `None` | Additional environment variables to set in the pod |
 
-| Parameter      | Type    | Description                                                      |
-|----------------|---------|------------------------------------------------------------------|
-| `name`         | `str`   | The name of the ephemeral volume.                                |
-| `size_in_Gi`   | `float` | The size of the volume in GiB (Gibibytes).                       |
-| `mount_path`   | `str`   | The file system path inside the pod where the volume is mounted.  |
-| `storage_class`| `str`   | The Kubernetes storage class to use for provisioning the volume.  |
+**Return Value**
+__Type:__ `Dict[str, Any]`
 
-###### Example usage
+__Description:__ A dictionary containing the parameters for the Kubernetes Pod Operator, including:
 
-The following python code contains an Airflow DAG that makes full usage of the library to schedule a pod on airflow.
+- `namespace`: The Kubernetes namespace
+- `image`: The Docker image
+- `image_pull_policy`: Set to "Always"
+- `image_pull_secrets`: Configured image pull secrets
+- `annotations`: Prometheus scraping annotations
+- `get_logs`: Set to `True`
+- `is_delete_operator_pod`: Set to `True`
+- `in_cluster`: Set to `True`
+- `configmaps`: List of configmap names
+- `cmds`: Default command `["/bin/sh", "-cx"]`
+- `container_resources`: CPU, memory, and storage resource requirements
+- `startup_timeout_seconds`: Pod startup timeout
+- `secrets`: Configured secrets as environment variables
+- `env_vars`: Additional environment variables
+
+###### Resource Management
+
+The function automatically configures resource requests and limits with a multiplier of **1.5x** for limits:
+
+- **CPU**: Request = `cpus`, Limit = `cpus * 1.5`
+- **Memory**: Request = `memory_in_Gi`, Limit = `memory_in_Gi * 1.5`
+- **Ephemeral Storage**: Request = `storage_in_Gi`, Limit = `storage_in_Gi * 1.5`
+
+###### Examples
+
+**Basic Usage**
 
 ```python
-from datetime import timedelta
-from pendulum import datetime
-from airflow import DAG
-from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
-    KubernetesPodOperator,
+from hellodata_be_airflow_pod_operator_params import get_pod_operator_params
+
+# Simple pod configuration
+params = get_pod_operator_params(
+    image="my-app:latest"
 )
-
-from hellodata_be_airflow_pod_operator_params import (
-    get_pod_operator_params,
-    EphemeralVolume,
-)  # library import
-
-operator_params = get_pod_operator_params(
-    "alpine:latest",
-    namespace="my-namespace",
-    secrets=["my-secret"],
-    configmaps=["my-configmap"],
-    cpus=0.5,
-    memory_in_Gi=0.5,
-    local_ephemeral_storage_in_Gi=1,
-    startup_timeout_in_seconds=10 * 60,
-    large_ephemeral_storage_volume=EphemeralVolume(
-        "my-storage", 5, "/app/large_ephemeral_storage", "my-storage-type"
-    ),
-    env_vars={"key": "value"},
-)
-
-default_args = {
-    "owner": "airflow",
-    "depend_on_past": False,
-    "start_date": datetime(2025, 8, 1, tz="Europe/Zurich"),
-}
-
-with DAG(
-    dag_id="example_dag",
-    schedule="@once",
-    default_args=default_args,
-    max_active_runs=1,
-    dagrun_timeout=timedelta(minutes=60 * 5),
-) as dag:
-
-    my_task = KubernetesPodOperator(
-        **operator_params,
-        name="my_task",
-        task_id="my_task",
-        arguments=[
-            """
-    echo "I run on kubernetes and have the following env vars" &&
-    printenv
-    """
-        ],
-    )
-
 ```
+
+**Advanced Usage**
+
+```python
+from hellodata_be_airflow_pod_operator_params import get_pod_operator_params, EphemeralVolume
+
+# Advanced pod configuration with custom resources and storage
+params = get_pod_operator_params(
+    image="my-data-processor:v2.1.0",
+    namespace="data-processing",
+    image_pull_secrets=["registry-secret"],
+    secrets=["db-credentials", "api-keys"],
+    configmaps=["app-config"],
+    cpus=2.0,
+    memory_in_Gi=4.0,
+    storage_in_Gi=2.0,
+    startup_timeout_in_seconds=300,
+    env_vars={
+        "LOG_LEVEL": "INFO",
+        "ENVIRONMENT": "production"
+    }
+)
+```
+
+###### Notes
+
+- All optional list and dictionary parameters are automatically initialized to empty collections if `None` is provided
+- The function sets up Kubernetes Pod Operator parameters compatible with Airflow's `KubernetesPodOperator`
+- Resource limits are automatically calculated as 1.5x the requested resources
+- Secrets are automatically configured as environment variables
+- The pod is configured to run in-cluster with log collection enabled
+- Image pull secrets are converted to Kubernetes `V1LocalObjectReference` objects
+
 
 ##### Default DAG: HelloDATA Monitoring
 
