@@ -36,7 +36,7 @@
         <modelmapper.version>3.2.6</modelmapper.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <rest-assured.version>6.0.0</rest-assured.version>
-        <spring-boot.version>4.0.5</spring-boot.version>
+        <spring-boot.version>4.0.6</spring-boot.version>
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.x targets Boot 4.0.x -->
         <spring-cloud.version>2025.1.0</spring-cloud.version>
         <spring-ws-test.version>5.0.1</spring-ws-test.version>
