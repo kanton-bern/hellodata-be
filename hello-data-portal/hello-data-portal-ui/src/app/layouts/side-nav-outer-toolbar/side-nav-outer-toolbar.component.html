@@ -4,73 +4,99 @@
        [class.logo-details-env]="environment.showEnvironment"
        [ngStyle]="environment.color && { 'background-color': environment.color } || null">
     <img alt="logo" src="/assets/img/hd.png" style="cursor: pointer" (click)="navigateHome()"
-         (keydown)="navigateHome()"/>
+         (keydown.enter)="navigateHome()"/>
     <span class="logo_name">{{ '@HelloDATA' | transloco }}</span>
   </div>
   @if ((navItems$ | async); as navItems) {
-    <ul class="nav-links">
-      @for (item of navItems; track item.id) {
-        <li (mouseenter)="repositionSecondLevelMenu($event)">
-          <a class="flex flex-col items-center justify-center first-level-item" (click)="openWindow(item)">
-            <span [class]="item.icon" class="p-menuitem-icon text-center" style="font-size: 2rem"></span>
+    <ul class="nav-links" aria-label="Main navigation">
+      @for (item of navItems; track item.id || item.label || $index) {
+        <li>
+          <button type="button"
+                  class="flex flex-col items-center justify-center first-level-item w-full border-0 bg-transparent cursor-pointer"
+                  [class.active]="activeDrawerItem === item && drawerOpen"
+                  [attr.aria-expanded]="item.items?.length ? (activeDrawerItem === item && drawerOpen) : null"
+                  [attr.aria-haspopup]="item.items?.length ? 'true' : null"
+                  (click)="onFirstLevelClick(item)">
+            <span [class]="item.icon" class="p-menuitem-icon text-center" style="font-size: 2rem"
+                  (mouseenter)="onFirstLevelHover(item)"></span>
             <span class="text-center first-level-label"
                   style="font-size: 0.6rem; font-weight: 300">{{ item.label | transloco }}</span>
-          </a>
-          @if (item.items && item.items.length) {
-            <ul class="second-level-menu">
-              @for (sub of item.items; track sub.id || sub.label || $index) {
-                <li (mouseenter)="repositionThirdLevelMenu($event)">
-                  <a class="flex items-center" (click)="openWindow(sub)">
-                    @if (sub.icon) {
-                      <span [class]="sub.icon" class="p-menuitem-icon"></span>
-                    }
-                    <span class="ml-2">{{ sub.label | transloco }}</span>
-                    @if (sub.items && sub.items.length) {
-                      <i class="pi pi-angle-right ml-auto text-primary"></i>
-                    }
-                  </a>
-                  @if (sub.items && sub.items.length) {
-                    <div class="third-level-menu">
-                      <div class="scroll-indicator scroll-indicator--up"
-                           (click)="scrollThirdLevel($event, -480)">
-                        <i class="pi pi-chevron-up"></i>
-                      </div>
-                      <ul class="third-level-menu__list" (scroll)="onThirdLevelScroll($event)">
-                        @for (third of sub.items; track third.id || third.label || $index) {
-                          <li>
-                            <a class="flex items-center" (click)="openWindow(third)">
-                              @if (third.icon) {
-                                <span [class]="third.icon" class="p-menuitem-icon"></span>
-                              }
-                              <span class="ml-2">{{ third.label | transloco }}</span>
-                            </a>
-                          </li>
-                        }
-                      </ul>
-                      <div class="scroll-indicator scroll-indicator--down"
-                           (click)="scrollThirdLevel($event, 480)">
-                        <i class="pi pi-chevron-down"></i>
-                      </div>
-                    </div>
-                  }
-                </li>
-              }
-            </ul>
-          }
+          </button>
         </li>
       }
     </ul>
   }
-  <div class="sidebar-toggle-btn" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()"
+  <button type="button" class="sidebar-toggle-btn" (click)="toggleSidebar()"
        [ngStyle]="environment.color && { 'background-color': environment.color } || null">
     @if (sidebarMinimized) {
       <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
     } @else {
       <i class="fa-solid fa-down-left-and-up-right-to-center"></i>
     }
-  </div>
+  </button>
 </div>
 
+<!-- Navigation Drawer Backdrop: closes on hover or click -->
+<div class="nav-drawer-backdrop"
+     [class.open]="drawerOpen"
+     (mouseenter)="closeDrawer()"
+     (click)="closeDrawer()"
+     (keydown.escape)="closeDrawer()"
+     aria-hidden="true"></div>
+
+<!-- Navigation Drawer Panel (M3 style) -->
+<nav class="nav-drawer"
+     #drawerPanel
+     [class.open]="drawerOpen"
+     [class.sidebar-minimized]="sidebarMinimized"
+     [ngStyle]="environment.color && { 'background-color': environment.color } || null"
+     aria-label="Sub navigation">
+  @if (activeDrawerItem) {
+    <div class="nav-drawer__header">
+      <span class="nav-drawer__title font-semibold">{{ activeDrawerItem.label | transloco }}</span>
+    </div>
+    <ul class="nav-drawer__content">
+      @for (sub of activeDrawerItem.items; track sub.id || sub.label || $index; let i = $index) {
+        @if (sub.items && sub.items.length) {
+          <div class="nav-drawer__group">
+            <button type="button"
+                    class="nav-drawer__item nav-drawer__item--parent"
+                    [class.expanded]="isSubItemExpanded(sub, i)"
+                    [attr.aria-expanded]="isSubItemExpanded(sub, i)"
+                    (click)="onSecondLevelClick(sub, i)">
+              @if (sub.icon) {
+                <span [class]="sub.icon" class="nav-drawer__icon"></span>
+              }
+              <span class="nav-drawer__label">{{ sub.label | transloco }}</span>
+              <span class="nav-drawer__chevron"></span>
+            </button>
+            <div class="nav-drawer__children" [class.expanded]="isSubItemExpanded(sub, i)">
+              @for (third of sub.items; track third.id || third.label || $index) {
+                <button type="button"
+                        class="nav-drawer__item nav-drawer__item--child"
+                        (click)="onThirdLevelClick(third)">
+                  @if (third.icon) {
+                    <span [class]="third.icon" class="nav-drawer__icon"></span>
+                  }
+                  <span class="nav-drawer__label">{{ third.label | transloco }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        } @else {
+          <button type="button"
+                  class="nav-drawer__item"
+                  (click)="onSecondLevelClick(sub, i)">
+            @if (sub.icon) {
+              <span [class]="sub.icon" class="nav-drawer__icon"></span>
+            }
+            <span class="nav-drawer__label">{{ sub.label | transloco }}</span>
+          </button>
+        }
+      }
+    </ul>
+  }
+</nav>
 
 <section class="content-section" [class.topbar-minimized]="sidebarMinimized">
   <app-header [title]="title()" [minimized]="sidebarMinimized"/>
@@ -81,4 +107,3 @@
 
 <p-toast/>
 <app-unsaved-changes-dialog/>
-

@@ -103,10 +103,15 @@ app-header {
   z-index: 101;
   position: fixed;
   top: 0;
-  left: 77px;
+  left: var(--sidebar-width);
   right: 0;
-  width: calc(100% - 77px);
+  width: calc(100% - var(--sidebar-width));
   transition: all 0.3s ease;
+}
+
+.content-section.topbar-minimized app-header {
+  left: var(--sidebar-width-minimized);
+  width: calc(100% - var(--sidebar-width-minimized));
 }
 
 

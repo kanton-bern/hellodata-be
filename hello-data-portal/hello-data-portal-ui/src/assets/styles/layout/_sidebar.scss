@@ -31,14 +31,14 @@ $content-text-color: #11101d;
 
 // ──────────────────────────────────────────────────────────
 // Inverted border-radius (concave corner) CSS custom properties
-// Adjust --sidebar-curve-size to change the radius of the inner curve.
-// --sidebar-bg must match the sidebar/topbar background.
-// --content-bg must match the main content area background.
 // ──────────────────────────────────────────────────────────
 :root {
   --sidebar-curve-size: 5px;
   --sidebar-bg: #{$background-color};
   --content-bg: var(--surface-ground, #f8f9fa);
+  --sidebar-width: 77px;
+  --sidebar-width-minimized: 40px;
+  --nav-drawer-width: 280px;
 }
 
 body {
@@ -50,12 +50,11 @@ body {
   top: 0;
   left: 0;
   height: 100%;
-  width: 77px;
+  width: var(--sidebar-width);
   background: $background-color;
   z-index: 200;
   transition: all 0.3s ease;
 
-  // Shadow only below the logo-details area so sidebar + topbar look unified
   &::after {
     content: '';
     position: absolute;
@@ -69,10 +68,6 @@ body {
     clip-path: inset(0 -10px -10px 0);
   }
 
-  // Inverted border-radius on the sidebar side of the junction.
-  // This pseudo-element sits just to the right of the sidebar,
-  // at the topbar height, creating a concave curve that mirrors
-  // the one on the topbar's ::before (see _topbar.scss).
   &::before {
     content: '';
     position: absolute;
@@ -81,16 +76,6 @@ body {
     width: var(--sidebar-curve-size, 10px);
     height: var(--sidebar-curve-size, 10px);
     background: var(--sidebar-bg, #ffffff);
-    // Technique: We fill this square with the sidebar/topbar color,
-    // then use a radial-gradient mask to "punch out" a quarter-circle
-    // from the top-left corner (origin 0 0). The transparent region
-    // of the gradient removes the sidebar color, revealing the content
-    // background underneath — creating the concave curve.
-    //
-    // Standard border-radius only supports outward (convex) curves.
-    // By masking a filled rectangle, we achieve the inverse: an inward
-    // (concave) curve. The `mask` property clips rendering to the opaque
-    // areas of the mask image.
     -webkit-mask-image: radial-gradient(circle at 0 0, transparent calc(var(--sidebar-curve-size, 10px) - 0.5px), black var(--sidebar-curve-size, 10px));
     mask-image: radial-gradient(circle at 0 0, transparent calc(var(--sidebar-curve-size, 10px) - 0.5px), black var(--sidebar-curve-size, 10px));
     transform: rotate(180deg);
@@ -101,23 +86,20 @@ body {
 }
 
 .sidebar.close {
-  width: 77px;
+  width: var(--sidebar-width);
   z-index: 200;
 }
 
-// Adjust shadow pseudo-element for minimized sidebar
 .sidebar.minimized::after {
   top: 45px;
 }
 
-// Adjust inverted radius pseudo-element for minimized sidebar
 .sidebar.minimized::before {
   top: 45px;
 }
 
-// Minimized state — narrower, icons only, no text
 .sidebar.minimized {
-  width: 40px;
+  width: var(--sidebar-width-minimized);
 }
 
 .sidebar.minimized .logo-details img {
@@ -134,39 +116,17 @@ body {
   display: none;
 }
 
-.sidebar.minimized .nav-links > li > a .p-menuitem-icon {
-  font-size: 1.3rem !important;
+.sidebar.minimized .nav-links > li > button {
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
-.sidebar.minimized .nav-links > li > a {
-  padding-top: 10px;
-  padding-bottom: 10px;
+.sidebar.minimized .nav-links > li > button .p-menuitem-icon {
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 1.2rem !important;
+  border-radius: 6px !important;
 }
-
-.sidebar.minimized .nav-links li .second-level-menu,
-.sidebar.minimized .nav-links li .third-level-menu {
-  left: 100%;
-}
-
-// Compact flyout menus when sidebar is minimized
-.sidebar.minimized .nav-links .second-level-menu li a,
-.sidebar.minimized .nav-links .third-level-menu li a {
-  padding: 4px 10px 4px 6px;
-  font-size: 0.8rem;
-}
-
-.sidebar.minimized .nav-links .second-level-menu li a .p-menuitem-icon,
-.sidebar.minimized .nav-links .third-level-menu li a .p-menuitem-icon {
-  font-size: 0.85rem;
-  margin-right: 0.35rem;
-}
-
-.sidebar.minimized .nav-links .second-level-menu i,
-.sidebar.minimized .nav-links .third-level-menu i {
-  font-size: 0.6rem;
-  margin-left: 6px;
-}
-
 
 .sidebar.minimized .sidebar-toggle-btn i {
   font-size: 0.8rem;
@@ -177,10 +137,7 @@ body {
 }
 
 
-// Sidebar toggle button at the bottom
-// Pinned at the bottom of the sidebar with a solid background so that
-// overflowing nav-links items scroll *behind* it and disappear.
-// No border — the background alone provides visual separation.
+// Sidebar toggle button
 .sidebar-toggle-btn {
   position: absolute;
   bottom: 0;
@@ -237,30 +194,14 @@ body {
 }
 
 @keyframes wobble {
-  0% {
-    transform: rotate(0deg);
-  }
-  15% {
-    transform: rotate(5deg);
-  }
-  30% {
-    transform: rotate(-5deg);
-  }
-  45% {
-    transform: rotate(4deg);
-  }
-  60% {
-    transform: rotate(-3deg);
-  }
-  75% {
-    transform: rotate(2deg);
-  }
-  90% {
-    transform: rotate(-1deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
+  0% { transform: rotate(0deg); }
+  15% { transform: rotate(5deg); }
+  30% { transform: rotate(-5deg); }
+  45% { transform: rotate(4deg); }
+  60% { transform: rotate(-3deg); }
+  75% { transform: rotate(2deg); }
+  90% { transform: rotate(-1deg); }
+  100% { transform: rotate(0deg); }
 }
 
 
@@ -289,162 +230,6 @@ body {
   overflow: hidden;
 }
 
-// CSS-only flyout submenus
-
-.sidebar.close .nav-links li .second-level-menu,
-.sidebar.close .nav-links li .third-level-menu {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  background: var(--sidebar-bg, #{$background-color});
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  white-space: nowrap;
-  opacity: 0;
-  transform: translateX(-8px);
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-  z-index: 300;
-}
-
-// The second-level must keep overflow visible so the absolutely-positioned
-// third-level can fly out. JS repositions it to stay within the viewport.
-// .third-level-menu is now a wrapper <div>; the scrollable list is inside
-// .third-level-menu__list.
-.sidebar.close .nav-links li .third-level-menu {
-  display: flex;
-  flex-direction: column;
-  max-height: calc(100vh - 16px);
-  white-space: normal;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  width: max-content;
-  max-width: min(500px, calc(100vw - 200px));
-}
-
-.sidebar.close .nav-links li .third-level-menu__list {
-  overflow-y: auto;
-  flex: 1 1 auto;
-  min-height: 0;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  scrollbar-width: thin; // Firefox — thin overlay scrollbar
-  scrollbar-color: transparent transparent; // Firefox — hidden by default
-  &:hover {
-    scrollbar-color: rgba(0, 0, 0, 0.3) transparent; // Firefox — show on hover
-  }
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 3px;
-    transition: background 0.2s ease;
-  }
-
-  &:hover::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
-  }
-}
-
-// Scroll indicator arrows
-.scroll-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  padding: 0;
-  color: var(--p-text-muted-color, #6c757d);
-  font-size: 0.75rem;
-  flex-shrink: 0;
-  pointer-events: none;
-  user-select: none;
-  transition: opacity 0.2s ease, max-height 0.2s ease, padding 0.2s ease;
-}
-
-.scroll-indicator.visible {
-  max-height: 24px;
-  opacity: 1;
-  padding: 4px 0;
-  cursor: pointer;
-}
-
-.sidebar.close .nav-links li:hover > .second-level-menu {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
-}
-
-.sidebar.close .nav-links .second-level-menu li:hover > .third-level-menu {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
-}
-
-// Only enable pointer-events on scroll indicators when the menu is visible
-.sidebar.close .nav-links .second-level-menu li:hover > .third-level-menu .scroll-indicator.visible {
-  pointer-events: auto;
-}
-
-.sidebar .nav-links .second-level-menu li,
-.sidebar .nav-links .third-level-menu li {
-  position: relative;
-}
-
-.sidebar .nav-links .second-level-menu li a,
-.sidebar .nav-links .third-level-menu li a {
-  padding: 6px 14px 6px 8px;
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--text-color, rgba(0, 0, 0, .87));
-  cursor: pointer;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-}
-
-.sidebar .nav-links .second-level-menu li:hover > a,
-.sidebar .nav-links .third-level-menu li:hover > a {
-  background-color: var(--sidebar-menu-hover, var(--p-menu-item-focus-background, var(--surface-hover)));
-}
-
-.sidebar .nav-links .second-level-menu li:first-child:hover > a,
-.sidebar .nav-links .third-level-menu li:first-child:hover > a {
-  border-radius: 4px 4px 0 0;
-}
-
-.sidebar .nav-links .second-level-menu li:last-child:hover > a,
-.sidebar .nav-links .third-level-menu li:last-child:hover > a {
-  border-radius: 0 0 4px 4px;
-}
-
-
-.sidebar .nav-links .second-level-menu li a .p-menuitem-icon,
-.sidebar .nav-links .third-level-menu li a .p-menuitem-icon {
-  margin-right: 0.5rem;
-  font-size: 1.1rem;
-}
-
-.sidebar .nav-links .second-level-menu i,
-.sidebar .nav-links .third-level-menu i {
-  font-size: 0.75rem;
-  min-width: unset;
-  line-height: normal;
-  margin-left: 8px;
-}
-
 .first-level-item .text-container {
   white-space: normal;
   overflow-wrap: break-word;
@@ -455,6 +240,8 @@ body {
   height: calc(100% - 60px - 32px);
   overflow: auto;
   margin-top: 0;
+  padding-left: 0;
+  list-style: none;
 }
 
 .sidebar.close .nav-links {
@@ -463,7 +250,7 @@ body {
 }
 
 .sidebar .nav-links::-webkit-scrollbar {
-  display: none; // Chrome / Safari
+  display: none;
 }
 
 .sidebar .nav-links li {
@@ -474,8 +261,6 @@ body {
 
 .sidebar.close > .nav-links > li:hover {
   color: var(--text-color);
-  background-color: var(--sidebar-menu-hover, var(--p-menu-item-focus-background, var(--surface-hover)));
-  border-radius: 4px;
 }
 
 .sidebar .nav-links li .icon-link {
@@ -498,29 +283,7 @@ body {
   transition: all 0.3s ease;
 }
 
-.sidebar .nav-links li.showMenu i.arrow {
-  transform: rotate(-180deg);
-}
-
-.sidebar.close .nav-links i.arrow {
-  display: none;
-}
-
-.sidebar .nav-links li a {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.sidebar .nav-links li a .link_name {
-  font-size: 18px;
-  font-weight: 400;
-  color: $menu-item-text-color;
-  transition: all 0.4s ease;
-  overflow-wrap: break-word;
-}
-
-.sidebar.close .nav-links > li > a {
+.sidebar.close .nav-links > li > button {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -531,38 +294,198 @@ body {
   color: $menu-item-text-color;
 }
 
-.sidebar.close .nav-links li a .link_name {
+
+// ──────────────────────────────────────────────────────────
+// Navigation Drawer (M3 pattern)
+// ──────────────────────────────────────────────────────────
+
+.nav-drawer-backdrop {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 190;
   pointer-events: none;
-  font-size: 10px;
+
+  &.open {
+    pointer-events: auto;
+  }
 }
 
+.nav-drawer {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  width: var(--nav-drawer-width);
+  height: 100%;
+  background: var(--sidebar-bg, #{$background-color});
+  z-index: 195;
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0 16px 16px 0;
+
+  &.open {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &.sidebar-minimized {
+    left: var(--sidebar-width-minimized);
+  }
+}
+
+.nav-drawer__header {
+  padding: 16px 16px 12px;
+  flex-shrink: 0;
+}
+
+.nav-drawer__title {
+  font-size: 1rem;
+  color: var(--text-color, #{$menu-item-text-color});
+}
+
+.nav-drawer__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 3px;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
+
+.nav-drawer__group {
+  margin-bottom: 2px;
+}
+
+.nav-drawer__item {
+  display: flex;
+  align-items: center;
+  width: calc(100% - 16px);
+  margin: 2px 8px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-color, #{$menu-item-text-color});
+  font-size: 0.9rem;
+  font-weight: 400;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+  outline: none;
+  gap: 10px;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-color, #3b82f6);
+    outline-offset: -2px;
+  }
+}
+
+.nav-drawer__item--parent {
+  font-weight: 500;
+  font-size: 0.9rem;
+
+  .nav-drawer__chevron {
+    margin-left: auto;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #000;
+    transition: transform 0.2s ease;
+  }
+
+  &.expanded .nav-drawer__chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.nav-drawer__item--child {
+  padding-left: 40px;
+  font-size: 0.8rem;
+}
+
+.nav-drawer__icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.nav-drawer__label {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.nav-drawer__children {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+
+  &.expanded {
+    max-height: 2000px;
+  }
+}
+
+// Respect reduced motion preference
+@media (prefers-reduced-motion: reduce) {
+  .nav-drawer,
+  .nav-drawer-backdrop,
+  .nav-drawer__children,
+  .nav-drawer__item--parent .nav-drawer__chevron {
+    transition: none;
+  }
+}
+
+
+// ──────────────────────────────────────────────────────────
+// Content section
+// ──────────────────────────────────────────────────────────
 
 .content-section {
   position: relative;
-  left: 77px;
-  width: calc(100% - 77px);
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
   transition: all 0.3s ease;
-}
 
-.sidebar.close ~ .content-section {
-  left: 77px;
-  width: calc(100% - 77px);
-}
-
-.sidebar.close ~ .content-section app-header {
-  left: 77px;
-  width: calc(100% - 77px);
-}
-
-// When sidebar is minimized
-.sidebar.minimized ~ .content-section {
-  left: 40px;
-  width: calc(100% - 40px);
-}
-
-.sidebar.minimized ~ .content-section app-header {
-  left: 40px;
-  width: calc(100% - 40px);
+  &.topbar-minimized {
+    left: var(--sidebar-width-minimized);
+    width: calc(100% - var(--sidebar-width-minimized));
+  }
 }
 
 
@@ -590,21 +513,17 @@ body {
 
 @media screen and (max-width: 400px) {
   .sidebar.close {
-    width: 77px;
+    width: var(--sidebar-width);
   }
   .sidebar.minimized {
-    width: 40px;
-  }
-  .sidebar.close .profile-details {
-    background: none;
-    width: 77px;
+    width: var(--sidebar-width-minimized);
   }
   .content-section {
-    left: 77px;
-    width: calc(100% - 77px);
+    left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
   }
-  .sidebar.minimized ~ .content-section {
-    left: 40px;
-    width: calc(100% - 40px);
+  .content-section.topbar-minimized {
+    left: var(--sidebar-width-minimized);
+    width: calc(100% - var(--sidebar-width-minimized));
   }
 }
