@@ -172,13 +172,19 @@
                   </div>
                 </div>
                 <div class="flex items-center justify-center gap-3 mt-3 pt-2 border-t border-surface">
-                  @if (userTotalPages > 1) {
-                              [disabled]="userPage === 0" (onClick)="prevUserPage()" pRipple
-                              [attr.aria-label]="'Previous page'"/>
-                    <span class="text-sm text-color-secondary">{{ userPage + 1 }} / {{ userTotalPages }}</span>
-                              [disabled]="userPage >= userTotalPages - 1" (onClick)="nextUserPage()" pRipple
-                              [attr.aria-label]="'Next page'"/>
-                  }
+                  <p-button icon="pi pi-chevron-left"
+                            [disabled]="userPage === 0"
+                            [text]="true"
+                            severity="secondary"
+                            (onClick)="prevUserPage()" pRipple
+                            [attr.aria-label]="'Previous page'"/>
+                  <span class="text-sm text-color-secondary">{{ userPage + 1 }} / {{ userTotalPages }}</span>
+                  <p-button icon="pi pi-chevron-right"
+                            [disabled]="userPage >= userTotalPages - 1"
+                            [text]="true"
+                            severity="secondary"
+                            (onClick)="nextUserPage()" pRipple
+                            [attr.aria-label]="'Next page'"/>
                   <p-select [options]="usersPerPageOptions"
                             [(ngModel)]="usersPerPage"
                             [ngModelOptions]="{standalone: true}"

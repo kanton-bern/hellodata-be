@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {HttpClient, HttpParams} from "@angular/common/http";
-import {Observable} from "rxjs";
+import {Observable, map} from "rxjs";
 import {
   AdUser,
   BulkAssignmentRequest,
@@ -184,7 +184,10 @@ export class UsersManagementService {
   }
 
   public getAllUsersWithContextRoles(): Observable<UserWithContextRolesDto[]> {
-    return this.httpClient.get<UserWithContextRolesDto[]>(`${this.baseUsersUrl}/context-roles`);
+    const params = new HttpParams().set('page', '0').set('size', '10000');
+    return this.httpClient.get<PaginatedResponse<UserWithContextRolesDto>>(`${this.baseUsersUrl}/context-roles`, {params}).pipe(
+      map(response => response.content)
+    );
   }
 
   public getAllUsersWithContextRolesPaginated(page: number, size: number, search?: string): Observable<PaginatedResponse<UserWithContextRolesDto>> {

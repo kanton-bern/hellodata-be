@@ -51,8 +51,8 @@
               </div>
               <div class="user-grid relative">
                 @if (rolesLoading) {
-                  <div class="absolute inset-0 flex justify-center items-center bg-surface-0/70 z-10 rounded-border">
-                    <i class="pi pi-spin pi-spinner text-2xl text-color-secondary"></i>
+                  <div class="absolute inset-0 flex justify-center items-center bg-surface-0/70 z-20 rounded-border">
+                    <p-progressSpinner strokeWidth="4" [style]="{ width: '40px', height: '40px' }"/>
                   </div>
                 }
                 @for (user of paginatedUsers; track user.id) {
@@ -73,18 +73,22 @@
                     </div>
                   </div>
                 }
-                @if (paginatedUsers.length === 0) {
+                @if (paginatedUsers.length === 0 && !rolesLoading) {
                   <div class="no-data">{{ '@No users available' | transloco }}</div>
                 }
               </div>
               <div class="pagination-bar">
-                @if (totalUserPages > 1) {
-                            [disabled]="userPage === 0"
-                            (onClick)="prevUserPage()"/>
-                  <span class="page-info">{{ userPage + 1 }} / {{ totalUserPages }}</span>
-                            [disabled]="userPage >= totalUserPages - 1"
-                            (onClick)="nextUserPage()"/>
-                }
+                <p-button icon="pi pi-chevron-left"
+                          [disabled]="userPage === 0"
+                          [text]="true"
+                          severity="secondary"
+                          (onClick)="prevUserPage()"/>
+                <span class="page-info">{{ userPage + 1 }} / {{ totalUserPages }}</span>
+                <p-button icon="pi pi-chevron-right"
+                          [disabled]="userPage >= totalUserPages - 1"
+                          [text]="true"
+                          severity="secondary"
+                          (onClick)="nextUserPage()"/>
                 <p-select [options]="usersPerPageOptions"
                           [(ngModel)]="usersPerPage"
                           (ngModelChange)="onUsersPerPageChange()"

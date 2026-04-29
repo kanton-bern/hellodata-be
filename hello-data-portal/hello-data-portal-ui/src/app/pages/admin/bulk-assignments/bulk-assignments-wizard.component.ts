@@ -224,10 +224,10 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       takeUntil(this.destroy$)
     ).subscribe(() => {
       this.userPage = 0;
-      this.loadUsersPage();
+      this.applyFiltersAndPagination();
     });
 
-    this.loadUsersPage();
+    this.loadAllUsers();
 
     this.store.select(selectAllAvailableDataDomains).pipe(
       takeUntil(this.destroy$)
@@ -283,7 +283,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
   onRoleFilterChange(): void {
     this.userPage = 0;
-    this.applyRoleFilter();
+    this.applyFiltersAndPagination();
   }
 
   getUserTooltip(userId: string): string {
@@ -316,28 +316,27 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   paginatedUsers: User[] = [];
   totalUserPages = 0;
 
-  private updatePagination(): void {
-    this.totalUserPages = Math.ceil(this.totalServerElements / this.usersPerPage);
-    this.applyRoleFilter();
-  }
-
   nextUserPage(): void {
     if (this.userPage < this.totalUserPages - 1) {
       this.userPage++;
-      this.loadUsersPage();
+      this.applyFiltersAndPagination();
+      this.cdr.markForCheck();
     }
   }
 
   prevUserPage(): void {
     if (this.userPage > 0) {
       this.userPage--;
-      this.loadUsersPage();
+      this.applyFiltersAndPagination();
+      this.cdr.markForCheck();
     }
   }
 
   onUsersPerPageChange(): void {
+    this.usersPerPage = Number(this.usersPerPage);
     this.userPage = 0;
-    this.loadUsersPage();
+    this.applyFiltersAndPagination();
+    this.cdr.markForCheck();
   }
 
   onUserSelectionChange(userId: string, checked: boolean): void {
@@ -348,6 +347,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     }
     this.rebuildUserSelectedMap();
     this.updateSelectAllUsersState();
+    this.cdr.markForCheck();
   }
 
   isUserSelected(userId: string): boolean {
@@ -362,6 +362,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     }
     this.selectAllUsers = checked;
     this.rebuildUserSelectedMap();
+    this.cdr.markForCheck();
   }
 
   private rebuildUserSelectedMap(): void {
@@ -389,6 +390,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     }
     this.selectedDomainKeysArray = [...this.selectedDomainKeys];
     this.updateSelectAllDomainsState();
+    this.cdr.markForCheck();
   }
 
   isDomainSelected(domainKey: string): boolean {
@@ -787,15 +789,13 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     });
   }
 
-  private loadUsersPage(): void {
+  private loadAllUsers(): void {
     this.rolesLoading = true;
-    const search = this.userSearchFilter?.trim() || undefined;
-    this.usersManagementService.getAllUsersWithContextRolesPaginated(this.userPage, this.usersPerPage, search).pipe(
+    this.usersManagementService.getAllUsersWithContextRoles().pipe(
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (response) => {
-        // Build allUsers from the page response
-        this.allUsers = response.content.map(u => ({
+      next: (users) => {
+        this.allUsers = users.map(u => ({
           id: u.id,
           firstName: u.firstName || '',
           lastName: u.lastName || '',
@@ -804,9 +804,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
           superuser: false,
         } as User));
 
-        // Build context roles map from the page response
         this.userContextRoles.clear();
-        for (const u of response.content) {
+        for (const u of users) {
           const roles: UserContextRoleInfo[] = [];
           if (u.businessDomainRole) {
             roles.push({
@@ -830,10 +829,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
         }
 
         this.buildTooltipCache();
-        this.totalServerElements = response.totalElements;
-        this.totalUserPages = Math.ceil(response.totalElements / this.usersPerPage);
         this.rolesLoading = false;
-        this.applyRoleFilter();
+        this.applyFiltersAndPagination();
         this.cdr.markForCheck();
       },
       error: () => {
@@ -860,9 +857,20 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     });
   }
 
-  private applyRoleFilter(): void {
+  private applyFiltersAndPagination(): void {
     let result = this.allUsers.filter(u => !this.isUserExcluded(u.id));
 
+    // Search filter
+    if (this.userSearchFilter) {
+      const search = this.userSearchFilter.toLowerCase();
+      result = result.filter(u =>
+        u.firstName?.toLowerCase().includes(search) ||
+        u.lastName?.toLowerCase().includes(search) ||
+        u.email?.toLowerCase().includes(search)
+      );
+    }
+
+    // Role filter
     if (this.dataDomainRoleFilter) {
       result = result.filter(u => {
         const roles = this.userContextRoles.get(u.id) || [];
@@ -875,7 +883,14 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     }
 
     this.filteredUsers = result;
-    this.paginatedUsers = result;
+    this.totalServerElements = result.length;
+    this.totalUserPages = Math.max(1, Math.ceil(result.length / this.usersPerPage));
+
+    // Pagination slice
+    const start = this.userPage * this.usersPerPage;
+    const end = start + this.usersPerPage;
+    this.paginatedUsers = result.slice(start, end);
+
     this.updateSelectAllUsersState();
   }
 
