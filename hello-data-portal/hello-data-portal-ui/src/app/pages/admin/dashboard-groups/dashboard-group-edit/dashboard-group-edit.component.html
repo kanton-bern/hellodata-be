@@ -173,11 +173,9 @@
                 </div>
                 <div class="flex items-center justify-center gap-3 mt-3 pt-2 border-t border-surface">
                   @if (userTotalPages > 1) {
-                    <p-button icon="pi pi-chevron-left" [text]="true" [rounded]="true" severity="secondary"
                               [disabled]="userPage === 0" (onClick)="prevUserPage()" pRipple
                               [attr.aria-label]="'Previous page'"/>
                     <span class="text-sm text-color-secondary">{{ userPage + 1 }} / {{ userTotalPages }}</span>
-                    <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary"
                               [disabled]="userPage >= userTotalPages - 1" (onClick)="nextUserPage()" pRipple
                               [attr.aria-label]="'Next page'"/>
                   }
@@ -196,24 +194,24 @@
 
       <p-toolbar class="mt-4">
         <div class="p-toolbar-group-start">
-          <p-button (click)="navigateToList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fas fa-arrow-left" severity="secondary" pRipple
-                    (keydown.enter)="navigateToList()"/>
-        </div>
-        <div class="p-toolbar-group-end">
-          <p-button (click)="saveDashboardGroup(editedDashboardGroup)"
-                    (keydown.enter)="saveDashboardGroup(editedDashboardGroup)"
-                    [disabled]="!dashboardGroupForm.valid"
-                    icon="fas fa-floppy-disk" class="mr-2"
-                    [label]="'@Save' | transloco"
-                    severity="success" pRipple/>
           @if (editedDashboardGroup.id) {
             <p-button (click)="openDeletePopup(editedDashboardGroup)"
                       (keydown.enter)="openDeletePopup(editedDashboardGroup)"
-                      icon="fas fa-trash" class="mr-2"
+                      icon="fas fa-trash"
                       [label]="'@Delete' | transloco"
                       severity="danger" pRipple/>
           }
+        </div>
+        <div class="p-toolbar-group-end">
+          <p-button (click)="navigateToList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                    icon="fas fa-arrow-left" severity="secondary" pRipple
+                    (keydown.enter)="navigateToList()"/>
+          <p-button (click)="saveDashboardGroup(editedDashboardGroup)"
+                    (keydown.enter)="saveDashboardGroup(editedDashboardGroup)"
+                    [disabled]="!dashboardGroupForm.valid"
+                    icon="fas fa-floppy-disk"
+                    [label]="'@Save' | transloco"
+                    pRipple/>
         </div>
       </p-toolbar>
     </form>

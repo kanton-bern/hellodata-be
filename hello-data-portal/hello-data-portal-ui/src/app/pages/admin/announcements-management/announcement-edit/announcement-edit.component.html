@@ -105,23 +105,23 @@
       }
       <p-toolbar>
         <div class="p-toolbar-group-start">
-          <p-button (click)="navigateToAnnouncementList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fas fa-arrow-left" severity="secondary" pRipple
-                    (keydown)="navigateToAnnouncementList()"/>
+          @if (editedAnnouncement.id) {
+            <p-button (click)="openDeletePopup(editedAnnouncement)" (keydown)="openDeletePopup(editedAnnouncement)"
+                      icon="fas fa-trash"
+                      [label]="'@Delete' | transloco"
+                      severity="danger" pRipple/>
+          }
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
+            <p-button (click)="navigateToAnnouncementList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                      icon="fas fa-arrow-left" severity="secondary" pRipple
+                      (keydown)="navigateToAnnouncementList()"/>
             <p-button (click)="saveAnnouncement(editedAnnouncement)" (keydown)="saveAnnouncement(editedAnnouncement)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
-                      icon="fas fa-floppy-disk" class="mr-2"
+                      icon="fas fa-floppy-disk"
                       [label]="'@Save' | transloco"
-                      severity="success" pRipple/>
-            @if (editedAnnouncement.id) {
-              <p-button (click)="openDeletePopup(editedAnnouncement)" (keydown)="openDeletePopup(editedAnnouncement)"
-                        icon="fas fa-trash" class="mr-2"
-                        [label]="'@Delete' | transloco"
-                        severity="danger" pRipple/>
-            }
+                      pRipple/>
           </div>
         }
       </p-toolbar>

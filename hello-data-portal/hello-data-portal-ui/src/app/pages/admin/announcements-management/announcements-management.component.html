@@ -3,7 +3,7 @@
   <p-card>
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
-        <p-button (click)="createAnnouncement()" severity="success" icon="fas fa-circle-plus"
+        <p-button (click)="createAnnouncement()" icon="fas fa-circle-plus"
                   [label]="'@Create announcement' | transloco" pRipple
                   (keydown.enter)="createAnnouncement()"></p-button>
       </ng-template>
@@ -60,28 +60,25 @@
                   {{ announcement.publishedDate ? (announcement.publishedDate | date: 'dd.MM.yyyy HH:mm:ss') : '-' }}
                 </td>
                 <td>
+                  <div class="flex items-center justify-end gap-2">
                   <p-button (click)="editAnnouncement(announcement)" (keydown.enter)="editAnnouncement(announcement)"
                             [pTooltip]="'@Edit' | transloco"
                             tooltipPosition="top"
-                            severity="success"
-                            [rounded]="true"
                             [text]="true"
-                            class="mr-2"
                             icon="fas fa-light fa-pen-to-square"/>
                   <p-button (click)="showAnnouncementDeletionPopup(announcement)"
                             (keydown.enter)="showAnnouncementDeletionPopup(announcement)"
                             [pTooltip]="'@Delete' | transloco"
                             tooltipPosition="top"
                             severity="danger"
-                            [rounded]="true"
                             [text]="true"
-                            class="mr-2"
                             icon="fas fa-trash"/>
                   <p-button type="button" pRipple [pRowToggler]="announcement"
-                            [text]="true" [rounded]="true" [plain]="true"
                             [pTooltip]="'@Details' | transloco"
                             tooltipPosition="top"
+                            [text]="true"
                             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+                  </div>
                 </td>
               </tr>
             </ng-template>

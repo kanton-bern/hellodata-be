@@ -24,7 +24,7 @@
     >
       <ng-template pTemplate="caption">
         <div class="flex items-center justify-between">
-          <p-button (click)="createDashboardGroup()" severity="success" icon="fas fa-circle-plus"
+          <p-button (click)="createDashboardGroup()" icon="fas fa-circle-plus"
                     label="{{'@Create dashboard group' | transloco }}" pRipple
                     (keydown.enter)="createDashboardGroup()"/>
           <p-iconfield>
@@ -85,9 +85,8 @@
             <p-button (click)="editDashboardGroup(group)" (keydown.enter)="editDashboardGroup(group)"
                       [pTooltip]="'@Edit' | transloco"
                       tooltipPosition="top"
-                      severity="success"
+
                       icon="fas fa-light fa-pen-to-square"
-                      [rounded]="true"
                       [text]="true"
                       class="mr-2"/>
             <p-button (click)="showDeletionPopup(group)" (keydown.enter)="showDeletionPopup(group)"
@@ -95,7 +94,6 @@
                       tooltipPosition="top"
                       severity="danger"
                       icon="fas fa-trash"
-                      [rounded]="true"
                       [text]="true"/>
           </td>
         </tr>

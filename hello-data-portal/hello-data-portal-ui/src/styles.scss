@@ -46,7 +46,7 @@
 }
 
 .content-section a:not(.p-button):not(.p-menuitem-link):not(.p-menu-item-link):not(.layout-topbar-button):not(.route-link) {
-  color: var(--primary-color, #3F51B5);
+  color: var(--primary-color, #1aa6a6);
 }
 
 .content-section a:not(.p-button):not(.p-menuitem-link):not(.p-menu-item-link):not(.layout-topbar-button):not(.route-link):hover {
@@ -135,70 +135,333 @@ body {
   width: auto;
 }
 
-/* Prevent Tailwind from overriding PrimeNG button colors */
-.p-button {
-  padding: 0.5rem 1rem !important;
-  background-color: var(--p-button-background, var(--p-primary-500)) !important;
-  border-color: var(--p-button-border-color, var(--p-primary-500)) !important;
-  color: var(--p-button-color, #ffffff) !important;
+/* ── HelloDATA Button Design System ──
+   Custom classes applied via styleClass on p-button components.
+   These do NOT interfere with PrimeNG text/rounded icon buttons.
+*/
+
+/* Shared button transitions & states */
+.hd-btn-primary,
+.hd-btn-secondary,
+.hd-btn-tertiary,
+.hd-btn-danger {
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  border: 2px solid transparent !important;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease,
+    box-shadow 140ms ease, transform 80ms ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-.p-button.p-button-icon-only {
-  padding: 0.5rem !important;
-  width: 2rem !important;
-  height: 2rem !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+.hd-btn-primary:hover:not(:disabled):not(.p-disabled),
+.hd-btn-secondary:hover:not(:disabled):not(.p-disabled),
+.hd-btn-danger:hover:not(:disabled):not(.p-disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.p-button.p-button-success,
-p-button[severity="success"] .p-button {
-  background-color: var(--p-button-success-background, var(--p-green-500)) !important;
-  border-color: var(--p-button-success-border-color, var(--p-green-500)) !important;
-  color: var(--p-button-success-color, #ffffff) !important;
+.hd-btn-primary:active:not(:disabled):not(.p-disabled),
+.hd-btn-secondary:active:not(:disabled):not(.p-disabled),
+.hd-btn-danger:active:not(:disabled):not(.p-disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12) !important;
 }
 
-.p-button.p-button-danger,
-p-button[severity="danger"] .p-button {
-  background-color: var(--p-button-danger-background, var(--p-red-500)) !important;
-  border-color: var(--p-button-danger-border-color, var(--p-red-500)) !important;
-  color: var(--p-button-danger-color, #ffffff) !important;
+.hd-btn-primary:focus-visible,
+.hd-btn-secondary:focus-visible,
+.hd-btn-tertiary:focus-visible,
+.hd-btn-danger:focus-visible {
+  outline: 4px solid var(--hd-btn-focus-ring) !important;
+  outline-offset: 4px !important;
 }
 
-.p-button.p-button-warning,
-p-button[severity="warn"] .p-button {
-  background-color: var(--p-button-warn-background, var(--p-orange-500)) !important;
-  border-color: var(--p-button-warn-border-color, var(--p-orange-500)) !important;
-  color: var(--p-button-warn-color, #ffffff) !important;
+.hd-btn-primary:disabled,
+.hd-btn-secondary:disabled,
+.hd-btn-tertiary:disabled,
+.hd-btn-danger:disabled,
+.hd-btn-primary.p-disabled,
+.hd-btn-secondary.p-disabled,
+.hd-btn-tertiary.p-disabled,
+.hd-btn-danger.p-disabled {
+  background-color: var(--hd-btn-disabled-bg) !important;
+  border-color: var(--hd-btn-disabled-border) !important;
+  color: var(--hd-btn-disabled-text) !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 1 !important;
 }
 
-.p-button.p-button-info,
-p-button[severity="info"] .p-button {
-  background-color: var(--p-button-info-background, var(--p-sky-500)) !important;
-  border-color: var(--p-button-info-border-color, var(--p-sky-500)) !important;
-  color: var(--p-button-info-color, #ffffff) !important;
+/* Primary */
+.hd-btn-primary {
+  background-color: var(--hd-btn-primary) !important;
+  border-color: var(--hd-btn-primary) !important;
+  color: #ffffff !important;
 }
 
-.p-button.p-button-secondary,
-p-button[severity="secondary"] .p-button {
-  background-color: var(--p-button-secondary-background, var(--p-gray-500)) !important;
-  border-color: var(--p-button-secondary-border-color, var(--p-gray-500)) !important;
-  color: var(--p-button-secondary-color, #ffffff) !important;
+.hd-btn-primary:hover:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-primary-hover) !important;
+  border-color: var(--hd-btn-primary-hover) !important;
 }
 
-.p-button.p-button-contrast,
-p-button[severity="contrast"] .p-button {
-  background-color: var(--p-button-contrast-background, var(--p-surface-950)) !important;
-  border-color: var(--p-button-contrast-border-color, var(--p-surface-950)) !important;
-  color: var(--p-button-contrast-color, var(--p-surface-0)) !important;
+.hd-btn-primary:active:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-primary-active) !important;
+  border-color: var(--hd-btn-primary-active) !important;
 }
 
-.p-button.p-button-help,
-p-button[severity="help"] .p-button {
-  background: var(--p-button-help-background) !important;
-  border: 1px solid var(--p-button-help-border-color) !important;
-  color: var(--p-button-help-color) !important;
+/* Secondary */
+.hd-btn-secondary {
+  background-color: var(--hd-btn-secondary) !important;
+  border-color: var(--hd-btn-secondary) !important;
+  color: #111827 !important;
+}
+
+.hd-btn-secondary:hover:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-secondary-hover) !important;
+  border-color: var(--hd-btn-secondary-hover) !important;
+}
+
+.hd-btn-secondary:active:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-secondary-active) !important;
+  border-color: var(--hd-btn-secondary-active) !important;
+}
+
+/* Tertiary (outlined) */
+.hd-btn-tertiary {
+  background-color: transparent !important;
+  border: 1px solid #cfcfcf !important;
+  color: #111827 !important;
+}
+
+.hd-btn-tertiary:hover:not(:disabled):not(.p-disabled) {
+  background-color: #f7f7f7 !important;
+  border-color: #cfcfcf !important;
+}
+
+.hd-btn-tertiary:active:not(:disabled):not(.p-disabled) {
+  background-color: #ebebeb !important;
+  border-color: #cfcfcf !important;
+}
+
+/* Danger */
+.hd-btn-danger {
+  background-color: var(--hd-btn-danger) !important;
+  border-color: var(--hd-btn-danger) !important;
+  color: #ffffff !important;
+}
+
+.hd-btn-danger:hover:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-danger-hover) !important;
+  border-color: var(--hd-btn-danger-hover) !important;
+}
+
+.hd-btn-danger:active:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-danger-active) !important;
+  border-color: var(--hd-btn-danger-active) !important;
+}
+
+/* ─── Context-based: toolbar & dialog footer buttons ───
+   Auto-applies design system to non-text buttons in action areas.
+   PrimeNG text/rounded icon buttons are excluded.
+*/
+.p-toolbar .p-button:not(.p-button-text):not(.p-button-rounded):not(.p-button-link),
+.p-dialog-footer .p-button:not(.p-button-text):not(.p-button-rounded):not(.p-button-link) {
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  border: 2px solid transparent !important;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease,
+    box-shadow 140ms ease, transform 80ms ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Context: Primary (default – no severity class) */
+.p-toolbar .p-button:not(.p-button-text):not(.p-button-rounded):not(.p-button-link):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success),
+.p-dialog-footer .p-button:not(.p-button-text):not(.p-button-rounded):not(.p-button-link):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success) {
+  background-color: var(--hd-btn-primary) !important;
+  border-color: var(--hd-btn-primary) !important;
+  color: #ffffff !important;
+}
+
+.p-toolbar .p-button:not(.p-button-text):not(.p-button-rounded):not(.p-button-link):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success):hover:not(:disabled):not(.p-disabled),
+.p-dialog-footer .p-button:not(.p-button-text):not(.p-button-rounded):not(.p-button-link):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success):hover:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-primary-hover) !important;
+  border-color: var(--hd-btn-primary-hover) !important;
+  transform: translateY(-1px);
+}
+
+.p-toolbar .p-button:not(.p-button-text):not(.p-button-rounded):not(.p-button-link):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success):active:not(:disabled):not(.p-disabled),
+.p-dialog-footer .p-button:not(.p-button-text):not(.p-button-rounded):not(.p-button-link):not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success):active:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-primary-active) !important;
+  border-color: var(--hd-btn-primary-active) !important;
+  transform: translateY(0) scale(0.98);
+}
+
+/* Context: Secondary */
+.p-toolbar .p-button.p-button-secondary:not(.p-button-text),
+.p-dialog-footer .p-button.p-button-secondary:not(.p-button-text) {
+  background-color: var(--hd-btn-secondary) !important;
+  border-color: var(--hd-btn-secondary) !important;
+  color: #111827 !important;
+}
+
+.p-toolbar .p-button.p-button-secondary:not(.p-button-text):hover:not(:disabled):not(.p-disabled),
+.p-dialog-footer .p-button.p-button-secondary:not(.p-button-text):hover:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-secondary-hover) !important;
+  border-color: var(--hd-btn-secondary-hover) !important;
+  transform: translateY(-1px);
+}
+
+.p-toolbar .p-button.p-button-secondary:not(.p-button-text):active:not(:disabled):not(.p-disabled),
+.p-dialog-footer .p-button.p-button-secondary:not(.p-button-text):active:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-secondary-active) !important;
+  border-color: var(--hd-btn-secondary-active) !important;
+  transform: translateY(0) scale(0.98);
+}
+
+/* Context: Danger */
+.p-toolbar .p-button.p-button-danger:not(.p-button-text),
+.p-dialog-footer .p-button.p-button-danger:not(.p-button-text) {
+  background-color: var(--hd-btn-danger) !important;
+  border-color: var(--hd-btn-danger) !important;
+  color: #ffffff !important;
+}
+
+.p-toolbar .p-button.p-button-danger:not(.p-button-text):hover:not(:disabled):not(.p-disabled),
+.p-dialog-footer .p-button.p-button-danger:not(.p-button-text):hover:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-danger-hover) !important;
+  border-color: var(--hd-btn-danger-hover) !important;
+  transform: translateY(-1px);
+}
+
+.p-toolbar .p-button.p-button-danger:not(.p-button-text):active:not(:disabled):not(.p-disabled),
+.p-dialog-footer .p-button.p-button-danger:not(.p-button-text):active:not(:disabled):not(.p-disabled) {
+  background-color: var(--hd-btn-danger-active) !important;
+  border-color: var(--hd-btn-danger-active) !important;
+  transform: translateY(0) scale(0.98);
+}
+
+/* Context: Disabled in toolbar/dialog */
+.p-toolbar .p-button:disabled:not(.p-button-text):not(.p-button-rounded),
+.p-toolbar .p-button.p-disabled:not(.p-button-text):not(.p-button-rounded),
+.p-dialog-footer .p-button:disabled:not(.p-button-text),
+.p-dialog-footer .p-button.p-disabled:not(.p-button-text) {
+  background-color: var(--hd-btn-disabled-bg) !important;
+  border-color: var(--hd-btn-disabled-border) !important;
+  color: var(--hd-btn-disabled-text) !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+/* Focus ring for all buttons */
+.p-button:focus-visible {
+  outline: 4px solid var(--hd-btn-focus-ring) !important;
+  outline-offset: 4px !important;
+}
+
+/* ─── Help/Purple text button styling ─── */
+.p-button-help.p-button-text .p-button-icon {
+  color: #7c3aed !important;
+}
+
+.p-button-help.p-button-text {
+  color: #7c3aed !important;
+  background: transparent !important;
+}
+
+.p-button-help.p-button-text:hover:not(:disabled) {
+  background: rgba(124, 58, 237, 0.04) !important;
+  color: #7c3aed !important;
+}
+
+.p-button-help.p-button-text:active:not(:disabled) {
+  background: rgba(124, 58, 237, 0.16) !important;
+}
+
+/* ─── Primary (no severity) text button = teal ─── */
+.p-button-text:not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success) {
+  color: #1aa6a6 !important;
+}
+
+.p-button-text:not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success):hover:not(:disabled) {
+  background: rgba(26, 166, 166, 0.04) !important;
+  color: #159393 !important;
+}
+
+.p-button-text:not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success):active:not(:disabled) {
+  background: rgba(26, 166, 166, 0.16) !important;
+}
+
+/* ─── Danger text button = red ─── */
+.p-button-danger.p-button-text {
+  color: #d93636 !important;
+}
+
+.p-button-danger.p-button-text:hover:not(:disabled) {
+  background: rgba(217, 54, 54, 0.04) !important;
+  color: #c52f2f !important;
+}
+
+.p-button-danger.p-button-text:active:not(:disabled) {
+  background: rgba(217, 54, 54, 0.16) !important;
+}
+
+/* ─── Info text button = teal (same as primary) ─── */
+.p-button-info.p-button-text {
+  color: #1aa6a6 !important;
+}
+
+.p-button-info.p-button-text:hover:not(:disabled) {
+  background: rgba(26, 166, 166, 0.04) !important;
+  color: #159393 !important;
+}
+
+.p-button-info.p-button-text:active:not(:disabled) {
+  background: rgba(26, 166, 166, 0.16) !important;
+}
+
+/* ─── Success text button = green ─── */
+.p-button-success.p-button-text {
+  color: #16a34a !important;
+}
+
+.p-button-success.p-button-text:hover:not(:disabled) {
+  background: rgba(22, 163, 74, 0.04) !important;
+  color: #15803d !important;
+}
+
+.p-button-success.p-button-text:active:not(:disabled) {
+  background: rgba(22, 163, 74, 0.16) !important;
+}
+
+/* ─── Warn text button = orange ─── */
+.p-button-warn.p-button-text {
+  color: #ea580c !important;
+}
+
+.p-button-warn.p-button-text:hover:not(:disabled) {
+  background: rgba(234, 88, 12, 0.04) !important;
+  color: #c2410c !important;
+}
+
+.p-button-warn.p-button-text:active:not(:disabled) {
+  background: rgba(234, 88, 12, 0.16) !important;
+}
+
+/* ─── Secondary text button = neutral dark ─── */
+.p-button-secondary.p-button-text {
+  color: #4b5563 !important;
+}
+
+.p-button-secondary.p-button-text:hover:not(:disabled) {
+  background: rgba(75, 85, 99, 0.06) !important;
+  color: #1f2937 !important;
+}
+
+.p-button-secondary.p-button-text:active:not(:disabled) {
+  background: rgba(75, 85, 99, 0.12) !important;
 }
 
 /* Reduce font size in role selector dropdown options */

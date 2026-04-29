@@ -92,19 +92,21 @@
       </div>
       <p-toolbar>
         <div class="p-toolbar-group-start">
-          <p-button (click)="navigateToRoleList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fas fa-arrow-left" severity="secondary"/>
-        </div>
-        <div class="p-toolbar-group-end">
-          <p-button (click)="saveRole(editedRole)"
-                    [disabled]="roleForm.invalid||!roleForm.dirty"
-                    icon="fas fa-floppy-disk"
-                    [label]="'@Save' | transloco"
-                    severity="success"/>
           @if (editedRole.id) {
-            <p-button (click)="openDeletePopup(editedRole)" icon="fas fa-trash"
+            <p-button (click)="openDeletePopup(editedRole)" (keydown.enter)="openDeletePopup(editedRole)"
+                      icon="fas fa-trash"
                       [label]="'@Delete' | transloco" severity="danger"/>
           }
+        </div>
+        <div class="p-toolbar-group-end">
+          <p-button (click)="navigateToRoleList()" (keydown.enter)="navigateToRoleList()"
+                    [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                    icon="fas fa-arrow-left" severity="secondary"/>
+          <p-button (click)="saveRole(editedRole)"
+                    (keydown.enter)="saveRole(editedRole)"
+                    [disabled]="roleForm.invalid||!roleForm.dirty"
+                    icon="fas fa-floppy-disk"
+                    [label]="'@Save' | transloco"/>
         </div>
       </p-toolbar>
     </form>

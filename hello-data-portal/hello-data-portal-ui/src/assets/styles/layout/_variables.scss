@@ -45,15 +45,45 @@ $text-color: black;
   --text-color: rgba(0, 0, 0, .87);
   --text-color-secondary: rgba(0, 0, 0, .6);
 
-  /* Primary Colors */
-  --primary-color: #3F51B5;
+  /* Primary Colors – Teal */
+  --primary-color: #1aa6a6;
   --primary-color-text: #ffffff;
   --p-primary-color: var(--primary-color);
+
+  /* Button semantic tokens */
+  --hd-btn-primary: #1aa6a6;
+  --hd-btn-primary-hover: #159393;
+  --hd-btn-primary-active: #117d7d;
+  --hd-btn-secondary: #dddddf;
+  --hd-btn-secondary-hover: #d2d2d6;
+  --hd-btn-secondary-active: #c4c4c9;
+  --hd-btn-tertiary-border: #cfcfcf;
+  --hd-btn-tertiary-hover: #f7f7f7;
+  --hd-btn-tertiary-active: #ebebeb;
+  --hd-btn-danger: #d93636;
+  --hd-btn-danger-hover: #c52f2f;
+  --hd-btn-danger-active: #a92828;
+  --hd-btn-focus-ring: #2563eb;
+  --hd-btn-disabled-bg: #e5e7eb;
+  --hd-btn-disabled-text: #9ca3af;
+  --hd-btn-disabled-border: #d1d5db;
+
+  /* Help/Purple palette for severity="help" text buttons */
+  --p-help-color: #7c3aed;
+  --p-button-help-background: #7c3aed;
+  --p-button-help-border-color: #7c3aed;
+  --p-button-help-color: #ffffff;
+  --p-button-help-hover-background: #6d28d9;
+  --p-button-help-hover-border-color: #6d28d9;
+  --p-button-help-active-background: #5b21b6;
+  --p-button-help-active-border-color: #5b21b6;
+  --p-button-text-help-color: #7c3aed;
+  --p-button-text-help-hover-background: rgba(124, 58, 237, 0.04);
+  --p-button-text-help-active-background: rgba(124, 58, 237, 0.16);
 
   // Various PrimeNG Overrides
   --p-highlight-color: var(--text-color);
   --p-datatable-header-cell-selected-color: var(--text-color);
-  //--p-select-option-selected-focus-color:
 
   /* Surface Scale */
   --surface-0: #ffffff;
@@ -95,21 +125,21 @@ $text-color: black;
 
   /* Misc */
   --maskbg: rgba(0, 0, 0, .32);
-  --highlight-bg: rgba(63, 81, 181, .12);
-  --highlight-text-color: #3F51B5;
+  --highlight-bg: rgba(26, 166, 166, .12);
+  --highlight-text-color: #1aa6a6;
   --focus-ring: none;
 
-  /* Primary Colors */
-  --p-primary-50: var(--p-gray-50);
-  --p-primary-100: var(--p-gray-100);
-  --p-primary-200: var(--p-gray-200);
-  --p-primary-300: var(--p-gray-300);
-  --p-primary-400: var(--p-gray-400);
-  --p-primary-500: var(--p-gray-500);
-  --p-primary-600: var(--p-gray-600);
-  --p-primary-700: var(--p-gray-700);
-  --p-primary-800: var(--p-gray-800);
-  --p-primary-900: var(--p-gray-900);
-  --p-primary-950: var(--p-gray-950);
+  /* PrimeNG Primary Palette – Teal */
+  --p-primary-50: #f0fdfa;
+  --p-primary-100: #ccfbf1;
+  --p-primary-200: #99f6e4;
+  --p-primary-300: #5eead4;
+  --p-primary-400: #2dd4bf;
+  --p-primary-500: #1aa6a6;
+  --p-primary-600: #159393;
+  --p-primary-700: #117d7d;
+  --p-primary-800: #0f6868;
+  --p-primary-900: #0d5555;
+  --p-primary-950: #083f3f;
 }
 

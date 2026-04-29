@@ -64,7 +64,7 @@
                   [disabled]="inviteForm.invalid"
                   icon="fas fa-floppy-disk"
                   [label]="'@Set permissions' | transloco"
-                  pRipple severity="success"/>
+                  pRipple/>
       </div>
     </p-toolbar>
   </form>
@@ -102,12 +102,12 @@
                       [pTooltip]="'@Sync Users Title' | transloco" (keydown.enter)="syncUsers()"
                       icon="fas fa-arrows-rotate" tooltipPosition="top"
                       [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
-                      severity="success" pRipple/>
+ pRipple/>
           }
           <p-button (click)="navigateToBulkAssignments()" (keydown.enter)="navigateToBulkAssignments()"
                     icon="pi pi-users"
                     [label]="'@Bulk assignments' | transloco"
-                    severity="info" pRipple/>
+                    styleClass="hd-btn-tertiary" pRipple/>
         </div>
         <span class="p-input-icon-left">
           <p-iconfield>
@@ -183,8 +183,7 @@
         @if ((loggedInUser$ | async); as loggedInUser) {
           <td>
             <p-button (click)="editUser(user)" (keydown.enter)="editUser(user)"
-                      severity="success"
-                      [rounded]="true"
+
                       [text]="true"
                       class="mr-2"
                       icon="fas fa-light fa-pen-to-square"
@@ -193,17 +192,15 @@
             @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="enableUser(user)" (keydown.enter)="enableUser(user)"
                         severity="success"
-                        [rounded]="true"
                         [text]="true"
                         class="mr-2"
-                        icon="fas fa-circle-plus"
+                        icon="fas fa-circle-check"
                         [pTooltip]="'@Enable' | transloco"
                         tooltipPosition="top"/>
             }
             @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="disableUser(user)" (keydown.enter)="disableUser(user)"
                         severity="warn"
-                        [rounded]="true"
                         [text]="true"
                         class="mr-2"
                         icon="fas fa-circle-xmark"
@@ -213,7 +210,6 @@
             @if (!user.superuser && user.email !== loggedInUser.email) {
               <p-button (click)="showUserDeletionPopup(user)" (keydown.enter)="showUserDeletionPopup(user)"
                         severity="danger"
-                        [rounded]="true"
                         [text]="true"
                         icon="fas fa-trash"
                         [pTooltip]="'@Delete' | transloco"

@@ -79,11 +79,9 @@
               </div>
               <div class="pagination-bar">
                 @if (totalUserPages > 1) {
-                  <p-button icon="pi pi-chevron-left" [text]="true" [rounded]="true"
                             [disabled]="userPage === 0"
                             (onClick)="prevUserPage()"/>
                   <span class="page-info">{{ userPage + 1 }} / {{ totalUserPages }}</span>
-                  <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true"
                             [disabled]="userPage >= totalUserPages - 1"
                             (onClick)="nextUserPage()"/>
                 }
@@ -96,7 +94,7 @@
               <div class="step-actions">
                 <p-button label="{{ '@Next' | transloco }}"
                           icon="pi pi-arrow-right" iconPos="right"
-                          severity="info"
+                          
                           [disabled]="selectedUserIds.size === 0"
                           (onClick)="onStepActivate(2, activateCallback)" pRipple/>
               </div>
@@ -139,11 +137,11 @@
               <div class="step-actions">
                 <p-button label="{{ '@Back' | transloco }}"
                           icon="pi pi-arrow-left"
-                          severity="warn"
+                          severity="secondary"
                           (onClick)="activateCallback(1)" pRipple/>
                 <p-button label="{{ '@Next' | transloco }}"
                           icon="pi pi-arrow-right" iconPos="right"
-                          severity="info"
+                          
                           [disabled]="selectedDomainKeys.size === 0"
                           (onClick)="onStepActivate(3, activateCallback)" pRipple/>
               </div>
@@ -242,11 +240,11 @@
               <div class="step-actions">
                 <p-button label="{{ '@Back' | transloco }}"
                           icon="pi pi-arrow-left"
-                          severity="warn"
+                          severity="secondary"
                           (onClick)="activateCallback(2)" pRipple/>
                 <p-button label="{{ '@Next' | transloco }}"
                           icon="pi pi-arrow-right" iconPos="right"
-                          severity="info"
+                          
                           (onClick)="goToSummary(activateCallback)" pRipple/>
               </div>
             </div>
@@ -311,11 +309,11 @@
                 <div class="step-actions">
                   <p-button label="{{ '@Back' | transloco }}"
                             icon="pi pi-arrow-left"
-                            severity="warn"
+                            severity="secondary"
                             (onClick)="activateCallback(3)" pRipple/>
                   <p-button label="{{ '@Apply bulk assignments' | transloco }}"
                             icon="pi pi-check"
-                            severity="success"
+
                             (onClick)="confirmApply()" pRipple/>
                 </div>
               }

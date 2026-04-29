@@ -26,8 +26,6 @@ import {FormsModule} from "@angular/forms";
 import {InputText} from "primeng/inputtext";
 import {Tooltip} from "primeng/tooltip";
 import {Tag} from "primeng/tag";
-import {Button} from "primeng/button";
-import {Ripple} from "primeng/ripple";
 import {Textarea} from "primeng/textarea";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {IconField} from "primeng/iconfield";
@@ -38,7 +36,7 @@ import {Card} from 'primeng/card';
 @Component({
   templateUrl: 'queries.component.html',
   styleUrls: ['./queries.component.scss'],
-  imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Button, Ripple, Textarea, AsyncPipe, DatePipe, TranslocoPipe, IconField, InputIcon, Card]
+  imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Textarea, AsyncPipe, DatePipe, TranslocoPipe, IconField, InputIcon, Card]
 })
 export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);

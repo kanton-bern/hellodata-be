@@ -7,19 +7,20 @@
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" [label]="'@Discard changes' | transloco"
+    <p-button (click)="cd.onReject()" (keydown.enter)="cd.onReject()" icon="fas fa-circle-xmark"
+              [label]="'@Discard changes' | transloco"
               pRipple severity="secondary" type="button"></p-button>
     @if (stayOnPage$ | async; as stayOnPage) {
       @if (!stayOnPage.value) {
         <p-button (click)="cd.onAccept()"
-                  severity="success" pRipple
+                  (keydown.enter)="cd.onAccept()"
+                  pRipple
                   icon="fas fa-floppy-disk"
                   [label]="'@Save changes' | transloco"
                   type="button"
         />
       } @else {
-        <p-button (click)="cd.hide()" pRipple
-                  severity="success"
+        <p-button (click)="cd.hide()" (keydown.enter)="cd.hide()" pRipple
                   icon="fas fa-pen-to-square"
                   [label]="'@Continue edition' | transloco"
                   type="button"

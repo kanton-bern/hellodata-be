@@ -204,7 +204,7 @@
         }
 
         <!-- Submit button -->
-        <p-button severity="success" (keydown.enter)="submitComment()"
+        <p-button (keydown.enter)="submitComment()"
                   label="{{ '@Add' | transloco }}"
                   (click)="submitComment()"
                   [disabled]="!newCommentText?.trim() || (showPointerUrlInput && pointerUrl && !isPointerUrlValid())"
@@ -269,7 +269,7 @@
     <p-button (click)="closeTagsDialog()"
               (keydown.enter)="closeTagsDialog()"
               [label]="'@Done' | transloco"
-              severity="success"/>
+/>
   </ng-template>
 </p-dialog>
 
@@ -279,7 +279,7 @@
               severity="secondary" (keydown.escape)="cd1.onReject()"/>
     <p-button (click)="cd1.onAccept()" icon="fas fa-cloud-arrow-up"
               label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onAccept()"
-              severity="success"/>
+/>
   </ng-template>
 </p-confirmDialog>
 
@@ -349,6 +349,6 @@
               severity="secondary" (keydown.escape)="cd4.onReject()"/>
     <p-button (click)="cd4.onAccept()" icon="fas fa-rotate-left"
               label="{{'@Restore' | transloco}}" (keydown.enter)="cd4.onAccept()"
-              severity="success"/>
+/>
   </ng-template>
 </p-confirmDialog>

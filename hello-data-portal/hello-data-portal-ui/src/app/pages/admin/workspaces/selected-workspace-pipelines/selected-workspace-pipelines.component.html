@@ -8,7 +8,7 @@
     [value]="pipelines()"
     dataKey="id"
     class="p-datatable-striped"
-    >
+  >
     <ng-template pTemplate="header">
       <tr>
         <th id="id">
@@ -31,7 +31,7 @@
           {{ pipeline.id }}
         </td>
         <td>
-          <p-tag severity="warn" value="{{pipeline.description}}" />
+          <p-tag severity="warn" value="{{pipeline.description}}"/>
         </td>
         <td>
           @if (pipeline.lastInstance.state) {
@@ -62,8 +62,9 @@
           }
         </td>
         <td>
-          <p-button (click)="showDetails(pipeline.id)" [pTooltip]="'@Open' | transloco" class="mr-2"
-          icon="p-button-icon fas fa-up-right-from-square" />
+          <p-button (click)="showDetails(pipeline.id)" (keydown.enter)="showDetails(pipeline.id)"
+                    [pTooltip]="'@Open' | transloco" class="mr-2"
+                    [text]="true" severity="secondary" icon="fas fa-up-right-from-square"/>
         </td>
       </tr>
     </ng-template>

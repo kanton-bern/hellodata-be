@@ -124,86 +124,95 @@
 }
 
 // Action buttons - shared styles
-.info-btn, .publish-btn, .decline-btn, .unpublish-btn, .delete-btn, .edit-btn {
+.info-btn, .publish-btn, .decline-btn, .unpublish-btn, .delete-btn, .edit-btn, .send-review-btn {
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
+  border-radius: 4px;
+  transition: color 200ms ease-in-out, background-color 200ms ease-in-out;
 }
 
 .info-btn {
-  color: var(--text-color-secondary, #6c757d);
-  transition: color 200ms ease-in-out;
+  color: #4b5563;
 
   &:hover {
-    color: var(--primary-color, #3b82f6);
+    color: #1f2937;
+    background-color: rgba(75, 85, 99, 0.06);
   }
 
-  // Green color when details panel is expanded
   &.active {
-    color: var(--p-green-500, #22c55e);
+    color: #1f2937;
 
     &:hover {
-      color: var(--p-green-600, #16a34a);
+      color: #111827;
     }
   }
 }
 
-.publish-btn {
-  color: var(--green-500, #22c55e);
+.edit-btn {
+  color: #1aa6a6;
 
   &:hover {
-    color: var(--green-600, #16a34a);
+    color: #159393;
+    background-color: rgba(26, 166, 166, 0.08);
+  }
+}
+
+.publish-btn {
+  color: #1aa6a6;
+
+  &:hover {
+    color: #159393;
+    background-color: rgba(26, 166, 166, 0.08);
   }
 }
 
 .decline-btn {
-  color: var(--red-500, #ef4444);
+  color: #d93636;
 
   &:hover {
-    color: var(--red-600, #dc2626);
+    color: #c52f2f;
+    background-color: rgba(217, 54, 54, 0.08);
   }
 }
 
 .send-review-btn {
-  color: var(--blue-500, #3b82f6);
+  color: #1aa6a6;
 
   &:hover {
-    color: var(--blue-600, #2563eb);
+    color: #159393;
+    background-color: rgba(26, 166, 166, 0.08);
   }
 }
 
 .delete-version-btn {
-  color: var(--red-500, #ef4444);
+  color: #d93636;
 
   &:hover {
-    color: var(--red-600, #dc2626);
+    color: #c52f2f;
+    background-color: rgba(217, 54, 54, 0.08);
   }
 }
 
 .unpublish-btn {
-  color: var(--orange-500, #f97316);
+  color: #d93636;
 
   &:hover {
-    color: var(--orange-600, #ea580c);
+    color: #c52f2f;
+    background-color: rgba(217, 54, 54, 0.08);
   }
 }
 
 .delete-btn {
-  color: var(--red-500, #ef4444);
+  color: #d93636;
 
   &:hover {
-    color: var(--red-600, #dc2626);
+    color: #c52f2f;
+    background-color: rgba(217, 54, 54, 0.08);
   }
 }
 
-.edit-btn {
-  color: var(--blue-500, #3b82f6);
-
-  &:hover {
-    color: var(--blue-600, #2563eb);
-  }
-}
 
 .comment-details-wrapper {
   display: grid;

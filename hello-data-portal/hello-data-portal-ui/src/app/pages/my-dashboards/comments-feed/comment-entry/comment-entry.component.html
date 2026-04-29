@@ -78,7 +78,7 @@
                     (keydown)="onKeyDown($event, editComment.bind(this))"
                     [pTooltip]="'@Edit' | transloco"
                     tooltipPosition="top">
-              <i class="fa-solid fa-pen"></i>
+              <i class="fas fa-light fa-pen-to-square"></i>
             </button>
           }
           @if (canPublish()) {
@@ -114,7 +114,7 @@
                     (keydown)="onKeyDown($event, deleteComment.bind(this))"
                     [pTooltip]="'@Delete' | transloco"
                     tooltipPosition="top">
-              <i class="fa fa-trash"></i>
+              <i class="fas fa-trash"></i>
             </button>
           }
         } @else {
@@ -383,9 +383,9 @@
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="saveEdit()" (keydown.enter)="saveEdit()"
-              icon="fas fa-save"
+              icon="fas fa-floppy-disk"
               [label]="'@Save' | transloco"
-              severity="success"
+
               [disabled]="isSaveEditDisabled()"/>
   </ng-template>
 </p-dialog>

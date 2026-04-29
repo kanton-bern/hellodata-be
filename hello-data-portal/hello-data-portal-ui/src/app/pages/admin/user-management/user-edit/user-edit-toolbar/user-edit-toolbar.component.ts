@@ -39,6 +39,22 @@ import {User} from "../../../../../store/users-management/users-management.model
   template: `
     <p-toolbar>
       <div class="p-toolbar-group-start">
+        @if (!user().superuser && user().enabled) {
+          <p-button (click)="disableClicked.emit(user())" (keydown.enter)="disableClicked.emit(user())"
+                    (keydown.space)="disableClicked.emit(user())"
+                    icon="fas fa-circle-xmark" pRipple
+                    [label]="'@Disable' | transloco"
+                    severity="danger"/>
+        }
+      </div>
+      <div class="p-toolbar-group-end">
+        @if (!user().superuser && !user().enabled) {
+          <p-button (click)="enableClicked.emit(user())" (keydown.enter)="enableClicked.emit(user())"
+                    (keydown.space)="enableClicked.emit(user())"
+                    icon="fas fa-circle-plus" pRipple
+                    [label]="'@Enable' | transloco"
+                    class="mr-2"/>
+        }
         <p-button (click)="cancelClicked.emit()" (keydown.enter)="cancelClicked.emit()"
                   (keydown.space)="cancelClicked.emit()"
                   [pTooltip]="'@Cancel' | transloco"
@@ -46,25 +62,10 @@ import {User} from "../../../../../store/users-management/users-management.model
                   icon="fas fa-arrow-left" severity="secondary" pRipple/>
         <p-button (click)="saveClicked.emit()" (keydown.enter)="saveClicked.emit()" (keydown.space)="saveClicked.emit()"
                   [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled()"
-                  severity="success" [loading]="saveLoading()"
+                  [loading]="saveLoading()"
                   [label]="'@Save' | transloco"
+                  icon="fas fa-floppy-disk"
                   pRipple/>
-      </div>
-      <div class="p-toolbar-group-end">
-        @if (!user().superuser && user().enabled) {
-          <p-button (click)="disableClicked.emit(user())" (keydown.enter)="disableClicked.emit(user())"
-                    (keydown.space)="disableClicked.emit(user())"
-                    icon="fas fa-circle-xmark" pRipple
-                    [label]="'@Disable' | transloco"
-                    class="mr-2 p-button-warning"/>
-        }
-        @if (!user().superuser && !user().enabled) {
-          <p-button (click)="enableClicked.emit(user())" (keydown.enter)="enableClicked.emit(user())"
-                    (keydown.space)="enableClicked.emit(user())"
-                    icon="fas fa-circle-plus" pRipple
-                    [label]="'@Enable' | transloco"
-                    severity="success"/>
-        }
       </div>
     </p-toolbar>
   `,

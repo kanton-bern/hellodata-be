@@ -4,7 +4,7 @@
   <p-card>
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
-        <p-button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
+        <p-button (click)="createFaq()" icon="fas fa-circle-plus" id="createFaqButton"
                   [label]="'@Create' | transloco" pRipple (keydown.enter)="createFaq()"></p-button>
       </ng-template>
     </p-toolbar>
@@ -45,29 +45,26 @@
                   }
                 </td>
                 <td>
+                  <div class="flex items-center justify-end gap-2">
                   <p-button (click)="editFaq(faqItem)" (keydown.enter)="editFaq(faqItem)"
                             [pTooltip]="'@Edit' | transloco"
                             tooltipPosition="top"
-                            severity="success"
-                            [rounded]="true"
                             [text]="true"
-                            class="mr-2"
                             icon="fas fa-light fa-pen-to-square"
                             id="{{'editFaq_' + faqItem.title}}"/>
                   <p-button (click)="showFaqDeletionPopup(faqItem)" (keydown.enter)="showFaqDeletionPopup(faqItem)"
                             [pTooltip]="'@Delete' | transloco"
                             tooltipPosition="top"
                             severity="danger"
-                            [rounded]="true"
                             [text]="true"
-                            class="mr-2"
                             icon="fas fa-trash"
                             id="{{'deleteFaq_' + faqItem.title}}"/>
                   <p-button type="button" pRipple [pRowToggler]="faqItem"
-                            [text]="true" [rounded]="true" [plain]="true"
                             [pTooltip]="'@Details' | transloco"
                             tooltipPosition="top"
+                            [text]="true"
                             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+                  </div>
                 </td>
               </tr>
             </ng-template>

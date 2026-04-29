@@ -84,25 +84,22 @@
           <p-button (click)="openDashboard(dashboard)" (keydown.enter)="openDashboard(dashboard)"
                     [pTooltip]="'@Open' | transloco"
                     tooltipPosition="top"
-                    [rounded]="true"
                     [text]="true"
-                    severity="info"
+                    severity="secondary"
                     class="mr-2"
                     icon="fas fa-up-right-from-square"/>
           <p-button (click)="openInfoPanel(dashboard)" (keydown.enter)="openInfoPanel(dashboard)"
                     [pTooltip]="'@Info' | transloco"
                     tooltipPosition="top"
-                    [rounded]="true"
                     [text]="true"
-                    severity="help"
+                    severity="secondary"
                     class="mr-2"
                     icon="fas fa-circle-info"/>
           <p-button (click)="editDashboard(dashboard)" (keydown.enter)="editDashboard(dashboard)"
                     [pTooltip]="'@Edit' | transloco"
                     tooltipPosition="top"
-                    [rounded]="true"
                     [text]="true"
-                    severity="success"
+
                     icon="fas fa-light fa-pen-to-square"
                     [style.display]="(dashboard.currentUserAdmin || dashboard.currentUserEditor) ? '' : 'none'"/>
         </td>
@@ -152,9 +149,8 @@
     <p-button (click)="hideEditMetadataDialog()" (keydown)="hideEditMetadataDialog()" icon="fas fa-circle-xmark"
               [label]="'@Cancel' | transloco" pRipple severity="secondary"/>
     <p-button (click)="updateDashboard(selectedDashboard)" (keydown)="updateDashboard(selectedDashboard)"
-              icon="fas fa-check" [label]="'@Save' | transloco"
-              pRipple
-              severity="success"/>
+              icon="fas fa-floppy-disk" [label]="'@Save' | transloco"
+              pRipple/>
   </ng-template>
 </p-dialog>
 

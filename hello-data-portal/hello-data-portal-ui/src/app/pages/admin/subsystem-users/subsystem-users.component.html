@@ -52,7 +52,7 @@
               <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
                         icon="pi pi-replay" pRipple
                         label="{{ '@Reload' | transloco }}"
-                        severity="success"/>
+/>
             </div>
             <div style="text-align: left">
               <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
@@ -85,7 +85,6 @@
                   </span>
                 }
                 <p-button (onClick)="clearAllFilters()" icon="pi pi-filter-slash"
-                          [text]="true" [rounded]="true"
                           severity="secondary"
                           pTooltip="{{ '@Clear all filters' | transloco }}"/>
               </div>
@@ -111,7 +110,7 @@
             </td>
             <td>
               <p-button type="button" pRipple [pRowToggler]="user"
-                        [text]="true" [rounded]="true" [plain]="true"
+                        [text]="true"
                         [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
             </td>
           </tr>

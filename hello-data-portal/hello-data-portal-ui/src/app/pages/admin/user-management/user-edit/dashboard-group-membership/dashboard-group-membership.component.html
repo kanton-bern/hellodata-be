@@ -51,7 +51,6 @@
                 @if (group.dashboardTitles && group.dashboardTitles.length > 0) {
                   <div class="dashboard-badges">
                     @for (title of group.dashboardTitles; track title) {
-                      <p-tag [value]="title" severity="secondary" [rounded]="true"/>
                     }
                   </div>
                 }

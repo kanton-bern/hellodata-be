@@ -105,10 +105,9 @@
             <!-- Open dashboard button -->
             <p-button
               icon="fa-up-right-from-square fas"
-              [rounded]="true"
               class="mr-2"
               [text]="true"
-              severity="info"
+              severity="secondary"
               [pTooltip]="'@Open Dashboard' | transloco"
               tooltipPosition="top"
               (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
@@ -116,9 +115,8 @@
             @if (canViewMetadataFn()(comment)) {
               <p-button
                 icon="fa fa-info-circle"
-                [rounded]="true"
                 [text]="true"
-                severity="help"
+                severity="secondary"
                 class="mr-2"
                 [styleClass]="isExpanded(comment) ? 'info-btn-active' : 'info-btn'"
                 [pTooltip]="'@Info' | transloco"
@@ -128,10 +126,8 @@
             <!-- Edit button -->
             @if (canEdit(comment)) {
               <p-button
-                icon="fa-solid fa-pen"
-                [rounded]="true"
+                icon="fas fa-light fa-pen-to-square"
                 [text]="true"
-                severity="success"
                 class="mr-2"
                 [pTooltip]="'@Edit' | transloco"
                 tooltipPosition="top"
@@ -141,9 +137,8 @@
             @if (canPublish(comment)) {
               <p-button
                 icon="fa-solid fa-cloud-arrow-up"
-                [rounded]="true"
                 [text]="true"
-                severity="warn"
+
                 class="mr-2"
                 [pTooltip]="'@Publish' | transloco"
                 tooltipPosition="top"
@@ -153,9 +148,8 @@
             @if (canSendForReview(comment)) {
               <p-button
                 icon="fa-solid fa-paper-plane"
-                [rounded]="true"
                 [text]="true"
-                severity="info"
+
                 class="mr-2"
                 [pTooltip]="'@Send for review' | transloco"
                 tooltipPosition="top"
@@ -165,7 +159,6 @@
             @if (canDecline(comment)) {
               <p-button
                 icon="fa-solid fa-circle-stop"
-                [rounded]="true"
                 [text]="true"
                 severity="danger"
                 class="mr-2"
@@ -176,8 +169,7 @@
             <!-- Delete button -->
             @if (canDelete(comment)) {
               <p-button
-                icon="fa fa-trash"
-                [rounded]="true"
+                icon="fas fa-trash"
                 [text]="true"
                 severity="danger"
                 [pTooltip]="'@Delete' | transloco"
@@ -352,7 +344,6 @@
                             @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && userHasReviewPermission() && !isCurrentVersionReadyForReview(comment)) {
                               <p-button
                                 icon="fa-solid fa-rotate-left"
-                                [rounded]="true"
                                 [text]="true"
                                 severity="help"
                                 styleClass="restore-btn"
@@ -503,9 +494,9 @@
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="saveEdit()" (keydown.enter)="saveEdit()"
-              icon="fas fa-save"
+              icon="fas fa-floppy-disk"
               [label]="'@Save' | transloco"
-              severity="success"
+
               [disabled]="isSaveEditDisabled()"/>
   </ng-template>
 </p-dialog>
@@ -553,7 +544,7 @@
               severity="secondary" (keydown.escape)="cd1.onReject()"/>
     <p-button (click)="cd1.onAccept()" icon="fas fa-cloud-arrow-up"
               label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onAccept()"
-              severity="success"/>
+/>
   </ng-template>
 </p-confirmDialog>
 
@@ -625,6 +616,6 @@
               severity="secondary" (keydown.escape)="cd4.onReject()"/>
     <p-button (click)="cd4.onAccept()" icon="fas fa-rotate-left"
               label="{{'@Restore' | transloco}}" (keydown.enter)="cd4.onAccept()"
-              severity="success"/>
+/>
   </ng-template>
 </p-confirmDialog>

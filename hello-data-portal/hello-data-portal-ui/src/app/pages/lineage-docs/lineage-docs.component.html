@@ -40,11 +40,11 @@
           <td class="flex justify-end">
             <div class="flex items-center justify-center gap-2">
               <p-button (click)="openLineage(projectDoc)"
+                        (keydown.enter)="openLineage(projectDoc)"
                         [pTooltip]="'@Open' | transloco"
-                        class="p-button-rounded mr-2"
-                        severity="info"
+                        [text]="true"
+                        severity="secondary"
                         icon="fas fa-up-right-from-square"
-
                         pRipple/>
             </div>
           </td>
