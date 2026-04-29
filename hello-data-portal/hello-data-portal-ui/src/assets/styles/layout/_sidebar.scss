@@ -433,6 +433,11 @@ body {
   }
 }
 
+// Highlight second-level parent when a third-level child is hovered
+.nav-drawer__group:has(.nav-drawer__item--child:hover) > .nav-drawer__item--parent {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
 .nav-drawer__item--child {
   padding-left: 40px;
   font-size: 0.8rem;
