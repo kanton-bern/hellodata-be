@@ -49,8 +49,8 @@
         <nats-spring.version>0.6.2+3.5</nats-spring.version>
         <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
         <thymeleaf-layout-dialect.version>4.0.1</thymeleaf-layout-dialect.version>
-        <thymeleaf-spring6.version>3.1.4.RELEASE</thymeleaf-spring6.version>
-        <thymeleaf.version>3.1.4.RELEASE</thymeleaf.version>
+        <thymeleaf-spring6.version>3.1.5.RELEASE</thymeleaf-spring6.version>
+        <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
     </properties>
 
     <dependencyManagement>
