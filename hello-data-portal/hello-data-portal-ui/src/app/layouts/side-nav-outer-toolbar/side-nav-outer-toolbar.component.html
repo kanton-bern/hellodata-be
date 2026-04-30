@@ -39,6 +39,7 @@
 <!-- Navigation Drawer Backdrop: closes on hover or click -->
 <div class="nav-drawer-backdrop"
      [class.open]="drawerOpen"
+     [class.sidebar-minimized]="sidebarMinimized"
      (mouseenter)="closeDrawer()"
      (click)="closeDrawer()"
      (keydown.escape)="closeDrawer()"

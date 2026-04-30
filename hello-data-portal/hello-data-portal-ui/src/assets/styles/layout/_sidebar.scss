@@ -302,15 +302,20 @@ body {
 .nav-drawer-backdrop {
   position: fixed;
   top: 0;
-  left: var(--sidebar-width);
+  left: calc(var(--sidebar-width) + var(--nav-drawer-width) + 20px);
   right: 0;
   bottom: 0;
   background: transparent;
   z-index: 190;
   pointer-events: none;
+  transition: left 0.3s ease;
 
   &.open {
     pointer-events: auto;
+  }
+
+  &.sidebar-minimized {
+    left: calc(var(--sidebar-width-minimized) + var(--nav-drawer-width) + 20px);
   }
 }
 
