@@ -100,7 +100,7 @@ export const selectAvailableDataDomainItems = createSelector(
   selectAvailableDataDomains,
   selectSelectedDataDomain,
   (availableDataDomains, selectedDataDomain) => {
-    if (selectedDataDomain?.id === '') {
+    if (!selectedDataDomain || selectedDataDomain.id === '') {
       return availableDataDomains
         .filter(availableDataDomain => availableDataDomain.id)
         .map(availableDataDomain => ({

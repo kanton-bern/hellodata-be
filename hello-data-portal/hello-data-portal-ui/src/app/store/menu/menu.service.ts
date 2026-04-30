@@ -157,7 +157,7 @@ export class MenuService {
   private processMenuItem(menuItem: any, ctx: MenuProcessingContext): void {
     switch (menuItem.label) {
       case '@Dashboards':
-        menuItem.items = this.createMyDashboardsSubNav(ctx.myDashboards, ctx.appInfos, ctx.contextRoles, ctx.commentPermissions);
+        menuItem.items = this.createMyDashboardsSubNav(ctx.myDashboards, ctx.appInfos, ctx.contextRoles, ctx.commentPermissions, ctx.selectedDataDomain);
         break;
       case '@Lineage':
         menuItem.items = this.createLineageDocsSubNav(ctx.myDocs, ctx.availableDomainItems);
@@ -266,11 +266,11 @@ export class MenuService {
     return filteredNavigationElements;
   }
 
-  private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>) {
+  private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>, selectedDataDomain: any) {
     const myDashboards: any[] = [];
     myDashboards.push({id: 'dashboardList', label: '@Dashboard List', routerLink: 'my-dashboards'});
     this.groupAndInsertDashboardMenuItems(dashboards, contextRoles, appInfos, myDashboards, commentPermissions);
-    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles, commentPermissions);
+    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles, commentPermissions, selectedDataDomain);
     myDashboards.push({
       id: 'externalDashboards',
       label: '@External dashboards',
@@ -335,8 +335,11 @@ export class MenuService {
     });
   }
 
-  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>) {
-    const supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
+  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>, selectedDataDomain: any) {
+    let supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
+    if (selectedDataDomain && selectedDataDomain.id !== '') {
+      supersets = supersets.filter(superset => superset.businessContextInfo?.subContext?.key === selectedDataDomain?.key);
+    }
     supersets.forEach((supersetInstance) => {
       const contextName = supersetInstance.businessContextInfo.subContext.name;
       const contextKey = supersetInstance.businessContextInfo.subContext.key;
@@ -450,7 +453,7 @@ export class MenuService {
     const jupyterhubs = appInfos.filter(appInfo => appInfo.moduleType === "JUPYTERHUB");
     const subMenuEntry: any[] = [];
     let filteredContexts = contextRoles.filter(contextRole => contextRole.context.type === 'DATA_DOMAIN' && contextRole.role.name === 'DATA_DOMAIN_ADMIN').map(contextRole => contextRole.context);
-    if (selectedDataDomain?.id !== '') {
+    if (selectedDataDomain && selectedDataDomain.id !== '') {
       filteredContexts = filteredContexts.filter(context => context.contextKey === selectedDataDomain?.key);
     }
     for (const filteredContext of filteredContexts) {
