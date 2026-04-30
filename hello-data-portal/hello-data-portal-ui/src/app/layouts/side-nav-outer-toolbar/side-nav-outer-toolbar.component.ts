@@ -118,9 +118,7 @@ export class SideNavOuterToolbarComponent {
    * Handles click on a first-level navigation item.
    */
   onFirstLevelClick(item: MenuItem): void {
-    if (item.items?.length === 1) {
-      this.navigateToItem(item.items[0]);
-    } else if ((item.items?.length ?? 0) > 1) {
+    if (item.items && item.items.length > 0) {
       if (this.activeDrawerItem === item && this.drawerOpen) {
         this.closeDrawer();
       } else {
@@ -135,7 +133,7 @@ export class SideNavOuterToolbarComponent {
    * Opens the drawer when hovering over a first-level item with children.
    */
   onFirstLevelHover(item: MenuItem): void {
-    if ((item.items?.length ?? 0) > 1) {
+    if (item.items && item.items.length > 0) {
       this.openDrawerFor(item);
     } else if (this.drawerOpen) {
       this.closeDrawer();
