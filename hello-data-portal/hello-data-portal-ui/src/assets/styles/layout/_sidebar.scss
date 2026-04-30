@@ -302,7 +302,7 @@ body {
 .nav-drawer-backdrop {
   position: fixed;
   top: 0;
-  left: calc(var(--sidebar-width) + var(--nav-drawer-width) + 20px);
+  left: calc(var(--sidebar-width) + var(--nav-drawer-width) + 50px);
   right: 0;
   bottom: 0;
   background: transparent;
@@ -315,7 +315,7 @@ body {
   }
 
   &.sidebar-minimized {
-    left: calc(var(--sidebar-width-minimized) + var(--nav-drawer-width) + 20px);
+    left: calc(var(--sidebar-width-minimized) + var(--nav-drawer-width) + 50px);
   }
 }
 
