@@ -80,7 +80,7 @@ export class AnnouncementEffects {
             console.debug("published announcements", publishedAnnouncements)
           }),
           map(publishedAnnouncements => {
-            return publishedAnnouncements.filter(a => !hiddenIds.includes(a.id));
+            return publishedAnnouncements.filter(a => a.id && !hiddenIds.includes(a.id));
           })
         )),
         switchMap((result) => scheduled([loadPublishedAnnouncementsFilteredSuccess({payload: result})], asyncScheduler)),

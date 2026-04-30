@@ -34,6 +34,7 @@ import {TranslocoTestingModule} from "@jsverse/transloco";
 import {Pipeline} from "../../../store/summary/summary.model";
 import {AppInfoService} from "../../services";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {provideRouter} from "@angular/router";
 
 class MockAppInfoService {
   getAppInfo() {
@@ -88,6 +89,7 @@ describe('SummaryComponent', () => {
       providers: [
         {provide: Store, useValue: mockStore},
         {provide: AppInfoService, useClass: MockAppInfoService},
+        provideRouter([]),
       ],
     });
 

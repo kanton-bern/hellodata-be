@@ -30,6 +30,8 @@ import {PublishedAnnouncementsWrapperComponent} from './published-announcements-
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
+import {TranslocoTestingModule} from "@jsverse/transloco";
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {
   loadPublishedAnnouncementsFiltered,
   markAnnouncementAsRead
@@ -48,7 +50,18 @@ describe('PublishedAnnouncementComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [PublishedAnnouncementsWrapperComponent],
+      imports: [
+        PublishedAnnouncementsWrapperComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+        HttpClientTestingModule
+      ],
       providers: [{provide: Store, useValue: mockStore}],
     });
 

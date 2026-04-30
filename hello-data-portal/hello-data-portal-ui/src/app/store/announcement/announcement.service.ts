@@ -78,14 +78,16 @@ export class AnnouncementService {
   }
 
   public hideAnnouncement(announcement: Announcement) {
-    console.debug('Hiding announcement', announcement.id);
-    const stored = localStorage.getItem(this.HIDDEN_ANNOUNCEMENTS_KEY);
-    const ids: string[] = stored ? JSON.parse(stored) : [];
-    if (!ids.includes(announcement.id)) {
-      ids.push(announcement.id);
+    if (announcement.id) {
+      console.debug('Hiding announcement', announcement.id);
+      const stored = localStorage.getItem(this.HIDDEN_ANNOUNCEMENTS_KEY);
+      const ids: string[] = stored ? JSON.parse(stored) : [];
+      if (!ids.includes(announcement.id)) {
+        ids.push(announcement.id);
+      }
+      localStorage.setItem(this.HIDDEN_ANNOUNCEMENTS_KEY, JSON.stringify(ids));
+      this.hiddenAnnouncementIds.next(ids);
     }
-    localStorage.setItem(this.HIDDEN_ANNOUNCEMENTS_KEY, JSON.stringify(ids));
-    this.hiddenAnnouncementIds.next(ids);
     return scheduled([announcement], asyncScheduler);
   }
 

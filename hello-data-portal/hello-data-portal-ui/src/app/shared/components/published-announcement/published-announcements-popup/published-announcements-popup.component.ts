@@ -59,8 +59,8 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
 })
 export class PublishedAnnouncementsPopupComponent implements OnDestroy {
   publishedAnnouncements$: Observable<Announcement[]>;
-  selectedLanguage$: Observable<{ code: string; typeTranslationKey: string }>;
-  defaultLanguage$: Observable<string>;
+  selectedLanguage$: Observable<{ code: string | null; typeTranslationKey: string }>;
+  defaultLanguage$: Observable<string | null>;
   dontShowAgain = false;
 
   private readonly store = inject<Store<AppState>>(Store);
@@ -77,11 +77,12 @@ export class PublishedAnnouncementsPopupComponent implements OnDestroy {
     this.ref.close({dontShowAgain: this.dontShowAgain});
   }
 
-  getMessage(announcement: Announcement, selectedLanguage: string, defaultLanguage: string): string | undefined {
+  getMessage(announcement: Announcement, selectedLanguage: string | null, defaultLanguage: string | null): string | undefined {
     const message = this.findMessage(announcement, selectedLanguage);
     if (!message || message.trim() === '') {
       const fallback = this.findMessage(announcement, defaultLanguage);
-      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + (fallback ?? '');
+      const defaultDisplay = defaultLanguage ? defaultLanguage.slice(0, 2)?.toUpperCase() : '??';
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultDisplay}) + '\n' + (fallback ?? '');
     }
     return message;
   }

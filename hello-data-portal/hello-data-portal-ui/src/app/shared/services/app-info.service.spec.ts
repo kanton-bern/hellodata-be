@@ -101,7 +101,7 @@ describe('AppInfoService', () => {
   });
 
   it('should return the title', () => {
-    expect(appInfoService.title).toBe('HelloDATA BE | Portal');
+    expect(appInfoService.title).toBe('HelloDATA BE Portal');
   });
 
   it('should return the current year', () => {

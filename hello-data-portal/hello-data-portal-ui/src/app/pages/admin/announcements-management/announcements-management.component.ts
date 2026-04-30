@@ -61,7 +61,7 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 })
 export class AnnouncementsManagementComponent extends BaseComponent {
   allAnnouncements$: Observable<Announcement[]>;
-  selectedLanguage$: Observable<{ code: string; typeTranslationKey: string }>;
+  selectedLanguage$: Observable<{ code: string | null; typeTranslationKey: string }>;
   expandedRows: { [key: string]: boolean } = {};
 
   private readonly store = inject<Store<AppState>>(Store);
