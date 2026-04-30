@@ -29,7 +29,7 @@ package ch.bedag.dap.hellodata.portal.email.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring4.SpringTemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Locale;
 import java.util.Map;
