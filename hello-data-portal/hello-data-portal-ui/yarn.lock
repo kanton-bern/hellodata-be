@@ -6387,8 +6387,8 @@ __metadata:
   linkType: hard
 
 "angular-auth-oidc-client@npm:^21.0.0":
-  version: 21.0.1
-  resolution: "angular-auth-oidc-client@npm:21.0.1"
+  version: 21.0.2
+  resolution: "angular-auth-oidc-client@npm:21.0.2"
   dependencies:
     rfc4648: "npm:^1.5.0"
     tslib: "npm:^2.3.0"
@@ -6397,7 +6397,7 @@ __metadata:
     "@angular/core": ">=20.0.0"
     "@angular/router": ">=20.0.0"
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/f5678d249621aa4645057ce1d4b28094ef2893628bb00baa6a68a94c63ac27470d75c61ae8f574ded37d5a54e544afdba5cb46e05b4d20c9a4a979b06716b2bd
+  checksum: 10c0/8a80b72443a88b97a90a95516adeb0a1dd86741950a0cf72e7cb625205c4c231ada12698361f0e16146ea8ab4b7102ca40c71f974f84749d3b6ca88e0d8c3f18
   languageName: node
   linkType: hard
 
