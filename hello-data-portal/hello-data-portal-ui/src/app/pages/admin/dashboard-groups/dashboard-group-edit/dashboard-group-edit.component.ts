@@ -218,8 +218,11 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
               this.applyDashboardFilter();
             });
 
-            this.initForm(dashboardGroup);
             this.initSelectedItems(dashboardGroup);
+          }
+
+          if (!this.dashboardGroupForm || this.currentGroupId !== dashboardGroup.id) {
+            this.initForm(dashboardGroup);
           }
         }
       })

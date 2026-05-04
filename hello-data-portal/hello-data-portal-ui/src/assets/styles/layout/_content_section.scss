@@ -436,9 +436,19 @@ p-autocomplete > .p-autocomplete-input {
   border-radius: 3px;
 }
 
+.p-paginator-page,
+.p-paginator-next,
+.p-paginator-last,
+.p-paginator-first,
+.p-paginator-prev {
+  border-radius: 6px !important;
+}
+
 .p-paginator-page.p-paginator-page-selected {
-  background: var(--p-paginator-nav-button-selected-background);
-  color: var(--p-paginator-nav-button-selected-color);
+  background: var(--hd-btn-primary, #0e7c7c) !important;
+  color: #ffffff !important;
+  border-color: var(--hd-btn-primary, #0e7c7c) !important;
+  border-radius: 6px !important;
 }
 
 p-select, p-multiselect {
