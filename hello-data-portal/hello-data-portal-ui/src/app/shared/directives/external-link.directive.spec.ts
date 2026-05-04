@@ -34,8 +34,8 @@ import {ExternalLinkDirective} from './external-link.directive';
   standalone: true,
   imports: [ExternalLinkDirective],
   template: `
-    <a href="https://example.com" hdExternalLink id="with-icon">Example</a>
-    <a href="https://example.com" hdExternalLink [hdExternalLinkShowIcon]="false" id="without-icon">No Icon</a>
+    <a href="https://example.com" appExternalLink id="with-icon">Example</a>
+    <a href="https://example.com" appExternalLink [appExternalLinkShowIcon]="false" id="without-icon">No Icon</a>
   `
 })
 class TestHostComponent {}
@@ -69,7 +69,7 @@ describe('ExternalLinkDirective', () => {
     expect(icon?.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('should not append icon when hdExternalLinkShowIcon is false', () => {
+  it('should not append icon when appExternalLinkShowIcon is false', () => {
     const link = fixture.nativeElement.querySelector('#without-icon') as HTMLAnchorElement;
     const icon = link.querySelector('i.fa-up-right-from-square');
     expect(icon).toBeFalsy();

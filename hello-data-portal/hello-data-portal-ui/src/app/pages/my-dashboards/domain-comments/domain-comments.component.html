@@ -261,7 +261,7 @@
                 @if (comment.pointerUrl) {
                   <div>
                     <strong>{{ '@Pointer URL' | transloco }}:</strong>
-                    <a [href]="comment.pointerUrl" hdExternalLink class="text-blue-600 hover:underline">
+                    <a [href]="comment.pointerUrl" appExternalLink class="text-blue-600 hover:underline">
                       {{ comment.pointerUrl | slice:0:50 }}...
                     </a>
                   </div>

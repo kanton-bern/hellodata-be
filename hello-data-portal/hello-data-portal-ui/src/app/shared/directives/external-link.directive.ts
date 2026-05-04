@@ -33,18 +33,18 @@ import {AfterViewInit, Directive, ElementRef, inject, input, Renderer2} from '@a
  * and appends a visual external-link icon.
  *
  * Usage:
- *   <a href="https://example.com" hdExternalLink>Example</a>
- *   <a href="https://example.com" hdExternalLink [hdExternalLinkShowIcon]="false">No icon</a>
+ *   <a href="https://example.com" appExternalLink>Example</a>
+ *   <a href="https://example.com" appExternalLink [appExternalLinkShowIcon]="false">No icon</a>
  */
 @Directive({
-  selector: 'a[hdExternalLink]',
+  selector: 'a[appExternalLink]',
   standalone: true
 })
 export class ExternalLinkDirective implements AfterViewInit {
   private readonly el = inject(ElementRef);
   private readonly renderer = inject(Renderer2);
 
-  hdExternalLinkShowIcon = input(true);
+  appExternalLinkShowIcon = input(true);
 
   ngAfterViewInit(): void {
     const anchor = this.el.nativeElement as HTMLAnchorElement;
@@ -52,7 +52,7 @@ export class ExternalLinkDirective implements AfterViewInit {
     this.renderer.setAttribute(anchor, 'target', '_blank');
     this.renderer.setAttribute(anchor, 'rel', 'noopener noreferrer');
 
-    if (this.hdExternalLinkShowIcon()) {
+    if (this.appExternalLinkShowIcon()) {
       const icon = this.renderer.createElement('i');
       this.renderer.addClass(icon, 'fa-solid');
       this.renderer.addClass(icon, 'fa-up-right-from-square');

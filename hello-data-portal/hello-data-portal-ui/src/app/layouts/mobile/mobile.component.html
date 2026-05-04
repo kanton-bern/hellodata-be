@@ -97,13 +97,13 @@
     <hr class="m-0 border-t border-surface"/>
 
     <a (click)="navigateToHome()">{{ '@HelloDATA' | transloco }}</a>
-    <a href="{{openSourceDataPlatformUrl}}" hdExternalLink style="font-size: 0.9em;">
+    <a href="{{openSourceDataPlatformUrl}}" appExternalLink style="font-size: 0.9em;">
       OpenSource Data Platform  {{ appInfo.currentYear }}
     </a>
 
-    <a href="{{licenseUrl}}" hdExternalLink style="font-size: 0.9em;">License</a>
-    <a href="{{githubUrl}}" hdExternalLink style="font-size: 0.9em;">GitHub</a>
-    <a href="{{versionLink}}" hdExternalLink [hdExternalLinkShowIcon]="false" style="font-size: 0.9em; color: black">
+    <a href="{{licenseUrl}}" appExternalLink style="font-size: 0.9em;">License</a>
+    <a href="{{githubUrl}}" appExternalLink style="font-size: 0.9em;">GitHub</a>
+    <a href="{{versionLink}}" appExternalLink [appExternalLinkShowIcon]="false" style="font-size: 0.9em; color: black">
       <b>{{ '@Version' | transloco }}:</b>{{ ' ' }}{{ appInfo.buildInfo }}
     </a>
   </div>

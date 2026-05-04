@@ -4,7 +4,7 @@
     @if (selectedAppInfo$ | async) {
       <span>
         <a href="{{selectedResourceUrl}}"
-           hdExternalLink>{{ selectedResource.instanceName }}</a>
+           appExternalLink>{{ selectedResource.instanceName }}</a>
         {{ '; module type: ' + selectedResource.moduleType + '; api version: ' + selectedResource.apiVersion }}
       </span>
     }
