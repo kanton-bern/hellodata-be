@@ -90,6 +90,8 @@ $text-color: black;
   // Various PrimeNG Overrides
   --p-highlight-color: var(--text-color);
   --p-datatable-header-cell-selected-color: var(--text-color);
+  --p-datatable-sort-icon-color: var(--primary-color);
+  --p-datatable-header-cell-selected-background: var(--surface-100, #f5f5f5);
 
   /* Surface Scale */
   --surface-0: #ffffff;
