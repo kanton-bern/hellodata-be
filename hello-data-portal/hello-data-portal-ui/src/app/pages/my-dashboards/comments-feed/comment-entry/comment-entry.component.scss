@@ -151,20 +151,20 @@
 }
 
 .edit-btn {
-  color: var(--hd-btn-primary, #1aa6a6);
+  color: var(--hd-btn-primary, #0e7c7c);
 
   &:hover {
-    color: var(--hd-btn-primary-hover, #159393);
-    background-color: rgba(26, 166, 166, 0.08);
+    color: var(--hd-btn-primary-hover, #0b6969);
+    background-color: rgba(14, 124, 124, 0.08);
   }
 }
 
 .publish-btn {
-  color: var(--hd-btn-primary, #1aa6a6);
+  color: var(--hd-btn-primary, #0e7c7c);
 
   &:hover {
-    color: var(--hd-btn-primary-hover, #159393);
-    background-color: rgba(26, 166, 166, 0.08);
+    color: var(--hd-btn-primary-hover, #0b6969);
+    background-color: rgba(14, 124, 124, 0.08);
   }
 }
 
@@ -178,11 +178,11 @@
 }
 
 .send-review-btn {
-  color: var(--hd-btn-primary, #1aa6a6);
+  color: var(--hd-btn-primary, #0e7c7c);
 
   &:hover {
-    color: var(--hd-btn-primary-hover, #159393);
-    background-color: rgba(26, 166, 166, 0.08);
+    color: var(--hd-btn-primary-hover, #0b6969);
+    background-color: rgba(14, 124, 124, 0.08);
   }
 }
 

@@ -46,7 +46,7 @@
 }
 
 .content-section a:not(.p-button):not(.p-menuitem-link):not(.p-menu-item-link):not(.layout-topbar-button):not(.route-link) {
-  color: var(--primary-color, #1aa6a6);
+  color: var(--primary-color, #0e7c7c);
 }
 
 .content-section a:not(.p-button):not(.p-menuitem-link):not(.p-menu-item-link):not(.layout-topbar-button):not(.route-link):hover {
@@ -382,16 +382,16 @@ body {
 
 /* ─── Primary (no severity) text button = teal ─── */
 .p-button-text:not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success) {
-  color: #1aa6a6 !important;
+  color: var(--hd-btn-primary, #0e7c7c) !important;
 }
 
 .p-button-text:not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success):hover:not(:disabled) {
-  background: rgba(26, 166, 166, 0.04) !important;
-  color: #159393 !important;
+  background: rgba(14, 124, 124, 0.04) !important;
+  color: var(--hd-btn-primary-hover, #0b6969) !important;
 }
 
 .p-button-text:not(.p-button-secondary):not(.p-button-danger):not(.p-button-warn):not(.p-button-info):not(.p-button-help):not(.p-button-contrast):not(.p-button-success):active:not(:disabled) {
-  background: rgba(26, 166, 166, 0.16) !important;
+  background: rgba(14, 124, 124, 0.16) !important;
 }
 
 /* ─── Danger text button = red ─── */
@@ -410,44 +410,44 @@ body {
 
 /* ─── Info text button = teal (same as primary) ─── */
 .p-button-info.p-button-text {
-  color: #1aa6a6 !important;
+  color: var(--hd-btn-primary, #0e7c7c) !important;
 }
 
 .p-button-info.p-button-text:hover:not(:disabled) {
-  background: rgba(26, 166, 166, 0.04) !important;
-  color: #159393 !important;
+  background: rgba(14, 124, 124, 0.04) !important;
+  color: var(--hd-btn-primary-hover, #0b6969) !important;
 }
 
 .p-button-info.p-button-text:active:not(:disabled) {
-  background: rgba(26, 166, 166, 0.16) !important;
+  background: rgba(14, 124, 124, 0.16) !important;
 }
 
 /* ─── Success text button = green ─── */
 .p-button-success.p-button-text {
-  color: #16a34a !important;
+  color: var(--hd-status-success, #15803d) !important;
 }
 
 .p-button-success.p-button-text:hover:not(:disabled) {
-  background: rgba(22, 163, 74, 0.04) !important;
-  color: #15803d !important;
+  background: rgba(21, 128, 61, 0.04) !important;
+  color: #166534 !important;
 }
 
 .p-button-success.p-button-text:active:not(:disabled) {
-  background: rgba(22, 163, 74, 0.16) !important;
+  background: rgba(21, 128, 61, 0.16) !important;
 }
 
-/* ─── Warn text button = orange ─── */
+/* ─── Warn text button = amber ─── */
 .p-button-warn.p-button-text {
-  color: #ea580c !important;
+  color: var(--hd-status-warning, #a16207) !important;
 }
 
 .p-button-warn.p-button-text:hover:not(:disabled) {
-  background: rgba(234, 88, 12, 0.04) !important;
-  color: #c2410c !important;
+  background: rgba(161, 98, 7, 0.04) !important;
+  color: #854d0e !important;
 }
 
 .p-button-warn.p-button-text:active:not(:disabled) {
-  background: rgba(234, 88, 12, 0.16) !important;
+  background: rgba(161, 98, 7, 0.16) !important;
 }
 
 /* ─── Secondary text button = neutral dark ─── */
