@@ -92,9 +92,9 @@ public class CsvParserService {
         return new ArrayList<>(usersMap.values());
     }
 
-    private void verifyEmail(String email) {
+    private void verifyEmail(String email, long lineNumber) {
         if (email == null || email.isEmpty() || !isValidEmail(email)) {
-            throw new IllegalArgumentException("Email is not valid %s".formatted(email));
+            throw new IllegalArgumentException("Line %d: Email is not valid %s".formatted(lineNumber, email));
         }
     }
 
@@ -102,16 +102,16 @@ public class CsvParserService {
         return EmailValidator.getInstance().isValid(email);
     }
 
-    private void verifyContext(String context) {
+    private void verifyContext(String context, String email, long lineNumber) {
         if (context == null || context.isEmpty()) {
-            throw new IllegalArgumentException("Context must not be empty");
+            throw new IllegalArgumentException("Line %d: Context must not be empty for user '%s'".formatted(lineNumber, email));
         }
     }
 
-    private void verifyRoleName(String roleName, HdContextType contextType) {
+    private void verifyRoleName(String roleName, HdContextType contextType, String email, long lineNumber) {
         List<HdRoleName> hdRoleNames = getByContextType(contextType);
         if (hdRoleNames.stream().noneMatch(role -> role.name().equals(roleName))) {
-            throw new IllegalArgumentException(String.format("Invalid %s role name: %s", contextType.getTypeName().toLowerCase(Locale.ROOT), roleName));
+            throw new IllegalArgumentException("Line %d: Invalid %s role name: %s for user '%s'".formatted(lineNumber, contextType.getTypeName().toLowerCase(Locale.ROOT), roleName, email));
         }
     }
 
@@ -170,23 +170,23 @@ public class CsvParserService {
         return Arrays.copyOf(array, end);
     }
 
-    private List<String> parseDashboardGroups(CSVRecord csvRecord, boolean hasDashboardGroupColumn, String email) {
+    private List<String> parseDashboardGroups(CSVRecord csvRecord, boolean hasDashboardGroupColumn, String email, long lineNumber) {
         if (hasDashboardGroupColumn && csvRecord.size() > 5) {
             String dashboardGroupRaw = csvRecord.get(5);
             return dashboardGroupRaw.isEmpty() ? List.of() : List.of(dashboardGroupRaw.split(ROLE_DELIMITER));
         }
         if (!hasDashboardGroupColumn && csvRecord.size() > 5) {
-            verifyNoUnexpectedExtraFields(csvRecord, email);
+            verifyNoUnexpectedExtraFields(csvRecord, email, lineNumber);
         }
         return List.of();
     }
 
-    private void verifyNoUnexpectedExtraFields(CSVRecord csvRecord, String email) {
+    private void verifyNoUnexpectedExtraFields(CSVRecord csvRecord, String email, long lineNumber) {
         for (int i = 5; i < csvRecord.size(); i++) {
             if (!csvRecord.get(i).trim().isEmpty()) {
                 throw new IllegalArgumentException(
-                        "Row for user '%s' contains data beyond the 'supersetRole' column, but the CSV header does not include '%s'. "
-                                .formatted(email, DASHBOARD_GROUP)
+                        "Line %d: Row for user '%s' contains data beyond the 'supersetRole' column, but the CSV header does not include '%s'. "
+                                .formatted(lineNumber, email, DASHBOARD_GROUP)
                                 + "Please add '%s' to the header: %s".formatted(DASHBOARD_GROUP, Arrays.toString(CSV_HEADERS_WITH_DASHBOARD_GROUP)));
             }
         }
@@ -197,22 +197,23 @@ public class CsvParserService {
     }
 
     private CsvUserRole parseRecord(CSVRecord csvRecord, boolean hasDashboardGroupColumn) {
+        long lineNumber = csvRecord.getRecordNumber();
         String email = getFieldOrEmpty(csvRecord, 0);
-        verifyEmail(email);
+        verifyEmail(email, lineNumber);
         String businessDomainRole = getFieldOrEmpty(csvRecord, 1).toUpperCase(Locale.ROOT);
         if (businessDomainRole.isEmpty()) {
             throw new IllegalArgumentException(
-                    "businessDomainRole is required but was empty for user '%s'".formatted(email));
+                    "Line %d: businessDomainRole is required but was empty for user '%s'".formatted(lineNumber, email));
         }
-        verifyRoleName(businessDomainRole, HdContextType.BUSINESS_DOMAIN);
+        verifyRoleName(businessDomainRole, HdContextType.BUSINESS_DOMAIN, email, lineNumber);
         String context = getFieldOrEmpty(csvRecord, 2);
-        verifyContext(context);
+        verifyContext(context, email, lineNumber);
         String dataDomainRole = getFieldOrEmpty(csvRecord, 3).toUpperCase(Locale.ROOT);
         if (dataDomainRole.isEmpty()) {
             throw new IllegalArgumentException(
-                    "dataDomainRole is required but was empty for user '%s' in context '%s'".formatted(email, context));
+                    "Line %d: dataDomainRole is required but was empty for user '%s' in context '%s'".formatted(lineNumber, email, context));
         }
-        verifyRoleName(dataDomainRole, HdContextType.DATA_DOMAIN);
+        verifyRoleName(dataDomainRole, HdContextType.DATA_DOMAIN, email, lineNumber);
         String supersetRoleRaw = getFieldOrEmpty(csvRecord, 4);
         log.debug("Superset Roles Raw: {}", supersetRoleRaw);
         List<String> supersetRoles = supersetRoleRaw.isEmpty() ? List.of() : List.of(supersetRoleRaw.split(ROLE_DELIMITER));
@@ -222,7 +223,7 @@ public class CsvParserService {
                 ? supersetRoles
                 : new ArrayList<>();
 
-        List<String> dashboardGroups = parseDashboardGroups(csvRecord, hasDashboardGroupColumn, email);
+        List<String> dashboardGroups = parseDashboardGroups(csvRecord, hasDashboardGroupColumn, email, lineNumber);
 
         return new CsvUserRole(email, businessDomainRole, context, dataDomainRole, roles, dashboardGroups);
     }

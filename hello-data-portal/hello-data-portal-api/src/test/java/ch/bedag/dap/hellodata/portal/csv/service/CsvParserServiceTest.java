@@ -103,7 +103,7 @@ class CsvParserServiceTest {
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> {
             csvParserService.parseCsvFile(inputStream);
         });
-        assertEquals("Email is not valid lore@dana", illegalArgumentException.getMessage());
+        assertEquals("Line 2: Email is not valid lore@dana", illegalArgumentException.getMessage());
     }
 
     @Test
@@ -300,9 +300,9 @@ class CsvParserServiceTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = '|', value = {
-            "blaba@dana.com;NONE;;DATA_DOMAIN_ADMIN;  | Context must not be empty",
-            "user@example.com;NONE;ctx-key;;           | dataDomainRole is required but was empty for user 'user@example.com' in context 'ctx-key'",
-            "user@example.com;;ctx-key;DATA_DOMAIN_ADMIN; | businessDomainRole is required but was empty for user 'user@example.com'"
+            "blaba@dana.com;NONE;;DATA_DOMAIN_ADMIN;  | Line 2: Context must not be empty for user 'blaba@dana.com'",
+            "user@example.com;NONE;ctx-key;;           | Line 2: dataDomainRole is required but was empty for user 'user@example.com' in context 'ctx-key'",
+            "user@example.com;;ctx-key;DATA_DOMAIN_ADMIN; | Line 2: businessDomainRole is required but was empty for user 'user@example.com'"
     })
     void testParseCsvFile_should_throw_exception_on_empty_required_field(String csvRow, String expectedMessage) {
         String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" + csvRow.trim() + "\n";
