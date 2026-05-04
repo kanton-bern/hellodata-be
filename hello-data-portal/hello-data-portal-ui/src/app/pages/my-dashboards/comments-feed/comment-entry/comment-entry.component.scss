@@ -61,28 +61,28 @@
     margin-left: 0.25rem;
     padding: 0.1rem 0.25rem;
     font-size: 0.6rem;
-    background-color: var(--orange-500, #f97316);
-    color: white;
+    background-color: rgba(161, 98, 7, 0.12);
+    color: var(--hd-status-warning, #a16207);
     border-radius: 0.25rem;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .declined-badge {
     margin-left: 0.25rem;
     padding: 0.1rem 0.25rem;
     font-size: 0.6rem;
-    background-color: var(--red-500, #ef4444);
-    color: white;
+    background-color: rgba(217, 54, 54, 0.12);
+    color: var(--hd-status-error, #d93636);
     border-radius: 0.25rem;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .ready-review-badge {
     margin-left: 0.25rem;
     padding: 0.1rem 0.25rem;
     font-size: 0.6rem;
-    background-color: var(--blue-100, #dbeafe);
-    color: var(--blue-700, #1d4ed8);
+    background-color: rgba(14, 124, 124, 0.12);
+    color: var(--hd-btn-primary, #0e7c7c);
     border-radius: 0.25rem;
     font-weight: 600;
   }
@@ -449,23 +449,23 @@
       text-transform: uppercase;
 
       &.status-draft {
-        background-color: var(--gray-200, #e5e7eb);
-        color: var(--gray-700, #374151);
+        background-color: rgba(161, 98, 7, 0.12);
+        color: var(--hd-status-warning, #a16207);
       }
 
       &.status-ready-for-review {
-        background-color: var(--yellow-100, #fef3c7);
-        color: var(--yellow-700, #a16207);
+        background-color: rgba(14, 124, 124, 0.12);
+        color: var(--hd-btn-primary, #0e7c7c);
       }
 
       &.status-published {
-        background-color: var(--blue-100, #dbeafe);
-        color: var(--blue-700, #1d4ed8);
+        background-color: rgba(14, 124, 124, 0.12);
+        color: var(--hd-btn-primary, #0e7c7c);
       }
 
       &.status-declined {
-        background-color: var(--red-100, #fee2e2);
-        color: var(--red-700, #b91c1c);
+        background-color: rgba(217, 54, 54, 0.12);
+        color: var(--hd-status-error, #d93636);
       }
 
       &.status-deleted {

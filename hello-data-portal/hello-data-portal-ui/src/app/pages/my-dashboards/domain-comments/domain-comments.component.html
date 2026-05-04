@@ -107,7 +107,6 @@
               icon="fa-up-right-from-square fas"
               class="mr-2"
               [text]="true"
-              severity="secondary"
               [pTooltip]="'@Open Dashboard' | transloco"
               tooltipPosition="top"
               (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
@@ -118,7 +117,6 @@
                 [text]="true"
                 severity="secondary"
                 class="mr-2"
-                [styleClass]="isExpanded(comment) ? 'info-btn-active' : 'info-btn'"
                 [pTooltip]="'@Info' | transloco"
                 tooltipPosition="top"
                 (click)="toggleDetails(comment)" (keydown.enter)="toggleDetails(comment)"/>

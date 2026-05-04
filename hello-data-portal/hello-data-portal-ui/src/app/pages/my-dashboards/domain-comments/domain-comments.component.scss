@@ -121,33 +121,33 @@
   font-size: 0.875rem;
 }
 
-/* Info button styles - matching comment-entry */
+/* Info button styles - neutral gray */
 ::ng-deep p-button.info-btn button {
-  color: var(--text-color-secondary, #6c757d) !important;
+  color: #4b5563 !important;
   transition: color 200ms ease-in-out !important;
 
   &:hover {
-    color: var(--primary-color, #3b82f6) !important;
+    color: #1f2937 !important;
   }
 }
 
-/* Info button active state (green when expanded) */
+/* Info button active state */
 ::ng-deep .info-btn-active button,
 ::ng-deep p-button.info-btn-active button {
-  color: var(--p-green-500, #22c55e) !important;
+  color: #1f2937 !important;
 
   &:hover {
-    color: var(--p-green-600, #16a34a) !important;
+    color: #111827 !important;
   }
 }
 
-/* Restore version button styles - matching comment-entry */
+/* Restore version button styles - consistent with primary teal */
 ::ng-deep p-button.restore-btn button {
-  color: var(--green-500, #22c55e) !important;
+  color: var(--hd-btn-primary, #0e7c7c) !important;
   transition: color 200ms ease-in-out !important;
 
   &:hover {
-    color: var(--green-600, #16a34a) !important;
+    color: var(--hd-btn-primary-hover, #0b6969) !important;
   }
 }
 

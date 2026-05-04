@@ -91,8 +91,8 @@
   }
 
   &.selected {
-    border-color: var(--p-primary-color);
-    background-color: var(--p-primary-50, rgba(59, 130, 246, 0.05));
+    border-color: var(--hd-btn-primary, #0e7c7c);
+    background-color: rgba(14, 124, 124, 0.05);
   }
 }
 
@@ -164,8 +164,8 @@
   }
 
   &.selected {
-    border-color: var(--p-primary-color);
-    background-color: var(--p-primary-50, rgba(59, 130, 246, 0.05));
+    border-color: var(--hd-btn-primary, #0e7c7c);
+    background-color: rgba(14, 124, 124, 0.05);
   }
 
   .domain-name {
@@ -287,8 +287,8 @@
   .p-carousel-next-button,
   .p-carousel-prev-button {
     .p-button {
-      background-color: var(--p-primary-color, #3B82F6) !important;
-      border-color: var(--p-primary-color, #3B82F6) !important;
+      background-color: var(--hd-btn-primary, #0e7c7c) !important;
+      border-color: var(--hd-btn-primary, #0e7c7c) !important;
       color: #fff !important;
     }
   }
@@ -302,7 +302,7 @@
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--p-primary-700, #1d4ed8);
+  color: var(--hd-btn-primary, #0e7c7c);
 
   .carousel-hint {
     font-weight: 400;
@@ -331,9 +331,9 @@
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  background: var(--p-blue-50, #eff6ff);
-  border: 1px solid var(--p-blue-200, #bfdbfe);
-  color: var(--p-blue-700, #1d4ed8);
+  background: rgba(14, 124, 124, 0.06);
+  border: 1px solid rgba(14, 124, 124, 0.25);
+  color: var(--hd-btn-primary, #0e7c7c);
   font-size: 0.9rem;
   margin-bottom: 1rem;
 
@@ -365,13 +365,13 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: var(--p-primary-50, #eff6ff);
-  border-color: var(--p-primary-200, #bfdbfe);
+  background: rgba(14, 124, 124, 0.06);
+  border-color: rgba(14, 124, 124, 0.25);
   font-size: 1.1rem;
   font-weight: 600;
 
   i {
-    color: var(--p-primary-500);
+    color: var(--hd-btn-primary, #0e7c7c);
   }
 }
 
@@ -558,11 +558,11 @@
   }
 
   &.success {
-    border-color: var(--p-green-200, #a7f3d0);
-    background-color: var(--p-green-50, #f0fdf4);
+    border-color: rgba(14, 124, 124, 0.25);
+    background-color: rgba(14, 124, 124, 0.06);
 
     .result-value {
-      color: var(--p-green-600, #16a34a);
+      color: var(--hd-btn-primary, #0e7c7c);
     }
   }
 

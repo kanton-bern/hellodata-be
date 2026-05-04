@@ -464,6 +464,27 @@ body {
   background: rgba(75, 85, 99, 0.12) !important;
 }
 
+/* ─── p-tag severity overrides (align with app teal palette) ─── */
+.p-tag-success {
+  background-color: rgba(14, 124, 124, 0.12) !important;
+  color: var(--hd-btn-primary, #0e7c7c) !important;
+}
+
+.p-tag-info {
+  background-color: rgba(14, 124, 124, 0.12) !important;
+  color: var(--hd-btn-primary, #0e7c7c) !important;
+}
+
+.p-tag-warn {
+  background-color: rgba(161, 98, 7, 0.12) !important;
+  color: var(--hd-status-warning, #a16207) !important;
+}
+
+.p-tag-danger {
+  background-color: rgba(217, 54, 54, 0.12) !important;
+  color: var(--hd-status-error, #d93636) !important;
+}
+
 /* Reduce font size in role selector dropdown options */
 .p-select-overlay .p-select-option {
   padding: 0.4rem 0.75rem !important;

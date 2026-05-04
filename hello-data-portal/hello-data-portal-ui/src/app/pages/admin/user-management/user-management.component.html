@@ -200,7 +200,7 @@
             }
             @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="disableUser(user)" (keydown.enter)="disableUser(user)"
-                        severity="warn"
+                        severity="danger"
                         [text]="true"
                         class="mr-2"
                         icon="fas fa-circle-xmark"
