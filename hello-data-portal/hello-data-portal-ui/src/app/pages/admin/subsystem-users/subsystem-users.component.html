@@ -38,25 +38,25 @@
             <div style="text-align: left">
               <p-button (onClick)="exportCsv()" pRipple
                         [disabled]="(dataLoading$ | async) ?? false"
-                        icon="pi pi-external-link"
+                        icon="fa-solid fa-up-right-from-square"
                         label="{{ '@Export' | transloco }}"/>
             </div>
             <div style="text-align: left">
               <p-button (onClick)="exportBatchCsv()" pRipple
                         [disabled]="(dataLoading$ | async) ?? false"
-                        icon="pi pi-file-export"
+                        icon="fa-solid fa-file-export"
                         label="{{ '@Export for batch import' | transloco }}"
                         severity="warn"/>
             </div>
             <div style="text-align: left">
               <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
-                        icon="pi pi-replay" pRipple
+                        icon="fa-solid fa-arrows-rotate" pRipple
                         label="{{ '@Reload' | transloco }}"
 />
             </div>
             <div style="text-align: left">
               <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
-                        icon="pi pi-times-circle" pRipple
+                        icon="fa-solid fa-circle-xmark" pRipple
                         label="{{ '@Clear cache' | transloco }}"
                         severity="help"/>
             </div>
@@ -64,7 +64,7 @@
               <span class="filter-hint">{{ '@Filter hint' | transloco }}</span>
               <form (submit)="addFilterTerm($event)" class="filter-search-form">
                 <p-iconfield>
-                  <p-inputicon class="pi pi-search"/>
+                  <p-inputicon class="fa-solid fa-magnifying-glass"/>
                   <input [(ngModel)]="currentFilterInput"
                          name="filterInput"
                          pInputText
@@ -80,11 +80,12 @@
                 @for (term of filterTerms; track term; let i = $index) {
                   <span class="filter-chip">
                     <span class="filter-chip-label">{{ term }}</span>
-                    <i class="pi pi-times filter-chip-remove" (click)="removeFilterTerm(i)"
-                       (keydown.enter)="removeFilterTerm(i)"></i>
+                    <i class="fa-solid fa-xmark filter-chip-remove" (click)="removeFilterTerm(i)"
+                       (keydown.enter)="removeFilterTerm(i)"
+                       pTooltip="{{ '@Remove filter' | transloco }}"></i>
                   </span>
                 }
-                <p-button (onClick)="clearAllFilters()" icon="pi pi-filter-slash"
+                <p-button (onClick)="clearAllFilters()" icon="fa-solid fa-filter-circle-xmark"
                           severity="secondary"
                           pTooltip="{{ '@Clear all filters' | transloco }}"/>
               </div>
@@ -103,15 +104,15 @@
             <td><span [class.filter-highlight]="matchesFilter(user.email)">{{ user.email }}</span></td>
             <td>
               @if (user.enabled) {
-                <i class="fa fa-check text-success"></i>
+                <i class="fa-solid fa-check text-success"></i>
               } @else {
-                <i class="fa fa-times text-danger"></i>
+                <i class="fa-solid fa-times text-danger"></i>
               }
             </td>
             <td>
               <p-button type="button" pRipple [pRowToggler]="user"
                         [text]="true"
-                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+                        [icon]="expanded ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-right'"/>
             </td>
           </tr>
         </ng-template>

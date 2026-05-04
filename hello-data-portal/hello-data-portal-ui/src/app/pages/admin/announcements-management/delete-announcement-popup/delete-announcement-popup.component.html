@@ -9,10 +9,10 @@
     <span class="ui-confirmdialog-message">{{ "@Delete announcement question" | transloco }}</span>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" [label]="'@Cancel' | transloco"
-              pRipple severity="secondary" type="button"/>
-    <p-button (click)="cd.onAccept()" icon="fas fa-trash" [label]="'@Delete' | transloco"
-              pRipple
+    <p-button (click)="cd.onReject()" icon="fa-solid fa-circle-xmark" [label]="'@Cancel' | transloco"
+              pRipple severity="secondary" type="button" (keydown.enter)="cd.onReject()"/>
+    <p-button (click)="cd.onAccept()" icon="fa-solid fa-trash" [label]="'@Delete' | transloco"
+              pRipple (keydown.enter)="cd.onAccept()"
               severity="danger" type="button"/>
   </ng-template>
 </p-confirmDialog>

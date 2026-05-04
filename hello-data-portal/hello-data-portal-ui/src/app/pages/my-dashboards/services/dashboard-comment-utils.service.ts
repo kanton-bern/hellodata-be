@@ -238,7 +238,7 @@ export class DashboardCommentUtilsService {
     service.confirm({
       key: 'publishComment',
       message: message,
-      icon: 'fas fa-triangle-exclamation',
+      icon: 'fa-solid fa-triangle-exclamation',
       closeOnEscape: false,
       accept: () => {
         this.store.dispatch(publishComment({dashboardId, contextKey, commentId}));
@@ -256,7 +256,7 @@ export class DashboardCommentUtilsService {
     service.confirm({
       key: 'sendForReview',
       message: message,
-      icon: 'fas fa-paper-plane',
+      icon: 'fa-solid fa-paper-plane',
       closeOnEscape: false,
       accept: () => {
         this.store.dispatch(sendForReview({dashboardId, contextKey, commentId}));
@@ -328,7 +328,7 @@ export class DashboardCommentUtilsService {
     service.confirm({
       key: 'deleteComment',
       message: message,
-      icon: 'fas fa-triangle-exclamation',
+      icon: 'fa-solid fa-triangle-exclamation',
       closeOnEscape: false,
       accept: () => {
         this.store.dispatch(deleteComment({dashboardId, contextKey, commentId, deleteEntire: this.deleteEntireFlag}));
@@ -346,7 +346,7 @@ export class DashboardCommentUtilsService {
     service.confirm({
       key: 'restoreVersion',
       message: message,
-      icon: 'fas fa-rotate-left',
+      icon: 'fa-solid fa-rotate-left',
       closeOnEscape: false,
       accept: () => {
         this.store.dispatch(restoreCommentVersion({dashboardId, contextKey, commentId, versionNumber}));

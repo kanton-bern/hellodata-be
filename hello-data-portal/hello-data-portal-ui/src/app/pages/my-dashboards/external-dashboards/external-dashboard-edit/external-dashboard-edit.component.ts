@@ -120,7 +120,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
             ]
           }));
         }
-        const urlRegex = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=%.]+$/;
+        const urlRegex = /^(?:https?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=%]+$/;
         this.externalDashboardForm = this.fb.group({
           title: [externalDashboardForEdition?.title, Validators.compose([Validators.required.bind(this), Validators.minLength(3), Validators.maxLength(255), Validators.pattern(/[\p{L}\p{N}].*/u)])],
           url: [externalDashboardForEdition?.url, Validators.compose([Validators.required.bind(this), Validators.minLength(4), Validators.pattern(urlRegex)])],
@@ -161,7 +161,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
 
   prepareActionWithData(editedExternalDashboard: any) {
     if (editedExternalDashboard === null || editedExternalDashboard.id === '') {
-      const formData = this.externalDashboardForm.getRawValue() as any;
+      const formData = this.externalDashboardForm.getRawValue();
       const dashboard: ExternalDashboardMetadata = {
         contextKey: formData.dataDomain,
         responsibility: formData.responsibility,
@@ -176,7 +176,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
       };
       return createExternalDashboard({dashboard});
     } else {
-      const formData = this.externalDashboardForm.getRawValue() as any;
+      const formData = this.externalDashboardForm.getRawValue();
       const dashboard: ExternalDashboard = {
         id: editedExternalDashboard.id,
         contextKey: formData.dataDomain,
@@ -198,7 +198,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
     this.confirmationService.confirm({
       message: this.translateService.translate('@Delete external dashboard question'),
       header: 'Confirm',
-      icon: 'fas fa-triangle-exclamation',
+      icon: 'fa-solid fa-triangle-exclamation',
       acceptLabel: this.translateService.translate('@Yes'),
       rejectLabel: this.translateService.translate('@No'),
       accept: () => {

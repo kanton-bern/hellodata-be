@@ -11,7 +11,7 @@
                       matomoAction="[Click] - Open FAQ question"
                       [matomoTracker]="['click']">
                   {{ getTitle(domainFaq, selectedLanguage.code, defaultLanguage) }}
-                  <i class="fa fa-globe faq-domain-icon"
+                  <i class="fa-solid fa-globe faq-domain-icon"
                      [pTooltip]="item.contextKey === 'ALL_DATA_DOMAINS' ? ('@All Data Domains' | transloco) : item.contextName"
                      tooltipPosition="top"></i>
                 </span>

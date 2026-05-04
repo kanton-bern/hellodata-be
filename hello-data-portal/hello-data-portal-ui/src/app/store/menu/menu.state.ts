@@ -28,6 +28,15 @@
 import {environment} from "../../../environments/environment";
 import {naviElements} from "../../app-navi-elements";
 import {MenuItem} from "primeng/api";
+import {
+  NAV_DASHBOARDS,
+  NAV_LINEAGE,
+  NAV_DATA_MARTS,
+  NAV_DATA_ENG,
+  NAV_ADMINISTRATION,
+  NAV_MONITORING,
+  NAV_DEVTOOLS,
+} from "../../shared/icons";
 
 export interface MenuState {
   navItems: MenuItem[]
@@ -42,7 +51,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'dashboardsMenu',
     label: '@Dashboards',
-    icon: 'fas fa-light fa-chart-line',
+    icon: NAV_DASHBOARDS.class,
     requiresAuthentication: true,
     requiredPermissions: ['DASHBOARDS'],
     items: [],
@@ -51,7 +60,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'lineageMenu',
     label: '@Lineage',
-    icon: 'fas fa-light fa-diagram-project',
+    icon: NAV_LINEAGE.class,
     requiresAuthentication: true,
     requiredPermissions: ['DATA_LINEAGE'],
     items: [],
@@ -60,7 +69,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'dataMartsMenu',
     label: '@Data Marts',
-    icon: 'fas fa-light fa-store',
+    icon: NAV_DATA_MARTS.class,
     requiresAuthentication: true,
     requiredPermissions: ['DATA_MARTS'],
     items: [],
@@ -69,7 +78,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'dataEngMenu',
     label: '@Data Eng',
-    icon: 'fas fa-light fa-dice-d6',
+    icon: NAV_DATA_ENG.class,
     requiresAuthentication: true,
     requiredPermissions: ['DATA_DWH', 'DATA_ENG', 'DATA_JUPYTER', 'DATA_FILEBROWSER'],
     items: [
@@ -92,7 +101,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'administrationMenu',
     label: '@Administration',
-    icon: 'fas fa-light fa-gear',
+    icon: NAV_ADMINISTRATION.class,
     //requiredPermissions must have the same set of permissions as each of sub-items
     requiredPermissions: ['USER_MANAGEMENT', 'ROLE_MANAGEMENT', 'ANNOUNCEMENT_MANAGEMENT', 'FAQ_MANAGEMENT', 'DOCUMENTATION_MANAGEMENT', 'USERS_OVERVIEW', 'DASHBOARD_ACCESS', 'DASHBOARD_GROUPS_MANAGEMENT'],
     items: [
@@ -156,7 +165,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'monitoringMenu',
     label: '@Monitoring',
-    icon: 'fas fa-light fa-list-check',
+    icon: NAV_MONITORING.class,
     requiredPermissions: ['DEVTOOLS', 'WORKSPACES'],
     items: [
       {
@@ -177,7 +186,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'devToolsMenu',
     label: '@DevTools',
-    icon: 'fas fa-light fa-screwdriver-wrench',
+    icon: NAV_DEVTOOLS.class,
     requiredPermissions: ['DEVTOOLS', 'QUERIES'],
     items: [
       {

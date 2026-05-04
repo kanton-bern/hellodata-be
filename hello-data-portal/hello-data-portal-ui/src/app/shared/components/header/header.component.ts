@@ -60,6 +60,7 @@ import {setSelectedLanguage} from "../../../store/auth/auth.action";
 import {
   PublishedAnnouncementsWrapperComponent
 } from '../published-announcement/published-announcements-wrapper/published-announcements-wrapper.component';
+import {NAV_USER_PROFILE, NAV_ANNOUNCEMENTS, NAV_INFO, NAV_LOGOUT} from "../../icons";
 
 @Component({
   selector: 'app-header',
@@ -132,7 +133,7 @@ export class HeaderComponent {
       this.userMenuItems = [
         {
           label: profileTranslation,
-          icon: 'fas fa-light fa-user',
+          icon: NAV_USER_PROFILE.class,
           command: () => {
             this.store.dispatch(navigate({url: '/profile'}));
           }
@@ -141,14 +142,14 @@ export class HeaderComponent {
       if (hasMinimalRequiredPermissions) {
         this.userMenuItems.push({
           label: announcementsTranslation,
-          icon: 'fas fa-light fa-bell',
+          icon: NAV_ANNOUNCEMENTS.class,
           command: () => {
             this.store.dispatch(navigate({url: '/published-announcements'}));
           }
         });
         this.userMenuItems.push({
           label: infoTranslation,
-          icon: 'fa-solid fa-circle-info',
+          icon: NAV_INFO.class,
           command: () => {
             this.store.dispatch(navigate({url: '/summary'}));
           }
@@ -157,7 +158,7 @@ export class HeaderComponent {
       if (!disableLogout) {
         this.userMenuItems.push({
           label: logoutTranslation,
-          icon: 'fas fa-light fa-power-off',
+          icon: NAV_LOGOUT.class,
           command: () => {
             this.store.dispatch(navigate({url: '/logout'}));
           }

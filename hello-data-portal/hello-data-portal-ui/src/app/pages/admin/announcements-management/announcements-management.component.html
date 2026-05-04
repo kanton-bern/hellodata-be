@@ -3,7 +3,7 @@
   <p-card>
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
-        <p-button (click)="createAnnouncement()" icon="fas fa-circle-plus"
+        <p-button (click)="createAnnouncement()" icon="fa-solid fa-circle-plus"
                   [label]="'@Create announcement' | transloco" pRipple
                   (keydown.enter)="createAnnouncement()"></p-button>
       </ng-template>
@@ -65,19 +65,19 @@
                             [pTooltip]="'@Edit' | transloco"
                             tooltipPosition="top"
                             [text]="true"
-                            icon="fas fa-light fa-pen-to-square"/>
+                            icon="fa-solid fa-pen-to-square"/>
                   <p-button (click)="showAnnouncementDeletionPopup(announcement)"
                             (keydown.enter)="showAnnouncementDeletionPopup(announcement)"
                             [pTooltip]="'@Delete' | transloco"
                             tooltipPosition="top"
                             severity="danger"
                             [text]="true"
-                            icon="fas fa-trash"/>
+                            icon="fa-solid fa-trash"/>
                   <p-button type="button" pRipple [pRowToggler]="announcement"
                             [pTooltip]="'@Details' | transloco"
                             tooltipPosition="top"
                             [text]="true"
-                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+                            [icon]="expanded ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-right'"/>
                   </div>
                 </td>
               </tr>

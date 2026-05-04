@@ -9023,7 +9023,6 @@ __metadata:
     ngx-pipes: "npm:^3.2.2"
     pdfmake: "npm:^0.3.7"
     postcss: "npm:^8.5.6"
-    primeicons: "npm:^7.0.0"
     primeng: "npm:^21.0.0"
     quill: "npm:^2.0.3"
     rxjs: "npm:^7.8.1"
@@ -12127,13 +12126,6 @@ __metadata:
     ansi-styles: "npm:^5.0.0"
     react-is: "npm:^17.0.1"
   checksum: 10c0/0cbda1031aa30c659e10921fa94e0dd3f903ecbbbe7184a729ad66f2b6e7f17891e8c7d7654c458fa4ccb1a411ffb695b4f17bbcd3fe075fabe181027c4040ed
-  languageName: node
-  linkType: hard
-
-"primeicons@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "primeicons@npm:7.0.0"
-  checksum: 10c0/a7f6344d6db49e785d2040b35f8cae761d15bb8f8ee70ade8981d45438245414e913fe7235921122aade2b0a11a032c98b44dc527be2da11aa791ff145099c06
   languageName: node
   linkType: hard
 

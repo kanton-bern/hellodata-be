@@ -6,8 +6,9 @@
   <div class="flex items-center">
     <p-button type="button" severity="secondary" (keydown.enter)="showDashboardMenu = true"
               (click)="showDashboardMenu = true"
-              aria-label="Open menu">
-      <i class="pi pi-bars text-2xl" style="color: black"></i>
+              aria-label="Open menu"
+              pTooltip="{{ '@Open menu' | transloco }}">
+      <i class="fa-solid fa-bars text-2xl" style="color: black"></i>
     </p-button>
   </div>
 
@@ -17,7 +18,7 @@
         <a (click)="showDataDomainMenu = true" style="cursor: pointer; font-size: 0.9rem"
            class="self-end layout-topbar-button">
           <span class="pl-2">{{ selectedDataDomain.name | transloco }}</span>
-          <i class="fas fa-chevron-down p-1"></i>
+          <i class="fa-solid fa-chevron-down p-1"></i>
         </a>
       </span>
     }
@@ -26,8 +27,9 @@
   <div class="flex items-center">
     <p-button pRipple
               type="button" severity="secondary"
-              aria-label="User Profile">
-      <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"
+              aria-label="User Profile"
+              pTooltip="{{ '@User Profile' | transloco }}">
+      <i class="fa-solid fa-user text-2xl" (click)="showUserMenu = true" style="color: black"
          (keydown.enter)="showUserMenu = true"></i>
     </p-button>
   </div>
@@ -135,7 +137,3 @@
     <ng-content/>
   </div>
 </div>
-
-
-<!--<p-toast></p-toast>-->
-<!--<app-unsaved-changes-dialog></app-unsaved-changes-dialog>-->

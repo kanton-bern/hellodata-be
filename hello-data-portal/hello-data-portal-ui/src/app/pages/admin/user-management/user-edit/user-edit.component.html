@@ -48,12 +48,12 @@
             <div class="col-span-12 md:col-span-10">
               @if (editedUser.enabled) {
                 <div>
-                  <i class="fas fa-check"></i>
+                  <i class="fa-solid fa-check"></i>
                 </div>
               }
               @if (!editedUser.enabled) {
                 <div>
-                  <i class="fas fa-circle-xmark"></i>
+                  <i class="fa-solid fa-circle-xmark"></i>
                 </div>
               }
             </div>
@@ -100,7 +100,7 @@
                           <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">{{ '@Data domain' | transloco }}:</span>
                             <span class="font-medium text-lg">{{ dataDomain.name }}</span>
-                            <i class="pi pi-info-circle text-primary cursor-pointer"
+                            <i class="fa-solid fa-circle-info text-primary cursor-pointer"
                                [pTooltip]="('@Domain type' | transloco) + ': ' + (dataDomain.extra ? 'Extra' : 'Standard')"
                                tooltipPosition="top"></i>
                           </div>

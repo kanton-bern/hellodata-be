@@ -260,7 +260,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     return new Observable<boolean>(observer => {
       this.confirmationService.confirm({
         message: this.translateService.translate('@You have unsaved wizard progress. Are you sure you want to leave?'),
-        icon: 'fas fa-triangle-exclamation',
+        icon: 'fa-solid fa-triangle-exclamation',
         acceptButtonStyleClass: 'p-button-danger',
         acceptLabel: this.translateService.translate('@Yes'),
         rejectLabel: this.translateService.translate('@No'),
@@ -589,7 +589,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     const msg = this.translateService.translate('@Confirm bulk assignment', {count: this.selectedUserIds.size});
     this.confirmationService.confirm({
       message: msg,
-      icon: 'fas fa-triangle-exclamation',
+      icon: 'fa-solid fa-triangle-exclamation',
       acceptButtonStyleClass: 'p-button-success',
       acceptLabel: this.translateService.translate('@Yes'),
       rejectLabel: this.translateService.translate('@No'),

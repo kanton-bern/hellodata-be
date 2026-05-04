@@ -3,11 +3,11 @@
     <div class="flex justify-between items-center w-full">
       <h4 class="m-0">{{ "@Unsaved changes title" | transloco }}</h4>
       <button (click)="cd.hide()" [pTooltip]="'@Cancel' | transloco" class="p-button-text"
-              icon="pi pi-times"></button>
+              icon="fa-solid fa-xmark"></button>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" (keydown.enter)="cd.onReject()" icon="fas fa-circle-xmark"
+    <p-button (click)="cd.onReject()" (keydown.enter)="cd.onReject()" icon="fa-solid fa-circle-xmark"
               [label]="'@Discard changes' | transloco"
               pRipple severity="secondary" type="button"></p-button>
     @if (stayOnPage$ | async; as stayOnPage) {
@@ -15,13 +15,13 @@
         <p-button (click)="cd.onAccept()"
                   (keydown.enter)="cd.onAccept()"
                   pRipple
-                  icon="fas fa-floppy-disk"
+                  icon="fa-solid fa-floppy-disk"
                   [label]="'@Save changes' | transloco"
                   type="button"
         />
       } @else {
         <p-button (click)="cd.hide()" (keydown.enter)="cd.hide()" pRipple
-                  icon="fas fa-pen-to-square"
+                  icon="fa-solid fa-pen-to-square"
                   [label]="'@Continue edition' | transloco"
                   type="button"
         />

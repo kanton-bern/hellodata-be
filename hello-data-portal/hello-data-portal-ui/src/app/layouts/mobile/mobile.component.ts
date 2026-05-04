@@ -50,12 +50,13 @@ import {environment} from "../../../environments/environment";
 import {Drawer} from "primeng/drawer";
 import {Button} from "primeng/button";
 import {PrimeTemplate} from "primeng/api";
+import {Tooltip} from "primeng/tooltip";
 
 @Component({
   selector: 'app-mobile',
   templateUrl: './mobile.component.html',
   styleUrls: ['./mobile.component.scss'],
-  imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe]
+  imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe, Tooltip]
 })
 export class MobileComponent {
   private readonly store = inject<Store<AppState>>(Store);

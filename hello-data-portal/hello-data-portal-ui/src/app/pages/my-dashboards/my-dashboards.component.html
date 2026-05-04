@@ -23,7 +23,7 @@
         <h5 class="m-0">&nbsp;</h5>
         <span class="p-input-icon-left">
             <p-iconfield>
-              <p-inputicon class="pi pi-search"/>
+              <p-inputicon class="fa-solid fa-magnifying-glass"/>
               <input (input)="applyFilterGlobal($event, 'contains')" pInputText
                      placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
@@ -86,20 +86,20 @@
                     tooltipPosition="top"
                     [text]="true"
                     class="mr-2"
-                    icon="fas fa-up-right-from-square"/>
+                    icon="fa-solid fa-up-right-from-square"/>
           <p-button (click)="openInfoPanel(dashboard)" (keydown.enter)="openInfoPanel(dashboard)"
                     [pTooltip]="'@Info' | transloco"
                     tooltipPosition="top"
                     [text]="true"
                     severity="secondary"
                     class="mr-2"
-                    icon="fas fa-circle-info"/>
+                    icon="fa-solid fa-circle-info"/>
           <p-button (click)="editDashboard(dashboard)" (keydown.enter)="editDashboard(dashboard)"
                     [pTooltip]="'@Edit' | transloco"
                     tooltipPosition="top"
                     [text]="true"
 
-                    icon="fas fa-light fa-pen-to-square"
+                    icon="fa-solid fa-pen-to-square"
                     [style.display]="(dashboard.currentUserAdmin || dashboard.currentUserEditor) ? '' : 'none'"/>
         </td>
       </tr>
@@ -145,10 +145,10 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <p-button (click)="hideEditMetadataDialog()" (keydown)="hideEditMetadataDialog()" icon="fas fa-circle-xmark"
+    <p-button (click)="hideEditMetadataDialog()" (keydown)="hideEditMetadataDialog()" icon="fa-solid fa-circle-xmark"
               [label]="'@Cancel' | transloco" pRipple severity="secondary"/>
     <p-button (click)="updateDashboard(selectedDashboard)" (keydown)="updateDashboard(selectedDashboard)"
-              icon="fas fa-floppy-disk" [label]="'@Save' | transloco"
+              icon="fa-solid fa-floppy-disk" [label]="'@Save' | transloco"
               pRipple/>
   </ng-template>
 </p-dialog>
@@ -295,7 +295,7 @@
               id="rolesInfo">
               @for (role of selectedDashboard.roles; track role) {
                 <p-tag
-                  icon="fas fa-tag"
+                  icon="fa-solid fa-tag"
                   severity="info"
                   [value]="role.name"/>
               }
@@ -307,7 +307,7 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <p-button (click)="hideInfoPanel()" (keydown)="hideInfoPanel()" icon="fas fa-circle-xmark"
+    <p-button (click)="hideInfoPanel()" (keydown)="hideInfoPanel()" icon="fa-solid fa-circle-xmark"
               [label]="'@Cancel' | transloco" pRipple severity="secondary"/>
   </ng-template>
 </p-dialog>

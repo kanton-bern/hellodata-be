@@ -19,7 +19,7 @@
           <h5 class="m-0">{{ title() }}</h5>
           <span class="p-input-icon-left">
             <p-iconfield>
-              <p-inputicon class="pi pi-search"/>
+              <p-inputicon class="fa-solid fa-magnifying-glass"/>
               <input pInputText [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
                      placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
@@ -42,7 +42,7 @@
         <tr style="cursor: pointer" (click)="navigateToDashboard(dashboard)"
             (keydown.enter)="navigateToDashboard(dashboard)">
           <td>
-            <i class="fas fa-light fa-chart-line"></i>
+            <i class="fa-solid fa-chart-line"></i>
           </td>
           <td [pTooltip]="dashboard.contextName" tooltipPosition="top">
             {{ dashboard.contextName }}

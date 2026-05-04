@@ -50,9 +50,9 @@ import {TranslocoPipe} from '@jsverse/transloco';
 export class DeletePortalRolePopupComponent {
   readonly action = input.required<Action>();
   roleToBeDeleted$: Observable<any>;
-  private store = inject<Store<AppState>>(Store);
-  private confirmationService = inject(ConfirmationService);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
 
   constructor() {
     this.roleToBeDeleted$ = this.store.select(selectSelectedPortalRoleForDeletion).pipe(tap(portalRoleForDeletion => {
@@ -72,7 +72,7 @@ export class DeletePortalRolePopupComponent {
     if (portalRoleForDeletion) {
       this.confirmationService.confirm({
         message: this.translateService.translate('@Delete role question', {role: portalRoleForDeletion.name}),
-        icon: 'fas fa-triangle-exclamation',
+        icon: 'fa-solid fa-triangle-exclamation',
         acceptLabel: this.translateService.translate('@Yes'),
         rejectLabel: this.translateService.translate('@No'),
         accept: () => {

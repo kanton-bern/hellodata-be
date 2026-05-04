@@ -31,7 +31,7 @@
             <div id="searchBox">
                 <span class="p-input-icon-left p-ml-auto">
                   <p-iconfield>
-                    <p-inputicon class="pi pi-search"/>
+                    <p-inputicon class="fa-solid fa-magnifying-glass"/>
                     <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue"
                            pInputText
                            placeholder="{{'@Search' | transloco}}" type="text"/>
@@ -50,7 +50,7 @@
               Time
               <p-sortIcon field="changedOn"/>
             </th>
-            <th>Duration</th>
+            <th id="durationHeader">Duration</th>
             <th id="tabNameHeader" pSortableColumn="tabName" style="max-width:5rem">
               Tab name
               <p-sortIcon field="tabName"/>
@@ -71,7 +71,7 @@
               User
               <p-sortIcon field="userFullname"/>
             </th>
-            <th></th>
+            <th id="actionsHeader"></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-query let-expanded="expanded">
@@ -79,11 +79,11 @@
             <td>
               @switch (query.status) {
                 @case ('failed') {
-                  <span [pTooltip]="query.status" class="items-end pi pi-exclamation-circle"
+                  <span [pTooltip]="query.status" class="items-end fa-solid fa-circle-exclamation"
                         style="color: red"></span>
                 }
                 @case ('success') {
-                  <span [pTooltip]="query.status" class="items-end pi pi-check-circle"
+                  <span [pTooltip]="query.status" class="items-end fa-solid fa-circle-check"
                         style="color: green"></span>
                 }
               }
@@ -112,7 +112,7 @@
             <td>{{ query.userFullname }}</td>
             <td>
                         [plain]="true" pTooltip="SQL"
-                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+                        [icon]="expanded ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-right'"/>
             </td>
           </tr>
         </ng-template>

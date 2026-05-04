@@ -69,7 +69,7 @@
                     (click)="toggleDetails()"
                     (keydown)="onKeyDown($event, toggleDetails.bind(this))"
                     [pTooltip]="'@Info' | transloco" tooltipPosition="top">
-              <i class="fa fa-info-circle"></i>
+              <i class="fa-solid fa-info-circle"></i>
             </button>
           }
           @if (canEdit()) {
@@ -78,7 +78,7 @@
                     (keydown)="onKeyDown($event, editComment.bind(this))"
                     [pTooltip]="'@Edit' | transloco"
                     tooltipPosition="top">
-              <i class="fas fa-light fa-pen-to-square"></i>
+              <i class="fa-solid fa-pen-to-square"></i>
             </button>
           }
           @if (canPublish()) {
@@ -114,7 +114,7 @@
                     (keydown)="onKeyDown($event, deleteComment.bind(this))"
                     [pTooltip]="'@Delete' | transloco"
                     tooltipPosition="top">
-              <i class="fas fa-trash"></i>
+              <i class="fa-solid fa-trash"></i>
             </button>
           }
         } @else {
@@ -125,7 +125,7 @@
                     (click)="toggleDetails()"
                     (keydown)="onKeyDown($event, toggleDetails.bind(this))"
                     [pTooltip]="'@Info' | transloco" tooltipPosition="top">
-              <i class="fa fa-info-circle"></i>
+              <i class="fa-solid fa-info-circle"></i>
             </button>
           }
         }
@@ -369,7 +369,7 @@
                         styleClass="tags-autocomplete flex-1"
                         appendTo="body"
                         inputId="editTagInput"/>
-        <p-button icon="fas fa-plus"
+        <p-button icon="fa-solid fa-plus"
                   (click)="addEditTag()"
                   (keydown.enter)="addEditTag()"
                   [disabled]="!editNewTagText?.trim()"
@@ -379,11 +379,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="cancelEdit()" (keydown.escape)="cancelEdit()"
-              icon="fas fa-circle-xmark"
+              icon="fa-solid fa-circle-xmark"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="saveEdit()" (keydown.enter)="saveEdit()"
-              icon="fas fa-floppy-disk"
+              icon="fa-solid fa-floppy-disk"
               [label]="'@Save' | transloco"
 
               [disabled]="isSaveEditDisabled()"/>
@@ -415,11 +415,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="closeDeclineDialog()" (keydown.escape)="closeDeclineDialog()"
-              icon="fas fa-circle-xmark"
+              icon="fa-solid fa-circle-xmark"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="submitDecline()" (keydown.enter)="submitDecline()"
-              icon="fas fa-ban"
+              icon="fa-solid fa-ban"
               [label]="'@Decline' | transloco"
               severity="danger"
               [disabled]="isDeclineDisabled()"/>

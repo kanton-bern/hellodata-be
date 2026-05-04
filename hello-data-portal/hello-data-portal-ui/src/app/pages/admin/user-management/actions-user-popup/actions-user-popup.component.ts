@@ -51,9 +51,9 @@ import {Ripple} from "primeng/ripple";
 })
 export class ActionsUserPopupComponent {
   selectUserForPopup$: Observable<any>;
-  private store = inject<Store<AppState>>(Store);
-  private confirmationService = inject(ConfirmationService);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
 
   constructor() {
     this.selectUserForPopup$ = this.store.select(selectUserForPopup);
@@ -64,12 +64,10 @@ export class ActionsUserPopupComponent {
   }
 
   getButtonTypeForAction(userForPopup: any) {
-    switch (userForPopup.action) {
-      case UserAction.ENABLE:
-        return 'success';
-      default:
-        return 'danger'
+    if (userForPopup.action === UserAction.ENABLE) {
+      return 'success';
     }
+    return 'danger';
   }
 
   confirmAction(userForPopup: any) {
@@ -77,7 +75,7 @@ export class ActionsUserPopupComponent {
       const msg = this.translateService.translate(this.getActionTranslationKey(userForPopup) + ' user question');
       this.confirmationService.confirm({
         message: msg,
-        icon: 'fas fa-triangle-exclamation',
+        icon: 'fa-solid fa-triangle-exclamation',
         acceptLabel: this.translateService.translate('@Yes'),
         rejectLabel: this.translateService.translate('@No'),
         accept: () => {

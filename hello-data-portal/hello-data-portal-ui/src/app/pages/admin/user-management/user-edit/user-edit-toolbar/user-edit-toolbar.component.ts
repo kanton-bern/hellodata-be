@@ -42,7 +42,7 @@ import {User} from "../../../../../store/users-management/users-management.model
         @if (!user().superuser && user().enabled) {
           <p-button (click)="disableClicked.emit(user())" (keydown.enter)="disableClicked.emit(user())"
                     (keydown.space)="disableClicked.emit(user())"
-                    icon="fas fa-circle-xmark" pRipple
+                    icon="fa-solid fa-circle-xmark" pRipple
                     [label]="'@Disable' | transloco"
                     severity="danger"/>
         }
@@ -51,7 +51,7 @@ import {User} from "../../../../../store/users-management/users-management.model
         @if (!user().superuser && !user().enabled) {
           <p-button (click)="enableClicked.emit(user())" (keydown.enter)="enableClicked.emit(user())"
                     (keydown.space)="enableClicked.emit(user())"
-                    icon="fas fa-circle-plus" pRipple
+                    icon="fa-solid fa-circle-plus" pRipple
                     [label]="'@Enable' | transloco"
                     class="mr-2"/>
         }
@@ -59,12 +59,12 @@ import {User} from "../../../../../store/users-management/users-management.model
                   (keydown.space)="cancelClicked.emit()"
                   [pTooltip]="'@Cancel' | transloco"
                   class="mr-2"
-                  icon="fas fa-arrow-left" severity="secondary" pRipple/>
+                  icon="fa-solid fa-arrow-left" severity="secondary" pRipple/>
         <p-button (click)="saveClicked.emit()" (keydown.enter)="saveClicked.emit()" (keydown.space)="saveClicked.emit()"
                   [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled()"
                   [loading]="saveLoading()"
                   [label]="'@Save' | transloco"
-                  icon="fas fa-floppy-disk"
+                  icon="fa-solid fa-floppy-disk"
                   pRipple/>
       </div>
     </p-toolbar>

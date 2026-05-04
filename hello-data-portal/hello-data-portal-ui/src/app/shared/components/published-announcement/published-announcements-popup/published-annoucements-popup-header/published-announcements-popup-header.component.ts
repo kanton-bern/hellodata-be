@@ -19,7 +19,7 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
           </div>
           <a (click)="closeDialog()" style="cursor: pointer;"
              class="layout-topbar-button ml-4">
-            <i class="fas fa-times"></i>
+            <i class="fa-solid fa-times"></i>
           </a>
         </div>
       </div>
@@ -28,7 +28,7 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
   imports: [Checkbox, TranslocoPipe]
 })
 export class PublishedAnnouncementsPopupHeaderComponent {
-  private hideAllCurrentPublishedAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
+  private readonly hideAllCurrentPublishedAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
   ref = inject(DynamicDialogRef);
 
   closeDialog() {

@@ -28,7 +28,7 @@
       <ng-template let-projectDoc pTemplate="body">
         <tr class="cursor-pointer" (click)="onRowNavigate(projectDoc)" (keydown.enter)="onRowNavigate(projectDoc)">
           <td>
-            <i class="fas fa-light fa-diagram-project"></i>
+            <i class="fa-solid fa-diagram-project"></i>
           </td>
           <td [pTooltip]="projectDoc.contextName" tooltipPosition="top">
             {{ projectDoc.contextName }}

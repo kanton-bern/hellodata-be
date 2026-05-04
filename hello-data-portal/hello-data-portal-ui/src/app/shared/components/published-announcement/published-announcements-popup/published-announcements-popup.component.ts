@@ -30,7 +30,7 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
             <div>
               <p-toolbar>
                 <div class="p-toolbar-group-start">
-                  <span class="fas fa-circle-info" aria-hidden="true"></span>
+                  <span class="fa-solid fa-circle-info" aria-hidden="true"></span>
                 </div>
                 <div class="p-toolbar-group-center" style="width: 65%">
                   <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)"

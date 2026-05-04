@@ -22,7 +22,7 @@
                       [pTooltip]="'@Edit' | transloco"
                       tooltipPosition="top"
 
-                      icon="fas fa-light fa-pen-to-square"
+                      icon="fa-solid fa-pen-to-square"
                       [text]="true"
                       id="editDocumentationBtnOvrl"/>
           }
@@ -70,26 +70,26 @@
                         @switch (pipeline.lastInstance.state) {
                           @case ('queued') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end pi pi-hourglass"
+                                  class="items-end fa-solid fa-hourglass"
                                   style="color: gray"></span>
                           }
                           @case ('running') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end pi pi-spin pi-cog" tooltipPosition="top"
+                                  class="items-end fa-solid fa-gear fa-spin" tooltipPosition="top"
                                   style="color: green"></span>
                           }
                           @case ('success') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end pi pi-check-circle" tooltipPosition="top"
+                                  class="items-end fa-solid fa-circle-check" tooltipPosition="top"
                                   style="color: green"></span>
                           }
                           @case ('failed') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end pi pi-exclamation-circle" tooltipPosition="top"
+                                  class="items-end fa-solid fa-circle-exclamation" tooltipPosition="top"
                                   style="color: red"></span>
                           }
                           @default {
-                            <span [pTooltip]="'unknown'" class="items-end pi pi-question-circle"
+                            <span [pTooltip]="'unknown'" class="items-end fa-solid fa-circle-question"
                                   style="color: gray" tooltipPosition="top"></span>
                           }
                         }

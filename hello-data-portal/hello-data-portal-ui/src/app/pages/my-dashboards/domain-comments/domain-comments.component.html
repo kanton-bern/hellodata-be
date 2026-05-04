@@ -18,10 +18,10 @@
         <p-button
           [label]="'@Clear' | transloco"
           severity="secondary"
-          icon="pi pi-filter-slash"
+          icon="fa-solid fa-filter-circle-xmark"
           (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
         <p-iconfield>
-          <p-inputicon styleClass="pi pi-search"/>
+          <p-inputicon styleClass="fa-solid fa-magnifying-glass"/>
           <input
             pInputText
             type="text"
@@ -104,7 +104,7 @@
           <div class="action-buttons">
             <!-- Open dashboard button -->
             <p-button
-              icon="fa-up-right-from-square fas"
+              icon="fa-solid fa-up-right-from-square"
               class="mr-2"
               [text]="true"
               [pTooltip]="'@Open Dashboard' | transloco"
@@ -113,7 +113,7 @@
             <!-- Info button -->
             @if (canViewMetadataFn()(comment)) {
               <p-button
-                icon="fa fa-info-circle"
+                icon="fa-solid fa-info-circle"
                 [text]="true"
                 severity="secondary"
                 class="mr-2"
@@ -124,7 +124,7 @@
             <!-- Edit button -->
             @if (canEdit(comment)) {
               <p-button
-                icon="fas fa-light fa-pen-to-square"
+                icon="fa-solid fa-pen-to-square"
                 [text]="true"
                 class="mr-2"
                 [pTooltip]="'@Edit' | transloco"
@@ -167,7 +167,7 @@
             <!-- Delete button -->
             @if (canDelete(comment)) {
               <p-button
-                icon="fas fa-trash"
+                icon="fa-solid fa-trash"
                 [text]="true"
                 severity="danger"
                 [pTooltip]="'@Delete' | transloco"
@@ -478,7 +478,7 @@
                         appendTo="body"
                         inputId="editTagInput"
                         class="flex-1"/>
-        <p-button icon="fas fa-plus"
+        <p-button icon="fa-solid fa-plus"
                   (click)="addEditTag()"
                   (keydown.enter)="addEditTag()"
                   [disabled]="!editNewTagText?.trim()"
@@ -488,11 +488,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="cancelEdit()" (keydown.escape)="cancelEdit()"
-              icon="fas fa-circle-xmark"
+              icon="fa-solid fa-circle-xmark"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="saveEdit()" (keydown.enter)="saveEdit()"
-              icon="fas fa-floppy-disk"
+              icon="fa-solid fa-floppy-disk"
               [label]="'@Save' | transloco"
 
               [disabled]="isSaveEditDisabled()"/>
@@ -524,11 +524,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="closeDeclineDialog()" (keydown.escape)="closeDeclineDialog()"
-              icon="fas fa-circle-xmark"
+              icon="fa-solid fa-circle-xmark"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="submitDecline()" (keydown.enter)="submitDecline()"
-              icon="fas fa-ban"
+              icon="fa-solid fa-ban"
               [label]="'@Decline' | transloco"
               severity="danger"
               [disabled]="isDeclineDisabled()"/>
@@ -538,9 +538,9 @@
 <!-- Confirm Dialog - Publish -->
 <p-confirmDialog #cd1 key="publishComment" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd1.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd1.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd1.onReject()"/>
-    <p-button (click)="cd1.onAccept()" icon="fas fa-cloud-arrow-up"
+    <p-button (click)="cd1.onAccept()" icon="fa-solid fa-cloud-arrow-up"
               label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onAccept()"
 />
   </ng-template>
@@ -548,9 +548,9 @@
 
 <p-confirmDialog #cd5 key="sendForReview" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd5.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd5.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd5.onReject()"/>
-    <p-button (click)="cd5.onAccept()" icon="fas fa-paper-plane"
+    <p-button (click)="cd5.onAccept()" icon="fa-solid fa-paper-plane"
               label="{{'@Send for review' | transloco}}" (keydown.enter)="cd5.onAccept()"
               severity="info"/>
   </ng-template>
@@ -559,9 +559,9 @@
 <!-- Confirm Dialog - Unpublish -->
 <p-confirmDialog #cd2 key="unpublishComment" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd2.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd2.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd2.onReject()"/>
-    <p-button (click)="cd2.onAccept()" icon="fas fa-cloud-arrow-down"
+    <p-button (click)="cd2.onAccept()" icon="fa-solid fa-cloud-arrow-down"
               label="{{'@Unpublish' | transloco}}" (keydown.enter)="cd2.onAccept()"
               severity="warn"/>
   </ng-template>
@@ -596,11 +596,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="commentUtils.closeDeleteDialog()" (keydown.escape)="commentUtils.closeDeleteDialog()"
-              icon="fas fa-circle-xmark"
+              icon="fa-solid fa-circle-xmark"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="commentUtils.submitDelete()" (keydown.enter)="commentUtils.submitDelete()"
-              icon="fas fa-trash"
+              icon="fa-solid fa-trash"
               [label]="'@Delete' | transloco"
               severity="danger"
               [disabled]="commentUtils.isDeleteDisabled()"/>
@@ -610,9 +610,9 @@
 <!-- Confirm Dialog - Restore Version -->
 <p-confirmDialog #cd4 key="restoreVersion" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd4.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd4.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd4.onReject()"/>
-    <p-button (click)="cd4.onAccept()" icon="fas fa-rotate-left"
+    <p-button (click)="cd4.onAccept()" icon="fa-solid fa-rotate-left"
               label="{{'@Restore' | transloco}}" (keydown.enter)="cd4.onAccept()"
 />
   </ng-template>

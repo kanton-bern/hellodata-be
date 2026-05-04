@@ -72,7 +72,7 @@ export class UnsavedChangesGuard {
         this.confirmationService.confirm({
           key: 'unsavedChangesConfirmation',
           message: message,
-          icon: 'fas fa-triangle-exclamation',
+          icon: 'fa-solid fa-triangle-exclamation',
           acceptLabel: this.translateService.translate('@Yes'),
           rejectLabel: this.translateService.translate('@No'),
           accept: () => this.handleAccept(observer),

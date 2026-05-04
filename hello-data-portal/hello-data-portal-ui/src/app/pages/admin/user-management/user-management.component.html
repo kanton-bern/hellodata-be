@@ -62,7 +62,7 @@
       <div class="p-toolbar-group-end">
         <p-button (click)="createUser()" (keydown.enter)="createUser()"
                   [disabled]="inviteForm.invalid"
-                  icon="fas fa-floppy-disk"
+                  icon="fa-solid fa-floppy-disk"
                   [label]="'@Set permissions' | transloco"
                   pRipple/>
       </div>
@@ -100,18 +100,18 @@
           @if ((syncStatus$ | async); as syncStatus) {
             <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
                       [pTooltip]="'@Sync Users Title' | transloco" (keydown.enter)="syncUsers()"
-                      icon="fas fa-arrows-rotate" tooltipPosition="top"
+                      icon="fa-solid fa-arrows-rotate" tooltipPosition="top"
                       [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
  pRipple/>
           }
           <p-button (click)="navigateToBulkAssignments()" (keydown.enter)="navigateToBulkAssignments()"
-                    icon="pi pi-users"
+                    icon="fa-solid fa-users"
                     [label]="'@Bulk assignments' | transloco"
                     styleClass="hd-btn-tertiary" pRipple/>
         </div>
         <span class="p-input-icon-left">
           <p-iconfield>
-            <p-inputicon class="pi pi-search"/>
+            <p-inputicon class="fa-solid fa-magnifying-glass"/>
             <input (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
                    placeholder="{{'@Search' | transloco}}" type="text"/>
           </p-iconfield>
@@ -161,14 +161,14 @@
         <td>
           @if (user.superuser) {
             <div>
-              <i class="fas fa-check"></i>
+              <i class="fa-solid fa-check"></i>
             </div>
           }
         </td>
         <td>
           @if (user.enabled) {
             <div>
-              <i class="fas fa-check"></i>
+              <i class="fa-solid fa-check"></i>
             </div>
           }
         </td>
@@ -186,7 +186,7 @@
 
                       [text]="true"
                       class="mr-2"
-                      icon="fas fa-light fa-pen-to-square"
+                      icon="fa-solid fa-pen-to-square"
                       [pTooltip]="'@Edit' | transloco"
                       tooltipPosition="top"/>
             @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
@@ -194,16 +194,16 @@
                         severity="success"
                         [text]="true"
                         class="mr-2"
-                        icon="fas fa-circle-check"
+                        icon="fa-solid fa-circle-check"
                         [pTooltip]="'@Enable' | transloco"
                         tooltipPosition="top"/>
             }
             @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="disableUser(user)" (keydown.enter)="disableUser(user)"
-                        severity="danger"
+                        severity="warn"
                         [text]="true"
                         class="mr-2"
-                        icon="fas fa-circle-xmark"
+                        icon="fa-solid fa-circle-xmark"
                         [pTooltip]="'@Disable' | transloco"
                         tooltipPosition="top"/>
             }
@@ -211,7 +211,7 @@
               <p-button (click)="showUserDeletionPopup(user)" (keydown.enter)="showUserDeletionPopup(user)"
                         severity="danger"
                         [text]="true"
-                        icon="fas fa-trash"
+                        icon="fa-solid fa-trash"
                         [pTooltip]="'@Delete' | transloco"
                         tooltipPosition="top"/>
             }

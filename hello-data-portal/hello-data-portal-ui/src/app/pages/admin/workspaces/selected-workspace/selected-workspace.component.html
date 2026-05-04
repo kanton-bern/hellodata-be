@@ -16,9 +16,10 @@
     <div class="grid grid-cols-12 gap-4">
       @for (item of resources; track item) {
         <div class="col-span-2">
-          <div (click)="navigateToSelectedResource(item)"
-               class="cursor-pointer p-8 bg-white flex flex-col border-2 border-transparent hover:border-primary transition-colors duration-300 justify-center items-center shadow"
-               pRipple>
+          <button (click)="navigateToSelectedResource(item)"
+                  type="button" (keydown.enter)="navigateToSelectedResource(item)"
+                  class="cursor-pointer p-8 bg-white flex flex-col border-2 border-transparent hover:border-primary transition-colors duration-300 justify-center items-center shadow w-full"
+                  pRipple>
             <table aria-describedby="selected workspace">
               <tr>
                 <th id="item"></th>
@@ -29,7 +30,7 @@
                 </td>
               </tr>
             </table>
-          </div>
+          </button>
         </div>
       }
     </div>
@@ -37,7 +38,7 @@
       <div class="p-toolbar-group-start">&nbsp;</div>
       <div class="p-toolbar-group-end">
         <p-button (click)="cancel()" (keydown.enter)="cancel()" [pTooltip]="'@Cancel' | transloco"
-                  icon="fas fa-arrow-left"
+                  icon="fa-solid fa-arrow-left"
                   severity="secondary" pRipple/>
       </div>
     </p-toolbar>

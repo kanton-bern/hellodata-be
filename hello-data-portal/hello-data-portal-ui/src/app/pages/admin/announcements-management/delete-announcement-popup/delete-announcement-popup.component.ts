@@ -48,9 +48,9 @@ import {Ripple} from "primeng/ripple";
 export class DeleteAnnouncementPopupComponent {
   readonly action = input.required<Action>();
   announcementToBeDeleted$: Observable<any>;
-  private store = inject<Store<AppState>>(Store);
-  private confirmationService = inject(ConfirmationService);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
 
   constructor() {
     this.announcementToBeDeleted$ = combineLatest([
@@ -76,7 +76,7 @@ export class DeleteAnnouncementPopupComponent {
   private confirmDeletion(msg: string) {
     this.confirmationService.confirm({
       message: msg,
-      icon: 'fas fa-triangle-exclamation',
+      icon: 'fa-solid fa-triangle-exclamation',
       acceptLabel: this.translateService.translate('@Yes'),
       rejectLabel: this.translateService.translate('@No'),
       accept: () => {

@@ -18,13 +18,13 @@
         <ng-template pTemplate="caption">
           <div class="flex items-center justify-between">
             @if (permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT') {
-              <p-button (click)="openNew()" icon="fas fa-circle-plus" (keydown.enter)="openNew()"
+              <p-button (click)="openNew()" icon="fa-solid fa-circle-plus" (keydown.enter)="openNew()"
                         [label]="'@Create' | transloco" pRipple></p-button>
             }
             <h5 class="m-0">&nbsp;</h5>
             <span class="p-input-icon-left">
                  <p-iconfield>
-                    <p-inputicon class="pi pi-search"/>
+                    <p-inputicon class="fa-solid fa-magnifying-glass"/>
                     <input (input)="applyFilterGlobal($event, 'contains')" pInputText
                            placeholder="{{'@Search' | transloco}}"
                            type="text"/>
@@ -109,7 +109,7 @@
                             [pTooltip]="'@Edit' | transloco"
                             [text]="true"
                             pRipple
-                            icon="fas fa-light fa-pen-to-square"
+                            icon="fa-solid fa-pen-to-square"
                   />
                   <p-button (click)="deleteExternalDashboard(dashboard)"
                             (keydown.enter)="deleteExternalDashboard(dashboard)"
@@ -117,7 +117,7 @@
                             [text]="true"
                             severity="danger"
                             pRipple
-                            icon="fas fa-trash"
+                            icon="fa-solid fa-trash"
                   />
                 </div>
               </td>
@@ -134,10 +134,10 @@
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" [label]="'@Cancel' | transloco"
+    <p-button (click)="cd.onReject()" icon="fa-solid fa-circle-xmark" [label]="'@Cancel' | transloco"
               (keydown.enter)="cd.onReject()"
               pRipple severity="secondary" type="button"/>
-    <p-button (click)="cd.onAccept()" icon="fas fa-trash" [label]="'@Delete' | transloco" pRipple
+    <p-button (click)="cd.onAccept()" icon="fa-solid fa-trash" [label]="'@Delete' | transloco" pRipple
               (keydown.enter)="cd.onAccept()"
               severity="danger" type="button"/>
   </ng-template>

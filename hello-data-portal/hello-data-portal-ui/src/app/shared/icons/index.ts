@@ -25,15 +25,4 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {MenuItem} from "primeng/api";
-import {NAV_HOME} from "../../shared/icons";
-
-export const HOME_BREADCRUMB = {icon: NAV_HOME.class, routerLink: ['home'], label: ''};
-
-export interface BreadcrumbState {
-  breadcrumbs: MenuItem[];
-}
-
-export const initialBreadcrumbState: BreadcrumbState = {
-  breadcrumbs: [HOME_BREADCRUMB]
-}
+export * from './icon-registry';
