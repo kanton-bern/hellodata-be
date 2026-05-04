@@ -62,6 +62,7 @@ import {ConfirmDialog} from "primeng/confirmdialog";
 import {DashboardCommentUtilsService} from '../services/dashboard-comment-utils.service';
 import {AutoComplete} from 'primeng/autocomplete';
 import {Card} from 'primeng/card';
+import {ExternalLinkDirective} from '../../../shared/directives/external-link.directive';
 import {loadAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.action';
 import {TranslateService} from '../../../shared/services/translate.service';
 
@@ -89,7 +90,7 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
     Dialog,
     Textarea,
     ConfirmDialog,
-    AutoComplete, Card],
+    AutoComplete, Card, ExternalLinkDirective],
   providers: [ConfirmationService]
 })
 export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {

@@ -36,12 +36,13 @@ import {TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
 import {Tag} from 'primeng/tag';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {ExternalLinkDirective} from "../../../../shared/directives/external-link.directive";
 
 @Component({
   selector: 'app-selected-workspace-dashboards',
   templateUrl: './selected-workspace-dashboards.component.html',
   styleUrls: ['./selected-workspace-dashboards.component.scss'],
-  imports: [TableModule, PrimeTemplate, Tag, AsyncPipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, Tag, AsyncPipe, TranslocoPipe, ExternalLinkDirective]
 })
 export class SelectedWorkspaceDashboardsComponent {
   readonly dashboards = input.required<any[]>();

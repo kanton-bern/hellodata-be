@@ -55,13 +55,14 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
 import {Ripple} from "primeng/ripple";
+import {ExternalLinkDirective} from "../../../shared/directives/external-link.directive";
 
 @Component({
   selector: 'app-external-dashboards',
   templateUrl: './external-dashboards.component.html',
   styleUrls: ['./external-dashboards.component.scss'],
   imports: [TableModule, PrimeTemplate, Button, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe,
-    TranslocoPipe, IconField, InputIcon, Ripple, Card]
+    TranslocoPipe, IconField, InputIcon, Ripple, Card, ExternalLinkDirective]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
   readonly dt = viewChild.required<Table | undefined>('dt');

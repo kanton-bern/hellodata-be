@@ -25,29 +25,41 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, input} from '@angular/core';
-import {AppInfoService} from "../../services";
-import {TranslocoPipe} from "@jsverse/transloco";
-import {environment} from "../../../../environments/environment";
-import {RouterLink} from "@angular/router";
-import {ExternalLinkDirective} from "../../directives/external-link.directive";
+import {AfterViewInit, Directive, ElementRef, inject, input, Renderer2} from '@angular/core';
 
-@Component({
-  selector: 'app-footer',
-  templateUrl: './app-info.component.html',
-  styleUrls: ['./app-info.component.scss'],
-  imports: [RouterLink, TranslocoPipe, ExternalLinkDirective]
+/**
+ * Directive that marks a link as external.
+ * Automatically sets target="_blank", rel="noopener noreferrer",
+ * and appends a visual external-link icon.
+ *
+ * Usage:
+ *   <a href="https://example.com" hdExternalLink>Example</a>
+ *   <a href="https://example.com" hdExternalLink [hdExternalLinkShowIcon]="false">No icon</a>
+ */
+@Directive({
+  selector: 'a[hdExternalLink]',
+  standalone: true
 })
+export class ExternalLinkDirective implements AfterViewInit {
+  private readonly el = inject(ElementRef);
+  private readonly renderer = inject(Renderer2);
 
+  hdExternalLinkShowIcon = input(true);
 
-export class AppInfoComponent {
-  readonly appInfo = input.required<AppInfoService>();
+  ngAfterViewInit(): void {
+    const anchor = this.el.nativeElement as HTMLAnchorElement;
 
-  openSourceDataPlatformUrl = environment.footerConfig.openSourceDataPlatformUrl;
-  licenseUrl = environment.footerConfig.licenseUrl;
-  githubUrl = environment.footerConfig.githubUrl;
-  versionLink = environment.footerConfig.versionLink;
+    this.renderer.setAttribute(anchor, 'target', '_blank');
+    this.renderer.setAttribute(anchor, 'rel', 'noopener noreferrer');
 
+    if (this.hdExternalLinkShowIcon()) {
+      const icon = this.renderer.createElement('i');
+      this.renderer.addClass(icon, 'fa-solid');
+      this.renderer.addClass(icon, 'fa-up-right-from-square');
+      this.renderer.setStyle(icon, 'margin-left', '0.35em');
+      this.renderer.setStyle(icon, 'font-size', '0.8em');
+      this.renderer.setAttribute(icon, 'aria-hidden', 'true');
+      this.renderer.appendChild(anchor, icon);
+    }
+  }
 }
-
-

@@ -63,12 +63,13 @@ import {
   SelectedWorkspacePipelinesComponent
 } from '../selected-workspace-pipelines/selected-workspace-pipelines.component';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {ExternalLinkDirective} from "../../../../shared/directives/external-link.directive";
 
 @Component({
   selector: 'app-selected-workspace',
   templateUrl: './selected-workspace.component.html',
   styleUrls: ['./selected-workspace.component.scss'],
-  imports: [Ripple, Toolbar, Button, Tooltip, Fieldset, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, AsyncPipe, TranslocoPipe, Card]
+  imports: [Ripple, Toolbar, Button, Tooltip, Fieldset, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, AsyncPipe, TranslocoPipe, Card, ExternalLinkDirective]
 })
 export class SelectedWorkspaceComponent extends BaseComponent implements OnInit {
   resources$: Observable<any>;

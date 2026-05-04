@@ -51,12 +51,13 @@ import {Drawer} from "primeng/drawer";
 import {Button} from "primeng/button";
 import {PrimeTemplate} from "primeng/api";
 import {Tooltip} from "primeng/tooltip";
+import {ExternalLinkDirective} from "../../shared/directives/external-link.directive";
 
 @Component({
   selector: 'app-mobile',
   templateUrl: './mobile.component.html',
   styleUrls: ['./mobile.component.scss'],
-  imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe, Tooltip]
+  imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe, Tooltip, ExternalLinkDirective]
 })
 export class MobileComponent {
   private readonly store = inject<Store<AppState>>(Store);

@@ -80,6 +80,9 @@
                     <span [class]="third.icon" class="nav-drawer__icon"></span>
                   }
                   <span class="nav-drawer__label">{{ third.label | transloco }}</span>
+                  @if (third.target === '_blank') {
+                    <i class="fa-solid fa-up-right-from-square nav-drawer__external-icon" aria-hidden="true"></i>
+                  }
                 </button>
               }
             </div>
@@ -92,6 +95,9 @@
               <span [class]="sub.icon" class="nav-drawer__icon"></span>
             }
             <span class="nav-drawer__label">{{ sub.label | transloco }}</span>
+            @if (sub.target === '_blank') {
+              <i class="fa-solid fa-up-right-from-square nav-drawer__external-icon" aria-hidden="true"></i>
+            }
           </button>
         }
       }

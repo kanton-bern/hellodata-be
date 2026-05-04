@@ -5,7 +5,8 @@ export class WindowManagementService {
   private openedWindows: Window[] = [];
 
   openWindow(url: string, target = '_blank', features?: string) {
-    const win = window.open(url, target, features);
+    const allFeatures = features ? `noopener,${features}` : 'noopener';
+    const win = window.open(url, target, allFeatures);
     if (win) {
       this.openedWindows.push(win);
     }

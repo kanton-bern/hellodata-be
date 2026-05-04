@@ -127,7 +127,7 @@ export class DashboardImportExportComponent extends BaseComponent {
 
     // Dispatch loader start
     console.debug("Exporting dashboards from URL:", exportApiUrl);
-    window.open(exportApiUrl, '_blank');
+    window.open(exportApiUrl, '_blank', 'noopener');
   }
 
   toggleImportVisible(contextKey: string) {

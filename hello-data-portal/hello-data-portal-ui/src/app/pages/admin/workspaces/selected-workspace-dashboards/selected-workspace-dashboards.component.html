@@ -31,7 +31,7 @@
     <ng-template let-dashboard pTemplate="body">
       <tr>
         <td>
-          <a [href]="createLink(dashboard) | async" rel="noopener" target="_blank">{{ dashboard.dashboard_title }}</a>
+          <a [href]="createLink(dashboard) | async" hdExternalLink>{{ dashboard.dashboard_title }}</a>
         </td>
         <td>
           {{ dashboard.status }}

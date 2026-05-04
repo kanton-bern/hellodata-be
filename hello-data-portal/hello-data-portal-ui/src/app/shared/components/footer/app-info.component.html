@@ -3,12 +3,12 @@
   <span><a routerLink="/home" class="font-bold">{{ '@HelloDATA' | transloco }}</a></span>
 </div>
 <div class="text-left text-sm mt-2">
-  <span><a href="{{openSourceDataPlatformUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">OpenSource Data Platform</a></span><span>{{ ' | '}}</span>
+  <span><a href="{{openSourceDataPlatformUrl}}" hdExternalLink style="font-size: 0.9em;">OpenSource Data Platform</a></span><span>{{ ' | '}}</span>
   <span>{{appInfo().currentYear}}</span><span>{{ ' | '}}</span>
-  <span><a href="{{licenseUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">License</a></span><span>{{ ' | '}}</span>
-  <span><a href="{{githubUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">GitHub</a></span>
+  <span><a href="{{licenseUrl}}" hdExternalLink style="font-size: 0.9em;">License</a></span><span>{{ ' | '}}</span>
+  <span><a href="{{githubUrl}}" hdExternalLink style="font-size: 0.9em;">GitHub</a></span>
 </div>
 <div class="text-left text-sm mt-2">
-  <span><a href="{{versionLink}}" rel="noopener" target="_blank" style="font-size: 0.9em;"><b>{{ '@Version' | transloco}}
+  <span><a href="{{versionLink}}" hdExternalLink [hdExternalLinkShowIcon]="false" style="font-size: 0.9em;"><b>{{ '@Version' | transloco}}
     :</b>{{' '}}{{appInfo().buildInfo}}</a></span>
 </div>
