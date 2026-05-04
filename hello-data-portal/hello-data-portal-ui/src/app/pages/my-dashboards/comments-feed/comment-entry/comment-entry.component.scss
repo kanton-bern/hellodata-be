@@ -151,64 +151,64 @@
 }
 
 .edit-btn {
-  color: #1aa6a6;
+  color: var(--hd-btn-primary, #1aa6a6);
 
   &:hover {
-    color: #159393;
+    color: var(--hd-btn-primary-hover, #159393);
     background-color: rgba(26, 166, 166, 0.08);
   }
 }
 
 .publish-btn {
-  color: #1aa6a6;
+  color: var(--hd-btn-primary, #1aa6a6);
 
   &:hover {
-    color: #159393;
+    color: var(--hd-btn-primary-hover, #159393);
     background-color: rgba(26, 166, 166, 0.08);
   }
 }
 
 .decline-btn {
-  color: #d93636;
+  color: var(--hd-btn-danger, #d93636);
 
   &:hover {
-    color: #c52f2f;
+    color: var(--hd-btn-danger-hover, #c52f2f);
     background-color: rgba(217, 54, 54, 0.08);
   }
 }
 
 .send-review-btn {
-  color: #1aa6a6;
+  color: var(--hd-btn-primary, #1aa6a6);
 
   &:hover {
-    color: #159393;
+    color: var(--hd-btn-primary-hover, #159393);
     background-color: rgba(26, 166, 166, 0.08);
   }
 }
 
 .delete-version-btn {
-  color: #d93636;
+  color: var(--hd-btn-danger, #d93636);
 
   &:hover {
-    color: #c52f2f;
+    color: var(--hd-btn-danger-hover, #c52f2f);
     background-color: rgba(217, 54, 54, 0.08);
   }
 }
 
 .unpublish-btn {
-  color: #d93636;
+  color: var(--hd-btn-danger, #d93636);
 
   &:hover {
-    color: #c52f2f;
+    color: var(--hd-btn-danger-hover, #c52f2f);
     background-color: rgba(217, 54, 54, 0.08);
   }
 }
 
 .delete-btn {
-  color: #d93636;
+  color: var(--hd-btn-danger, #d93636);
 
   &:hover {
-    color: #c52f2f;
+    color: var(--hd-btn-danger-hover, #c52f2f);
     background-color: rgba(217, 54, 54, 0.08);
   }
 }

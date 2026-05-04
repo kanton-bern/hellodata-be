@@ -30,6 +30,6 @@
 
 .not-filled::after {
   content: "!";
-  color: red;
+  color: var(--hd-status-error, #d93636);
   font-weight: bold;
 }

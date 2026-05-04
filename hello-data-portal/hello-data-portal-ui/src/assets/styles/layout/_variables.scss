@@ -32,7 +32,13 @@ $transitionDuration: .2s; /* transition duration of layout elements e.g. sidebar
 $text-color: black;
 
 :root {
-  --success-color: #689f38;
+  /* Status / Semantic Colors */
+  --hd-status-success: #16a34a;
+  --hd-status-warning: #ca8a04;
+  --hd-status-error: #d93636;
+  --hd-status-info: #1aa6a6;
+  --success-color: #16a34a;
+
   /* Surface Colors */
   --surface-a: #ffffff;
   --surface-b: #fafafa;
