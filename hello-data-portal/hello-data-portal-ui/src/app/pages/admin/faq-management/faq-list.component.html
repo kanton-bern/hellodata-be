@@ -31,7 +31,7 @@
                 <th id="faq-dataDomain" scope="col">
                   {{ '@Data domain' | transloco }}
                 </th>
-                <th id="faq-actions" scope="col" style="width: 10rem"></th>
+                <th id="faq-actions" scope="col" class="hd-col-actions" style="width: 10rem"></th>
               </tr>
             </ng-template>
             <ng-template let-faqItem pTemplate="body" let-expanded="expanded">
@@ -44,7 +44,7 @@
                     <span class="italic">{{ '@All Data Domains' | transloco }}</span>
                   }
                 </td>
-                <td>
+                <td class="hd-col-actions">
                   <div class="flex items-center justify-end gap-2">
                   <p-button (click)="editFaq(faqItem)" (keydown.enter)="editFaq(faqItem)"
                             [pTooltip]="'@Edit' | transloco"

@@ -145,11 +145,11 @@
           {{ '@Enabled' | transloco }}
           <p-sortIcon field="enabled"/>
         </th>
-        <th id="lastAccess" pSortableColumn="lastAccess" style="width:15rem">
+        <th id="lastAccess" pSortableColumn="lastAccess" class="hd-col-date">
           {{ '@Last login' | transloco }}
           <p-sortIcon field="lastAccess"/>
         </th>
-        <th id="actions" style="width:12rem"></th>
+        <th id="actions" class="hd-col-actions" style="width:12rem"></th>
       </tr>
     </ng-template>
     <ng-template let-user pTemplate="body">
@@ -165,19 +165,19 @@
         </td>
         <td>
           @if (user.superuser) {
-            <div>
-              <i class="fa-solid fa-check"></i>
-            </div>
+            <i class="fa-solid fa-check text-success"></i>
+          } @else {
+            <i class="fa-solid fa-times text-color-secondary opacity-40"></i>
           }
         </td>
         <td>
           @if (user.enabled) {
-            <div>
-              <i class="fa-solid fa-check"></i>
-            </div>
+            <i class="fa-solid fa-check text-success"></i>
+          } @else {
+            <i class="fa-solid fa-times text-danger"></i>
           }
         </td>
-        <td>
+        <td class="hd-col-date">
           @if (user.lastAccess) {
             <span>{{ user.lastAccess | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
           }
@@ -186,11 +186,10 @@
           }
         </td>
         @if ((loggedInUser$ | async); as loggedInUser) {
-          <td>
+          <td class="hd-col-actions">
+            <div class="flex items-center justify-end gap-1">
             <p-button (click)="editUser(user)" (keydown.enter)="editUser(user)"
-
                       [text]="true"
-                      class="mr-2"
                       icon="fa-solid fa-pen-to-square"
                       [pTooltip]="'@Edit' | transloco"
                       tooltipPosition="top"/>
@@ -198,7 +197,6 @@
               <p-button (click)="enableUser(user)" (keydown.enter)="enableUser(user)"
                         severity="success"
                         [text]="true"
-                        class="mr-2"
                         icon="fa-solid fa-circle-check"
                         [pTooltip]="'@Enable' | transloco"
                         tooltipPosition="top"/>
@@ -207,7 +205,6 @@
               <p-button (click)="disableUser(user)" (keydown.enter)="disableUser(user)"
                         severity="warn"
                         [text]="true"
-                        class="mr-2"
                         icon="fa-solid fa-circle-xmark"
                         [pTooltip]="'@Disable' | transloco"
                         tooltipPosition="top"/>
@@ -220,6 +217,7 @@
                         [pTooltip]="'@Delete' | transloco"
                         tooltipPosition="top"/>
             }
+            </div>
           </td>
         }
       </tr>

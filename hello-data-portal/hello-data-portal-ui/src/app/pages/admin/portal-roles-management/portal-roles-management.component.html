@@ -23,7 +23,7 @@
             <th id="permissions" style="min-width:20rem">
               {{ '@Permissions' | transloco }}
             </th>
-            <th id="actions" style="min-width:8rem"></th>
+            <th id="actions" class="hd-col-actions" style="min-width:8rem"></th>
           </tr>
         </ng-template>
         <ng-template let-role pTemplate="body">
@@ -37,25 +37,24 @@
                 </span>
               }
             </td>
-            <td>
+            <td class="hd-col-actions">
+              <div class="flex items-center justify-end gap-1">
               @if (!role.systemDefault) {
                 <p-button (click)="editRole(role)" (keydown.enter)="editRole(role)"
                           [pTooltip]="'@Edit' | transloco"
-
-                          
+                          [text]="true"
                           icon="fa-solid fa-pen-to-square"
-
                           pRipple/>
               }
               @if (!role.systemDefault) {
                 <p-button (click)="showRoleDeletionPopup(role)" (keydown.enter)="showRoleDeletionPopup(role)"
                           [pTooltip]="'@Delete' | transloco"
                           severity="danger"
-                          
+                          [text]="true"
                           icon="fa-solid fa-trash"
-
                           pRipple/>
               }
+              </div>
             </td>
           </tr>
         </ng-template>

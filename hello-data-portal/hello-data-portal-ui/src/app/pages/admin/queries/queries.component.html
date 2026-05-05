@@ -46,34 +46,35 @@
         <ng-template pTemplate="header">
           <tr>
             <th id="statusHeader" pSortableColumn="status" style="max-width:5rem">
+              {{ '@Status' | transloco }}
               <p-sortIcon field="status"/>
             </th>
-            <th id="changedOnHeader" pSortableColumn="changedOn" style="max-width:5rem">
-              Time
+            <th id="changedOnHeader" pSortableColumn="changedOn" class="hd-col-date">
+              {{ '@Time' | transloco }}
               <p-sortIcon field="changedOn"/>
             </th>
-            <th id="durationHeader">Duration</th>
+            <th id="durationHeader" class="hd-col-numeric">{{ '@Duration' | transloco }}</th>
             <th id="tabNameHeader" pSortableColumn="tabName" style="max-width:5rem">
-              Tab name
+              {{ '@Tab name' | transloco }}
               <p-sortIcon field="tabName"/>
             </th>
             <th id="databaseNameHeader" pSortableColumn="databaseName" style="max-width:5rem">
-              Database
+              {{ '@Database' | transloco }}
               <p-sortIcon field="databaseName"/>
             </th>
             <th id="schemaHeader" pSortableColumn="schema" style="max-width:5rem">
-              Schema
+              {{ '@Schema' | transloco }}
               <p-sortIcon field="schema"/>
             </th>
             <th id="sqlTablesHeader" pSortableColumn="sqlTables" style="max-width:5rem">
-              Tables
+              {{ '@Tables' | transloco }}
               <p-sortIcon field="sqlTables"/>
             </th>
             <th id="userFullnameHeader" pSortableColumn="userFullname" style="max-width:5rem">
-              User
+              {{ '@User' | transloco }}
               <p-sortIcon field="userFullname"/>
             </th>
-            <th id="actionsHeader"></th>
+            <th id="actionsHeader" class="hd-col-actions"></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-query let-expanded="expanded">
@@ -90,8 +91,8 @@
                 }
               }
             </td>
-            <td>{{ query.changedOn | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
-            <td>
+            <td class="hd-col-date">{{ query.changedOn | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
+            <td class="hd-col-numeric">
               @switch (query.status) {
                 @case ('failed') {
                   <p-tag severity="danger" [value]="formatDuration(query.endTime - query.startTime)"/>
@@ -112,13 +113,15 @@
               }
             </td>
             <td>{{ query.userFullname }}</td>
-            <td>
-                        [plain]="true" pTooltip="SQL"
+            <td class="hd-col-actions">
+              <p-button type="button" pRipple [pRowToggler]="query"
+                        [text]="true"
+                        pTooltip="SQL"
                         [icon]="expanded ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-right'"/>
             </td>
           </tr>
         </ng-template>
-        <ng-template #expandedrow let-query>
+        <ng-template pTemplate="expandedrow" let-query>
           <tr>
             <td colspan="9">
               <div class="p-4">

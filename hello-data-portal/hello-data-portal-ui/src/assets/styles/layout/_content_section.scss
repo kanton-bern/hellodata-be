@@ -465,6 +465,34 @@ fieldset, p-iconfield > input {
   padding-right: 1rem;
 }
 
+// Sticky table headers — work with the page/card scroll container
+.p-datatable .p-datatable-thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+// Right-align date/time columns
+.p-datatable .p-datatable-thead > tr > th.hd-col-date,
+.p-datatable .p-datatable-tbody > tr > td.hd-col-date {
+  text-align: right;
+  white-space: nowrap;
+}
+
+// Right-align numeric columns (counts, durations, IDs)
+.p-datatable .p-datatable-thead > tr > th.hd-col-numeric,
+.p-datatable .p-datatable-tbody > tr > td.hd-col-numeric {
+  text-align: right;
+  white-space: nowrap;
+}
+
+// Action column — always right-aligned
+.p-datatable .p-datatable-thead > tr > th.hd-col-actions,
+.p-datatable .p-datatable-tbody > tr > td.hd-col-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
 .p-checkbox-box {
   border: 1px solid #e5e7eb;
 }

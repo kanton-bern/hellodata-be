@@ -29,13 +29,13 @@
                 <th id="messagePreviewHeader" scope="col">
                   {{ '@Message' | transloco }}
                 </th>
-                <th id="createdDateHeader" scope="col">
+                <th id="createdDateHeader" scope="col" class="hd-col-date">
                   {{ '@Created date' | transloco }}
                 </th>
-                <th id="publishedDateHeader" scope="col">
+                <th id="publishedDateHeader" scope="col" class="hd-col-date">
                   {{ '@Published date' | transloco }}
                 </th>
-                <th id="actionHeader" scope="col" style="width: 10rem"></th>
+                <th id="actionHeader" scope="col" class="hd-col-actions" style="width: 10rem"></th>
               </tr>
             </ng-template>
             <ng-template let-announcement pTemplate="body" let-expanded="expanded">
@@ -53,13 +53,13 @@
                   <div class="announcement-message-preview"
                        [innerHTML]="getMessage(announcement, selectedLanguage)"></div>
                 </td>
-                <td>
+                <td class="hd-col-date">
                   {{ announcement.createdDate | date: 'dd.MM.yyyy HH:mm:ss' }}
                 </td>
-                <td>
+                <td class="hd-col-date">
                   {{ announcement.publishedDate ? (announcement.publishedDate | date: 'dd.MM.yyyy HH:mm:ss') : '-' }}
                 </td>
-                <td>
+                <td class="hd-col-actions">
                   <div class="flex items-center justify-end gap-2">
                   <p-button (click)="editAnnouncement(announcement)" (keydown.enter)="editAnnouncement(announcement)"
                             [pTooltip]="'@Edit' | transloco"
