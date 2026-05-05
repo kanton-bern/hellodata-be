@@ -32,11 +32,12 @@ import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
 
 import {Card} from 'primeng/card';
+import {Button} from 'primeng/button';
 
 @Component({
   templateUrl: 'queries.component.html',
   styleUrls: ['./queries.component.scss'],
-  imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Textarea, AsyncPipe, DatePipe, TranslocoPipe, IconField, InputIcon, Card]
+  imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Textarea, AsyncPipe, DatePipe, TranslocoPipe, IconField, InputIcon, Card, Button]
 })
 export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
@@ -143,4 +144,9 @@ export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   protected readonly JSON = JSON;
+
+  clearFilter(table: Table): void {
+    this.filterValue = '';
+    table.clear();
+  }
 }

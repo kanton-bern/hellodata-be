@@ -17,13 +17,18 @@
       <ng-template pTemplate="caption">
         <div class="flex items-center justify-between">
           <h5 class="m-0">{{ title() }}</h5>
-          <span class="p-input-icon-left">
+          <div class="flex items-center gap-2">
+            <p-button
+              [label]="'@Clear' | transloco"
+              severity="secondary"
+              icon="fa-solid fa-filter-circle-xmark"
+              (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
             <p-iconfield>
               <p-inputicon class="fa-solid fa-magnifying-glass"/>
               <input pInputText [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
                      placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
-          </span>
+          </div>
         </div>
       </ng-template>
       <ng-template pTemplate="header">

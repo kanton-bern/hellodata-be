@@ -113,7 +113,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   loading = true;
 
   // For filtering
-  globalFilterValue: string = '';
+  filterValue: string = '';
   selectedStatus: DashboardCommentStatus | null = null;
   paginatorFirst = 0;
 
@@ -187,9 +187,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
       if (contextKeyChanged) {
         this.contextKey = contextKey!;
         this.contextName = resolvedName;
-        this.globalFilterValue = '';
-
-        // Reset table state so PrimeNG restores from the new stateKey when new data arrives
+        this.filterValue = '';
         const table = this.dt();
         if (table) {
           table.first = 0;
@@ -602,12 +600,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     return currentVersion?.status === DashboardCommentStatus.READY_FOR_REVIEW;
   }
 
-  onGlobalFilter(table: Table, event: Event): void {
-    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-  }
-
   clearFilter(table: Table): void {
-    this.globalFilterValue = '';
+    this.filterValue = '';
     table.clear();
   }
 }

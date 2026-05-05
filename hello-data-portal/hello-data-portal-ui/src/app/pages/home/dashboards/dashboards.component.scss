@@ -63,6 +63,21 @@
     th#dashboard, td:nth-child(3) {
       width: auto;
     }
+
+    .p-paginator {
+      margin-top: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+
+      .p-paginator-page,
+      .p-paginator-first,
+      .p-paginator-prev,
+      .p-paginator-next,
+      .p-paginator-last {
+        min-width: 1.75rem;
+        height: 1.75rem;
+      }
+    }
   }
 }
 

@@ -53,11 +53,12 @@ import {InputText} from "primeng/inputtext";
 import {TranslocoPipe} from "@jsverse/transloco";
 
 import {Card} from 'primeng/card';
+import {Button} from 'primeng/button';
 
 @Component({
   templateUrl: 'dashboard-access.component.html',
   styleUrls: ['./dashboard-access.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe, Card]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe, Card, Button]
 })
 export class DashboardAccessComponent extends BaseComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
@@ -120,5 +121,10 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
         }
       ]
     }));
+  }
+
+  clearFilter(table: Table): void {
+    this.filterValue = '';
+    table.clear();
   }
 }

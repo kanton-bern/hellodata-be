@@ -51,7 +51,7 @@ import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-man
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActionsUserPopupComponent} from "./actions-user-popup/actions-user-popup.component";
 import {TranslocoPipe} from "@jsverse/transloco";
-import {TableLazyLoadEvent, TableModule} from "primeng/table";
+import {Table, TableLazyLoadEvent, TableModule} from "primeng/table";
 import {Tooltip} from "primeng/tooltip";
 import {InputText} from "primeng/inputtext";
 import {Button} from "primeng/button";
@@ -265,5 +265,10 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
       .subscribe(() => {
         this.store.dispatch(loadSyncStatus());
       });
+  }
+
+  clearFilter(table: Table): void {
+    this.filterValue = '';
+    table.clear();
   }
 }

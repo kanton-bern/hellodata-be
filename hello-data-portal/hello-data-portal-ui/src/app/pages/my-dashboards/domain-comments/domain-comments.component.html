@@ -14,20 +14,20 @@
     styleClass="p-datatable-striped">
 
     <ng-template pTemplate="caption">
-      <div class="table-header flex justify-between items-center gap-4">
+      <div class="flex items-center justify-end gap-2">
         <p-button
           [label]="'@Clear' | transloco"
           severity="secondary"
           icon="fa-solid fa-filter-circle-xmark"
           (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
         <p-iconfield>
-          <p-inputicon styleClass="fa-solid fa-magnifying-glass"/>
+          <p-inputicon class="fa-solid fa-magnifying-glass"/>
           <input
             pInputText
             type="text"
-            [(ngModel)]="globalFilterValue"
-            (input)="onGlobalFilter(dt, $event)"
-            [placeholder]="'@Search' | transloco"/>
+            [(ngModel)]="filterValue"
+            (input)="dt.filterGlobal(filterValue, 'contains')"
+            placeholder="{{'@Search' | transloco}}"/>
         </p-iconfield>
       </div>
     </ng-template>

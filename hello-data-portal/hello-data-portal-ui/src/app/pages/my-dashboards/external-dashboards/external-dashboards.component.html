@@ -16,20 +16,23 @@
                stateStorage="session"
                dataKey="id">
         <ng-template pTemplate="caption">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
             @if (permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT') {
               <p-button (click)="openNew()" icon="fa-solid fa-circle-plus" (keydown.enter)="openNew()"
                         [label]="'@Create' | transloco" pRipple></p-button>
             }
-            <h5 class="m-0">&nbsp;</h5>
-            <span class="p-input-icon-left">
-                 <p-iconfield>
-                    <p-inputicon class="fa-solid fa-magnifying-glass"/>
-                    <input (input)="applyFilterGlobal($event, 'contains')" pInputText
-                           placeholder="{{'@Search' | transloco}}"
-                           type="text"/>
-                </p-iconfield>
-              </span>
+            <div class="flex items-center gap-2 ml-auto">
+              <p-button
+                [label]="'@Clear' | transloco"
+                severity="secondary"
+                icon="fa-solid fa-filter-circle-xmark"
+                (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
+              <p-iconfield>
+                <p-inputicon class="fa-solid fa-magnifying-glass"/>
+                <input (input)="applyFilterGlobal($event, 'contains')" [(ngModel)]="filterValue" pInputText
+                       placeholder="{{'@Search' | transloco}}" type="text"/>
+              </p-iconfield>
+            </div>
           </div>
         </ng-template>
         <ng-template pTemplate="header">

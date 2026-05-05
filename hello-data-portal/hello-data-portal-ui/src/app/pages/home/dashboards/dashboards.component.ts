@@ -43,12 +43,13 @@ import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
+import {Button} from 'primeng/button';
 
 @Component({
   selector: 'app-dashboards',
   templateUrl: './dashboards.component.html',
   styleUrls: ['./dashboards.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe, Tooltip]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe, Tooltip, Button]
 })
 export class DashboardsComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
@@ -120,5 +121,10 @@ export class DashboardsComponent implements OnInit {
         eventAction: '[Search] - Searched for ' + val
       }));
     }, 400);
+  }
+
+  clearFilter(table: Table): void {
+    this.filterValue = '';
+    table.clear();
   }
 }

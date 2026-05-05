@@ -56,13 +56,14 @@ import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
 import {Ripple} from "primeng/ripple";
 import {ExternalLinkDirective} from "../../../shared/directives/external-link.directive";
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-external-dashboards',
   templateUrl: './external-dashboards.component.html',
   styleUrls: ['./external-dashboards.component.scss'],
   imports: [TableModule, PrimeTemplate, Button, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe,
-    TranslocoPipe, IconField, InputIcon, Ripple, Card, ExternalLinkDirective]
+    TranslocoPipe, IconField, InputIcon, Ripple, Card, ExternalLinkDirective, FormsModule]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
   readonly dt = viewChild.required<Table | undefined>('dt');
@@ -72,6 +73,7 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
   private filterTimer: any;
+  filterValue = '';
   paginatorFirst = 0;
 
   constructor() {
@@ -150,5 +152,10 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
       eventCategory: 'External Dashboard',
       eventAction: '[Click Paging] - Moved to page ' + pageNumber
     }));
+  }
+
+  clearFilter(table: Table): void {
+    this.filterValue = '';
+    table.clear();
   }
 }

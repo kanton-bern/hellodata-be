@@ -23,19 +23,19 @@
                  class="p-datatable-striped"
                  [tableStyle]="{ 'min-width': '50rem' }">
           <ng-template pTemplate="caption">
-            <div>
-              <div id="searchBox">
-                <span class="p-input-icon-left p-ml-auto">
-                  <p-iconfield>
-                    <p-inputicon class="fa-solid fa-magnifying-glass"/>
-                    <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue"
-                           pInputText
-                           placeholder="{{'@Search' | transloco}}" type="text"/>
-                  </p-iconfield>
-                </span>
-              </div>
+            <div class="flex items-center justify-end gap-2">
+              <p-button
+                [label]="'@Clear' | transloco"
+                severity="secondary"
+                icon="fa-solid fa-filter-circle-xmark"
+                (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
+              <p-iconfield>
+                <p-inputicon class="fa-solid fa-magnifying-glass"/>
+                <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue"
+                       pInputText
+                       placeholder="{{'@Search' | transloco}}" type="text"/>
+              </p-iconfield>
             </div>
-            <br><br><br>
           </ng-template>
           <ng-template pTemplate="header">
             <tr>

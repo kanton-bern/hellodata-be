@@ -72,6 +72,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly menuService = inject(MenuService);
   private filterTimer: any;
+  filterValue = '';
   paginatorFirst = 0;
 
   constructor() {
@@ -193,5 +194,10 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
         ]
       }));
     }
+  }
+
+  clearFilter(table: Table): void {
+    this.filterValue = '';
+    table.clear();
   }
 }
