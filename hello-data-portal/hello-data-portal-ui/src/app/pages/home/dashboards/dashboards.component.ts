@@ -126,5 +126,6 @@ export class DashboardsComponent implements OnInit {
   clearFilter(table: Table): void {
     this.filterValue = '';
     table.clear();
+    table.clearState();
   }
 }

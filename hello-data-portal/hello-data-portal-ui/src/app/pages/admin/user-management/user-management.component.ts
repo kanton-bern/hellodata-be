@@ -270,5 +270,6 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   clearFilter(table: Table): void {
     this.filterValue = '';
     table.clear();
+    table.clearState();
   }
 }

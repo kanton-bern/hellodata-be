@@ -148,5 +148,6 @@ export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy
   clearFilter(table: Table): void {
     this.filterValue = '';
     table.clear();
+    table.clearState();
   }
 }
