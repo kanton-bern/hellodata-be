@@ -1,3 +1,4 @@
+<div class="px-4 md:px-0">
 <h2 class="content-block">{{ '@Profile' | transloco }}</h2>
 
 @if ((userDetails$ | async); as userDetails) {
@@ -44,16 +45,16 @@
       <div class="field grid grid-cols-12 gap-4">
         <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="email">{{ '@Roles' | transloco }}</label>
         <div class="col-span-12 md:col-span-10">
-          <p-table
-            [multiSortMeta]="[{field: 'context.type', order: 1}, {field: 'role.name', order: 1}]"
-            [rowHover]="true"
-            [tableStyle]="{ 'min-width': '50rem' }"
-            [value]="roles"
-            dataKey="id"
-            id="role-table"
-            sortMode="multiple"
-            class="p-datatable-striped"
-          >
+            <div class="overflow-x-auto">
+              <p-table
+                [multiSortMeta]="[{field: 'context.type', order: 1}, {field: 'role.name', order: 1}]"
+                [rowHover]="true"
+                [value]="roles"
+                dataKey="id"
+                id="role-table"
+                sortMode="multiple"
+                class="p-datatable-striped"
+              >
             <ng-template pTemplate="header">
               <tr style="text-align: left;">
                 <th id="domain">{{ '@Domain' | transloco }}</th>
@@ -77,9 +78,11 @@
                 <td>{{ formatRoleName(contextRoleEntry.role.name) }}</td>
               </tr>
             </ng-template>
-          </p-table>
-        </div>
+            </p-table>
+            </div>
+          </div>
       </div>
     }
   </p-card>
 }
+</div>
