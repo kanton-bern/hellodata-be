@@ -58,7 +58,8 @@
               <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
                         icon="fa-solid fa-circle-xmark" pRipple
                         label="{{ '@Clear cache' | transloco }}"
-                        severity="help"/>
+                        severity="secondary"
+                        [outlined]="true"/>
             </div>
             <div class="ml-auto filter-search-area">
               <span class="filter-hint">{{ '@Filter hint' | transloco }}</span>
@@ -112,7 +113,7 @@
             <td>
               <p-button type="button" pRipple [pRowToggler]="user"
                         [text]="true"
-                        [icon]="expanded ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-right'"/>
+                        icon="fa-solid fa-info-circle"/>
             </td>
           </tr>
         </ng-template>

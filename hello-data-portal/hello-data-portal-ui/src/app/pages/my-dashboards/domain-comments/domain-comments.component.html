@@ -64,7 +64,7 @@
     </ng-template>
 
     <ng-template pTemplate="body" let-comment>
-      <tr>
+      <tr [class.row-expanded]="isExpanded(comment)">
         <td class="dashboard-title">
           {{ comment.dashboardTitle || ('Dashboard ' + comment.dashboardId) }}
         </td>
@@ -178,10 +178,10 @@
         </td>
       </tr>
       <!-- Expanded details row -->
-      <tr class="expanded-row" [class.expanded]="isExpanded(comment)">
-        <td colspan="7" class="expanded-row-cell">
-          <div class="comment-details-wrapper">
-            <div class="comment-details p-3 bg-gray-50 rounded-md">
+      @if (isExpanded(comment)) {
+        <tr class="expanded-row">
+          <td colspan="7" class="expanded-row-cell">
+            <div class="comment-details-body p-4">
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <strong>{{ '@Status' | transloco }}:</strong>
@@ -261,7 +261,7 @@
                 @if (comment.pointerUrl) {
                   <div>
                     <strong>{{ '@Pointer URL' | transloco }}:</strong>
-                    <a [href]="comment.pointerUrl" appExternalLink class="text-blue-600 hover:underline">
+                    <a [href]="comment.pointerUrl" appExternalLink class="hover:underline">
                       {{ comment.pointerUrl | slice:0:50 }}...
                     </a>
                   </div>
@@ -273,7 +273,7 @@
                   <strong>{{ '@Version history' | transloco }}:</strong>
                   <table class="history-table w-full mt-2 text-sm">
                     <thead>
-                    <tr class="bg-gray-100">
+                    <tr class="history-table-header">
                       <th scope="col" class="p-2 text-left">{{ '@Version' | transloco }}</th>
                       <th scope="col" class="p-2 text-left">{{ '@Status' | transloco }}</th>
                       <th scope="col" class="p-2 text-left">{{ '@Date' | transloco }}</th>
@@ -286,12 +286,12 @@
                     </thead>
                     <tbody>
                       @for (historyItem of getAllVersions(comment); track historyItem.version) {
-                        <tr [class.bg-blue-50]="historyItem.isCurrentVersion">
+                        <tr [class.active-version-row]="historyItem.isCurrentVersion">
                           <td class="p-2">
                             v{{ historyItem.version }}
                             @if (historyItem.isCurrentVersion) {
                               <span
-                                class="ml-1 text-xs bg-blue-500 text-white px-1 rounded">{{ '@Active' | transloco }}</span>
+                                class="active-version-badge ml-1">{{ '@Active' | transloco }}</span>
                             }
                           </td>
                           <td class="p-2">
@@ -314,7 +314,7 @@
                           <td class="p-2">
                             @if (historyItem.pointerUrl) {
                               <button type="button"
-                                      class="text-blue-600 hover:underline cursor-pointer bg-transparent border-none p-0 text-left"
+                                      class="history-pointer-url-link cursor-pointer text-left bg-transparent border-none p-0"
                                       [pTooltip]="historyItem.pointerUrl"
                                       tooltipPosition="top"
                                       (click)="navigateToDashboard(comment, historyItem.pointerUrl)">
@@ -329,7 +329,7 @@
                             @if (historyItem.tags && historyItem.tags.length > 0) {
                               <div class="flex gap-1 flex-wrap">
                                 @for (tag of historyItem.tags; track tag) {
-                                  <span class="text-xs bg-blue-100 text-blue-700 px-1 rounded">
+                                  <span class="history-tag">
                                     <i class="fa-solid fa-tag mr-1" style="font-size: 0.6rem;"></i>{{ tag }}
                                   </span>
                                 }
@@ -343,7 +343,7 @@
                               <p-button
                                 icon="fa-solid fa-rotate-left"
                                 [text]="true"
-                                severity="help"
+                                severity="secondary"
                                 styleClass="restore-btn"
                                 [pTooltip]="'@Restore this version' | transloco"
                                 tooltipPosition="left"
@@ -353,7 +353,7 @@
                           </td>
                         </tr>
                         @if (historyItem.status === DashboardCommentStatus.DECLINED && historyItem.declineReason) {
-                          <tr [class.bg-blue-50]="historyItem.isCurrentVersion">
+                          <tr [class.active-version-row]="historyItem.isCurrentVersion">
                             <td colspan="8" class="p-2">
                               <div class="bg-red-50 border-l-4 border-red-500 p-2 rounded">
                                 <strong class="text-red-700 text-xs">{{ '@Decline reason' | transloco }}:</strong>
@@ -363,7 +363,7 @@
                           </tr>
                         }
                         @if (historyItem.status === DashboardCommentStatus.DELETED && historyItem.deletionReason) {
-                          <tr [class.bg-blue-50]="historyItem.isCurrentVersion">
+                          <tr [class.active-version-row]="historyItem.isCurrentVersion">
                             <td colspan="8" class="p-2">
                               <div class="bg-gray-100 border-l-4 border-gray-500 p-2 rounded">
                                 <strong class="text-gray-700 text-xs">{{ '@Deletion reason' | transloco }}:</strong>
@@ -378,9 +378,9 @@
                 </div>
               }
             </div>
-          </div>
-        </td>
-      </tr>
+          </td>
+        </tr>
+      }
     </ng-template>
 
     <ng-template pTemplate="emptymessage">

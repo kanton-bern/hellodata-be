@@ -47,6 +47,7 @@
 
 .content-section a:not(.p-button):not(.p-menuitem-link):not(.p-menu-item-link):not(.layout-topbar-button):not(.route-link) {
   color: var(--primary-color, #0e7c7c);
+  text-decoration: none;
 }
 
 .content-section a:not(.p-button):not(.p-menuitem-link):not(.p-menu-item-link):not(.layout-topbar-button):not(.route-link):hover {

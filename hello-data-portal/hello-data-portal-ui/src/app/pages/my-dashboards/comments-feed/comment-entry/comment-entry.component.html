@@ -30,7 +30,7 @@
   @if (activeVersion()?.pointerUrl) {
     <div class="pointer-url-container px-1 pb-1">
       <button type="button"
-              class="pointer-url-link text-xs text-blue-600 hover:underline cursor-pointer bg-transparent border-none p-0"
+              class="pointer-url-link text-xs cursor-pointer bg-transparent border-none p-0"
               (click)="navigateToPointerUrl()"
               (keydown.enter)="navigateToPointerUrl()">
         <i class="fa-solid fa-thumbtack mr-1"></i>{{ '@Go to dashboard element' | transloco }}

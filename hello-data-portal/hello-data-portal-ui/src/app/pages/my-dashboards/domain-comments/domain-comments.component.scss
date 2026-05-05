@@ -56,21 +56,22 @@
   align-items: center;
   padding: 0.1rem 0.4rem;
   font-size: 0.7rem;
-  background-color: var(--blue-50, #eff6ff);
-  color: var(--blue-700, #1d4ed8);
-  border: 1px solid var(--blue-200, #bfdbfe);
+  background-color: rgba(14, 124, 124, 0.08);
+  color: var(--primary-color, #0e7c7c);
+  border: 1px solid rgba(14, 124, 124, 0.2);
   border-radius: 0.75rem;
 
   i {
-    color: var(--blue-500, #3b82f6);
+    color: var(--primary-color, #0e7c7c);
   }
 }
 
 .tag-item {
   display: inline-flex;
   align-items: center;
-  background-color: var(--blue-100, #dbeafe);
-  color: var(--blue-700, #1d4ed8);
+  background-color: rgba(14, 124, 124, 0.08);
+  color: var(--primary-color, #0e7c7c);
+  border: 1px solid rgba(14, 124, 124, 0.2);
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -89,13 +90,13 @@
   cursor: pointer;
   margin-left: 0.25rem;
   padding: 0;
-  color: var(--blue-700, #1d4ed8);
+  color: var(--primary-color, #0e7c7c);
   font-size: 0.7rem;
   display: flex;
   align-items: center;
 
   &:hover {
-    color: var(--blue-900, #1e3a8a);
+    color: var(--p-primary-700, #095858);
   }
 }
 
@@ -141,13 +142,14 @@
   }
 }
 
-/* Restore version button styles - consistent with primary teal */
+/* Restore version button styles - consistent with success green */
 ::ng-deep p-button.restore-btn button {
-  color: var(--hd-btn-primary, #0e7c7c) !important;
+  color: var(--hd-status-success, #15803d) !important;
   transition: color 200ms ease-in-out !important;
 
   &:hover {
-    color: var(--hd-btn-primary-hover, #0b6969) !important;
+    color: var(--success-color, #15803d) !important;
+    opacity: 0.8;
   }
 }
 
@@ -156,31 +158,90 @@
   color: var(--text-color, #333) !important;
 }
 
-/* Smooth transition for expanded row */
+/* Expanded details row */
 .expanded-row {
+  animation: expandRow 220ms ease-out;
+
   .expanded-row-cell {
     padding: 0 !important;
+    border-top: 1px dashed rgba(14, 124, 124, 0.25) !important;
   }
 }
 
-.comment-details-wrapper {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
-
-  .expanded & {
-    grid-template-rows: 1fr;
+@keyframes expandRow {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
   }
-}
-
-.comment-details {
-  overflow: hidden;
-  opacity: 0;
-  transition: opacity 300ms cubic-bezier(0.4, 0.0, 0.2, 1),
-  padding 300ms cubic-bezier(0.4, 0.0, 0.2, 1),
-  margin 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
-
-  .expanded & {
+  to {
     opacity: 1;
+    transform: translateY(0);
   }
+}
+
+.history-pointer-url-link {
+  color: var(--primary-color, #0e7c7c);
+  font-size: 0.75rem;
+
+  &:hover {
+    text-decoration: underline;
+    color: var(--p-primary-700, #095858);
+  }
+}
+
+.active-version-row {
+  background-color: rgba(21, 128, 61, 0.06);
+}
+
+.active-version-badge {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.3rem;
+  background-color: var(--hd-status-success, #15803d);
+  color: white;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.history-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
+  background-color: rgba(14, 124, 124, 0.08);
+  color: var(--primary-color, #0e7c7c);
+  border-radius: 0.2rem;
+}
+
+/* Expanded row inner panel */
+.comment-details-body {
+  background-color: rgba(14, 124, 124, 0.03);
+  border-left: 3px solid var(--primary-color, #0e7c7c);
+}
+
+/* Left border on main row when expanded — mirrors the details panel accent */
+.row-expanded > td:first-child {
+  border-left: 3px solid var(--primary-color, #0e7c7c);
+}
+
+/* Bottom spacing after expanded group to separate from next row */
+.expanded-row.expanded .expanded-row-cell {
+  border-bottom: 8px solid var(--surface-ground, #f8f9fa) !important;
+}
+
+/* Version history table */
+.history-table {
+  border-collapse: collapse;
+
+  th, td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+}
+
+.history-table-header th {
+  background-color: rgba(14, 124, 124, 0.08) !important;
+  color: var(--primary-color, #0e7c7c);
+  font-weight: 600;
+  font-size: 0.8rem;
 }
