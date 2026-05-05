@@ -2740,5 +2740,86 @@ class DashboardCommentServiceTest {
                 DashboardResource.class
         )).thenReturn(mockResource);
     }
+
+    // ========== GET AVAILABLE TAGS TESTS ==========
+
+    @Test
+    void getAvailableTags_shouldNormalizeLegacyDenormalizedTags() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            mockSuperUser(securityUtils);
+
+            // Create a comment through the service; tags are normalized on write
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Comment with tags")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .tags(List.of("normal"))
+                    .build();
+            commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Simulate legacy denormalized data by directly mutating the stored version entity
+            DashboardCommentEntity stored = commentStore.values().iterator().next();
+            DashboardCommentVersionEntity activeVersion = stored.getHistory().stream()
+                    .filter(v -> v.getVersion().equals(stored.getActiveVersion()))
+                    .findFirst()
+                    .orElseThrow();
+            // Inject raw denormalized tags: uppercase, padded whitespace, and oversized
+            activeVersion.setTags("UPPER, MixedCase ,verylongtagnamethatexceedslimit");
+
+            List<String> tags = commentService.getAvailableTags(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(tags).containsExactly("mixedcase", "upper", "verylongta");
+        }
+    }
+
+    @Test
+    void getAvailableTags_shouldReturnEmptyListWhenNoComments() {
+        List<String> tags = commentService.getAvailableTags(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+        assertThat(tags).isEmpty();
+    }
+
+    @Test
+    void getAvailableTags_shouldReturnDistinctSortedTags() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            mockSuperUser(securityUtils);
+
+            DashboardCommentCreateDto dto1 = DashboardCommentCreateDto.builder()
+                    .text("Comment 1").dashboardUrl(TEST_DASHBOARD_URL)
+                    .tags(List.of("beta", "alpha")).build();
+            DashboardCommentCreateDto dto2 = DashboardCommentCreateDto.builder()
+                    .text("Comment 2").dashboardUrl(TEST_DASHBOARD_URL)
+                    .tags(List.of("alpha", "gamma")).build();
+            commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, dto1);
+            commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, dto2);
+
+            List<String> tags = commentService.getAvailableTags(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            // alpha appears in both comments but must be returned only once, sorted
+            assertThat(tags).containsExactly("alpha", "beta", "gamma");
+        }
+    }
+
+    @Test
+    void getAvailableTags_shouldExcludeTagsFromDeletedComments() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            mockSuperUser(securityUtils);
+
+            DashboardCommentCreateDto activeDto = DashboardCommentCreateDto.builder()
+                    .text("Active comment").dashboardUrl(TEST_DASHBOARD_URL)
+                    .tags(List.of("kept")).build();
+            DashboardCommentCreateDto deletedDto = DashboardCommentCreateDto.builder()
+                    .text("To be deleted").dashboardUrl(TEST_DASHBOARD_URL)
+                    .tags(List.of("removed")).build();
+
+            commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, activeDto);
+            DashboardCommentDto toDelete = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, deletedDto);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, toDelete.getId(), true, "test cleanup");
+
+            List<String> tags = commentService.getAvailableTags(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(tags).containsExactly("kept");
+            assertThat(tags).doesNotContain("removed");
+        }
+    }
+
 }
 

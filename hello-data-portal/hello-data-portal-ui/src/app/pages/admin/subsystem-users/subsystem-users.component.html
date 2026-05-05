@@ -161,6 +161,7 @@
                           @for (role of (user.subsystemRoles[col.field] || []); track role) {
                             <p-tag [value]="role"
                                    [class.filter-highlight]="matchesFilter(role)"
+                                   severity="secondary"
                                    class="m-1"/>
                           }
                         } @else {

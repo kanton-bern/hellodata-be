@@ -65,6 +65,7 @@ import {Card} from 'primeng/card';
 import {ExternalLinkDirective} from '../../../shared/directives/external-link.directive';
 import {loadAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.action';
 import {TranslateService} from '../../../shared/services/translate.service';
+import {TagChipComponent} from '../../../shared/components/tag-chip/tag-chip.component';
 
 const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
@@ -90,7 +91,7 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
     Dialog,
     Textarea,
     ConfirmDialog,
-    AutoComplete, Card, ExternalLinkDirective],
+    AutoComplete, Card, ExternalLinkDirective, TagChipComponent],
   providers: [ConfirmationService]
 })
 export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {

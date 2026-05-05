@@ -58,6 +58,7 @@ import {BehaviorSubject, combineLatest, interval, map, Observable, Subscription,
 import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {AutoComplete} from "primeng/autocomplete";
 import {Dialog} from "primeng/dialog";
+import {TagChipComponent} from "../../../shared/components/tag-chip/tag-chip.component";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
 import {NotificationService} from "../../../shared/services/notification.service";
@@ -95,7 +96,8 @@ interface StatusFilterOption {
     Select,
     Tooltip,
     AutoComplete,
-    Dialog
+    Dialog,
+    TagChipComponent
   ],
   styleUrls: ['./comments-feed.component.scss']
 })

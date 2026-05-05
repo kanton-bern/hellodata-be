@@ -25,7 +25,71 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-export * from './footer/app-info.component';
-export * from './header/header.component';
-export * from './summary/summary.component';
-export * from './tag-chip/tag-chip.component';
+// Canonical styles for user-generated comment tag chips.
+// All variants live here — do not redefine .tag-chip in individual component SCSS files.
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.7rem;
+  background-color: rgba(14, 124, 124, 0.08);
+  color: var(--primary-color, #0e7c7c);
+  border: 1px solid rgba(14, 124, 124, 0.2);
+  border-radius: 0.75rem;
+  line-height: 1.4;
+
+  i {
+    font-size: 0.6rem;
+    color: var(--primary-color, #0e7c7c);
+  }
+
+  // Removable variant: neutral gray to signal an editable/interactive chip
+  &--removable {
+    background-color: var(--surface-200, #e9ecef);
+    color: var(--text-color, #333);
+    border-color: transparent;
+
+    i.fa-tag {
+      color: var(--text-color-secondary, #6c757d);
+    }
+  }
+
+  // Compact size for tight layouts (e.g. inline compose area)
+  &--sm {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
+    gap: 0.2rem;
+
+    i {
+      font-size: 0.55rem;
+    }
+
+    .tag-chip__remove i {
+      font-size: 0.55rem;
+    }
+  }
+
+  &__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.1rem;
+    color: var(--text-color-secondary, #6c757d);
+    transition: color 0.2s;
+    line-height: 1;
+
+    &:hover {
+      color: var(--red-500, #ef4444);
+    }
+
+    i {
+      font-size: 0.65rem;
+    }
+  }
+}

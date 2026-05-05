@@ -1338,6 +1338,16 @@ public class DashboardCommentService {
     /**
      * Get all unique tags used in comments for a specific dashboard.
      * Returns tags from all non-deleted comments.
+     * <p>
+     * Tag concept clarification:
+     * - User tags (this feature): free-text strings attached by end-users to dashboard
+     *   comments. Stored as comma-separated text on the version entity; normalized to
+     *   lowercase and at most 10 characters on write. This method applies the same
+     *   normalization on read so that any denormalized legacy values are returned
+     *   consistently.
+     * - System label badges: status indicators, role names, durations, etc. rendered via
+     *   PrimeNG {@code <p-tag>} in the UI. They are NOT tags in the domain sense and
+     *   are never stored or returned by this service.
      */
     @Transactional(readOnly = true)
     public List<String> getAvailableTags(String contextKey, int dashboardId) {
@@ -1355,6 +1365,8 @@ public class DashboardCommentService {
                             }
                             return Arrays.stream(tags.split(","))
                                     .map(String::trim)
+                                    .map(String::toLowerCase)
+                                    .map(tag -> tag.length() > 10 ? tag.substring(0, 10) : tag)
                                     .filter(s -> !s.isEmpty())
                                     .collect(Collectors.<String>toList());
                         })

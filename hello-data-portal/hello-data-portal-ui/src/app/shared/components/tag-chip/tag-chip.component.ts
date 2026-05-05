@@ -25,7 +25,49 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-export * from './footer/app-info.component';
-export * from './header/header.component';
-export * from './summary/summary.component';
-export * from './tag-chip/tag-chip.component';
+import {Component, input, output} from '@angular/core';
+
+/**
+ * Shared chip component for user-generated comment tags.
+ *
+ * Use this component wherever a dashboard-comment tag needs to be rendered —
+ * either as a read-only display chip or as an editable chip with a remove button.
+ * Do NOT use this for system-generated label badges (roles, statuses, durations, etc.);
+ * those belong to PrimeNG <p-tag> with an appropriate severity.
+ *
+ * Inputs:
+ *   tag       - the tag string to display (required)
+ *   removable - when true renders a remove (×) button; defaults to false
+ *   size      - 'sm' renders a compact chip for tight layouts; defaults to 'md'
+ *
+ * Output:
+ *   removed   - emitted when the user clicks/activates the remove button
+ */
+@Component({
+  selector: 'app-tag-chip',
+  standalone: true,
+  template: `
+    <span class="tag-chip"
+          [class.tag-chip--removable]="removable()"
+          [class.tag-chip--sm]="size() === 'sm'">
+      <i class="fa-solid fa-tag"></i>
+      <span>{{ tag() }}</span>
+      @if (removable()) {
+        <button type="button"
+                class="tag-chip__remove"
+                (click)="removed.emit()"
+                (keydown.enter)="removed.emit()"
+                (keydown.space)="removed.emit()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </span>
+  `,
+  styleUrls: ['./tag-chip.component.scss']
+})
+export class TagChipComponent {
+  tag = input.required<string>();
+  removable = input(false);
+  size = input<'sm' | 'md'>('md');
+  removed = output<void>();
+}

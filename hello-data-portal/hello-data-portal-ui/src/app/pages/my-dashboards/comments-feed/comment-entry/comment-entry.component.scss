@@ -568,57 +568,6 @@
   }
 }
 
-.comment-tags .tag-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.1rem 0.4rem;
-  font-size: 0.65rem;
-  background-color: rgba(14, 124, 124, 0.08);
-  color: var(--primary-color, #0e7c7c);
-  border: 1px solid rgba(14, 124, 124, 0.2);
-  border-radius: 0.75rem;
-
-  i {
-    color: var(--primary-color, #0e7c7c);
-  }
-}
-
-.tag-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.5rem;
-  background-color: var(--surface-200, #e9ecef);
-  border-radius: 1rem;
-  font-size: 0.8rem;
-  color: var(--text-color, #333);
-
-  i.fa-tag {
-    font-size: 0.7rem;
-    color: var(--text-color-secondary, #6c757d);
-  }
-
-  .tag-remove {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    margin-left: 0.1rem;
-    color: var(--text-color-secondary, #6c757d);
-
-    &:hover {
-      color: var(--red-500, #ef4444);
-    }
-
-    i {
-      font-size: 0.65rem;
-    }
-  }
-}
-
 ::ng-deep .tags-autocomplete {
   width: 100%;
 

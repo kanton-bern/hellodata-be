@@ -499,7 +499,13 @@ button.p-button.p-component:disabled:not(.p-button-text):not(.p-button-rounded):
   background: rgba(75, 85, 99, 0.12) !important;
 }
 
-/* ─── p-tag severity overrides (align with app teal palette) ─── */
+/* ─── p-tag severity overrides (align with app teal palette) ───────────────
+ * Use <p-tag> exclusively for SYSTEM-GENERATED label badges:
+ *   - comment status  (PUBLISHED / DRAFT / READY_FOR_REVIEW / DECLINED)
+ *   - role and permission names
+ *   - query durations, domain assignments, and similar metadata
+ * For USER-GENERATED comment tags use <app-tag-chip> instead.
+ * ─────────────────────────────────────────────────────────────────────────── */
 .p-tag-success {
   background-color: rgba(14, 124, 124, 0.12) !important;
   color: var(--hd-btn-primary, #0e7c7c) !important;

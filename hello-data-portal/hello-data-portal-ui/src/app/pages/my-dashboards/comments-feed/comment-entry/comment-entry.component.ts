@@ -52,6 +52,7 @@ import {Textarea} from "primeng/textarea";
 import {Button} from "primeng/button";
 import {DashboardCommentUtilsService} from "../../services/dashboard-comment-utils.service";
 import {AutoComplete} from "primeng/autocomplete";
+import {TagChipComponent} from "../../../../shared/components/tag-chip/tag-chip.component";
 
 @Component({
   selector: 'app-comment-entry',
@@ -67,7 +68,8 @@ import {AutoComplete} from "primeng/autocomplete";
     Textarea,
     Button,
     PrimeTemplate,
-    AutoComplete
+    AutoComplete,
+    TagChipComponent
   ],
   styleUrls: ['./comment-entry.component.scss']
 })

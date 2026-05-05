@@ -153,16 +153,7 @@
       @if (selectedTags.length > 0) {
         <div class="flex gap-1 flex-wrap mt-2">
           @for (tag of selectedTags; track tag) {
-            <span class="tag-item tag-item-small">
-            <i class="fa-solid fa-tag"></i>
-            <span>{{ tag }}</span>
-            <button type="button" class="tag-remove"
-                    (click)="removeTag(tag)"
-                    (keydown.enter)="removeTag(tag)"
-                    (keydown.space)="removeTag(tag)">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </span>
+            <app-tag-chip [tag]="tag" [removable]="true" size="sm" (removed)="removeTag(tag)" />
           }
         </div>
       }
@@ -233,16 +224,7 @@
   <div class="tags-dialog-content">
     <div class="flex gap-1 flex-wrap mb-3">
       @for (tag of selectedTags; track tag) {
-        <span class="tag-item">
-          <i class="fa-solid fa-tag"></i>
-          <span>{{ tag }}</span>
-          <button type="button" class="tag-remove"
-                  (click)="removeTag(tag)"
-                  (keydown.enter)="removeTag(tag)"
-                  (keydown.space)="removeTag(tag)">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </span>
+        <app-tag-chip [tag]="tag" [removable]="true" (removed)="removeTag(tag)" />
       }
       @if (selectedTags.length === 0) {
         <span class="text-gray-400 text-sm">{{ '@No tags selected' | transloco }}</span>

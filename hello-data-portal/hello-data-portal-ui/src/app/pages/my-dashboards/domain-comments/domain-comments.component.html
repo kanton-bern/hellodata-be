@@ -85,9 +85,7 @@
           @if (comment.tags && comment.tags.length > 0) {
             <div class="flex gap-1 flex-wrap">
               @for (tag of comment.tags; track tag) {
-                <span class="tag-chip">
-                  <i class="fa-solid fa-tag text-xs mr-1"></i>{{ tag }}
-                </span>
+                <app-tag-chip [tag]="tag" />
               }
             </div>
           }
@@ -450,16 +448,7 @@
       <label for="editTagInput" class="block text-sm font-medium text-gray-700 mb-1">{{ '@Tags' | transloco }}</label>
       <div class="flex gap-1 flex-wrap mb-2">
         @for (tag of editedTags; track tag) {
-          <span class="tag-item">
-            <i class="fa-solid fa-tag"></i>
-            <span>{{ tag }}</span>
-            <button type="button" class="tag-remove"
-                    (click)="removeEditTag(tag)"
-                    (keydown.enter)="removeEditTag(tag)"
-                    (keydown.space)="removeEditTag(tag)">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </span>
+          <app-tag-chip [tag]="tag" [removable]="true" (removed)="removeEditTag(tag)" />
         }
         @if (editedTags.length === 0) {
           <span class="text-gray-400 text-sm">{{ '@No tags selected' | transloco }}</span>

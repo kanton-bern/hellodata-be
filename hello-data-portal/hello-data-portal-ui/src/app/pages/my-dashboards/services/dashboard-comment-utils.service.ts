@@ -186,7 +186,17 @@ export class DashboardCommentUtilsService {
   }
 
   /**
-   * Gets status severity for PrimeNG Tag component
+   * Canonical severity mapping for comment status labels rendered via <p-tag>.
+   *
+   * Status       → severity    Rationale
+   * PUBLISHED    → success     green  – content is live
+   * DRAFT        → warn        amber  – needs action / not yet submitted
+   * READY_FOR_REVIEW → info    teal   – awaiting review
+   * DECLINED     → danger      red    – rejected, needs rework
+   * DELETED      → secondary   gray   – inactive / soft-deleted
+   *
+   * Both domain-comments and comments-feed delegate here, so changes to
+   * this mapping apply everywhere automatically.
    */
   getStatusSeverity(status: DashboardCommentStatus | string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
     switch (status) {
