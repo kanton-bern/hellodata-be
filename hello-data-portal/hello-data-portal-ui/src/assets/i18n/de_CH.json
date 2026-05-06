@@ -332,8 +332,7 @@
   "@Scheduled": "Aktualisierung",
   "@Search": "Suchen",
   "@Search hint": "Geben Sie ein Stichwort ein und drücken Sie Enter, um einen Filterchip hinzuzufügen. Mehrere Chips grenzen die Ergebnisse weiter ein. Der Filter gilt für alle sichtbaren Spalten.",
-  "@Search dashboards": "Dashboards suchen",
-  "@Search users": "Benutzer suchen",
+
   "@Select a Dashboard": "Dashboard auswählen",
   "@Select a Data Domain": "Datendomänen auswählen",
   "@Select all": "Alle auswählen",

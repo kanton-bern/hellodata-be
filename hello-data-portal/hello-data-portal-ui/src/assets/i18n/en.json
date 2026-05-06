@@ -335,8 +335,7 @@
   "@Scheduled": "Scheduled",
   "@Search": "Search",
   "@Search hint": "Type a keyword and press Enter to add a filter chip. Multiple chips narrow results further. The filter applies to all visible columns.",
-  "@Search dashboards": "Search dashboards",
-  "@Search users": "Search users",
+
   "@Select a Dashboard": "Select a Dashboard",
   "@Select a Data Domain": "Select a Data Domain",
   "@Select all": "Select all",

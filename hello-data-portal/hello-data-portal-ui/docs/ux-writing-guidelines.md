@@ -103,12 +103,11 @@ Use imperative or descriptive sentences. Keep them concise (one sentence preferr
 
 ### Search & Filter Labels
 
-Use verb infinitive form for action labels:
+Use verb infinitive form for action labels. Search placeholders must **not** include the object name (e.g., use "Suchen", not "Dashboards suchen"):
 
 | Key | German |
 |-----|--------|
 | `@Search` | Suchen |
-| `@Search dashboards` | Dashboards suchen |
 | `@Filter by role` | Nach Datendomänenrolle filtern |
 | `@Clear all filters` | Alle Filter löschen |
 

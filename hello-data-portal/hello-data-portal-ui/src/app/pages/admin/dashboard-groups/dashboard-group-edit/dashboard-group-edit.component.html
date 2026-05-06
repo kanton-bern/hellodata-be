@@ -102,8 +102,8 @@
                 <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
                 <input pInputText [(ngModel)]="dashboardSearchFilter" [ngModelOptions]="{standalone: true}"
                        (ngModelChange)="onDashboardSearchChange()"
-                       [attr.aria-label]="'@Search dashboards' | transloco"
-                       placeholder="{{ '@Search dashboards' | transloco }}" type="text"/>
+                       [attr.aria-label]="'@Search' | transloco"
+                       placeholder="{{ '@Search' | transloco }}" type="text"/>
               </p-iconfield>
             </div>
             <div class="dashboard-list max-h-96 overflow-y-auto border border-surface rounded-border p-2">
@@ -140,8 +140,8 @@
                 <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
                 <input pInputText [(ngModel)]="userSearchFilter" [ngModelOptions]="{standalone: true}"
                        (ngModelChange)="onUserSearchChange()"
-                       [attr.aria-label]="'@Search users' | transloco"
-                       placeholder="{{ '@Search users' | transloco }}" type="text"/>
+                       [attr.aria-label]="'@Search' | transloco"
+                       placeholder="{{ '@Search' | transloco }}" type="text"/>
               </p-iconfield>
             </div>
             <div class="user-list border border-surface rounded-border p-2 relative">

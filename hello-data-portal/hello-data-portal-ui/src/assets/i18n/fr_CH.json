@@ -335,8 +335,7 @@
   "@Scheduled": "Mise à jour",
   "@Search": "Recherche",
   "@Search hint": "Tapez un mot-clé et appuyez sur Entrée pour ajouter une puce de filtre. Plusieurs puces affinent davantage les résultats. Le filtre s'applique à toutes les colonnes visibles.",
-  "@Search dashboards": "Rechercher des tableaux de bord",
-  "@Search users": "Rechercher des utilisateurs",
+
   "@Select a Dashboard": "Sélectionner le tableau de bord",
   "@Select a Data Domain": "Sélectionner le domaine de données ",
   "@Select all": "Tout sélectionner",
