@@ -100,14 +100,6 @@
         </td>
         <td>
           <div class="action-buttons">
-            <!-- Open dashboard button -->
-            <p-button
-              [icon]="icons.ACTION_EXTERNAL_LINK.class"
-              class="mr-2"
-              [text]="true"
-              [pTooltip]="'@Open Dashboard' | transloco"
-              tooltipPosition="top"
-              (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
             <!-- Info button -->
             @if (canViewMetadataFn()(comment)) {
               <p-button
@@ -119,6 +111,14 @@
                 tooltipPosition="top"
                 (click)="toggleDetails(comment)" (keydown.enter)="toggleDetails(comment)"/>
             }
+            <!-- Open dashboard button -->
+            <p-button
+              [icon]="icons.ACTION_EXTERNAL_LINK.class"
+              class="mr-2"
+              [text]="true"
+              [pTooltip]="'@Open Dashboard' | transloco"
+              tooltipPosition="top"
+              (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
             <!-- Edit button -->
             @if (canEdit(comment)) {
               <p-button

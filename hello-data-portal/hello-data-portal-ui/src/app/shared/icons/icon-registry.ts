@@ -221,7 +221,7 @@ export const ACTION_APPROVE: IconDefinition = {
 };
 
 export const ACTION_SEND: IconDefinition = {
-  class: 'fa-solid fa-paper-plane',
+  class: 'fa-solid fa-share',
   label: '@Send',
   category: 'action',
 };
