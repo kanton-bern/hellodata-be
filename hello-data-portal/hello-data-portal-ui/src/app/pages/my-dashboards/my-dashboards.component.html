@@ -83,12 +83,6 @@
           {{ dashboard.status }}
         </td>
         <td>
-          <p-button (click)="openDashboard(dashboard)" (keydown.enter)="openDashboard(dashboard)"
-                    [pTooltip]="'@Open' | transloco"
-                    tooltipPosition="top"
-                    [text]="true"
-                    class="mr-2"
-                    [icon]="icons.ACTION_EXTERNAL_LINK.class"/>
           <p-button (click)="openInfoPanel(dashboard)" (keydown.enter)="openInfoPanel(dashboard)"
                     [pTooltip]="'@Info' | transloco"
                     tooltipPosition="top"
@@ -103,6 +97,12 @@
 
                     [icon]="icons.ACTION_EDIT.class"
                     [style.display]="(dashboard.currentUserAdmin || dashboard.currentUserEditor) ? '' : 'none'"/>
+          <p-button (click)="openDashboard(dashboard)" (keydown.enter)="openDashboard(dashboard)"
+                    [pTooltip]="'@Open' | transloco"
+                    tooltipPosition="top"
+                    [text]="true"
+                    class="mr-2"
+                    [icon]="icons.ACTION_EXTERNAL_LINK.class"/>
         </td>
       </tr>
     </ng-template>

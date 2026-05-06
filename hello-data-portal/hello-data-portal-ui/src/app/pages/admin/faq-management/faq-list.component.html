@@ -46,6 +46,12 @@
                 </td>
                 <td class="hd-col-actions">
                   <div class="flex items-center justify-end gap-2">
+                  <p-button type="button" pRipple [pRowToggler]="faqItem"
+                            [pTooltip]="'@Details' | transloco"
+                            tooltipPosition="top"
+                            severity="secondary"
+                            [text]="true"
+                            [icon]="icons.STATUS_INFO.class"/>
                   <p-button (click)="editFaq(faqItem)" (keydown.enter)="editFaq(faqItem)"
                             [pTooltip]="'@Edit' | transloco"
                             tooltipPosition="top"
@@ -59,12 +65,6 @@
                             [text]="true"
                             [icon]="icons.ACTION_DELETE.class"
                             id="{{'deleteFaq_' + faqItem.title}}"/>
-                  <p-button type="button" pRipple [pRowToggler]="faqItem"
-                            [pTooltip]="'@Details' | transloco"
-                            tooltipPosition="top"
-                            severity="secondary"
-                            [text]="true"
-                            [icon]="icons.STATUS_INFO.class"/>
                   </div>
                 </td>
               </tr>

@@ -111,14 +111,6 @@
                 tooltipPosition="top"
                 (click)="toggleDetails(comment)" (keydown.enter)="toggleDetails(comment)"/>
             }
-            <!-- Open dashboard button -->
-            <p-button
-              [icon]="icons.ACTION_EXTERNAL_LINK.class"
-              class="mr-2"
-              [text]="true"
-              [pTooltip]="'@Open Dashboard' | transloco"
-              tooltipPosition="top"
-              (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
             <!-- Edit button -->
             @if (canEdit(comment)) {
               <p-button
@@ -129,6 +121,14 @@
                 tooltipPosition="top"
                 (click)="editComment(comment)" (keydown.enter)="editComment(comment)"/>
             }
+            <!-- Open dashboard button -->
+            <p-button
+              [icon]="icons.ACTION_EXTERNAL_LINK.class"
+              class="mr-2"
+              [text]="true"
+              [pTooltip]="'@Open Dashboard' | transloco"
+              tooltipPosition="top"
+              (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
             <!-- Publish button -->
             @if (canPublish(comment)) {
               <p-button
