@@ -3,6 +3,7 @@ const eslint = require("@eslint/js");
 const {defineConfig} = require("eslint/config");
 const tseslint = require("typescript-eslint");
 const angular = require("angular-eslint");
+const noBarExternalLink = require("./eslint-rules/no-bare-external-link");
 
 module.exports = defineConfig(
   {
@@ -38,6 +39,15 @@ module.exports = defineConfig(
   {
     files: ["**/*.html"],
     extends: [...angular.configs.templateRecommended],
-    rules: {},
+    plugins: {
+      local: {
+        rules: {
+          "no-bare-external-link": noBarExternalLink,
+        },
+      },
+    },
+    rules: {
+      "local/no-bare-external-link": "error",
+    },
   },
 );

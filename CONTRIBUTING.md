@@ -32,6 +32,29 @@ The goal is to receive as many high-quality Pull Requests as possible. All activ
 Forks should ideally be unnecessary, as active and open community management is practiced. If forks do arise, they are actively reviewed, and attempts are made to integrate any resulting extensions and improvements. In this case, Pull Requests are actively requested.
 
 
+## Frontend Conventions
+
+### Link Behavior
+
+All links in the Angular UI must follow these rules:
+
+| Link type | How to implement |
+|-----------|-----------------|
+| Internal navigation (routes within the app) | `<a [routerLink]="['/path']">` or `routerLink="/path"` |
+| External link (any URL outside the app) | `<a href="https://..." appExternalLink>` |
+| External link without icon (e.g., icon-only button) | `<a href="https://..." appExternalLink [appExternalLinkShowIcon]="false">` |
+
+**Never** add `target="_blank"` or `rel="noopener noreferrer"` directly in a template.
+Always use the `appExternalLink` directive instead (`src/app/shared/directives/external-link.directive.ts`).
+
+The `appExternalLink` directive automatically:
+- sets `target="_blank"` (opens in a new tab)
+- sets `rel="noopener noreferrer"` (security hardening)
+- appends a `fa-up-right-from-square` icon so users know the link is external
+
+This rule is enforced by the ESLint rule `local/no-bare-external-link` (defined in
+`eslint-rules/no-bare-external-link.js`). Running `yarn lint` will report any violations.
+
 ## Info: Updating Libraries
 Please update the list of copyright notices or attributions when modifying any libraries used in the project.
 
