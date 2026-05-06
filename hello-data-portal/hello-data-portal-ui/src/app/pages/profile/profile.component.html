@@ -4,7 +4,7 @@
 @if ((userDetails$ | async); as userDetails) {
   <p-card>
     <div class="field grid grid-cols-12 gap-1 md:gap-4 mb-4 md:mb-1">
-      <label class="col-span-12 md:col-span-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
+      <label class="col-span-12 md:col-span-2 mb-0" for="firstName">{{ '@First name' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input
           class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
@@ -13,7 +13,7 @@
       </div>
     </div>
     <div class="field grid grid-cols-12 gap-1 md:gap-4 mb-4 md:mb-1">
-      <label class="col-span-12 md:col-span-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
+      <label class="col-span-12 md:col-span-2 mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input
           class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
@@ -22,7 +22,7 @@
       </div>
     </div>
     <div class="field grid grid-cols-12 gap-1 md:gap-4 mb-4 md:mb-1">
-      <label class="col-span-12 md:col-span-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
+      <label class="col-span-12 md:col-span-2 mb-0" for="email">{{ '@E-mail' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input
           class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
@@ -31,7 +31,7 @@
       </div>
     </div>
     <div class="field grid grid-cols-12 gap-1 md:gap-4 mb-4 md:mb-1">
-      <label class="col-span-12 md:col-span-2 md:mb-0"
+      <label class="col-span-12 md:col-span-2 mb-0"
              for="selectedLanguage">{{ '@Selected language' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input
@@ -43,13 +43,14 @@
     </div>
     @if ((userContextRoles$ | async); as roles) {
       <div class="field grid grid-cols-12 gap-1 md:gap-4">
-        <label class="col-span-12 md:col-span-2 md:mb-0" for="email">{{ '@Roles' | transloco }}</label>
+        <label class="col-span-12 md:col-span-2 mb-0" for="email">{{ '@Roles' | transloco }}</label>
         <div class="col-span-12 md:col-span-10">
             <div class="overflow-x-auto">
               <p-table
                 [multiSortMeta]="[{field: 'context.type', order: 1}, {field: 'role.name', order: 1}]"
                 [rowHover]="true"
                 [value]="roles"
+                [tableStyle]="{'min-width': '28rem', 'white-space': 'nowrap'}"
                 dataKey="id"
                 id="role-table"
                 sortMode="multiple"

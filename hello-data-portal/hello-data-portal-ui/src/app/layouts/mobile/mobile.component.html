@@ -28,9 +28,10 @@
     <p-button pRipple
               type="button" severity="secondary"
               aria-label="User Profile"
+              (click)="showUserMenu = true"
+              (keydown.enter)="showUserMenu = true"
               pTooltip="{{ '@User Profile' | transloco }}">
-      <i class="text-2xl" [ngClass]="icons.NAV_USER_PROFILE.class" (click)="showUserMenu = true" style="color: black"
-         (keydown.enter)="showUserMenu = true"></i>
+      <i class="text-2xl" [ngClass]="icons.NAV_USER_PROFILE.class" style="color: black"></i>
     </p-button>
   </div>
 </div>
