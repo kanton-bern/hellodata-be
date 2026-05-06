@@ -48,12 +48,12 @@
             <div class="col-span-12 md:col-span-10">
               @if (editedUser.enabled) {
                 <div>
-                  <i class="fa-solid fa-check"></i>
+                  <i [ngClass]="icons.ACTION_CONFIRM.class"></i>
                 </div>
               }
               @if (!editedUser.enabled) {
                 <div>
-                  <i class="fa-solid fa-circle-xmark"></i>
+                  <i [ngClass]="icons.ACTION_CANCEL.class"></i>
                 </div>
               }
             </div>
@@ -100,7 +100,7 @@
                           <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">{{ '@Data domain' | transloco }}:</span>
                             <span class="font-medium text-lg">{{ dataDomain.name }}</span>
-                            <i class="fa-solid fa-circle-info text-primary cursor-pointer"
+                            <i class="cursor-pointer" [ngClass]="icons.STATUS_INFO.class"
                                [pTooltip]="('@Domain type' | transloco) + ': ' + (dataDomain.extra ? 'Extra' : 'Standard')"
                                tooltipPosition="top"></i>
                           </div>

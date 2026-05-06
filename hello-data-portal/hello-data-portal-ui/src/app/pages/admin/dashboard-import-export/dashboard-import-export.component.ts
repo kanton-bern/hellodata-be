@@ -53,6 +53,7 @@ import {Card} from 'primeng/card';
 import {SilentLoginComponent} from '../../../shared/components/silent-login/silent-login.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {NgArrayPipesModule} from 'ngx-pipes';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -61,6 +62,7 @@ import {NgArrayPipesModule} from 'ngx-pipes';
   imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule, Card]
 })
 export class DashboardImportExportComponent extends BaseComponent {
+  protected readonly icons = ICON_REGISTRY;
   supersetInfos$: Observable<MetaInfoResource[]>;
   dashboards$: Observable<SupersetDashboard[]>;
   availableDataDomains$: Observable<any>;

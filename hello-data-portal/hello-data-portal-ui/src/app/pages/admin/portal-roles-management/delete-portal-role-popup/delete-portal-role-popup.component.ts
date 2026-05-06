@@ -40,6 +40,7 @@ import {AsyncPipe} from '@angular/common';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {Button} from 'primeng/button';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {ICON_REGISTRY, DIALOG_WARNING} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-delete-role-popup[action]',
@@ -48,6 +49,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
   imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe]
 })
 export class DeletePortalRolePopupComponent {
+  protected readonly icons = ICON_REGISTRY;
   readonly action = input.required<Action>();
   roleToBeDeleted$: Observable<any>;
   private readonly store = inject<Store<AppState>>(Store);
@@ -72,7 +74,7 @@ export class DeletePortalRolePopupComponent {
     if (portalRoleForDeletion) {
       this.confirmationService.confirm({
         message: this.translateService.translate('@Delete role question', {role: portalRoleForDeletion.name}),
-        icon: 'fa-solid fa-triangle-exclamation',
+        icon: DIALOG_WARNING.class,
         acceptLabel: this.translateService.translate('@Yes'),
         rejectLabel: this.translateService.translate('@No'),
         accept: () => {

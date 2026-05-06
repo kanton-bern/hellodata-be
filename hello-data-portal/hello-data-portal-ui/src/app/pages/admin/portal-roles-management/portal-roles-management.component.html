@@ -43,7 +43,7 @@
                 <p-button (click)="editRole(role)" (keydown.enter)="editRole(role)"
                           [pTooltip]="'@Edit' | transloco"
                           [text]="true"
-                          icon="fa-solid fa-pen-to-square"
+                          [icon]="icons.ACTION_EDIT.class"
                           pRipple/>
               }
               @if (!role.systemDefault) {
@@ -51,7 +51,7 @@
                           [pTooltip]="'@Delete' | transloco"
                           severity="danger"
                           [text]="true"
-                          icon="fa-solid fa-trash"
+                          [icon]="icons.ACTION_DELETE.class"
                           pRipple/>
               }
               </div>

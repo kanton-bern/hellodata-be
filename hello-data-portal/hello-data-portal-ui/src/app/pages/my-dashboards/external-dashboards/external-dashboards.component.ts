@@ -44,7 +44,7 @@ import {
   openExternalDashboardEdition
 } from "../../../store/external-dashboards/external-dasboards.action";
 import {trackEvent} from "../../../store/app/app.action";
-import {AsyncPipe, DatePipe} from '@angular/common';
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
 import {Tooltip} from 'primeng/tooltip';
@@ -57,15 +57,19 @@ import {InputIcon} from "primeng/inputicon";
 import {Ripple} from "primeng/ripple";
 import {ExternalLinkDirective} from "../../../shared/directives/external-link.directive";
 import {FormsModule} from '@angular/forms';
+import {ICON_REGISTRY, DIALOG_WARNING} from '../../../shared/icons';
 
 @Component({
   selector: 'app-external-dashboards',
   templateUrl: './external-dashboards.component.html',
   styleUrls: ['./external-dashboards.component.scss'],
   imports: [TableModule, PrimeTemplate, Button, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe,
-    TranslocoPipe, IconField, InputIcon, Ripple, Card, ExternalLinkDirective, FormsModule]
+    TranslocoPipe, IconField, InputIcon, Ripple, Card, ExternalLinkDirective, FormsModule,
+    NgClass,
+]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   readonly dt = viewChild.required<Table | undefined>('dt');
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
@@ -108,7 +112,7 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
     this.confirmationService.confirm({
       message: this.translateService.translate('@Delete external dashboard question'),
       header: 'Confirm',
-      icon: 'fa-solid fa-triangle-exclamation',
+      icon: DIALOG_WARNING.class,
       acceptLabel: this.translateService.translate('@Yes'),
       rejectLabel: this.translateService.translate('@No'),
       accept: () => {

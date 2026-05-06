@@ -44,7 +44,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
 import {map} from "rxjs/operators";
-import {AsyncPipe, DatePipe} from "@angular/common";
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {PrimeTemplate} from "primeng/api";
 import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
@@ -54,13 +54,15 @@ import {TranslocoPipe} from "@jsverse/transloco";
 
 import {Card} from 'primeng/card';
 import {Button} from 'primeng/button';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   templateUrl: 'dashboard-access.component.html',
   styleUrls: ['./dashboard-access.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe, Card, Button]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe, Card, Button, NgClass]
 })
 export class DashboardAccessComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
 
   dashboardAccess$: Observable<DashboardAccess[]>;

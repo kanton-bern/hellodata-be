@@ -48,6 +48,7 @@ import {DeleteFaqPopupComponent} from './delete-faq-popup/delete-faq-popup.compo
 import {TranslocoPipe} from '@jsverse/transloco';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {TranslateService} from "../../../shared/services/translate.service";
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-faq-list',
@@ -56,6 +57,7 @@ import {TranslateService} from "../../../shared/services/translate.service";
   imports: [Toolbar, PrimeTemplate, Ripple, TableModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe, Card]
 })
 export class FaqListComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   faq$: Observable<any>;
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;

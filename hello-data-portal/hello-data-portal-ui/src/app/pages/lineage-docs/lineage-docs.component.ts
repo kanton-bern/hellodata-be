@@ -26,7 +26,7 @@
 ///
 
 import {Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
-import {AsyncPipe, DatePipe} from "@angular/common";
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {Button} from "primeng/button";
@@ -46,14 +46,16 @@ import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {PrimeTemplate} from 'primeng/api';
 import {Card} from 'primeng/card';
+import {ICON_REGISTRY} from '../../shared/icons';
 
 @Component({
   selector: 'app-docs',
   templateUrl: './lineage-docs.component.html',
   styleUrls: ['./lineage-docs.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe, Card]
+  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe, Card, NgClass]
 })
 export class LineageDocsComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   projectDocsForm!: FormGroup;
   docs$: Observable<any>;
   readonly availableProjectDocs = viewChild.required<ElementRef>('availableProjectDocs');

@@ -322,6 +322,18 @@ export const ACTION_LINK: IconDefinition = {
   category: 'action',
 };
 
+export const ACTION_SCROLL_DOWN: IconDefinition = {
+  class: 'fa-solid fa-angles-down',
+  label: '@Scroll down',
+  category: 'action',
+};
+
+export const ACTION_NEXT: IconDefinition = {
+  class: 'fa-solid fa-forward',
+  label: '@Next',
+  category: 'action',
+};
+
 // ---------------------------------------------------------------------------
 // Status & Info Icons
 // ---------------------------------------------------------------------------
@@ -359,6 +371,30 @@ export const STATUS_PUBLISHED: IconDefinition = {
 export const STATUS_STOPPED: IconDefinition = {
   class: 'fa-solid fa-circle-stop',
   label: '@Stopped',
+  category: 'status',
+};
+
+export const STATUS_PENDING: IconDefinition = {
+  class: 'fa-solid fa-hourglass',
+  label: '@Pending',
+  category: 'status',
+};
+
+export const STATUS_LOADING: IconDefinition = {
+  class: 'fa-solid fa-spinner',
+  label: '@Loading',
+  category: 'status',
+};
+
+export const STATUS_CRITICAL: IconDefinition = {
+  class: 'fa-solid fa-circle-exclamation',
+  label: '@Critical',
+  category: 'status',
+};
+
+export const STATUS_UNKNOWN: IconDefinition = {
+  class: 'fa-solid fa-circle-question',
+  label: '@Unknown',
   category: 'status',
 };
 
@@ -444,6 +480,30 @@ export const CONTENT_COMMENTS: IconDefinition = {
   category: 'content',
 };
 
+export const CONTENT_CHART_BAR: IconDefinition = {
+  class: 'fa-solid fa-chart-bar',
+  label: '@Bar chart',
+  category: 'content',
+};
+
+export const CONTENT_LAYERS: IconDefinition = {
+  class: 'fa-solid fa-layer-group',
+  label: '@Layers',
+  category: 'content',
+};
+
+export const CONTENT_PDF: IconDefinition = {
+  class: 'fa-solid fa-file-pdf',
+  label: '@PDF document',
+  category: 'content',
+};
+
+export const CONTENT_PERMISSIONS: IconDefinition = {
+  class: 'fa-solid fa-shield-halved',
+  label: '@Permissions',
+  category: 'content',
+};
+
 // ---------------------------------------------------------------------------
 // Dialog Icons
 // ---------------------------------------------------------------------------
@@ -517,6 +577,8 @@ export const ICON_REGISTRY = {
   ACTION_PIN,
   ACTION_BAN,
   ACTION_LINK,
+  ACTION_SCROLL_DOWN,
+  ACTION_NEXT,
   // Status
   STATUS_SUCCESS,
   STATUS_ERROR,
@@ -524,6 +586,10 @@ export const ICON_REGISTRY = {
   STATUS_INFO,
   STATUS_PUBLISHED,
   STATUS_STOPPED,
+  STATUS_PENDING,
+  STATUS_LOADING,
+  STATUS_CRITICAL,
+  STATUS_UNKNOWN,
   // Content
   CONTENT_DASHBOARD,
   CONTENT_CHART,
@@ -538,6 +604,10 @@ export const ICON_REGISTRY = {
   CONTENT_DATA_DOMAIN,
   CONTENT_GLOBE,
   CONTENT_COMMENTS,
+  CONTENT_CHART_BAR,
+  CONTENT_LAYERS,
+  CONTENT_PDF,
+  CONTENT_PERMISSIONS,
   // Dialog
   DIALOG_WARNING,
   DIALOG_INFO,

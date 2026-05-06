@@ -38,6 +38,7 @@ import {ConfirmDialog} from 'primeng/confirmdialog';
 import {Button} from 'primeng/button';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
+import {ICON_REGISTRY, DIALOG_WARNING} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-delete-announcement-popup[action]',
@@ -46,6 +47,7 @@ import {Ripple} from "primeng/ripple";
   imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe, Ripple]
 })
 export class DeleteAnnouncementPopupComponent {
+  protected readonly icons = ICON_REGISTRY;
   readonly action = input.required<Action>();
   announcementToBeDeleted$: Observable<any>;
   private readonly store = inject<Store<AppState>>(Store);
@@ -76,7 +78,7 @@ export class DeleteAnnouncementPopupComponent {
   private confirmDeletion(msg: string) {
     this.confirmationService.confirm({
       message: msg,
-      icon: 'fa-solid fa-triangle-exclamation',
+      icon: DIALOG_WARNING.class,
       acceptLabel: this.translateService.translate('@Yes'),
       rejectLabel: this.translateService.translate('@No'),
       accept: () => {

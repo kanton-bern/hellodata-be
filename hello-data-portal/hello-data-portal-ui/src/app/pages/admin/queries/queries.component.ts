@@ -20,7 +20,7 @@ import {Table, TableLazyLoadEvent, TableModule} from "primeng/table";
 import {map, take} from "rxjs/operators";
 import {scrollToTop} from "../../../shared/services/view-helpers";
 import {navigate} from "../../../store/app/app.action";
-import {AsyncPipe, DatePipe} from "@angular/common";
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {PrimeTemplate} from "primeng/api";
 import {FormsModule} from "@angular/forms";
 import {InputText} from "primeng/inputtext";
@@ -33,13 +33,15 @@ import {InputIcon} from "primeng/inputicon";
 
 import {Card} from 'primeng/card';
 import {Button} from 'primeng/button';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   templateUrl: 'queries.component.html',
   styleUrls: ['./queries.component.scss'],
-  imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Textarea, AsyncPipe, DatePipe, TranslocoPipe, IconField, InputIcon, Card, Button]
+  imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Textarea, AsyncPipe, DatePipe, TranslocoPipe, IconField, InputIcon, Card, Button, NgClass]
 })
 export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
 
   paramContextKey$: Observable<any>;

@@ -7,7 +7,7 @@ import {Announcement} from "../../../../store/announcement/announcement.model";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../../store/auth/auth.selector";
 import {TranslateService} from "../../../services/translate.service";
 import {Divider} from "primeng/divider";
-import {AsyncPipe, DatePipe} from "@angular/common";
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {Toolbar} from "primeng/toolbar";
 import {Editor} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
@@ -15,6 +15,7 @@ import {SharedModule} from "primeng/api";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {Checkbox} from "primeng/checkbox";
 import {DynamicDialogRef} from "primeng/dynamicdialog";
+import {ICON_REGISTRY} from '../../../icons';
 
 @Component({
   template: `
@@ -30,7 +31,7 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
             <div>
               <p-toolbar>
                 <div class="p-toolbar-group-start">
-                  <span class="fa-solid fa-circle-info" aria-hidden="true"></span>
+                  <span [ngClass]="icons.DIALOG_INFO.class" aria-hidden="true"></span>
                 </div>
                 <div class="p-toolbar-group-center" style="width: 65%">
                   <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)"
@@ -55,9 +56,10 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
         }
       }
     }`,
-  imports: [Divider, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe, Checkbox]
+  imports: [Divider, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe, Checkbox, NgClass]
 })
 export class PublishedAnnouncementsPopupComponent implements OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   publishedAnnouncements$: Observable<Announcement[]>;
   selectedLanguage$: Observable<{ code: string | null; typeTranslationKey: string }>;
   defaultLanguage$: Observable<string | null>;

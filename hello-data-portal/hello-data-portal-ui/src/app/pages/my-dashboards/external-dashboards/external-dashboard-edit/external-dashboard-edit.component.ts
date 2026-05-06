@@ -57,6 +57,7 @@ import {ConfirmDialog} from 'primeng/confirmdialog';
 import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
+import {ICON_REGISTRY, DIALOG_WARNING} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-external-dashboard-edit',
@@ -65,6 +66,7 @@ import {Ripple} from "primeng/ripple";
   imports: [FormsModule, ReactiveFormsModule, Select, Toolbar, Button, Tooltip, ConfirmDialog, PrimeTemplate, AsyncPipe, TranslocoPipe, Ripple, Card]
 })
 export class ExternalDashboardEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   editedExternalDashboard$: Observable<any>;
   availableDataDomains$: Observable<any>;
   externalDashboardForm!: FormGroup;
@@ -198,7 +200,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
     this.confirmationService.confirm({
       message: this.translateService.translate('@Delete external dashboard question'),
       header: 'Confirm',
-      icon: 'fa-solid fa-triangle-exclamation',
+      icon: DIALOG_WARNING.class,
       acceptLabel: this.translateService.translate('@Yes'),
       rejectLabel: this.translateService.translate('@No'),
       accept: () => {

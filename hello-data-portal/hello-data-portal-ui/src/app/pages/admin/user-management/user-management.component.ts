@@ -46,7 +46,7 @@ import {
   selectUsersLoading,
   selectUsersTotalRecords
 } from "../../../store/users-management/users-management.selector";
-import {AsyncPipe, DatePipe} from "@angular/common";
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-management/users-management.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActionsUserPopupComponent} from "./actions-user-popup/actions-user-popup.component";
@@ -78,14 +78,16 @@ import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
 import {PrimeTemplate} from 'primeng/api';
 import {Card} from 'primeng/card';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-user-management',
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
+  imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card, NgClass]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   users$: Observable<User[]>;
   syncStatus$: Observable<string>;
   usersLoading$: Observable<boolean>;

@@ -43,7 +43,7 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {TableLazyLoadEvent, TableModule} from "primeng/table";
 import {TranslateService} from "../../../shared/services/translate.service";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {PrimeTemplate} from 'primeng/api';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
@@ -57,6 +57,7 @@ import {Ripple} from "primeng/ripple";
 import {Tooltip} from "primeng/tooltip";
 import {UsersManagementService} from "../../../store/users-management/users-management.service";
 import {UserSubsystemRolesDto} from "../../../store/users-management/users-management.model";
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,9 +65,12 @@ import {UserSubsystemRolesDto} from "../../../store/users-management/users-manag
   templateUrl: './subsystem-users.component.html',
   styleUrls: ['./subsystem-users.component.scss'],
   imports: [TableModule, PrimeTemplate, Button, InputText, Tag, AsyncPipe, TranslocoPipe, FormsModule, IconField,
-    InputIcon, Ripple, Card, Tooltip]
+    InputIcon, Ripple, Card, Tooltip,
+    NgClass,
+]
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   private static readonly FILTER_STORAGE_KEY = 'subsystem-users-filter-terms';
 
   users$: Observable<UserSubsystemRolesDto[]>;

@@ -23,10 +23,10 @@
                 <p-button
                   [label]="'@Clear' | transloco"
                   severity="secondary"
-                  icon="fa-solid fa-filter-circle-xmark"
+                  [icon]="icons.ACTION_FILTER_CLEAR.class"
                   (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
                 <p-iconfield>
-                  <p-inputicon class="fa-solid fa-magnifying-glass"/>
+                  <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
                   <input pInputText #textInput [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
                          placeholder="{{'@Search' | transloco}}" type="text"/>
                 </p-iconfield>
@@ -49,7 +49,7 @@
             <tr (click)="onRowNavigate(dashboard)" class="cursor-pointer" (keydown.enter)="onRowNavigate(dashboard)">
               <td>
                 <div class="flex items-center justify-center gap-2">
-                  <i class="fa-solid fa-up-right-from-square"></i>
+                  <i [ngClass]="icons.ACTION_EXTERNAL_LINK.class"></i>
                 </div>
               </td>
               <td [pTooltip]="dashboard.contextName" tooltipPosition="top">

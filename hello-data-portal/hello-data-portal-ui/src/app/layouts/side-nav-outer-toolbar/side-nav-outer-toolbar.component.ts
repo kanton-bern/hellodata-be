@@ -27,7 +27,7 @@
 
 import {Component, DestroyRef, HostListener, inject, input} from '@angular/core';
 
-import {AsyncPipe, NgStyle} from '@angular/common';
+import {AsyncPipe, NgStyle, NgClass} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {Observable} from "rxjs";
@@ -45,15 +45,19 @@ import {environment} from "../../../environments/environment";
 import {Environment} from "../../shared/components/header/header.component";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {filter} from "rxjs/operators";
+import {ICON_REGISTRY} from '../../shared/icons';
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
   imports: [HeaderComponent,
-    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe, NgStyle]
+    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe, NgStyle,
+    NgClass,
+]
 })
 export class SideNavOuterToolbarComponent {
+  protected readonly icons = ICON_REGISTRY;
   private static readonly SIDEBAR_STATE_KEY = 'sidebar-minimized';
   private readonly store = inject<Store<AppState>>(Store);
   private readonly router = inject(Router);

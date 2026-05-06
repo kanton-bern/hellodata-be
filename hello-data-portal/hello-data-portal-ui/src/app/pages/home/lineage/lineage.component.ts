@@ -33,20 +33,22 @@ import {naviElements} from "../../../app-navi-elements";
 import {LineageDoc} from "../../../store/lineage-docs/lineage-docs.model";
 import {Observable} from "rxjs";
 import {selectMyLineageDocs} from "../../../store/lineage-docs/lineage-docs.selector";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
 import {navigate} from "../../../store/app/app.action";
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-lineage',
   templateUrl: './lineage.component.html',
   styleUrls: ['./lineage.component.scss'],
-  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe, Tooltip]
+  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe, Tooltip, NgClass]
 })
 export class LineageComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
 

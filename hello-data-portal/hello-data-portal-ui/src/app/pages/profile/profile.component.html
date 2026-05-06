@@ -67,12 +67,12 @@
                 <td>{{ contextRoleEntry.context.name }}</td>
                 @if (contextRoleEntry.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE) {
                   <td>
-                    <i class="fa-solid fa-business-time" pTooltip="{{ contextRoleEntry.context.type }}"></i>
+                    <i [ngClass]="icons.CONTENT_BUSINESS_DOMAIN.class" pTooltip="{{ contextRoleEntry.context.type }}"></i>
                   </td>
                 }
                 @if (contextRoleEntry.context.type === DATA_DOMAIN_CONTEXT_TYPE) {
                   <td>
-                    <i class="fa-solid fa-database" pTooltip="{{ contextRoleEntry.context.type }}"></i>
+                    <i [ngClass]="icons.CONTENT_DATABASE.class" pTooltip="{{ contextRoleEntry.context.type }}"></i>
                   </td>
                 }
                 <td>{{ formatRoleName(contextRoleEntry.role.name) }}</td>

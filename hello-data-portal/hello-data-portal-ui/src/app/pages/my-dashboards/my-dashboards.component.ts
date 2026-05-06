@@ -44,7 +44,7 @@ import {navigate, trackEvent} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
-import {AsyncPipe, DatePipe} from '@angular/common';
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {PrimeTemplate} from 'primeng/api';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
@@ -57,13 +57,15 @@ import {FormsModule} from '@angular/forms';
 import {Tag} from 'primeng/tag';
 import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {ICON_REGISTRY} from '../../shared/icons';
 
 @Component({
   templateUrl: 'my-dashboards.component.html',
   styleUrls: ['./my-dashboards.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe, Card]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe, Card, NgClass]
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   readonly dt = viewChild.required<Table | undefined>('dt');
   dashboards$: Observable<SupersetDashboard[]>;
   editDashboardMetadataDialog = false;

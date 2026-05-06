@@ -41,7 +41,7 @@ import {
 } from "../../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
-import {AsyncPipe, DatePipe} from '@angular/common';
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {Toolbar} from 'primeng/toolbar';
 import {PrimeTemplate, SharedModule} from 'primeng/api';
 import {Button} from 'primeng/button';
@@ -52,14 +52,16 @@ import {Card} from 'primeng/card';
 import {DeleteAnnouncementPopupComponent} from './delete-announcement-popup/delete-announcement-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-announcements-management',
   templateUrl: './announcements-management.component.html',
   styleUrls: ['./announcements-management.component.scss'],
-  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Tooltip, SharedModule, Button, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
+  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Tooltip, SharedModule, Button, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card, NgClass]
 })
 export class AnnouncementsManagementComponent extends BaseComponent {
+  protected readonly icons = ICON_REGISTRY;
   allAnnouncements$: Observable<Announcement[]>;
   selectedLanguage$: Observable<{ code: string | null; typeTranslationKey: string }>;
   expandedRows: { [key: string]: boolean } = {};

@@ -38,19 +38,19 @@
             <div class="col-span-1">
               @switch (pipeline.lastInstance.state) {
                 @case ('queued') {
-                  <span class="items-end fa-solid fa-hourglass" style="color: gray"></span>
+                  <span class="items-end" [ngClass]="icons.STATUS_PENDING.class" style="color: gray"></span>
                 }
                 @case ('running') {
-                  <span class="items-end fa-solid fa-gear fa-spin" style="color: green"></span>
+                  <span class="items-end fa-spin" [ngClass]="icons.NAV_ADMINISTRATION.class" style="color: green"></span>
                 }
                 @case ('success') {
-                  <span class="items-end fa-solid fa-circle-check" style="color: green"></span>
+                  <span class="items-end" [ngClass]="icons.ACTION_APPROVE.class" style="color: green"></span>
                 }
                 @case ('failed') {
-                  <span class="items-end fa-solid fa-circle-exclamation" style="color: red"></span>
+                  <span class="items-end" [ngClass]="icons.STATUS_CRITICAL.class" style="color: red"></span>
                 }
                 @default {
-                  <span class="items-end fa-solid fa-circle-question" style="color: gray"></span>
+                  <span class="items-end" [ngClass]="icons.STATUS_UNKNOWN.class" style="color: gray"></span>
                 }
               }
             </div>
@@ -64,7 +64,7 @@
         <td>
           <p-button (click)="showDetails(pipeline.id)" (keydown.enter)="showDetails(pipeline.id)"
                     [pTooltip]="'@Open' | transloco" class="mr-2"
-                    [text]="true" severity="secondary" icon="fa-solid fa-up-right-from-square"/>
+                    [text]="true" severity="secondary" [icon]="icons.ACTION_EXTERNAL_LINK.class"/>
         </td>
       </tr>
     </ng-template>

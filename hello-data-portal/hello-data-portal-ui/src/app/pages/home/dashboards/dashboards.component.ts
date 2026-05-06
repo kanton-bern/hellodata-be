@@ -35,7 +35,7 @@ import {SupersetDashboardWithMetadata} from "../../../store/start-page/start-pag
 import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
 import {Table, TableModule, TablePageEvent} from "primeng/table";
 import {navigate, trackEvent} from "../../../store/app/app.action";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {PrimeTemplate} from 'primeng/api';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
@@ -44,14 +44,16 @@ import {InputText} from 'primeng/inputtext';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
 import {Button} from 'primeng/button';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-dashboards',
   templateUrl: './dashboards.component.html',
   styleUrls: ['./dashboards.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe, Tooltip, Button]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe, Tooltip, Button, NgClass]
 })
 export class DashboardsComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly menuService = inject(MenuService);
 

@@ -29,7 +29,7 @@
           <a (click)="selectedDataDomainMenu.toggle($event)"
              class="route-link p-button-link layout-topbar-button inline-flex items-center gap-1" pRipple>
             <span class="cursor-pointer truncate data-domain-name">{{ selectedDataDomain.name | transloco }}</span>
-            <i class="fa-solid fa-chevron-down text-xs cursor-pointer"></i>
+            <i class="text-xs cursor-pointer" [ngClass]="icons.NAV_CHEVRON_DOWN.class"></i>
           </a>
         </span>
       }
@@ -59,7 +59,7 @@
           <a (click)="menu.toggle($event)"
              class="route-link p-button-link layout-topbar-button inline-flex items-center gap-2"
              id="userMenu">
-            <i class="fa-solid fa-user cursor-pointer px"></i>
+            <i class="cursor-pointer px" [ngClass]="icons.NAV_USER_PROFILE.class"></i>
             <span class="hidden sm:inline cursor-pointer truncate max-w-[16rem]">{{ userData.email }}</span>
           </a>
         </span>

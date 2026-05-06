@@ -33,7 +33,7 @@ import {
   inject,
   OnDestroy,
 } from '@angular/core';
-import {NgTemplateOutlet} from '@angular/common';
+import {NgTemplateOutlet, NgClass} from '@angular/common';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
@@ -84,6 +84,7 @@ import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import type {Content, TDocumentDefinitions} from 'pdfmake/interfaces';
 import {SupersetDashboardWithMetadata} from '../../../store/start-page/start-page.model';
+import {ICON_REGISTRY, DIALOG_WARNING} from '../../../shared/icons';
 
 (pdfMake as any).vfs = (pdfFonts as any).vfs;
 
@@ -148,9 +149,11 @@ const EXCLUDED_BUSINESS_ROLES = new Set([HELLODATA_ADMIN_ROLE, BUSINESS_DOMAIN_A
     InputIcon,
     Tooltip,
     Carousel,
-  ]
+    NgClass,
+]
 })
 export class BulkAssignmentsWizardComponent extends BaseComponent implements OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   activeStep = 1;
 
   // Step 1 - Users
@@ -260,7 +263,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     return new Observable<boolean>(observer => {
       this.confirmationService.confirm({
         message: this.translateService.translate('@You have unsaved wizard progress. Are you sure you want to leave?'),
-        icon: 'fa-solid fa-triangle-exclamation',
+        icon: DIALOG_WARNING.class,
         acceptButtonStyleClass: 'p-button-danger',
         acceptLabel: this.translateService.translate('@Yes'),
         rejectLabel: this.translateService.translate('@No'),
@@ -589,7 +592,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     const msg = this.translateService.translate('@Confirm bulk assignment', {count: this.selectedUserIds.size});
     this.confirmationService.confirm({
       message: msg,
-      icon: 'fa-solid fa-triangle-exclamation',
+      icon: DIALOG_WARNING.class,
       acceptButtonStyleClass: 'p-button-success',
       acceptLabel: this.translateService.translate('@Yes'),
       rejectLabel: this.translateService.translate('@No'),

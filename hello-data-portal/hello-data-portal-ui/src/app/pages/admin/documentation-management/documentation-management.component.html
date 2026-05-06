@@ -32,7 +32,7 @@
             <p-button (click)="createOrUpdateDocumentation(result.doc)"
                       (keydown.enter)="createOrUpdateDocumentation(result.doc)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
-                      icon="fa-solid fa-floppy-disk" pRipple
+                      [icon]="icons.ACTION_SAVE.class" pRipple
                       [label]="'@Save' | transloco"/>
           </div>
         }

@@ -64,7 +64,7 @@ import {
 } from '../../../../store/dashboard-groups/dashboard-groups.action';
 import {navigate} from '../../../../store/app/app.action';
 import {createBreadcrumbs} from '../../../../store/breadcrumb/breadcrumb.action';
-import {AsyncPipe, DatePipe} from '@angular/common';
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {Button} from 'primeng/button';
 import {Toolbar} from 'primeng/toolbar';
 import {Tooltip} from 'primeng/tooltip';
@@ -89,6 +89,7 @@ import {InputIcon} from 'primeng/inputicon';
 import {Card} from 'primeng/card';
 import {Select} from 'primeng/select';
 import {DashboardGroupsService} from '../../../../store/dashboard-groups/dashboard-groups.service';
+import {ICON_REGISTRY} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-dashboard-group-edit',
@@ -96,9 +97,12 @@ import {DashboardGroupsService} from '../../../../store/dashboard-groups/dashboa
   styleUrls: ['./dashboard-group-edit.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, Button, Toolbar, Tooltip, InputText, Divider,
     DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple,
-    Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, IconField, InputIcon, Card, Select]
+    Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, IconField, InputIcon, Card, Select,
+    NgClass,
+]
 })
 export class DashboardGroupEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   editedDashboardGroup$: Observable<DashboardGroup | null>;
   allDashboards: SupersetDashboard[] = [];
   filteredDashboards: SupersetDashboard[] = [];

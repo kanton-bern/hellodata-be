@@ -5,7 +5,7 @@
     </ng-template>
     {{ confirmAction(userForPopup) }}
     <ng-template pTemplate="footer">
-      <p-button (click)="cd.onReject()" icon="fa-solid fa-circle-xmark" [label]="'@Cancel' | transloco"
+      <p-button (click)="cd.onReject()" [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"
                 type="button" severity="secondary" pRipple (keydown.enter)="cd.onReject()"/>
       <p-button (click)="cd.onAccept()" pRipple (keydown.enter)="cd.onAccept()"
                 [severity]="getButtonTypeForAction(userForPopup)"

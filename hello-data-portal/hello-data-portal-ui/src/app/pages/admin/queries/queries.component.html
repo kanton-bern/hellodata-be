@@ -32,10 +32,10 @@
               <p-button
                 [label]="'@Clear' | transloco"
                 severity="secondary"
-                icon="fa-solid fa-filter-circle-xmark"
+                [icon]="icons.ACTION_FILTER_CLEAR.class"
                 (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
               <p-iconfield>
-                <p-inputicon class="fa-solid fa-magnifying-glass"/>
+                <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
                 <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue"
                        pInputText
                        placeholder="{{'@Search' | transloco}}" type="text"/>
@@ -82,11 +82,11 @@
             <td>
               @switch (query.status) {
                 @case ('failed') {
-                  <span [pTooltip]="query.status" class="items-end fa-solid fa-circle-exclamation"
+                  <span [pTooltip]="query.status" class="items-end" [ngClass]="icons.STATUS_CRITICAL.class"
                         style="color: red"></span>
                 }
                 @case ('success') {
-                  <span [pTooltip]="query.status" class="items-end fa-solid fa-circle-check"
+                  <span [pTooltip]="query.status" class="items-end" [ngClass]="icons.ACTION_APPROVE.class"
                         style="color: green"></span>
                 }
               }
@@ -116,8 +116,9 @@
             <td class="hd-col-actions">
               <p-button type="button" pRipple [pRowToggler]="query"
                         [text]="true"
+                        severity="secondary"
                         pTooltip="SQL"
-                        icon="fa-solid fa-info-circle"/>
+                        [icon]="icons.STATUS_INFO.class"/>
             </td>
           </tr>
         </ng-template>

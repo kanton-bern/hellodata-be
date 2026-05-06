@@ -32,6 +32,7 @@ import {Tooltip} from "primeng/tooltip";
 import {Ripple} from "primeng/ripple";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {User} from "../../../../../store/users-management/users-management.model";
+import {ICON_REGISTRY} from '../../../../../shared/icons';
 
 @Component({
   selector: 'app-user-edit-toolbar',
@@ -42,7 +43,7 @@ import {User} from "../../../../../store/users-management/users-management.model
         @if (!user().superuser && user().enabled) {
           <p-button (click)="disableClicked.emit(user())" (keydown.enter)="disableClicked.emit(user())"
                     (keydown.space)="disableClicked.emit(user())"
-                    icon="fa-solid fa-circle-xmark" pRipple
+                    [icon]="icons.ACTION_CANCEL.class" pRipple
                     [label]="'@Disable' | transloco"
                     severity="danger"/>
         }
@@ -51,7 +52,7 @@ import {User} from "../../../../../store/users-management/users-management.model
         @if (!user().superuser && !user().enabled) {
           <p-button (click)="enableClicked.emit(user())" (keydown.enter)="enableClicked.emit(user())"
                     (keydown.space)="enableClicked.emit(user())"
-                    icon="fa-solid fa-circle-plus" pRipple
+                    [icon]="icons.ACTION_CREATE.class" pRipple
                     [label]="'@Enable' | transloco"
                     class="mr-2"/>
         }
@@ -59,12 +60,12 @@ import {User} from "../../../../../store/users-management/users-management.model
                   (keydown.space)="cancelClicked.emit()"
                   [pTooltip]="'@Cancel' | transloco"
                   class="mr-2"
-                  icon="fa-solid fa-arrow-left" severity="secondary" pRipple/>
+                  [icon]="icons.ACTION_BACK.class" severity="secondary" pRipple/>
         <p-button (click)="saveClicked.emit()" (keydown.enter)="saveClicked.emit()" (keydown.space)="saveClicked.emit()"
                   [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled()"
                   [loading]="saveLoading()"
                   [label]="'@Save' | transloco"
-                  icon="fa-solid fa-floppy-disk"
+                  [icon]="icons.ACTION_SAVE.class"
                   pRipple/>
       </div>
     </p-toolbar>
@@ -72,6 +73,7 @@ import {User} from "../../../../../store/users-management/users-management.model
   imports: [Toolbar, Button, Tooltip, Ripple, TranslocoPipe]
 })
 export class UserEditToolbarComponent {
+  protected readonly icons = ICON_REGISTRY;
   readonly user = input.required<User>();
   readonly saveDisabled = input<boolean>(false);
   readonly saveLoading = input<boolean>(false);

@@ -23,7 +23,7 @@
       <ng-template let-projectDoc pTemplate="body">
         <tr>
           <td>
-            <i class="fa-solid fa-diagram-project"></i>
+            <i [ngClass]="icons.CONTENT_LINEAGE.class"></i>
           </td>
           <td>
             {{ projectDoc.contextName }}
@@ -43,7 +43,7 @@
                         (keydown.enter)="openLineage(projectDoc)"
                         [pTooltip]="'@Open' | transloco"
                         [text]="true"
-                        icon="fa-solid fa-up-right-from-square"
+                        [icon]="icons.ACTION_EXTERNAL_LINK.class"
                         pRipple/>
             </div>
           </td>

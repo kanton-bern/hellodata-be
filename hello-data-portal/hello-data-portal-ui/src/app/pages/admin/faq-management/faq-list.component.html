@@ -4,7 +4,7 @@
   <p-card>
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
-        <p-button (click)="createFaq()" icon="fa-solid fa-circle-plus" id="createFaqButton"
+        <p-button (click)="createFaq()" [icon]="icons.ACTION_CREATE.class" id="createFaqButton"
                   [label]="'@Create' | transloco" pRipple (keydown.enter)="createFaq()"></p-button>
       </ng-template>
     </p-toolbar>
@@ -50,20 +50,21 @@
                             [pTooltip]="'@Edit' | transloco"
                             tooltipPosition="top"
                             [text]="true"
-                            icon="fa-solid fa-pen-to-square"
+                            [icon]="icons.ACTION_EDIT.class"
                             id="{{'editFaq_' + faqItem.title}}"/>
                   <p-button (click)="showFaqDeletionPopup(faqItem)" (keydown.enter)="showFaqDeletionPopup(faqItem)"
                             [pTooltip]="'@Delete' | transloco"
                             tooltipPosition="top"
                             severity="danger"
                             [text]="true"
-                            icon="fa-solid fa-trash"
+                            [icon]="icons.ACTION_DELETE.class"
                             id="{{'deleteFaq_' + faqItem.title}}"/>
                   <p-button type="button" pRipple [pRowToggler]="faqItem"
                             [pTooltip]="'@Details' | transloco"
                             tooltipPosition="top"
+                            severity="secondary"
                             [text]="true"
-                            icon="fa-solid fa-info-circle"/>
+                            [icon]="icons.STATUS_INFO.class"/>
                   </div>
                 </td>
               </tr>

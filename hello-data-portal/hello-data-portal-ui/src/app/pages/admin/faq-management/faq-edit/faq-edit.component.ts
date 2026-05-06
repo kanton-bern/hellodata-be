@@ -55,6 +55,7 @@ import {Card} from 'primeng/card';
 import {DeleteFaqPopupComponent} from '../delete-faq-popup/delete-faq-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {disableEditorImageInsert} from "../../../../shared/utils/editor-utils";
+import {ICON_REGISTRY} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-faq-edit',
@@ -63,6 +64,7 @@ import {disableEditorImageInsert} from "../../../../shared/utils/editor-utils";
   imports: [FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
 
   editedFaq$: Observable<Faq>;
   faqForm!: FormGroup;

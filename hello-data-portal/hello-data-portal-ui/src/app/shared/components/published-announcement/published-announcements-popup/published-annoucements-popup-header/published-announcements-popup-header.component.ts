@@ -3,6 +3,8 @@ import {Checkbox, CheckboxChangeEvent} from "primeng/checkbox";
 import {HideAllCurrentPublishedAnnouncementsService} from "../../hide-all-current-published-announcements.service";
 import {TranslocoPipe} from '@jsverse/transloco';
 import {DynamicDialogRef} from "primeng/dynamicdialog";
+import {ICON_REGISTRY} from '../../../../icons';
+import {NgClass} from '@angular/common';
 
 @Component({
   template: `
@@ -19,15 +21,16 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
           </div>
           <a (click)="closeDialog()" style="cursor: pointer;"
              class="layout-topbar-button ml-4">
-            <i class="fa-solid fa-times"></i>
+            <i [ngClass]="icons.DIALOG_CLOSE.class"></i>
           </a>
         </div>
       </div>
     </div>
   `,
-  imports: [Checkbox, TranslocoPipe]
+  imports: [Checkbox, TranslocoPipe, NgClass]
 })
 export class PublishedAnnouncementsPopupHeaderComponent {
+  protected readonly icons = ICON_REGISTRY;
   private readonly hideAllCurrentPublishedAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
   ref = inject(DynamicDialogRef);
 

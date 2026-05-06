@@ -64,6 +64,7 @@ import {
 } from '../selected-workspace-pipelines/selected-workspace-pipelines.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {ExternalLinkDirective} from "../../../../shared/directives/external-link.directive";
+import {ICON_REGISTRY} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-selected-workspace',
@@ -72,6 +73,7 @@ import {ExternalLinkDirective} from "../../../../shared/directives/external-link
   imports: [Ripple, Toolbar, Button, Tooltip, Fieldset, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, AsyncPipe, TranslocoPipe, Card, ExternalLinkDirective]
 })
 export class SelectedWorkspaceComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   resources$: Observable<any>;
   selectedResource$: Observable<any>;
   headerInfo$: Observable<any>;

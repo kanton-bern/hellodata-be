@@ -29,9 +29,9 @@
   <button type="button" class="sidebar-toggle-btn" (click)="toggleSidebar()"
        [ngStyle]="environment.color && { 'background-color': environment.color } || null">
     @if (sidebarMinimized) {
-      <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+      <i [ngClass]="icons.NAV_EXPAND.class"></i>
     } @else {
-      <i class="fa-solid fa-down-left-and-up-right-to-center"></i>
+      <i [ngClass]="icons.NAV_COLLAPSE.class"></i>
     }
   </button>
 </div>
@@ -81,7 +81,7 @@
                   }
                   <span class="nav-drawer__label">{{ third.label | transloco }}</span>
                   @if (third.target === '_blank') {
-                    <i class="fa-solid fa-up-right-from-square nav-drawer__external-icon" aria-hidden="true"></i>
+                    <i class="nav-drawer__external-icon" [ngClass]="icons.ACTION_EXTERNAL_LINK.class" aria-hidden="true"></i>
                   }
                 </button>
               }
@@ -96,7 +96,7 @@
             }
             <span class="nav-drawer__label">{{ sub.label | transloco }}</span>
             @if (sub.target === '_blank') {
-              <i class="fa-solid fa-up-right-from-square nav-drawer__external-icon" aria-hidden="true"></i>
+              <i class="nav-drawer__external-icon" [ngClass]="icons.ACTION_EXTERNAL_LINK.class" aria-hidden="true"></i>
             }
           </button>
         }

@@ -40,6 +40,7 @@ import {
   sendForReview,
   updateComment
 } from '../../../store/my-dashboards/my-dashboards.action';
+import {ACTION_SEND, ACTION_UNDO, DIALOG_WARNING} from '../../../shared/icons';
 
 /**
  * Common interface for comment-like objects used in both comment-entry and domain-comments
@@ -248,7 +249,7 @@ export class DashboardCommentUtilsService {
     service.confirm({
       key: 'publishComment',
       message: message,
-      icon: 'fa-solid fa-triangle-exclamation',
+      icon: DIALOG_WARNING.class,
       closeOnEscape: false,
       accept: () => {
         this.store.dispatch(publishComment({dashboardId, contextKey, commentId}));
@@ -266,7 +267,7 @@ export class DashboardCommentUtilsService {
     service.confirm({
       key: 'sendForReview',
       message: message,
-      icon: 'fa-solid fa-paper-plane',
+      icon: ACTION_SEND.class,
       closeOnEscape: false,
       accept: () => {
         this.store.dispatch(sendForReview({dashboardId, contextKey, commentId}));
@@ -338,7 +339,7 @@ export class DashboardCommentUtilsService {
     service.confirm({
       key: 'deleteComment',
       message: message,
-      icon: 'fa-solid fa-triangle-exclamation',
+      icon: DIALOG_WARNING.class,
       closeOnEscape: false,
       accept: () => {
         this.store.dispatch(deleteComment({dashboardId, contextKey, commentId, deleteEntire: this.deleteEntireFlag}));
@@ -356,7 +357,7 @@ export class DashboardCommentUtilsService {
     service.confirm({
       key: 'restoreVersion',
       message: message,
-      icon: 'fa-solid fa-rotate-left',
+      icon: ACTION_UNDO.class,
       closeOnEscape: false,
       accept: () => {
         this.store.dispatch(restoreCommentVersion({dashboardId, contextKey, commentId, versionNumber}));

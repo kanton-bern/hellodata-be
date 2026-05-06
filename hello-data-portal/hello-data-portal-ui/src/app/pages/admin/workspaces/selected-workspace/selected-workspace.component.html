@@ -38,7 +38,7 @@
       <div class="p-toolbar-group-start">&nbsp;</div>
       <div class="p-toolbar-group-end">
         <p-button (click)="cancel()" (keydown.enter)="cancel()" [pTooltip]="'@Cancel' | transloco"
-                  icon="fa-solid fa-arrow-left"
+                  [icon]="icons.ACTION_BACK.class"
                   severity="secondary" pRipple/>
       </div>
     </p-toolbar>

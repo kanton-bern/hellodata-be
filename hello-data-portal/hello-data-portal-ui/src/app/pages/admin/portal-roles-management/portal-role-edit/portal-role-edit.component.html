@@ -94,18 +94,18 @@
         <div class="p-toolbar-group-start">
           @if (editedRole.id) {
             <p-button (click)="openDeletePopup(editedRole)" (keydown.enter)="openDeletePopup(editedRole)"
-                      icon="fa-solid fa-trash"
+                      [icon]="icons.ACTION_DELETE.class"
                       [label]="'@Delete' | transloco" severity="danger"/>
           }
         </div>
         <div class="p-toolbar-group-end">
           <p-button (click)="navigateToRoleList()" (keydown.enter)="navigateToRoleList()"
                     [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fa-solid fa-arrow-left" severity="secondary"/>
+                    [icon]="icons.ACTION_BACK.class" severity="secondary"/>
           <p-button (click)="saveRole(editedRole)"
                     (keydown.enter)="saveRole(editedRole)"
                     [disabled]="roleForm.invalid||!roleForm.dirty"
-                    icon="fa-solid fa-floppy-disk"
+                    [icon]="icons.ACTION_SAVE.class"
                     [label]="'@Save' | transloco"/>
         </div>
       </p-toolbar>

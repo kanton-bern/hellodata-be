@@ -47,7 +47,7 @@ import {
 import {naviElements} from '../../../app-navi-elements';
 import {BaseComponent} from '../../../shared/components/base/base.component';
 import {createBreadcrumbs} from '../../../store/breadcrumb/breadcrumb.action';
-import {AsyncPipe, DatePipe} from '@angular/common';
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
@@ -64,15 +64,19 @@ import {
   DeleteDashboardGroupPopupComponent
 } from './delete-dashboard-group-popup/delete-dashboard-group-popup.component';
 import {filter, take} from 'rxjs/operators';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-dashboard-groups',
   templateUrl: './dashboard-groups.component.html',
   styleUrls: ['./dashboard-groups.component.scss'],
   imports: [FormsModule, PrimeTemplate, Button, Ripple, TableModule, Tooltip, InputText, IconField, InputIcon,
-    Tag, DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
+    Tag, DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card,
+    NgClass,
+]
 })
 export class DashboardGroupsComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   dashboardGroups$: Observable<DashboardGroup[]>;
   loading$: Observable<boolean>;
   paramContextKey$: Observable<string | null | undefined>;

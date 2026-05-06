@@ -56,6 +56,7 @@ import {DeleteAnnouncementPopupComponent} from '../delete-announcement-popup/del
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
 import {disableEditorImageInsert} from "../../../../shared/utils/editor-utils";
+import {ICON_REGISTRY} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-announcement-edit',
@@ -65,6 +66,7 @@ import {disableEditorImageInsert} from "../../../../shared/utils/editor-utils";
     Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple, Card]
 })
 export class AnnouncementEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   editedAnnouncement$: Observable<any>;
   announcementForm!: FormGroup;
   formValueChangedSub!: Subscription;

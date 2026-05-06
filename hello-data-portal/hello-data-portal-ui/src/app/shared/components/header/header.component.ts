@@ -60,7 +60,7 @@ import {setSelectedLanguage} from "../../../store/auth/auth.action";
 import {
   PublishedAnnouncementsWrapperComponent
 } from '../published-announcement/published-announcements-wrapper/published-announcements-wrapper.component';
-import {NAV_USER_PROFILE, NAV_ANNOUNCEMENTS, NAV_INFO, NAV_LOGOUT} from "../../icons";
+import {NAV_USER_PROFILE, NAV_ANNOUNCEMENTS, NAV_INFO, NAV_LOGOUT, ICON_REGISTRY} from '../../icons';
 
 @Component({
   selector: 'app-header',
@@ -70,6 +70,7 @@ import {NAV_USER_PROFILE, NAV_ANNOUNCEMENTS, NAV_INFO, NAV_LOGOUT} from "../../i
   imports: [NgStyle, Ripple, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
 })
 export class HeaderComponent {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
 

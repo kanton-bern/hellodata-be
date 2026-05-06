@@ -32,6 +32,7 @@ import { PrimeTemplate } from 'primeng/api';
 import { Tag } from 'primeng/tag';
 import { Tooltip } from 'primeng/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
+import {ICON_REGISTRY} from '../../../../shared/icons';
 
 @Component({
     selector: 'app-selected-workspace-roles',
@@ -40,6 +41,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [TableModule, PrimeTemplate, Tag, Tooltip, TranslocoPipe]
 })
 export class SelectedWorkspaceRolesComponent {
+  protected readonly icons = ICON_REGISTRY;
   readonly roles = input.required<any[]>();
 
 }

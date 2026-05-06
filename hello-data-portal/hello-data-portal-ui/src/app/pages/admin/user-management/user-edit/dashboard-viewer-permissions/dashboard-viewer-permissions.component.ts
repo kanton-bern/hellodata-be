@@ -37,19 +37,21 @@ import {
 } from "../../../../../store/users-management/users-management.selector";
 import {markUnsavedChanges} from "../../../../../store/unsaved-changes/unsaved-changes.actions";
 import {updateUserRoles} from "../../../../../store/users-management/users-management.action";
-import {AsyncPipe} from "@angular/common";
+import {AsyncPipe, NgClass} from '@angular/common';
 import {Checkbox} from "primeng/checkbox";
 import {FormsModule} from "@angular/forms";
 import {TranslocoPipe} from "@jsverse/transloco";
+import {ICON_REGISTRY} from '../../../../../shared/icons';
 
 
 @Component({
   selector: 'app-dashboard-viewer-permissions',
   templateUrl: './dashboard-viewer-permissions.component.html',
   styleUrls: ['./dashboard-viewer-permissions.component.scss'],
-  imports: [Checkbox, FormsModule, AsyncPipe, TranslocoPipe]
+  imports: [Checkbox, FormsModule, AsyncPipe, TranslocoPipe, NgClass]
 })
 export class DashboardViewerPermissionsComponent {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
 
   readonly context = input.required<Context>();

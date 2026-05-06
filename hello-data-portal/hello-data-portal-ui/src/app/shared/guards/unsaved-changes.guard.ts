@@ -36,6 +36,7 @@ import {AppState} from "../../store/app/app.state";
 import {ActivatedRouteSnapshot, CanDeactivateFn, RouterStateSnapshot} from "@angular/router";
 import {clearUnsavedChanges, runSaveAction} from "../../store/unsaved-changes/unsaved-changes.actions";
 import {TranslateService} from "../services/translate.service";
+import {DIALOG_WARNING} from '../icons';
 
 @Injectable({
   providedIn: 'root',
@@ -72,7 +73,7 @@ export class UnsavedChangesGuard {
         this.confirmationService.confirm({
           key: 'unsavedChangesConfirmation',
           message: message,
-          icon: 'fa-solid fa-triangle-exclamation',
+          icon: DIALOG_WARNING.class,
           acceptLabel: this.translateService.translate('@Yes'),
           rejectLabel: this.translateService.translate('@No'),
           accept: () => this.handleAccept(observer),

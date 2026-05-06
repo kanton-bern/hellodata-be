@@ -26,7 +26,7 @@
 ///
 
 import {Component, inject} from '@angular/core';
-import {AsyncPipe, DatePipe} from "@angular/common";
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from "primeng/accordion";
 import {Editor} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
@@ -59,6 +59,7 @@ import {SharedModule} from 'primeng/api';
 import {Card} from 'primeng/card';
 import {ContainsPipe} from '../../pipes/contains.pipe';
 import {TruncatePipe} from "../../pipes/truncate.pipe";
+import {ICON_REGISTRY} from '../../icons';
 
 
 @Component({
@@ -68,9 +69,12 @@ import {TruncatePipe} from "../../pipes/truncate.pipe";
   imports: [SharedModule, Card, Accordion, AccordionPanel, AccordionHeader,
     AccordionContent, Tooltip, Button, Editor, FormsModule,
     SubscriptionsComponent, AppInfoComponent, AsyncPipe, ContainsPipe,
-    TranslocoPipe, TruncatePipe, DatePipe]
+    TranslocoPipe, TruncatePipe, DatePipe,
+    NgClass,
+]
 })
 export class SummaryComponent {
+  protected readonly icons = ICON_REGISTRY;
   appInfo = inject(AppInfoService);
   currentUserPermissions$: Observable<string[]>;
   pipelines$: Observable<Pipeline[]>;

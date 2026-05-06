@@ -3,7 +3,7 @@
   <button class="mobile-comments-panel"
           type="button"
           (click)="toggleComments()">
-    <i class="fa-solid fa-comment-dots"></i>
+    <i [ngClass]="icons.CONTENT_COMMENTS.class"></i>
     <span>{{ '@Comments' | transloco }}</span>
   </button>
 

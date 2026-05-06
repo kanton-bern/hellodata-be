@@ -37,6 +37,7 @@ import {PrimeTemplate} from 'primeng/api';
 import {Tag} from 'primeng/tag';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {ExternalLinkDirective} from "../../../../shared/directives/external-link.directive";
+import {ICON_REGISTRY} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-selected-workspace-dashboards',
@@ -45,6 +46,7 @@ import {ExternalLinkDirective} from "../../../../shared/directives/external-link
   imports: [TableModule, PrimeTemplate, Tag, AsyncPipe, TranslocoPipe, ExternalLinkDirective]
 })
 export class SelectedWorkspaceDashboardsComponent {
+  protected readonly icons = ICON_REGISTRY;
   readonly dashboards = input.required<any[]>();
   readonly instanceName = input.required<string>();
   private readonly store = inject<Store<AppState>>(Store);

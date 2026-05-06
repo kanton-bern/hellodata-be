@@ -31,19 +31,21 @@ import {ConfirmDialog} from "primeng/confirmdialog";
 import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
 import {selectStayOnPage} from "../../../store/unsaved-changes/unsaved-changes.selector";
-import {AsyncPipe} from "@angular/common";
+import {AsyncPipe, NgClass} from "@angular/common";
 import {Button} from "primeng/button";
 import {PrimeTemplate} from 'primeng/api';
 import {Tooltip} from "primeng/tooltip";
 import {Ripple} from "primeng/ripple";
+import {ICON_REGISTRY} from '../../icons';
 
 @Component({
   selector: 'app-unsaved-changes-dialog',
   templateUrl: './unsaved-changes-dialog.component.html',
   styleUrls: ['./unsaved-changes-dialog.component.scss'],
-  imports: [ConfirmDialog, PrimeTemplate, Button, TranslocoPipe, AsyncPipe, Tooltip, Ripple]
+  imports: [ConfirmDialog, PrimeTemplate, Button, TranslocoPipe, AsyncPipe, Tooltip, Ripple, NgClass]
 })
 export class UnsavedChangesDialogComponent {
+  protected readonly icons = ICON_REGISTRY;
   private store = inject<Store<AppState>>(Store);
 
   stayOnPage$ = this.store.select(selectStayOnPage);

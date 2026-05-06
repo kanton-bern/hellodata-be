@@ -26,7 +26,7 @@
 ///
 
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from "@angular/core";
-import {AsyncPipe} from "@angular/common";
+import {AsyncPipe, NgClass} from '@angular/common';
 import {FormsModule} from "@angular/forms";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {TableLazyLoadEvent, TableModule} from "primeng/table";
@@ -57,15 +57,17 @@ import {Tooltip} from "primeng/tooltip";
 import {UserSubsystemRolesDto} from "../../../store/users-management/users-management.model";
 import {Card} from 'primeng/card';
 import {UsersManagementService} from "../../../store/users-management/users-management.service";
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-users-overview',
   templateUrl: './users-overview.component.html',
   styleUrls: ['./users-overview.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple, Card, FormsModule, InputText, IconField, InputIcon, Tooltip]
+  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple, Card, FormsModule, InputText, IconField, InputIcon, Tooltip, NgClass]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   private static readonly FILTER_STORAGE_KEY = 'users-overview-filter-terms';
 
   users$: Observable<UserSubsystemRolesDto[]>;

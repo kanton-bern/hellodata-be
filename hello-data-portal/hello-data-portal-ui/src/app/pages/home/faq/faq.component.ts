@@ -34,20 +34,22 @@ import {selectFaq} from "../../../store/start-page/start-page.selector";
 import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {TranslateService} from "../../../shared/services/translate.service";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
 import {MatomoTrackerDirective} from 'ngx-matomo-client';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-faq',
   templateUrl: './faq.component.html',
   styleUrls: ['./faq.component.scss'],
-  imports: [Accordion, AccordionPanel, AccordionHeader, MatomoTrackerDirective, AccordionContent, AsyncPipe, TranslocoPipe, Tooltip]
+  imports: [Accordion, AccordionPanel, AccordionHeader, MatomoTrackerDirective, AccordionContent, AsyncPipe, TranslocoPipe, Tooltip, NgClass]
 })
 export class FaqComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
   private readonly sanitizer = inject(DomSanitizer);

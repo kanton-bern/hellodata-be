@@ -18,17 +18,17 @@
         <ng-template pTemplate="caption">
           <div class="flex items-center gap-2">
             @if (permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT') {
-              <p-button (click)="openNew()" icon="fa-solid fa-circle-plus" (keydown.enter)="openNew()"
+              <p-button (click)="openNew()" [icon]="icons.ACTION_CREATE.class" (keydown.enter)="openNew()"
                         [label]="'@Create' | transloco" pRipple></p-button>
             }
             <div class="flex items-center gap-2 ml-auto">
               <p-button
                 [label]="'@Clear' | transloco"
                 severity="secondary"
-                icon="fa-solid fa-filter-circle-xmark"
+                [icon]="icons.ACTION_FILTER_CLEAR.class"
                 (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
               <p-iconfield>
-                <p-inputicon class="fa-solid fa-magnifying-glass"/>
+                <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
                 <input (input)="applyFilterGlobal($event, 'contains')" [(ngModel)]="filterValue" pInputText
                        placeholder="{{'@Search' | transloco}}" type="text"/>
               </p-iconfield>
@@ -112,7 +112,7 @@
                             [pTooltip]="'@Edit' | transloco"
                             [text]="true"
                             pRipple
-                            icon="fa-solid fa-pen-to-square"
+                            [icon]="icons.ACTION_EDIT.class"
                   />
                   <p-button (click)="deleteExternalDashboard(dashboard)"
                             (keydown.enter)="deleteExternalDashboard(dashboard)"
@@ -120,7 +120,7 @@
                             [text]="true"
                             severity="danger"
                             pRipple
-                            icon="fa-solid fa-trash"
+                            [icon]="icons.ACTION_DELETE.class"
                   />
                 </div>
               </td>
@@ -137,10 +137,10 @@
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" icon="fa-solid fa-circle-xmark" [label]="'@Cancel' | transloco"
+    <p-button (click)="cd.onReject()" [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"
               (keydown.enter)="cd.onReject()"
               pRipple severity="secondary" type="button"/>
-    <p-button (click)="cd.onAccept()" icon="fa-solid fa-trash" [label]="'@Delete' | transloco" pRipple
+    <p-button (click)="cd.onAccept()" [icon]="icons.ACTION_DELETE.class" [label]="'@Delete' | transloco" pRipple
               (keydown.enter)="cd.onAccept()"
               severity="danger" type="button"/>
   </ng-template>

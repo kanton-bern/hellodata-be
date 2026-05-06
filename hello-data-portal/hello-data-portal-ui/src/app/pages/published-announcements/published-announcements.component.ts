@@ -10,7 +10,7 @@ import {selectDefaultLanguage, selectSelectedLanguage} from "../../store/auth/au
 import {Announcement} from "../../store/announcement/announcement.model";
 import {selectAllAnnouncementsByPublishedFlag} from "../../store/announcement/announcement.selector";
 import {TranslateService} from "../../shared/services/translate.service";
-import {AsyncPipe, DatePipe} from "@angular/common";
+import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {Toolbar} from "primeng/toolbar";
 import {Editor} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
@@ -18,15 +18,17 @@ import {SharedModule} from "primeng/api";
 import {TranslocoPipe} from "@jsverse/transloco";
 
 import {Card} from 'primeng/card';
+import {ICON_REGISTRY} from '../../shared/icons';
 
 @Component({
   providers: [DialogService],
   selector: 'app-published-announcements',
   templateUrl: './published-announcements.component.html',
   styleUrls: ['./published-announcements.component.scss'],
-  imports: [Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe, Card]
+  imports: [Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe, Card, NgClass]
 })
 export class PublishedAnnouncementsComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
 

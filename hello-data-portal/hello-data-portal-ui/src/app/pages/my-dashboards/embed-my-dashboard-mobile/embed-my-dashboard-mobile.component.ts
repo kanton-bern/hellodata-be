@@ -29,7 +29,7 @@ import {Component, inject, OnInit} from '@angular/core';
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {filter} from "rxjs/operators";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {TranslocoPipe} from "@jsverse/transloco";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {BaseComponent} from "../../../shared/components/base/base.component";
@@ -42,6 +42,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
 import {CommentsFeed} from "../comments-feed/comments-feed.component";
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
@@ -49,9 +50,10 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
   selector: 'app-embed-my-dashboard-mobile',
   templateUrl: 'embed-my-dashboard-mobile.component.html',
   styleUrls: ['./embed-my-dashboard-mobile.component.scss'],
-  imports: [SubsystemIframeComponent, AsyncPipe, TranslocoPipe, CommentsFeed]
+  imports: [SubsystemIframeComponent, AsyncPipe, TranslocoPipe, CommentsFeed, NgClass]
 })
 export class EmbedMyDashboardMobileComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
 

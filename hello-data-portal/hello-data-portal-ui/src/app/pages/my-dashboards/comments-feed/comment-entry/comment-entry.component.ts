@@ -27,7 +27,7 @@
 
 import {Component, computed, DestroyRef, inject, input, output} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {DatePipe, SlicePipe} from "@angular/common";
+import {DatePipe, SlicePipe, NgClass} from '@angular/common';
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {DashboardCommentEntry, DashboardCommentStatus} from "../../../../store/my-dashboards/my-dashboards.model";
@@ -53,6 +53,7 @@ import {Button} from "primeng/button";
 import {DashboardCommentUtilsService} from "../../services/dashboard-comment-utils.service";
 import {AutoComplete} from "primeng/autocomplete";
 import {TagChipComponent} from "../../../../shared/components/tag-chip/tag-chip.component";
+import {ICON_REGISTRY} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-comment-entry',
@@ -69,11 +70,13 @@ import {TagChipComponent} from "../../../../shared/components/tag-chip/tag-chip.
     Button,
     PrimeTemplate,
     AutoComplete,
-    TagChipComponent
-  ],
+    TagChipComponent,
+    NgClass,
+],
   styleUrls: ['./comment-entry.component.scss']
 })
 export class CommentEntryComponent {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly commentUtils = inject(DashboardCommentUtilsService);
   private readonly destroyRef = inject(DestroyRef);

@@ -18,10 +18,10 @@
         <p-button
           [label]="'@Clear' | transloco"
           severity="secondary"
-          icon="fa-solid fa-filter-circle-xmark"
+          [icon]="icons.ACTION_FILTER_CLEAR.class"
           (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
         <p-iconfield>
-          <p-inputicon class="fa-solid fa-magnifying-glass"/>
+          <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
           <input
             pInputText
             type="text"
@@ -102,7 +102,7 @@
           <div class="action-buttons">
             <!-- Open dashboard button -->
             <p-button
-              icon="fa-solid fa-up-right-from-square"
+              [icon]="icons.ACTION_EXTERNAL_LINK.class"
               class="mr-2"
               [text]="true"
               [pTooltip]="'@Open Dashboard' | transloco"
@@ -111,7 +111,7 @@
             <!-- Info button -->
             @if (canViewMetadataFn()(comment)) {
               <p-button
-                icon="fa-solid fa-info-circle"
+                [icon]="icons.STATUS_INFO.class"
                 [text]="true"
                 severity="secondary"
                 class="mr-2"
@@ -122,7 +122,7 @@
             <!-- Edit button -->
             @if (canEdit(comment)) {
               <p-button
-                icon="fa-solid fa-pen-to-square"
+                [icon]="icons.ACTION_EDIT.class"
                 [text]="true"
                 class="mr-2"
                 [pTooltip]="'@Edit' | transloco"
@@ -132,7 +132,7 @@
             <!-- Publish button -->
             @if (canPublish(comment)) {
               <p-button
-                icon="fa-solid fa-cloud-arrow-up"
+                [icon]="icons.ACTION_UPLOAD.class"
                 [text]="true"
 
                 class="mr-2"
@@ -143,7 +143,7 @@
             <!-- Send for review button -->
             @if (canSendForReview(comment)) {
               <p-button
-                icon="fa-solid fa-paper-plane"
+                [icon]="icons.ACTION_SEND.class"
                 [text]="true"
 
                 class="mr-2"
@@ -154,7 +154,7 @@
             <!-- Decline button -->
             @if (canDecline(comment)) {
               <p-button
-                icon="fa-solid fa-circle-stop"
+                [icon]="icons.STATUS_STOPPED.class"
                 [text]="true"
                 severity="danger"
                 class="mr-2"
@@ -165,7 +165,7 @@
             <!-- Delete button -->
             @if (canDelete(comment)) {
               <p-button
-                icon="fa-solid fa-trash"
+                [icon]="icons.ACTION_DELETE.class"
                 [text]="true"
                 severity="danger"
                 [pTooltip]="'@Delete' | transloco"
@@ -316,7 +316,7 @@
                                       [pTooltip]="historyItem.pointerUrl"
                                       tooltipPosition="top"
                                       (click)="navigateToDashboard(comment, historyItem.pointerUrl)">
-                                <i class="fa-solid fa-thumbtack mr-1" style="font-size: 0.6rem;"></i>
+                                <i class="mr-1" [ngClass]="icons.ACTION_PIN.class" style="font-size: 0.6rem;"></i>
                                 {{ historyItem.pointerUrl | slice:0:20 }}{{ historyItem.pointerUrl.length > 20 ? '...' : '' }}
                               </button>
                             } @else {
@@ -328,7 +328,7 @@
                               <div class="flex gap-1 flex-wrap">
                                 @for (tag of historyItem.tags; track tag) {
                                   <span class="history-tag">
-                                    <i class="fa-solid fa-tag mr-1" style="font-size: 0.6rem;"></i>{{ tag }}
+                                    <i class="mr-1" [ngClass]="icons.CONTENT_TAG.class" style="font-size: 0.6rem;"></i>{{ tag }}
                                   </span>
                                 }
                               </div>
@@ -339,7 +339,7 @@
                           <td class="p-2">
                             @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && userHasReviewPermission() && !isCurrentVersionReadyForReview(comment)) {
                               <p-button
-                                icon="fa-solid fa-rotate-left"
+                                [icon]="icons.ACTION_UNDO.class"
                                 [text]="true"
                                 severity="secondary"
                                 styleClass="restore-btn"
@@ -401,13 +401,13 @@
   <div class="edit-dialog-content">
     @if (editingComment && getActiveVersionData(editingComment)?.status === DashboardCommentStatus.PUBLISHED) {
       <div class="edit-warning mb-3">
-        <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+        <i class="text-orange-500 mr-2" [ngClass]="icons.STATUS_WARNING.class"></i>
         <span>{{ '@Edit published comment warning' | transloco }}</span>
       </div>
     }
     @if (editingComment && getActiveVersionData(editingComment)?.status === DashboardCommentStatus.DECLINED) {
       <div class="edit-warning mb-3">
-        <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+        <i class="text-orange-500 mr-2" [ngClass]="icons.STATUS_WARNING.class"></i>
         <span>{{ '@Edit declined comment warning' | transloco }}</span>
       </div>
     }
@@ -432,7 +432,7 @@
                   (keydown.enter)="clearEditedPointerUrl()"
                   [pTooltip]="'@Clear' | transloco"
                   tooltipPosition="top">
-            <i class="fa-solid fa-xmark"></i>
+            <i [ngClass]="icons.ACTION_CLOSE.class"></i>
           </button>
         }
       </div>
@@ -467,7 +467,7 @@
                         appendTo="body"
                         inputId="editTagInput"
                         class="flex-1"/>
-        <p-button icon="fa-solid fa-plus"
+        <p-button [icon]="icons.ACTION_ADD.class"
                   (click)="addEditTag()"
                   (keydown.enter)="addEditTag()"
                   [disabled]="!editNewTagText?.trim()"
@@ -477,11 +477,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="cancelEdit()" (keydown.escape)="cancelEdit()"
-              icon="fa-solid fa-circle-xmark"
+              [icon]="icons.ACTION_CANCEL.class"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="saveEdit()" (keydown.enter)="saveEdit()"
-              icon="fa-solid fa-floppy-disk"
+              [icon]="icons.ACTION_SAVE.class"
               [label]="'@Save' | transloco"
 
               [disabled]="isSaveEditDisabled()"/>
@@ -497,7 +497,7 @@
           [resizable]="false">
   <div class="decline-dialog-content">
     <div class="decline-warning mb-3 flex items-center p-3 bg-orange-50 border border-orange-200 rounded">
-      <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+      <i class="text-orange-500 mr-2" [ngClass]="icons.STATUS_WARNING.class"></i>
       <span class="text-orange-700 text-sm">{{ '@Decline comment warning' | transloco }}</span>
     </div>
     <label for="declineReasonInput" class="block text-sm font-medium text-gray-700 mb-2">
@@ -513,11 +513,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="closeDeclineDialog()" (keydown.escape)="closeDeclineDialog()"
-              icon="fa-solid fa-circle-xmark"
+              [icon]="icons.ACTION_CANCEL.class"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="submitDecline()" (keydown.enter)="submitDecline()"
-              icon="fa-solid fa-ban"
+              [icon]="icons.ACTION_BAN.class"
               [label]="'@Decline' | transloco"
               severity="danger"
               [disabled]="isDeclineDisabled()"/>
@@ -527,9 +527,9 @@
 <!-- Confirm Dialog - Publish -->
 <p-confirmDialog #cd1 key="publishComment" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd1.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd1.onReject()" [icon]="icons.ACTION_CANCEL.class" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd1.onReject()"/>
-    <p-button (click)="cd1.onAccept()" icon="fa-solid fa-cloud-arrow-up"
+    <p-button (click)="cd1.onAccept()" [icon]="icons.ACTION_UPLOAD.class"
               label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onAccept()"
 />
   </ng-template>
@@ -537,9 +537,9 @@
 
 <p-confirmDialog #cd5 key="sendForReview" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd5.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd5.onReject()" [icon]="icons.ACTION_CANCEL.class" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd5.onReject()"/>
-    <p-button (click)="cd5.onAccept()" icon="fa-solid fa-paper-plane"
+    <p-button (click)="cd5.onAccept()" [icon]="icons.ACTION_SEND.class"
               label="{{'@Send for review' | transloco}}" (keydown.enter)="cd5.onAccept()"
               severity="info"/>
   </ng-template>
@@ -548,9 +548,9 @@
 <!-- Confirm Dialog - Unpublish -->
 <p-confirmDialog #cd2 key="unpublishComment" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd2.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd2.onReject()" [icon]="icons.ACTION_CANCEL.class" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd2.onReject()"/>
-    <p-button (click)="cd2.onAccept()" icon="fa-solid fa-cloud-arrow-down"
+    <p-button (click)="cd2.onAccept()" [icon]="icons.ACTION_DOWNLOAD.class"
               label="{{'@Unpublish' | transloco}}" (keydown.enter)="cd2.onAccept()"
               severity="warn"/>
   </ng-template>
@@ -565,7 +565,7 @@
           [resizable]="false">
   <div class="delete-dialog-content">
     <div class="delete-warning mb-3 flex items-center p-3 bg-orange-50 border border-orange-200 rounded">
-      <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+      <i class="text-orange-500 mr-2" [ngClass]="icons.STATUS_WARNING.class"></i>
       <span class="text-orange-700 text-sm">{{ '@Delete comment warning' | transloco }}</span>
     </div>
     <label for="deletionReasonInputDomain" class="block text-sm font-medium text-gray-700 mb-2">
@@ -585,11 +585,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="commentUtils.closeDeleteDialog()" (keydown.escape)="commentUtils.closeDeleteDialog()"
-              icon="fa-solid fa-circle-xmark"
+              [icon]="icons.ACTION_CANCEL.class"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="commentUtils.submitDelete()" (keydown.enter)="commentUtils.submitDelete()"
-              icon="fa-solid fa-trash"
+              [icon]="icons.ACTION_DELETE.class"
               [label]="'@Delete' | transloco"
               severity="danger"
               [disabled]="commentUtils.isDeleteDisabled()"/>
@@ -599,9 +599,9 @@
 <!-- Confirm Dialog - Restore Version -->
 <p-confirmDialog #cd4 key="restoreVersion" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd4.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd4.onReject()" [icon]="icons.ACTION_CANCEL.class" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd4.onReject()"/>
-    <p-button (click)="cd4.onAccept()" icon="fa-solid fa-rotate-left"
+    <p-button (click)="cd4.onAccept()" [icon]="icons.ACTION_UNDO.class"
               label="{{'@Restore' | transloco}}" (keydown.enter)="cd4.onAccept()"
 />
   </ng-template>

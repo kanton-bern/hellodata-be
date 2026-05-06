@@ -3,7 +3,7 @@
   <p-card>
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
-        <p-button (click)="createAnnouncement()" icon="fa-solid fa-circle-plus"
+        <p-button (click)="createAnnouncement()" [icon]="icons.ACTION_CREATE.class"
                   [label]="'@Create announcement' | transloco" pRipple
                   (keydown.enter)="createAnnouncement()"></p-button>
       </ng-template>
@@ -42,10 +42,10 @@
               <tr>
                 <td>
                   @if (announcement.published) {
-                    <span class="fa-solid fa-circle status-published" aria-hidden="true"
+                    <span class="status-published" [ngClass]="icons.STATUS_PUBLISHED.class" aria-hidden="true"
                        [pTooltip]="'@Announcement published' | transloco"></span>
                   } @else {
-                    <span class="fa-solid fa-circle status-unpublished" aria-hidden="true"
+                    <span class="status-unpublished" [ngClass]="icons.STATUS_PUBLISHED.class" aria-hidden="true"
                        [pTooltip]="'@Announcement unpublished' | transloco"></span>
                   }
                 </td>
@@ -65,19 +65,20 @@
                             [pTooltip]="'@Edit' | transloco"
                             tooltipPosition="top"
                             [text]="true"
-                            icon="fa-solid fa-pen-to-square"/>
+                            [icon]="icons.ACTION_EDIT.class"/>
                   <p-button (click)="showAnnouncementDeletionPopup(announcement)"
                             (keydown.enter)="showAnnouncementDeletionPopup(announcement)"
                             [pTooltip]="'@Delete' | transloco"
                             tooltipPosition="top"
                             severity="danger"
                             [text]="true"
-                            icon="fa-solid fa-trash"/>
+                            [icon]="icons.ACTION_DELETE.class"/>
                   <p-button type="button" pRipple [pRowToggler]="announcement"
                             [pTooltip]="'@Details' | transloco"
                             tooltipPosition="top"
+                            severity="secondary"
                             [text]="true"
-                            icon="fa-solid fa-info-circle"/>
+                            [icon]="icons.STATUS_INFO.class"/>
                   </div>
                 </td>
               </tr>

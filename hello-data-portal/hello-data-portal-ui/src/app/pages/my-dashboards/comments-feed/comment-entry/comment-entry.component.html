@@ -8,7 +8,7 @@
   @if (activeVersion()?.status === DashboardCommentStatus.DECLINED && activeVersion()?.declineReason) {
     <div class="decline-reason-banner bg-red-100 border-l-4 border-red-500 px-2 py-2 mb-2">
       <div class="flex items-start">
-        <i class="fa-solid fa-ban text-red-600 mr-2 mt-1"></i>
+        <i class="text-red-600 mr-2 mt-1" [ngClass]="icons.ACTION_BAN.class"></i>
         <div class="flex-1">
           <div class="font-semibold text-red-800 text-sm">{{ '@Draft declined' | transloco }}</div>
           <div class="text-red-700 text-sm mt-1">{{ activeVersion()!.declineReason }}</div>
@@ -33,7 +33,7 @@
               class="pointer-url-link text-xs cursor-pointer bg-transparent border-none p-0"
               (click)="navigateToPointerUrl()"
               (keydown.enter)="navigateToPointerUrl()">
-        <i class="fa-solid fa-thumbtack mr-1"></i>{{ '@Go to dashboard element' | transloco }}
+        <i class="mr-1" [ngClass]="icons.ACTION_PIN.class"></i>{{ '@Go to dashboard element' | transloco }}
       </button>
     </div>
   }
@@ -69,7 +69,7 @@
                     (click)="toggleDetails()"
                     (keydown)="onKeyDown($event, toggleDetails.bind(this))"
                     [pTooltip]="'@Info' | transloco" tooltipPosition="top">
-              <i class="fa-solid fa-info-circle"></i>
+              <i [ngClass]="icons.STATUS_INFO.class"></i>
             </button>
           }
           @if (canEdit()) {
@@ -78,7 +78,7 @@
                     (keydown)="onKeyDown($event, editComment.bind(this))"
                     [pTooltip]="'@Edit' | transloco"
                     tooltipPosition="top">
-              <i class="fa-solid fa-pen-to-square"></i>
+              <i [ngClass]="icons.ACTION_EDIT.class"></i>
             </button>
           }
           @if (canPublish()) {
@@ -87,7 +87,7 @@
                     (keydown)="onKeyDown($event, publishComment.bind(this))"
                     [pTooltip]="'@Publish' | transloco"
                     tooltipPosition="top">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <i [ngClass]="icons.ACTION_UPLOAD.class"></i>
             </button>
           }
           @if (canSendForReview()) {
@@ -96,7 +96,7 @@
                     (keydown)="onKeyDown($event, sendForReview.bind(this))"
                     [pTooltip]="'@Send for review' | transloco"
                     tooltipPosition="left">
-              <i class="fa-solid fa-paper-plane"></i>
+              <i [ngClass]="icons.ACTION_SEND.class"></i>
             </button>
           }
           @if (canDecline()) {
@@ -105,7 +105,7 @@
                     (keydown)="onKeyDown($event, openDeclineDialog.bind(this))"
                     [pTooltip]="'@Decline' | transloco"
                     tooltipPosition="top">
-              <i class="fa-solid fa-circle-stop"></i>
+              <i [ngClass]="icons.STATUS_STOPPED.class"></i>
             </button>
           }
           @if (canDelete()) {
@@ -114,7 +114,7 @@
                     (keydown)="onKeyDown($event, deleteComment.bind(this))"
                     [pTooltip]="'@Delete' | transloco"
                     tooltipPosition="top">
-              <i class="fa-solid fa-trash"></i>
+              <i [ngClass]="icons.ACTION_DELETE.class"></i>
             </button>
           }
         } @else {
@@ -125,7 +125,7 @@
                     (click)="toggleDetails()"
                     (keydown)="onKeyDown($event, toggleDetails.bind(this))"
                     [pTooltip]="'@Info' | transloco" tooltipPosition="top">
-              <i class="fa-solid fa-info-circle"></i>
+              <i [ngClass]="icons.STATUS_INFO.class"></i>
             </button>
           }
         }
@@ -195,7 +195,7 @@
                     tooltipPosition="top"
                     (click)="navigateToUrl(activeVersion()!.pointerUrl)"
                     (keydown.enter)="navigateToUrl(activeVersion()!.pointerUrl)">
-              <i class="fa-solid fa-thumbtack mr-1"></i>
+              <i class="mr-1" [ngClass]="icons.ACTION_PIN.class"></i>
               {{ activeVersion()?.pointerUrl | slice:0:40 }}{{ activeVersion()!.pointerUrl.length > 40 ? '...' : '' }}
             </button>
           </div>
@@ -229,7 +229,7 @@
                               (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
                               [pTooltip]="'@Restore this version' | transloco"
                               tooltipPosition="left">
-                        <i class="fa-solid fa-rotate-left"></i>
+                        <i [ngClass]="icons.ACTION_UNDO.class"></i>
                       </button>
                     }
                   </div>
@@ -261,7 +261,7 @@
                               (click)="navigateToUrl(historyItem.pointerUrl)"
                               (keydown.enter)="navigateToUrl(historyItem.pointerUrl)">
                         <i
-                          class="fa-solid fa-thumbtack mr-1"></i>{{ historyItem.pointerUrl | slice:0:50 }}{{ historyItem.pointerUrl.length > 50 ? '...' : '' }}
+                          class="mr-1" [ngClass]="icons.ACTION_PIN.class"></i>{{ historyItem.pointerUrl | slice:0:50 }}{{ historyItem.pointerUrl.length > 50 ? '...' : '' }}
                       </button>
                     </div>
                   }
@@ -270,7 +270,7 @@
                       <span class="history-tags-label">{{ '@Tags' | transloco }}:</span>
                       @for (tag of historyItem.tags; track tag) {
                         <span class="history-tag">
-                          <i class="fa-solid fa-tag"></i>{{ tag }}
+                          <i [ngClass]="icons.CONTENT_TAG.class"></i>{{ tag }}
                         </span>
                       }
                     </div>
@@ -295,13 +295,13 @@
   <div class="edit-dialog-content">
     @if (activeVersion()?.status === DashboardCommentStatus.PUBLISHED) {
       <div class="edit-warning mb-3">
-        <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+        <i class="text-orange-500 mr-2" [ngClass]="icons.STATUS_WARNING.class"></i>
         <span>{{ '@Edit published comment warning' | transloco }}</span>
       </div>
     }
     @if (activeVersion()?.status === DashboardCommentStatus.DECLINED) {
       <div class="edit-warning mb-3">
-        <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+        <i class="text-orange-500 mr-2" [ngClass]="icons.STATUS_WARNING.class"></i>
         <span>{{ '@Edit declined comment warning' | transloco }}</span>
       </div>
     }
@@ -326,7 +326,7 @@
                   (keydown.enter)="clearEditedPointerUrl()"
                   [pTooltip]="'@Clear' | transloco"
                   tooltipPosition="top">
-            <i class="fa-solid fa-xmark"></i>
+            <i [ngClass]="icons.ACTION_CLOSE.class"></i>
           </button>
         }
       </div>
@@ -358,7 +358,7 @@
                         styleClass="tags-autocomplete flex-1"
                         appendTo="body"
                         inputId="editTagInput"/>
-        <p-button icon="fa-solid fa-plus"
+        <p-button [icon]="icons.ACTION_ADD.class"
                   (click)="addEditTag()"
                   (keydown.enter)="addEditTag()"
                   [disabled]="!editNewTagText?.trim()"
@@ -368,11 +368,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="cancelEdit()" (keydown.escape)="cancelEdit()"
-              icon="fa-solid fa-circle-xmark"
+              [icon]="icons.ACTION_CANCEL.class"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="saveEdit()" (keydown.enter)="saveEdit()"
-              icon="fa-solid fa-floppy-disk"
+              [icon]="icons.ACTION_SAVE.class"
               [label]="'@Save' | transloco"
 
               [disabled]="isSaveEditDisabled()"/>
@@ -388,7 +388,7 @@
           [resizable]="false">
   <div class="decline-dialog-content">
     <div class="decline-warning mb-3">
-      <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+      <i class="text-orange-500 mr-2" [ngClass]="icons.STATUS_WARNING.class"></i>
       <span>{{ '@Decline comment warning' | transloco }}</span>
     </div>
     <label for="declineReasonInput" class="block text-sm font-medium text-gray-700 mb-2">
@@ -404,11 +404,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="closeDeclineDialog()" (keydown.escape)="closeDeclineDialog()"
-              icon="fa-solid fa-circle-xmark"
+              [icon]="icons.ACTION_CANCEL.class"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="submitDecline()" (keydown.enter)="submitDecline()"
-              icon="fa-solid fa-ban"
+              [icon]="icons.ACTION_BAN.class"
               [label]="'@Decline' | transloco"
               severity="danger"
               [disabled]="isDeclineDisabled()"/>

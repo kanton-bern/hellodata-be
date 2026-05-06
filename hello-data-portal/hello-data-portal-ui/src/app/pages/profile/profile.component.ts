@@ -36,19 +36,21 @@ import {
 } from "../../store/users-management/users-management.model";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
 import {Tooltip} from 'primeng/tooltip';
 import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {ICON_REGISTRY} from '../../shared/icons';
 
 @Component({
   templateUrl: 'profile.component.html',
   styleUrls: ['./profile.component.scss'],
-  imports: [TableModule, PrimeTemplate, Tooltip, AsyncPipe, TranslocoPipe, Card]
+  imports: [TableModule, PrimeTemplate, Tooltip, AsyncPipe, TranslocoPipe, Card, NgClass]
 })
 export class ProfileComponent {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
 
   userDetails$: Observable<any>;

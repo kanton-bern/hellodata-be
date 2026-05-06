@@ -74,7 +74,7 @@ import {
   showUserActionPopup,
   updateUserRoles
 } from "../../../../store/users-management/users-management.action";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {Divider} from 'primeng/divider';
 import {Select} from 'primeng/select';
 import {Checkbox} from 'primeng/checkbox';
@@ -87,14 +87,16 @@ import {DashboardGroupMembershipComponent} from './dashboard-group-membership/da
 import {ActionsUserPopupComponent} from '../actions-user-popup/actions-user-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {UserEditToolbarComponent} from './user-edit-toolbar/user-edit-toolbar.component';
+import {ICON_REGISTRY} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, DashboardGroupMembershipComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent, Card]
+  imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, DashboardGroupMembershipComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent, Card, NgClass]
 })
 export class UserEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   editedUser$: Observable<any>;
   businessDomains$: Observable<any>;
   dataDomains$: Observable<any>;

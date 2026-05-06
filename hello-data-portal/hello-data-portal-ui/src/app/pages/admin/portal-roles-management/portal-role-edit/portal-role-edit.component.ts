@@ -59,6 +59,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {Card} from 'primeng/card';
 import {DeletePortalRolePopupComponent} from '../delete-portal-role-popup/delete-portal-role-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {ICON_REGISTRY} from '../../../../shared/icons';
 
 @Component({
   selector: 'app-role-edit',
@@ -67,6 +68,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
   imports: [FormsModule, ReactiveFormsModule, Textarea, AutoComplete, Toolbar, Button, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class PortalRoleEditComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
 

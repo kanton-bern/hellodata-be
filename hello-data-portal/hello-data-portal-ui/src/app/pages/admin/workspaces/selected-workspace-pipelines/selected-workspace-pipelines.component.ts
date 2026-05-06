@@ -36,6 +36,8 @@ import { Tag } from 'primeng/tag';
 import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
+import {ICON_REGISTRY} from '../../../../shared/icons';
+import {NgClass} from '@angular/common';
 
 export interface PipelineInstance {
   state: "queued" | "running" | "success" | "failed";
@@ -51,9 +53,10 @@ export interface Pipeline {
     selector: 'app-selected-workspace-pipelines',
     templateUrl: './selected-workspace-pipelines.component.html',
     styleUrls: ['./selected-workspace-pipelines.component.scss'],
-    imports: [TableModule, PrimeTemplate, Tag, Button, Tooltip, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Tag, Button, Tooltip, TranslocoPipe, NgClass]
 })
 export class SelectedWorkspacePipelinesComponent {
+  protected readonly icons = ICON_REGISTRY;
   private store = inject<Store<AppState>>(Store);
 
 

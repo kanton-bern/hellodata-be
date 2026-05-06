@@ -51,6 +51,7 @@ import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
 import {disableEditorImageInsert} from "../../../shared/utils/editor-utils";
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-documentation',
@@ -59,6 +60,7 @@ import {disableEditorImageInsert} from "../../../shared/utils/editor-utils";
   imports: [FormsModule, ReactiveFormsModule, Tabs, TabList, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, AsyncPipe, TranslocoPipe, Ripple, Card]
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   documentationForm!: FormGroup;
   initForm$: Observable<any>;
   selectedLanguage$: Observable<any>;

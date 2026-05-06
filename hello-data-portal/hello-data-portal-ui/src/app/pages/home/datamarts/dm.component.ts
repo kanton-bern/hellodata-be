@@ -33,18 +33,20 @@ import {selectAvailableDataDomainItems} from "../../../store/my-dashboards/my-da
 import {combineLatest, map, Observable} from "rxjs";
 import {TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
 import {navigate} from "../../../store/app/app.action";
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-dm',
   templateUrl: './dm.component.html',
   styleUrls: ['./dm.component.scss'],
-  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe, Tooltip]
+  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe, Tooltip, NgClass]
 })
 export class DmComponent {
+  protected readonly icons = ICON_REGISTRY;
   private readonly route = inject(ActivatedRoute);
   private readonly store = inject<Store<AppState>>(Store);
 

@@ -30,7 +30,7 @@ import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {DatePipe, LowerCasePipe, SlicePipe} from '@angular/common';
+import {DatePipe, LowerCasePipe, SlicePipe, NgClass} from '@angular/common';
 import {Table, TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
 import {Tag} from 'primeng/tag';
@@ -66,6 +66,7 @@ import {ExternalLinkDirective} from '../../../shared/directives/external-link.di
 import {loadAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.action';
 import {TranslateService} from '../../../shared/services/translate.service';
 import {TagChipComponent} from '../../../shared/components/tag-chip/tag-chip.component';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
@@ -91,10 +92,13 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
     Dialog,
     Textarea,
     ConfirmDialog,
-    AutoComplete, Card, ExternalLinkDirective, TagChipComponent],
+    AutoComplete, Card, ExternalLinkDirective, TagChipComponent,
+    NgClass,
+],
   providers: [ConfirmationService]
 })
 export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   private readonly router = inject(Router);
   private readonly store = inject<Store<AppState>>(Store);
   private readonly domainCommentsService = inject(DomainDashboardCommentsService);

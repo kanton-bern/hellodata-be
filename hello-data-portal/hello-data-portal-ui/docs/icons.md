@@ -125,6 +125,8 @@ export interface IconDefinition {
 | `ACTION_PIN` | `fa-solid fa-thumbtack` | Pin item |
 | `ACTION_BAN` | `fa-solid fa-ban` | Disable/block |
 | `ACTION_LINK` | `fa-solid fa-link` | Copy/show link |
+| `ACTION_SCROLL_DOWN` | `fa-solid fa-angles-down` | Scroll down |
+| `ACTION_NEXT` | `fa-solid fa-forward` | Next item |
 
 ### Status Icons
 
@@ -136,6 +138,10 @@ export interface IconDefinition {
 | `STATUS_INFO` | `fa-solid fa-circle-info` | Informational |
 | `STATUS_PUBLISHED` | `fa-solid fa-circle` | Published/active |
 | `STATUS_STOPPED` | `fa-solid fa-circle-stop` | Stopped/inactive |
+| `STATUS_PENDING` | `fa-solid fa-hourglass` | Pending/waiting |
+| `STATUS_LOADING` | `fa-solid fa-spinner` | Loading/in-progress |
+| `STATUS_CRITICAL` | `fa-solid fa-circle-exclamation` | Critical error |
+| `STATUS_UNKNOWN` | `fa-solid fa-circle-question` | Unknown/help |
 
 ### Content Icons
 
@@ -143,6 +149,7 @@ export interface IconDefinition {
 |-----|-------|---------|
 | `CONTENT_DASHBOARD` | `fa-solid fa-chart-line` | Dashboard reference |
 | `CONTENT_CHART` | `fa-solid fa-chart-pie` | Chart/analytics |
+| `CONTENT_CHART_BAR` | `fa-solid fa-chart-bar` | Bar chart |
 | `CONTENT_DATABASE` | `fa-solid fa-database` | Database/data source |
 | `CONTENT_LINEAGE` | `fa-solid fa-diagram-project` | Lineage reference |
 | `CONTENT_DATAMART` | `fa-solid fa-store` | Data mart |
@@ -154,6 +161,9 @@ export interface IconDefinition {
 | `CONTENT_DATA_DOMAIN` | `fa-solid fa-database` | Data domain |
 | `CONTENT_GLOBE` | `fa-solid fa-globe` | Global/public |
 | `CONTENT_COMMENTS` | `fa-solid fa-comment-dots` | Comments |
+| `CONTENT_LAYERS` | `fa-solid fa-layer-group` | Layers/stacked items |
+| `CONTENT_PDF` | `fa-solid fa-file-pdf` | PDF document |
+| `CONTENT_PERMISSIONS` | `fa-solid fa-shield-halved` | Permissions/security |
 
 ### Dialog Icons
 

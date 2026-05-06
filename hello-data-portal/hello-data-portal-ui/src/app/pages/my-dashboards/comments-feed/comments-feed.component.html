@@ -11,7 +11,7 @@
                 (keydown.enter)="exportComments()"
                 [pTooltip]="'@Export comments' | transloco"
                 tooltipPosition="left">
-          <i class="fa-solid fa-download"></i>
+          <i [ngClass]="icons.ACTION_IMPORT.class"></i>
         </button>
         <!-- Import comments button (admin only) -->
         <button type="button"
@@ -20,7 +20,7 @@
                 (keydown.enter)="triggerImport()"
                 [pTooltip]="'@Import comments' | transloco"
                 tooltipPosition="bottom">
-          <i class="fa-solid fa-upload"></i>
+          <i [ngClass]="icons.ACTION_EXPORT.class"></i>
         </button>
         <input type="file"
                #fileInput
@@ -30,7 +30,7 @@
       }
       @if (showCloseButton()) {
         <button type="button" class="close-button" (click)="closePanel.emit()" aria-label="Close">
-          <i class="fa-solid fa-xmark"></i>
+          <i [ngClass]="icons.ACTION_CLOSE.class"></i>
         </button>
       }
     </div>
@@ -168,7 +168,7 @@
                 (keydown.space)="openTagsDialog()"
                 [pTooltip]="'@Add tags (optional)' | transloco"
                 tooltipPosition="top">
-          <i class="fa-solid fa-tags"></i>
+          <i [ngClass]="icons.CONTENT_TAGS.class"></i>
         </button>
 
         <!-- Pointer URL icon - toggles input -->
@@ -179,7 +179,7 @@
                 (keydown.space)="togglePointerUrlInput()"
                 [pTooltip]="'@Link to dashboard element (optional)' | transloco"
                 tooltipPosition="top">
-          <i class="fa-solid fa-link"></i>
+          <i [ngClass]="icons.ACTION_LINK.class"></i>
         </button>
 
         <!-- Pointer URL input (when expanded) -->
@@ -240,7 +240,7 @@
                       placeholder="{{ '@Add tag (max 10 chars)' | transloco }}"
                       styleClass="tags-autocomplete flex-1"
                       appendTo="body"/>
-      <p-button icon="fa-solid fa-plus"
+      <p-button [icon]="icons.ACTION_ADD.class"
                 (click)="addTag()"
                 (keydown.enter)="addTag()"
                 [disabled]="!newTagText?.trim()"
@@ -257,9 +257,9 @@
 
 <p-confirmDialog #cd1 key="publishComment" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd1.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd1.onReject()" [icon]="icons.ACTION_CANCEL.class" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd1.onReject()"/>
-    <p-button (click)="cd1.onAccept()" icon="fa-solid fa-cloud-arrow-up"
+    <p-button (click)="cd1.onAccept()" [icon]="icons.ACTION_UPLOAD.class"
               label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onAccept()"
 />
   </ng-template>
@@ -267,9 +267,9 @@
 
 <p-confirmDialog #cd5 key="sendForReview" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd5.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd5.onReject()" [icon]="icons.ACTION_CANCEL.class" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd5.onReject()"/>
-    <p-button (click)="cd5.onAccept()" icon="fa-solid fa-paper-plane"
+    <p-button (click)="cd5.onAccept()" [icon]="icons.ACTION_SEND.class"
               label="{{'@Send for review' | transloco}}" (keydown.enter)="cd5.onAccept()"
               severity="info"/>
   </ng-template>
@@ -277,9 +277,9 @@
 
 <p-confirmDialog #cd2 key="unpublishComment" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd2.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd2.onReject()" [icon]="icons.ACTION_CANCEL.class" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd2.onReject()"/>
-    <p-button (click)="cd2.onAccept()" icon="fa-solid fa-cloud-arrow-down"
+    <p-button (click)="cd2.onAccept()" [icon]="icons.ACTION_DOWNLOAD.class"
               label="{{'@Unpublish' | transloco}}" (keydown.enter)="cd2.onAccept()"
               severity="warn"/>
   </ng-template>
@@ -294,7 +294,7 @@
           [resizable]="false">
   <div class="delete-dialog-content">
     <div class="delete-warning mb-3 flex items-center p-3 bg-orange-50 border border-orange-200 rounded">
-      <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+      <i class="text-orange-500 mr-2" [ngClass]="icons.STATUS_WARNING.class"></i>
       <span class="text-orange-700 text-sm">{{ '@Delete comment warning' | transloco }}</span>
     </div>
     <label for="deletionReasonInput" class="block text-sm font-medium text-gray-700 mb-2">
@@ -314,11 +314,11 @@
   </div>
   <ng-template pTemplate="footer">
     <p-button (click)="commentUtils.closeDeleteDialog()" (keydown.escape)="commentUtils.closeDeleteDialog()"
-              icon="fa-solid fa-circle-xmark"
+              [icon]="icons.ACTION_CANCEL.class"
               [label]="'@Cancel' | transloco"
               severity="secondary"/>
     <p-button (click)="commentUtils.submitDelete()" (keydown.enter)="commentUtils.submitDelete()"
-              icon="fa-solid fa-trash"
+              [icon]="icons.ACTION_DELETE.class"
               [label]="'@Delete' | transloco"
               severity="danger"
               [disabled]="commentUtils.isDeleteDisabled()"/>
@@ -327,9 +327,9 @@
 
 <p-confirmDialog #cd4 key="restoreVersion" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="cd4.onReject()" icon="fa-solid fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd4.onReject()" [icon]="icons.ACTION_CANCEL.class" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd4.onReject()"/>
-    <p-button (click)="cd4.onAccept()" icon="fa-solid fa-rotate-left"
+    <p-button (click)="cd4.onAccept()" [icon]="icons.ACTION_UNDO.class"
               label="{{'@Restore' | transloco}}" (keydown.enter)="cd4.onAccept()"
 />
   </ng-template>

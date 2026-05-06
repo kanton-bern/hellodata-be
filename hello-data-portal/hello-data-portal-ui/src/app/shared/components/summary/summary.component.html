@@ -22,7 +22,7 @@
                       [pTooltip]="'@Edit' | transloco"
                       tooltipPosition="top"
 
-                      icon="fa-solid fa-pen-to-square"
+                      [icon]="icons.ACTION_EDIT.class"
                       [text]="true"
                       id="editDocumentationBtnOvrl"/>
           }
@@ -70,26 +70,26 @@
                         @switch (pipeline.lastInstance.state) {
                           @case ('queued') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end fa-solid fa-hourglass"
+                                  class="items-end" [ngClass]="icons.STATUS_PENDING.class"
                                   style="color: gray"></span>
                           }
                           @case ('running') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end fa-solid fa-gear fa-spin" tooltipPosition="top"
+                                  class="items-end fa-spin" [ngClass]="icons.NAV_ADMINISTRATION.class" tooltipPosition="top"
                                   style="color: green"></span>
                           }
                           @case ('success') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end fa-solid fa-circle-check" tooltipPosition="top"
+                                  class="items-end" [ngClass]="icons.ACTION_APPROVE.class" tooltipPosition="top"
                                   style="color: green"></span>
                           }
                           @case ('failed') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end fa-solid fa-circle-exclamation" tooltipPosition="top"
+                                  class="items-end" [ngClass]="icons.STATUS_CRITICAL.class" tooltipPosition="top"
                                   style="color: red"></span>
                           }
                           @default {
-                            <span [pTooltip]="'unknown'" class="items-end fa-solid fa-circle-question"
+                            <span [pTooltip]="'unknown'" class="items-end" [ngClass]="icons.STATUS_UNKNOWN.class"
                                   style="color: gray" tooltipPosition="top"></span>
                           }
                         }

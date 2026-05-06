@@ -62,7 +62,7 @@
       <div class="p-toolbar-group-end">
         <p-button (click)="createUser()" (keydown.enter)="createUser()"
                   [disabled]="inviteForm.invalid"
-                  icon="fa-solid fa-floppy-disk"
+                  [icon]="icons.ACTION_SAVE.class"
                   [label]="'@Set permissions' | transloco"
                   pRipple/>
       </div>
@@ -100,12 +100,12 @@
           @if ((syncStatus$ | async); as syncStatus) {
             <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
                       [pTooltip]="'@Sync Users Title' | transloco" (keydown.enter)="syncUsers()"
-                      icon="fa-solid fa-arrows-rotate" tooltipPosition="top"
+                      [icon]="icons.ACTION_REFRESH.class" tooltipPosition="top"
                       [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
  pRipple/>
           }
           <p-button (click)="navigateToBulkAssignments()" (keydown.enter)="navigateToBulkAssignments()"
-                    icon="fa-solid fa-users"
+                    [icon]="icons.CONTENT_USERS.class"
                     [label]="'@Bulk assignments' | transloco"
                     styleClass="hd-btn-tertiary" pRipple/>
         </div>
@@ -113,10 +113,10 @@
           <p-button
             [label]="'@Clear' | transloco"
             severity="secondary"
-            icon="fa-solid fa-filter-circle-xmark"
+            [icon]="icons.ACTION_FILTER_CLEAR.class"
             (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
           <p-iconfield>
-            <p-inputicon class="fa-solid fa-magnifying-glass"/>
+            <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
             <input (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
                    placeholder="{{'@Search' | transloco}}" type="text"/>
           </p-iconfield>
@@ -165,16 +165,16 @@
         </td>
         <td>
           @if (user.superuser) {
-            <i class="fa-solid fa-check text-success"></i>
+            <i class="text-success" [ngClass]="icons.STATUS_SUCCESS.class"></i>
           } @else {
-            <i class="fa-solid fa-times text-color-secondary opacity-40"></i>
+            <i class="text-color-secondary opacity-40" [ngClass]="icons.STATUS_ERROR.class"></i>
           }
         </td>
         <td>
           @if (user.enabled) {
-            <i class="fa-solid fa-check text-success"></i>
+            <i class="text-success" [ngClass]="icons.STATUS_SUCCESS.class"></i>
           } @else {
-            <i class="fa-solid fa-times text-danger"></i>
+            <i class="text-danger" [ngClass]="icons.STATUS_ERROR.class"></i>
           }
         </td>
         <td class="hd-col-date">
@@ -190,14 +190,14 @@
             <div class="flex items-center justify-end gap-1">
             <p-button (click)="editUser(user)" (keydown.enter)="editUser(user)"
                       [text]="true"
-                      icon="fa-solid fa-pen-to-square"
+                      [icon]="icons.ACTION_EDIT.class"
                       [pTooltip]="'@Edit' | transloco"
                       tooltipPosition="top"/>
             @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="enableUser(user)" (keydown.enter)="enableUser(user)"
                         severity="success"
                         [text]="true"
-                        icon="fa-solid fa-circle-check"
+                        [icon]="icons.ACTION_APPROVE.class"
                         [pTooltip]="'@Enable' | transloco"
                         tooltipPosition="top"/>
             }
@@ -205,7 +205,7 @@
               <p-button (click)="disableUser(user)" (keydown.enter)="disableUser(user)"
                         severity="warn"
                         [text]="true"
-                        icon="fa-solid fa-circle-xmark"
+                        [icon]="icons.ACTION_CANCEL.class"
                         [pTooltip]="'@Disable' | transloco"
                         tooltipPosition="top"/>
             }
@@ -213,7 +213,7 @@
               <p-button (click)="showUserDeletionPopup(user)" (keydown.enter)="showUserDeletionPopup(user)"
                         severity="danger"
                         [text]="true"
-                        icon="fa-solid fa-trash"
+                        [icon]="icons.ACTION_DELETE.class"
                         [pTooltip]="'@Delete' | transloco"
                         tooltipPosition="top"/>
             }

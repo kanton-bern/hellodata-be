@@ -35,7 +35,7 @@ import {selectExternalDashboards} from "../../../store/external-dashboards/exter
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {loadExternalDashboards} from "../../../store/external-dashboards/external-dasboards.action";
 import {trackEvent} from "../../../store/app/app.action";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {PrimeTemplate} from 'primeng/api';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
@@ -44,14 +44,16 @@ import {InputText} from 'primeng/inputtext';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
 import {Button} from 'primeng/button';
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 @Component({
   selector: 'app-external',
   templateUrl: './external.component.html',
   styleUrls: ['./external.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe, Tooltip, Button]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe, Tooltip, Button, NgClass]
 })
 export class ExternalComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   private store = inject<Store<AppState>>(Store);
 
   title = input<string>('');

@@ -115,7 +115,7 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           @if (editedFaq.id) {
-            <p-button (click)="openDeletePopup(editedFaq)" icon="fa-solid fa-trash" pRipple
+            <p-button (click)="openDeletePopup(editedFaq)" [icon]="icons.ACTION_DELETE.class" pRipple
                       (keydown)="openDeletePopup(editedFaq)"
                       [label]="'@Delete' | transloco" severity="danger"/>
           }
@@ -124,10 +124,10 @@
           <div class="p-toolbar-group-end">
             <p-button (click)="navigateToFaqList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
                       (keydown)="navigateToFaqList()"
-                      icon="fa-solid fa-arrow-left" severity="secondary" pRipple/>
+                      [icon]="icons.ACTION_BACK.class" severity="secondary" pRipple/>
             <p-button (click)="saveFaq(editedFaq)" (keydown)="saveFaq(editedFaq)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
-                      icon="fa-solid fa-floppy-disk"
+                      [icon]="icons.ACTION_SAVE.class"
                       pRipple
                       id="saveFaqButton"
                       [label]="'@Save' | transloco"/>

@@ -23,7 +23,7 @@
               }
               <div class="user-filter-bar">
                 <p-iconfield>
-                  <p-inputicon class="fa-solid fa-magnifying-glass"/>
+                  <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
                   <input pInputText
                          [(ngModel)]="userSearchFilter"
                          (ngModelChange)="onUserSearchChange()"
@@ -78,13 +78,13 @@
                 }
               </div>
               <div class="pagination-bar">
-                <p-button icon="fa-solid fa-chevron-left"
+                <p-button [icon]="icons.NAV_CHEVRON_LEFT.class"
                           [disabled]="userPage === 0"
                           [text]="true"
                           severity="secondary"
                           (onClick)="prevUserPage()"/>
                 <span class="page-info">{{ userPage + 1 }} / {{ totalUserPages }}</span>
-                <p-button icon="fa-solid fa-chevron-right"
+                <p-button [icon]="icons.NAV_CHEVRON_RIGHT.class"
                           [disabled]="userPage >= totalUserPages - 1"
                           [text]="true"
                           severity="secondary"
@@ -97,7 +97,7 @@
               </div>
               <div class="step-actions">
                 <p-button label="{{ '@Next' | transloco }}"
-                          icon="fa-solid fa-arrow-right" iconPos="right"
+                          [icon]="icons.ACTION_FORWARD.class" iconPos="right"
                           
                           [disabled]="selectedUserIds.size === 0"
                           (onClick)="onStepActivate(2, activateCallback)" pRipple/>
@@ -140,11 +140,11 @@
               </div>
               <div class="step-actions">
                 <p-button label="{{ '@Back' | transloco }}"
-                          icon="fa-solid fa-arrow-left"
+                          [icon]="icons.ACTION_BACK.class"
                           severity="secondary"
                           (onClick)="activateCallback(1)" pRipple/>
                 <p-button label="{{ '@Next' | transloco }}"
-                          icon="fa-solid fa-arrow-right" iconPos="right"
+                          [icon]="icons.ACTION_FORWARD.class" iconPos="right"
                           
                           [disabled]="selectedDomainKeys.size === 0"
                           (onClick)="onStepActivate(3, activateCallback)" pRipple/>
@@ -243,11 +243,11 @@
               }
               <div class="step-actions">
                 <p-button label="{{ '@Back' | transloco }}"
-                          icon="fa-solid fa-arrow-left"
+                          [icon]="icons.ACTION_BACK.class"
                           severity="secondary"
                           (onClick)="activateCallback(2)" pRipple/>
                 <p-button label="{{ '@Next' | transloco }}"
-                          icon="fa-solid fa-arrow-right" iconPos="right"
+                          [icon]="icons.ACTION_FORWARD.class" iconPos="right"
                           
                           (onClick)="goToSummary(activateCallback)" pRipple/>
               </div>
@@ -262,7 +262,7 @@
               <h3>{{ '@Summary' | transloco }}</h3>
               @if (!result && !isSubmitting) {
                 <div class="review-info">
-                  <i class="fa-solid fa-info-circle"></i>
+                  <i [ngClass]="icons.STATUS_INFO.class"></i>
                   <span>{{ '@Review summary info' | transloco }}</span>
                 </div>
               }
@@ -270,7 +270,7 @@
               <div class="summary-section">
                 <!-- Users shown once at top -->
                 <div class="summary-flow-item users-block" [class.users-block-wide]="cachedSelectedUsers.length > 3">
-                  <div class="flow-title"><i class="fa-solid fa-users"></i> {{ '@Selected users' | transloco }}
+                  <div class="flow-title"><i [ngClass]="icons.CONTENT_USERS.class"></i> {{ '@Selected users' | transloco }}
                     ({{ selectedUserIds.size }})
                   </div>
                   <div class="flow-user-list">
@@ -282,7 +282,7 @@
                     }
                   </div>
                 </div>
-                <div class="summary-flow-arrow center-arrow main-arrow"><i class="fa-solid fa-angles-down"></i></div>
+                <div class="summary-flow-arrow center-arrow main-arrow"><i [ngClass]="icons.ACTION_SCROLL_DOWN.class"></i></div>
 
                 <!-- PrimeNG Carousel -->
                 @if (cachedDomainSummary.length > 1) {
@@ -312,11 +312,11 @@
               @if (!result && !isSubmitting) {
                 <div class="step-actions">
                   <p-button label="{{ '@Back' | transloco }}"
-                            icon="fa-solid fa-arrow-left"
+                            [icon]="icons.ACTION_BACK.class"
                             severity="secondary"
                             (onClick)="activateCallback(3)" pRipple/>
                   <p-button label="{{ '@Apply bulk assignments' | transloco }}"
-                            icon="fa-solid fa-check"
+                            [icon]="icons.ACTION_CONFIRM.class"
 
                             (onClick)="confirmApply()" pRipple/>
                 </div>
@@ -341,7 +341,7 @@
                   </div>
                   @if (result.skippedUsers?.length > 0) {
                     <div class="user-detail-list skipped-list">
-                      <h5><i class="fa-solid fa-forward"></i> {{ '@Users skipped' | transloco }}
+                      <h5><i [ngClass]="icons.ACTION_NEXT.class"></i> {{ '@Users skipped' | transloco }}
                         ({{ result.skippedUsers.length }})</h5>
                       <table class="detail-table">
                         <thead>
@@ -365,7 +365,7 @@
                   }
                   @if (result.failedUsers?.length > 0) {
                     <div class="user-detail-list failed-list">
-                      <h5><i class="fa-solid fa-times-circle"></i> {{ '@Users failed' | transloco }}
+                      <h5><i [ngClass]="icons.ACTION_CANCEL.class"></i> {{ '@Users failed' | transloco }}
                         ({{ result.failedUsers.length }})</h5>
                       <table class="detail-table">
                         <thead>
@@ -390,18 +390,18 @@
                   <div class="result-actions">
                     <p-button
                       [label]="'@Back to user management' | transloco"
-                      icon="fa-solid fa-arrow-left"
+                      [icon]="icons.ACTION_BACK.class"
                       severity="secondary"
                       (onClick)="goToUserManagement()"/>
                     <div class="result-actions-right">
                       <p-button
                         [label]="'@Download report' | transloco"
-                        icon="fa-solid fa-file-pdf"
+                        [icon]="icons.CONTENT_PDF.class"
                         severity="help"
                         (onClick)="downloadReport()"/>
                       <p-button
                         [label]="'@Start over' | transloco"
-                        icon="fa-solid fa-redo"
+                        [icon]="icons.ACTION_REDO.class"
                         severity="info"
                         (onClick)="startOver()"/>
                     </div>
@@ -420,24 +420,24 @@
   <div class="summary-flow">
     <!-- Domain -->
     <div class="summary-flow-item domain-header">
-      <i class="fa-solid fa-database"></i>
+      <i [ngClass]="icons.CONTENT_DATABASE.class"></i>
       <span class="flow-label">{{ '@Data domain' | transloco }}: {{ item.name }}</span>
     </div>
-    <div class="summary-flow-arrow medium-arrow"><i class="fa-solid fa-angles-down"></i></div>
+    <div class="summary-flow-arrow medium-arrow"><i [ngClass]="icons.ACTION_SCROLL_DOWN.class"></i></div>
 
     <!-- Role -->
     <div class="summary-flow-item role-block">
-      <div class="flow-title"><i class="fa-solid fa-shield-alt"></i> {{ '@Role assignment' | transloco }}:
+      <div class="flow-title"><i [ngClass]="icons.CONTENT_PERMISSIONS.class"></i> {{ '@Role assignment' | transloco }}:
         <p-tag [value]="formatRoleName(item.roleName)"/>
       </div>
     </div>
     @if (item.roleName === 'DATA_DOMAIN_VIEWER' || item.roleName === 'DATA_DOMAIN_BUSINESS_SPECIALIST') {
-      <div class="summary-flow-arrow small-arrow"><i class="fa-solid fa-angles-down"></i></div>
+      <div class="summary-flow-arrow small-arrow"><i [ngClass]="icons.ACTION_SCROLL_DOWN.class"></i></div>
 
       <!-- Dashboards & Groups side by side -->
       <div class="summary-flow-resources">
         <div class="summary-flow-item resource-block">
-          <div class="flow-title"><i class="fa-solid fa-chart-bar"></i> {{ '@Dashboards' | transloco }}
+          <div class="flow-title"><i [ngClass]="icons.CONTENT_CHART_BAR.class"></i> {{ '@Dashboards' | transloco }}
             ({{ item.dashboardNames.length }})
           </div>
           @if (item.dashboardNames.length > 0) {
@@ -452,7 +452,7 @@
         </div>
         <div class="resources-divider" aria-hidden="true"></div>
         <div class="summary-flow-item resource-block">
-          <div class="flow-title"><i class="fa-solid fa-layer-group"></i> {{ '@Dashboard groups' | transloco }}
+          <div class="flow-title"><i [ngClass]="icons.CONTENT_LAYERS.class"></i> {{ '@Dashboard groups' | transloco }}
             ({{ item.groupNames.length }})
           </div>
           @if (item.groupNames.length > 0) {

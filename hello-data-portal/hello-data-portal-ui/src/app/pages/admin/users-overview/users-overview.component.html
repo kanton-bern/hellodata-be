@@ -20,18 +20,18 @@
             <div style="text-align: left">
               <p-button (onClick)="exportCsv()"
                         [disabled]="(dataLoading$ | async) ?? false"
-                        icon="fa-solid fa-up-right-from-square" pRipple
+                        [icon]="icons.ACTION_EXTERNAL_LINK.class" pRipple
                         label="{{ '@Export' | transloco }}"/>
             </div>
             <div style="text-align: left">
               <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
-                        icon="fa-solid fa-arrows-rotate" pRipple
+                        [icon]="icons.ACTION_REFRESH.class" pRipple
                         label="{{ '@Reload' | transloco }}"
 />
             </div>
             <div style="text-align: left">
               <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
-                        icon="fa-solid fa-circle-xmark" pRipple
+                        [icon]="icons.ACTION_CANCEL.class" pRipple
                         label="{{ '@Clear cache' | transloco }}"
                         severity="secondary"
                         [outlined]="true"/>
@@ -40,7 +40,7 @@
               <span class="filter-hint">{{ '@Filter hint' | transloco }}</span>
               <form (submit)="addFilterTerm($event)" class="filter-search-form">
                 <p-iconfield>
-                  <p-inputicon class="fa-solid fa-magnifying-glass"/>
+                  <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
                   <input [(ngModel)]="currentFilterInput"
                          name="filterInput"
                          pInputText
@@ -56,12 +56,12 @@
                 @for (term of filterTerms; track term; let i = $index) {
                   <span class="filter-chip">
                     <span class="filter-chip-label">{{ term }}</span>
-                    <i class="fa-solid fa-xmark filter-chip-remove" (click)="removeFilterTerm(i)"
+                    <i class="filter-chip-remove" [ngClass]="icons.ACTION_CLOSE.class" (click)="removeFilterTerm(i)"
                        (keydown.enter)="removeFilterTerm(i)"
                        pTooltip="{{ '@Remove filter' | transloco }}"></i>
                   </span>
                 }
-                <p-button (onClick)="clearAllFilters()" icon="fa-solid fa-filter-circle-xmark"
+                <p-button (onClick)="clearAllFilters()" [icon]="icons.ACTION_FILTER_CLEAR.class"
                           severity="secondary"
                           pTooltip="{{ '@Clear all filters' | transloco }}"/>
               </div>
@@ -88,15 +88,16 @@
             </td>
             <td>
               @if (user.enabled) {
-                <i class="fa-solid fa-check text-success"></i>
+                <i class="text-success" [ngClass]="icons.STATUS_SUCCESS.class"></i>
               } @else {
-                <i class="fa-solid fa-times text-danger"></i>
+                <i class="text-danger" [ngClass]="icons.STATUS_ERROR.class"></i>
               }
             </td>
             <td>
               <p-button type="button" pRipple [pRowToggler]="user"
                         [text]="true"
-                        icon="fa-solid fa-info-circle"/>
+                        severity="secondary"
+                        [icon]="icons.STATUS_INFO.class"/>
             </td>
           </tr>
         </ng-template>

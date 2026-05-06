@@ -52,6 +52,7 @@ import {
 
 
 import {Card} from 'primeng/card';
+import {ICON_REGISTRY} from '../../../shared/icons';
 @Component({
   selector: 'app-roles-management',
   templateUrl: './portal-roles-management.component.html',
@@ -59,6 +60,7 @@ import {Card} from 'primeng/card';
   imports: [TableModule, PrimeTemplate, Tag, Button, Ripple, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, TranslocoPipe, Card]
 })
 export class PortalRolesManagementComponent extends BaseComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
   roles$: Observable<any>;
   private readonly store = inject<Store<AppState>>(Store);
 

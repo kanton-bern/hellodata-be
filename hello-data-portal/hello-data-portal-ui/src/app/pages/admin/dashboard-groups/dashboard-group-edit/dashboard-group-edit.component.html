@@ -80,11 +80,11 @@
       <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
         <p-tablist>
           <p-tab value="0">
-            <span class="fa-solid fa-chart-pie mr-2"></span>
+            <span class="mr-2" [ngClass]="icons.CONTENT_CHART.class"></span>
             {{ '@Dashboards' | transloco }} ({{ selectedDashboardIds.size }})
           </p-tab>
           <p-tab value="1">
-            <span class="fa-solid fa-users mr-2"></span>
+            <span class="mr-2" [ngClass]="icons.CONTENT_USERS.class"></span>
             {{ '@Users' | transloco }} ({{ selectedUserIds.size }})
           </p-tab>
         </p-tablist>
@@ -99,7 +99,7 @@
                 <label for="selectAllDashboards">{{ '@Select all' | transloco }}</label>
               </div>
               <p-iconfield>
-                <p-inputicon class="fa-solid fa-magnifying-glass"/>
+                <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
                 <input pInputText [(ngModel)]="dashboardSearchFilter" [ngModelOptions]="{standalone: true}"
                        (ngModelChange)="onDashboardSearchChange()"
                        [attr.aria-label]="'@Search dashboards' | transloco"
@@ -137,7 +137,7 @@
                 <label for="selectAllUsers">{{ '@Select all on page' | transloco }}</label>
               </div>
               <p-iconfield>
-                <p-inputicon class="fa-solid fa-magnifying-glass"/>
+                <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
                 <input pInputText [(ngModel)]="userSearchFilter" [ngModelOptions]="{standalone: true}"
                        (ngModelChange)="onUserSearchChange()"
                        [attr.aria-label]="'@Search users' | transloco"
@@ -147,7 +147,7 @@
             <div class="user-list border border-surface rounded-border p-2 relative">
               @if (usersLoading) {
                 <div class="absolute inset-0 flex justify-center items-center bg-surface-0/70 z-10 rounded-border">
-                  <i class="fa-solid fa-spinner fa-spin text-2xl text-color-secondary"></i>
+                  <i class="fa-spin text-2xl text-color-secondary" [ngClass]="icons.STATUS_LOADING.class"></i>
                 </div>
               }
               @if (paginatedUsers.length === 0 && !usersLoading) {
@@ -172,14 +172,14 @@
                   </div>
                 </div>
                 <div class="flex items-center justify-center gap-3 mt-3 pt-2 border-t border-surface">
-                  <p-button icon="fa-solid fa-chevron-left"
+                  <p-button [icon]="icons.NAV_CHEVRON_LEFT.class"
                             [disabled]="userPage === 0"
                             [text]="true"
                             severity="secondary"
                             (onClick)="prevUserPage()" pRipple
                             [attr.aria-label]="'Previous page'"/>
                   <span class="text-sm text-color-secondary">{{ userPage + 1 }} / {{ userTotalPages }}</span>
-                  <p-button icon="fa-solid fa-chevron-right"
+                  <p-button [icon]="icons.NAV_CHEVRON_RIGHT.class"
                             [disabled]="userPage >= userTotalPages - 1"
                             [text]="true"
                             severity="secondary"
@@ -203,19 +203,19 @@
           @if (editedDashboardGroup.id) {
             <p-button (click)="openDeletePopup(editedDashboardGroup)"
                       (keydown.enter)="openDeletePopup(editedDashboardGroup)"
-                      icon="fa-solid fa-trash"
+                      [icon]="icons.ACTION_DELETE.class"
                       [label]="'@Delete' | transloco"
                       severity="danger" pRipple/>
           }
         </div>
         <div class="p-toolbar-group-end">
           <p-button (click)="navigateToList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fa-solid fa-arrow-left" severity="secondary" pRipple
+                    [icon]="icons.ACTION_BACK.class" severity="secondary" pRipple
                     (keydown.enter)="navigateToList()"/>
           <p-button (click)="saveDashboardGroup(editedDashboardGroup)"
                     (keydown.enter)="saveDashboardGroup(editedDashboardGroup)"
                     [disabled]="!dashboardGroupForm.valid"
-                    icon="fa-solid fa-floppy-disk"
+                    [icon]="icons.ACTION_SAVE.class"
                     [label]="'@Save' | transloco"
                     pRipple/>
         </div>

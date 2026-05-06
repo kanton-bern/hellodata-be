@@ -48,7 +48,7 @@ import {
   selectVisibleComments
 } from "../../../store/my-dashboards/my-dashboards.selector";
 import {selectCurrentUserCommentPermissions} from "../../../store/auth/auth.selector";
-import {AsyncPipe} from "@angular/common";
+import {AsyncPipe, NgClass} from '@angular/common';
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {PrimeTemplate} from "primeng/api";
 import {Select} from "primeng/select";
@@ -64,6 +64,7 @@ import {environment} from "../../../../environments/environment";
 import {NotificationService} from "../../../shared/services/notification.service";
 import {DashboardCommentUtilsService} from "../services/dashboard-comment-utils.service";
 import {filter, switchMap, withLatestFrom} from "rxjs/operators";
+import {ICON_REGISTRY} from '../../../shared/icons';
 
 const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
@@ -97,11 +98,13 @@ interface StatusFilterOption {
     Tooltip,
     AutoComplete,
     Dialog,
-    TagChipComponent
-  ],
+    TagChipComponent,
+    NgClass,
+],
   styleUrls: ['./comments-feed.component.scss']
 })
 export class CommentsFeed implements AfterViewInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   readonly commentUtils = inject(DashboardCommentUtilsService);
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;

@@ -21,10 +21,10 @@
             <p-button
               [label]="'@Clear' | transloco"
               severity="secondary"
-              icon="fa-solid fa-filter-circle-xmark"
+              [icon]="icons.ACTION_FILTER_CLEAR.class"
               (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
             <p-iconfield>
-              <p-inputicon class="fa-solid fa-magnifying-glass"/>
+              <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
               <input pInputText [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
                      placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
@@ -47,7 +47,7 @@
         <tr style="cursor: pointer" (click)="navigateToDashboard(dashboard)"
             (keydown.enter)="navigateToDashboard(dashboard)">
           <td>
-            <i class="fa-solid fa-chart-line"></i>
+            <i [ngClass]="icons.CONTENT_DASHBOARD.class"></i>
           </td>
           <td [pTooltip]="dashboard.contextName" tooltipPosition="top">
             {{ dashboard.contextName }}

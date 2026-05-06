@@ -26,6 +26,8 @@
 ///
 
 import {Component, input, output} from '@angular/core';
+import {ICON_REGISTRY} from '../../icons';
+import {NgClass} from '@angular/common';
 
 /**
  * Shared chip component for user-generated comment tags.
@@ -44,13 +46,14 @@ import {Component, input, output} from '@angular/core';
  *   removed   - emitted when the user clicks/activates the remove button
  */
 @Component({
+  imports: [NgClass],
   selector: 'app-tag-chip',
   standalone: true,
   template: `
     <span class="tag-chip"
           [class.tag-chip--removable]="removable()"
           [class.tag-chip--sm]="size() === 'sm'">
-      <i class="fa-solid fa-tag"></i>
+      <i [ngClass]="icons.CONTENT_TAG.class"></i>
       <span>{{ tag() }}</span>
       @if (removable()) {
         <button type="button"
@@ -58,7 +61,7 @@ import {Component, input, output} from '@angular/core';
                 (click)="removed.emit()"
                 (keydown.enter)="removed.emit()"
                 (keydown.space)="removed.emit()">
-          <i class="fa-solid fa-xmark"></i>
+          <i [ngClass]="icons.ACTION_CLOSE.class"></i>
         </button>
       }
     </span>
@@ -66,6 +69,7 @@ import {Component, input, output} from '@angular/core';
   styleUrls: ['./tag-chip.component.scss']
 })
 export class TagChipComponent {
+  protected readonly icons = ICON_REGISTRY;
   tag = input.required<string>();
   removable = input(false);
   size = input<'sm' | 'md'>('md');

@@ -23,7 +23,7 @@
                 (ngModelChange)="onSearchChange($event)"
                 [placeholder]="'@Search' | transloco"
                 class="text-sm p-2 pl-8 border border-surface rounded-md w-48"/>
-              <i class="fa-solid fa-magnifying-glass absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+              <i class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm" [ngClass]="icons.ACTION_SEARCH.class"></i>
             </div>
           </div>
         </div>

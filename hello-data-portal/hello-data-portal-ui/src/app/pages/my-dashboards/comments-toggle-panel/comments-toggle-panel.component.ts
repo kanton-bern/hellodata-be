@@ -29,6 +29,8 @@ import {Component, EventEmitter, input, Output} from '@angular/core';
 import {CommentsFeed} from "../comments-feed/comments-feed.component";
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
+import {ICON_REGISTRY} from '../../../shared/icons';
+import {NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-comments-toggle-panel',
@@ -36,11 +38,13 @@ import {TranslocoPipe} from "@jsverse/transloco";
   imports: [
     CommentsFeed,
     Tooltip,
-    TranslocoPipe
-  ],
+    TranslocoPipe,
+    NgClass,
+],
   styleUrls: ['./comments-toggle-panel.component.scss']
 })
 export class CommentsTogglePanelComponent {
+  protected readonly icons = ICON_REGISTRY;
   isOpen = input<boolean>(false);
   @Output() toggleComments = new EventEmitter<void>();
   @Output() pointerUrlClick = new EventEmitter<string>();

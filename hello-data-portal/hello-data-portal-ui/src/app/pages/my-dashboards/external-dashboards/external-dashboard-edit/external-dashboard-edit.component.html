@@ -110,18 +110,18 @@
             <p-button (click)="deleteExternalDashboard(editedExternalDashboard)"
                       (onKeyDown)="deleteExternalDashboard(editedExternalDashboard)"
                       severity="danger" pRipple (keydown.enter)="deleteExternalDashboard(editedExternalDashboard)"
-                      icon="fa-solid fa-trash"
+                      [icon]="icons.ACTION_DELETE.class"
                       [label]="'@Delete' | transloco"/>
           }
         </div>
         <div class="p-toolbar-group-end">
           <p-button (click)="cancel()" (onKeyDown)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fa-solid fa-arrow-left" severity="secondary" pRipple (keydown.enter)="cancel()"/>
+                    [icon]="icons.ACTION_BACK.class" severity="secondary" pRipple (keydown.enter)="cancel()"/>
           <p-button (click)="saveChanges(editedExternalDashboard)"
                     (keydown.enter)="saveChanges(editedExternalDashboard)"
                     [disabled]="externalDashboardForm.invalid||!externalDashboardForm.dirty"
                     pRipple
-                    icon="fa-solid fa-floppy-disk"
+                    [icon]="icons.ACTION_SAVE.class"
                     [label]="'@Save' | transloco"/>
         </div>
       </p-toolbar>
@@ -135,8 +135,8 @@
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" (keydown.enter)="cd.onReject()" icon="fa-solid fa-circle-xmark" [label]="'@Cancel' | transloco"
+    <p-button (click)="cd.onReject()" (keydown.enter)="cd.onReject()" [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"
               pRipple severity="secondary" type="button"/>
-    <p-button (click)="cd.onAccept()" (keydown.enter)="cd.onAccept()" icon="fa-solid fa-trash" [label]="'@Delete' | transloco" pRipple
+    <p-button (click)="cd.onAccept()" (keydown.enter)="cd.onAccept()" [icon]="icons.ACTION_DELETE.class" [label]="'@Delete' | transloco" pRipple
               severity="danger" type="button"/>
   </ng-template>

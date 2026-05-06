@@ -28,14 +28,14 @@
                                   [pTooltip]="'@Export dashboard' | transloco"
                                   class="mr-2"
 
-                                  icon="fa-solid fa-download"
+                                  [icon]="icons.ACTION_IMPORT.class"
 
                                   pRipple/>
                         <p-button (click)="toggleImportVisible(dataDomain.data.key)"
                                   (keydown.enter)="toggleImportVisible(dataDomain.data.key)"
                                   [pTooltip]="'@Import dashboard' | transloco"
                                   class="mr-2" severity="primary"
-                                  icon="fa-solid fa-upload"
+                                  [icon]="icons.ACTION_EXPORT.class"
 
                                   pRipple/>
                       </div>

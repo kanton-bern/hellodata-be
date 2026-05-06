@@ -35,6 +35,8 @@ import {FormsModule} from '@angular/forms';
 import {DashboardGroupEntry} from '../../../../../store/dashboard-groups/dashboard-groups.model';
 import {Checkbox} from 'primeng/checkbox';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {ICON_REGISTRY} from '../../../../../shared/icons';
+import {NgClass} from '@angular/common';
 
 interface DashboardSelectionItem {
   id: number;
@@ -45,9 +47,10 @@ interface DashboardSelectionItem {
   selector: 'app-dashboard-group-selector',
   templateUrl: './dashboard-group-selector.component.html',
   styleUrls: ['./dashboard-group-selector.component.scss'],
-  imports: [FormsModule, Checkbox, TranslocoPipe]
+  imports: [FormsModule, Checkbox, TranslocoPipe, NgClass]
 })
 export class DashboardGroupSelectorComponent implements OnInit, OnDestroy {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
 
   readonly contextKey = input.required<string>();

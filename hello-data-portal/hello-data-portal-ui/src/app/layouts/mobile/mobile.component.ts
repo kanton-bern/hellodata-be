@@ -52,6 +52,7 @@ import {Button} from "primeng/button";
 import {PrimeTemplate} from "primeng/api";
 import {Tooltip} from "primeng/tooltip";
 import {ExternalLinkDirective} from "../../shared/directives/external-link.directive";
+import {ICON_REGISTRY} from '../../shared/icons';
 
 @Component({
   selector: 'app-mobile',
@@ -60,6 +61,7 @@ import {ExternalLinkDirective} from "../../shared/directives/external-link.direc
   imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe, Tooltip, ExternalLinkDirective]
 })
 export class MobileComponent {
+  protected readonly icons = ICON_REGISTRY;
   private readonly store = inject<Store<AppState>>(Store);
   appInfo = inject(AppInfoService);
   translateService = inject(TranslateService);
