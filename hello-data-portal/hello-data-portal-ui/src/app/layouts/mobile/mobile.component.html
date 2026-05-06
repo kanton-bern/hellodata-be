@@ -1,13 +1,12 @@
 @if (availableDataDomains$ | async) {
 }
 <!-- Top Bar -->
-<div class="w-full bg-white border-surface border-b fixed top-0 left-0 z-50 flex items-center justify-between px-4"
+<div class="w-full bg-white border-surface border-b fixed top-0 left-0 z-[11000] flex items-center justify-between px-4"
      style="height: 4rem;">
   <div class="flex items-center">
     <p-button type="button" severity="secondary" (keydown.enter)="showDashboardMenu = true"
               (click)="showDashboardMenu = true"
-              aria-label="Open menu"
-              pTooltip="{{ '@Open menu' | transloco }}">
+              aria-label="Open menu">
       <i class="text-2xl" [ngClass]="icons.NAV_MENU.class" style="color: black"></i>
     </p-button>
   </div>
@@ -29,8 +28,7 @@
               type="button" severity="secondary"
               aria-label="User Profile"
               (click)="showUserMenu = true"
-              (keydown.enter)="showUserMenu = true"
-              pTooltip="{{ '@User Profile' | transloco }}">
+              (keyup.enter)="showUserMenu = true">
       <i class="text-2xl" [ngClass]="icons.NAV_USER_PROFILE.class" style="color: black"></i>
     </p-button>
   </div>
@@ -39,8 +37,12 @@
 <!--Dashboard menu-->
 <p-drawer
   [(visible)]="showDashboardMenu"
+  appendTo="body"
   position="left"
-  [baseZIndex]="10000"
+  [baseZIndex]="12000"
+  [modal]="true"
+  [dismissible]="true"
+  [blockScroll]="true"
   [header]="'@Select a Dashboard' | transloco">
   @if (groupedDashboards$ | async; as groupedDashboards) {
     <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0">
@@ -61,23 +63,34 @@
 <!--User menu-->
 <p-drawer
   [(visible)]="showUserMenu"
+  appendTo="body"
   position="top"
-  [baseZIndex]="10000"
+  [baseZIndex]="12000"
+  [showCloseIcon]="false"
+  [modal]="true"
+  [dismissible]="true"
   [style]="{'height': 'auto'}">
   <ng-template pTemplate="header">
-    @if ((languages$ | async); as languages) {
-      <span class="mr-4 top-menu-item">
-        @for (item of supportedLanguages; track item; let i = $index; let last = $last) {
-          <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
-             (click)="onLanguageChange(item.code)">
-            {{ item.label }}
-          </a>
-          @if (!last) {
-            <span>|</span>
+    <div class="flex items-center justify-between w-full">
+      @if ((languages$ | async); as languages) {
+        <span class="top-menu-item">
+          @for (item of supportedLanguages; track item; let i = $index; let last = $last) {
+            <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
+               (click)="onLanguageChange(item.code)">
+              {{ item.label }}
+            </a>
+            @if (!last) {
+              <span>|</span>
+            }
           }
-        }
-      </span>
-    }
+        </span>
+      }
+      <p-button type="button" severity="secondary" [text]="true" (click)="showUserMenu = false"
+                aria-label="Close menu" (keydown.enter)="showUserMenu = false"
+                [style]="{'min-width': '44px', 'min-height': '44px'}">
+        <i class="text-xl" [ngClass]="icons.ACTION_CLOSE.class"></i>
+      </p-button>
+    </div>
   </ng-template>
   <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0 p-3">
     <hr class="m-0 border-t border-surface"/>
@@ -113,9 +126,11 @@
 <!--Data Domain menu-->
 <p-drawer
   [(visible)]="showDataDomainMenu"
+  appendTo="body"
   position="top"
   [modal]="true"
-  [baseZIndex]="10000"
+  [baseZIndex]="12000"
+  [dismissible]="true"
   [style]="{'height': 'auto'}"
   [header]="'@Select a Data Domain' | transloco">
   <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0 p-3">

@@ -564,4 +564,16 @@ button.p-button.p-component:disabled:not(.p-button-text):not(.p-button-rounded):
   white-space: pre-line !important;
 }
 
+// Mobile drawer styles (drawers appended to body)
+
+// Ensure drawer header/content have adequate padding and touch targets
+.p-drawer-mask .p-drawer .p-drawer-header {
+  padding: 1rem !important;
+}
+
+.p-drawer-mask .p-drawer .p-drawer-content {
+  padding: 1rem !important;
+  overflow-y: auto !important;
+}
+
 

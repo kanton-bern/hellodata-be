@@ -50,7 +50,6 @@ import {environment} from "../../../environments/environment";
 import {Drawer} from "primeng/drawer";
 import {Button} from "primeng/button";
 import {PrimeTemplate} from "primeng/api";
-import {Tooltip} from "primeng/tooltip";
 import {ExternalLinkDirective} from "../../shared/directives/external-link.directive";
 import {ICON_REGISTRY} from '../../shared/icons';
 
@@ -58,7 +57,7 @@ import {ICON_REGISTRY} from '../../shared/icons';
   selector: 'app-mobile',
   templateUrl: './mobile.component.html',
   styleUrls: ['./mobile.component.scss'],
-  imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe, Tooltip, ExternalLinkDirective]
+  imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe, ExternalLinkDirective]
 })
 export class MobileComponent {
   protected readonly icons = ICON_REGISTRY;
