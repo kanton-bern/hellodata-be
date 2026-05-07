@@ -204,7 +204,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
       {
         id: 'devToolsFileBrowserMenu',
         label: '@FileBrowser',
-        url: environment.subSystemsConfig.devToolsFileBrowser.protocol + environment.subSystemsConfig.devToolsFileBrowser.host + environment.subSystemsConfig.devToolsFileBrowser.domain,
+        url: '',
         target: '_blank'
       }
     ],

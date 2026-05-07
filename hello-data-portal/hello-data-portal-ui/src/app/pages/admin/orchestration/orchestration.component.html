@@ -1,2 +1,4 @@
 
-<app-subsystem-iframe [url]="url" />
+@if (url$ | async; as url) {
+  <app-subsystem-iframe [url]="url" />
+}

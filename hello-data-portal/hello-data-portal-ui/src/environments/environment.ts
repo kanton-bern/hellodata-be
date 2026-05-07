@@ -35,7 +35,7 @@ declare global {
     environment: Environment
   }
 }
-export const environment: Environment = window.environment != undefined ? window.environment : {
+export const environment: Environment = window.environment ?? {
   production: false,
   portalApi: '',
   docsApi: '',
@@ -56,14 +56,7 @@ export const environment: Environment = window.environment != undefined ? window
   domainNamespace: '',
   baseDomain: '',
   subSystemsConfig: {
-    airflow: {protocol: 'https://', host: 'airflow', domain: ''},
-    dbtDocs: {protocol: 'https://', host: 'dbt-docs', domain: ''},
-    dmViewer: {protocol: 'https://', host: 'dm-db', domain: ''},
-    dwhViewer: {protocol: 'https://', host: 'dwh-db', domain: ''},
-    filebrowser: {protocol: 'https://', host: 'fs', domain: ''},
-    advancedAnalyticsViewer: {protocol: 'https://', host: 'jupyterhub', domain: ''},
-    devToolsMailbox: {protocol: 'https://', host: 'mb', domain: ''},
-    devToolsFileBrowser: {protocol: 'https://', host: 'fs', domain: ''}
+    devToolsMailbox: {protocol: 'https://', host: 'mb', domain: ''}
   },
   footerConfig: {
     openSourceDataPlatformUrl: 'https://kanton-bern.github.io/hellodata-be',

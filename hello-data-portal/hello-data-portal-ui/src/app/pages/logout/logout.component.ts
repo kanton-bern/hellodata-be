@@ -30,9 +30,10 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY} from "../my-dashboards/embed-my-dashboard/embed-my-dashboard.component";
 import {SubsystemIframeComponent} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
-import {environment} from "../../../environments/environment";
 import {logout} from "../../store/auth/auth.action";
 import {TranslocoPipe} from '@jsverse/transloco';
+import {selectAppInfoByModuleType} from "../../store/metainfo-resource/metainfo-resource.selector";
+import {take} from "rxjs";
 
 @Component({
   selector: 'app-logout',
@@ -60,21 +61,21 @@ export class LogoutComponent implements AfterViewInit {
   }
 
   private logoutFilebrowser() {
-    const protocol = environment.subSystemsConfig.filebrowser.protocol;
-    const host = environment.subSystemsConfig.filebrowser.host;
-    const domain = environment.subSystemsConfig.filebrowser.domain;
-    const filebrowserBaseUrl = protocol + host + domain;
-    const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-    componentRef.setInput('url', filebrowserBaseUrl + '/web/client/logout');
+    this.store.select(selectAppInfoByModuleType('SFTPGO')).pipe(take(1)).subscribe(sftpgoInfos => {
+      if (sftpgoInfos.length > 0) {
+        const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+        componentRef.setInput('url', sftpgoInfos[0].data.url + '/web/client/logout');
+      }
+    });
   }
 
   private logoutAirflow() {
-    const protocol = environment.subSystemsConfig.airflow.protocol;
-    const host = environment.subSystemsConfig.airflow.host;
-    const domain = environment.subSystemsConfig.airflow.domain;
-    const airflowBaseUrl = protocol + host + domain;
-    const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-    componentRef.setInput('url', airflowBaseUrl + '/logout');
+    this.store.select(selectAppInfoByModuleType('AIRFLOW')).pipe(take(1)).subscribe(airflowInfos => {
+      if (airflowInfos.length > 0) {
+        const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+        componentRef.setInput('url', airflowInfos[0].data.url + '/logout');
+      }
+    });
   }
 
   ngAfterViewInit(): void {

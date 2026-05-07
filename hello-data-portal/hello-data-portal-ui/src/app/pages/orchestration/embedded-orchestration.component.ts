@@ -27,8 +27,7 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {Observable, tap} from "rxjs";
-import {environment} from "../../../environments/environment";
+import {combineLatest, Observable, tap} from "rxjs";
 import {naviElements} from "../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -37,6 +36,7 @@ import {BaseComponent} from "../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import { AsyncPipe } from '@angular/common';
 import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
+import {selectAppInfoByModuleType} from "../../store/metainfo-resource/metainfo-resource.selector";
 
 export const LOGGED_IN_AIRFLOW_USER = 'logged_in_airflow_user';
 
@@ -56,12 +56,15 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
 
   constructor() {
     super();
-    this.currentPipelineInfo$ = this.store.select(selectCurrentPipelineInfo).pipe(tap((pipelineInfo) => {
+    this.currentPipelineInfo$ = combineLatest([
+      this.store.select(selectCurrentPipelineInfo),
+      this.store.select(selectAppInfoByModuleType('AIRFLOW'))
+    ]).pipe(tap(([pipelineInfo, airflowInfos]) => {
+      if (!airflowInfos || airflowInfos.length === 0) {
+        return;
+      }
       const pipelineId = pipelineInfo.pipelineId;
-      const protocol = environment.subSystemsConfig.airflow.protocol;
-      const host = environment.subSystemsConfig.airflow.host;
-      const domain = environment.subSystemsConfig.airflow.domain;
-      const airflowBaseUrl = protocol + host + domain;
+      const airflowBaseUrl = airflowInfos[0].data.url;
       const airflowLogoutUrl = `${airflowBaseUrl}/logout?redirect=${airflowBaseUrl}`;
       const loggedInAirflowUser = sessionStorage.getItem(LOGGED_IN_AIRFLOW_USER);
       let airflowLoginUrl;

@@ -26,7 +26,6 @@
 ///
 
 import { Component, inject } from '@angular/core';
-import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
@@ -34,6 +33,8 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
 import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
+import {selectAppInfoByModuleType} from "../../store/metainfo-resource/metainfo-resource.selector";
+import {filter, take} from "rxjs";
 
 @Component({
     templateUrl: 'data-warehouse-viewer.component.html',
@@ -60,8 +61,13 @@ export class DataWarehouseViewerComponent extends BaseComponent {
 
   override ngOnInit() {
     super.ngOnInit();
-    this.url = environment.subSystemsConfig.dwhViewer.protocol + environment.subSystemsConfig.dwhViewer.host + environment.subSystemsConfig.dwhViewer.domain;
-    console.debug("Data Warehouse Component initiated", this.url);
+    this.store.select(selectAppInfoByModuleType('CLOUDBEAVER')).pipe(
+      filter(infos => infos.length > 0),
+      take(1)
+    ).subscribe(cloudbeaverInfos => {
+      this.url = cloudbeaverInfos[0].data.url;
+      console.debug("Data Warehouse Component initiated", this.url);
+    });
     this.cloudbeaverSessionService.createInterval();
   }
 

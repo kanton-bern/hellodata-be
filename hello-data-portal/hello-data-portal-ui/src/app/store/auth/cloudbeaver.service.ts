@@ -1,17 +1,25 @@
 // services/user-preferences.service.ts
-import { Injectable, inject } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {environment} from "../../../environments/environment";
+import {filter, map, Observable, switchMap, take} from 'rxjs';
+import {Store} from "@ngrx/store";
+import {AppState} from "../app/app.state";
+import {selectAppInfoByModuleType} from "../metainfo-resource/metainfo-resource.selector";
 
 @Injectable({
   providedIn: 'root',
 })
 export class CloudbeaverService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
+  private readonly store = inject<Store<AppState>>(Store);
 
-  private apiUrl = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
-    + environment.subSystemsConfig.dmViewer.domain + 'api/gql';
+  private getApiUrl(): Observable<string> {
+    return this.store.select(selectAppInfoByModuleType('CLOUDBEAVER')).pipe(
+      filter(infos => infos.length > 0),
+      take(1),
+      map(infos => infos[0].data.url + 'api/gql')
+    );
+  }
 
   updateUserPreferences(selectedLang: string): Observable<any> {
     const preferences = {
@@ -72,13 +80,15 @@ export class CloudbeaverService {
       operationName: 'updateUserPreferences',
     };
 
-    return this.http.post(this.apiUrl, body, {
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': '*/*',
-      },
-      withCredentials: true,
-    });
+    return this.getApiUrl().pipe(
+      switchMap(apiUrl => this.http.post(apiUrl, body, {
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+        },
+        withCredentials: true,
+      }))
+    );
   }
 
   renewSession(): Observable<any> {
@@ -102,12 +112,14 @@ export class CloudbeaverService {
       operationName: 'sessionState',
     };
 
-    return this.http.post(this.apiUrl, body, {
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': '*/*',
-      },
-      withCredentials: true,
-    });
+    return this.getApiUrl().pipe(
+      switchMap(apiUrl => this.http.post(apiUrl, body, {
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+        },
+        withCredentials: true,
+      }))
+    );
   }
 }

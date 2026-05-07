@@ -62,10 +62,12 @@ export class EmbeddedLineageDocsComponent {
     this.store.dispatch(loadAvailableContexts());
     this.lineageInfo$ = this.store.select(selectLineageInfo).pipe(tap((lineageInfo) => {
       if (lineageInfo) {
-        this.url = this.docsService.getProjectPathUrl(lineageInfo.path as string);
+        this.docsService.getProjectPathUrl(lineageInfo.path as string).subscribe(url => {
+          this.url = url;
+          console.debug("Embed ProjectDocs. Open url", this.url);
+        });
         this.projectId = lineageInfo.projectId as string;
         this.createBreadCrumbs(lineageInfo.dataDomain);
-        console.debug("Embed ProjectDocs. Open url", this.url);
       }
     }))
   }

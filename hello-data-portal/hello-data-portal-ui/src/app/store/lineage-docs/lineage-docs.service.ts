@@ -27,13 +27,13 @@
 
 import {inject, Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
-import {asyncScheduler, Observable, scheduled} from "rxjs";
+import {asyncScheduler, combineLatest, Observable, scheduled} from "rxjs";
 import {LineageDoc} from "./lineage-docs.model";
-import {environment} from "../../../environments/environment";
 import {selectCurrentUserPermissions} from "../auth/auth.selector";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {switchMap} from "rxjs/operators";
+import {filter, map, switchMap, take} from "rxjs/operators";
+import {selectAppInfoByModuleType} from "../metainfo-resource/metainfo-resource.selector";
 
 @Injectable({
   providedIn: 'root'
@@ -43,29 +43,44 @@ export class LineageDocsService {
   protected httpClient = inject(HttpClient);
   private store = inject<Store<AppState>>(Store);
 
-  dbtDocsCfg = environment.subSystemsConfig.dbtDocs;
-  url = this.dbtDocsCfg.protocol + this.dbtDocsCfg.host + this.dbtDocsCfg.domain;
-  baseDocsUrl = `${this.url}/api/projects-docs`;
   currentUserPermissions$: Observable<any>;
 
   constructor() {
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
   }
 
+  private getDbtDocsBaseUrl(): Observable<string> {
+    return this.store.select(selectAppInfoByModuleType('DBT_DOCS')).pipe(
+      filter(infos => infos.length > 0),
+      take(1),
+      map(infos => {
+        const url = infos[0].data.url;
+        // The resource URL points to swagger-ui, strip that to get the API base
+        const swaggerSuffix = '/swagger-ui/index.html';
+        if (url.endsWith(swaggerSuffix)) {
+          return url.slice(0, -swaggerSuffix.length);
+        }
+        return url;
+      })
+    );
+  }
+
   public getProjectDocs(): Observable<LineageDoc[]> {
-    return this.currentUserPermissions$.pipe(
-      switchMap(permissions => {
+    return combineLatest([this.currentUserPermissions$, this.getDbtDocsBaseUrl()]).pipe(
+      switchMap(([permissions, baseUrl]) => {
         if (!permissions || permissions.length === 0) {
           return scheduled([[]], asyncScheduler);
         } else {
-          return this.httpClient.get<LineageDoc[]>(`${this.baseDocsUrl}`);
+          return this.httpClient.get<LineageDoc[]>(`${baseUrl}/api/projects-docs`);
         }
       })
     );
   }
 
-  public getProjectPathUrl(uriComponentEncodedProjectPath: string): string {
+  public getProjectPathUrl(uriComponentEncodedProjectPath: string): Observable<string> {
     const decoded = decodeURIComponent(uriComponentEncodedProjectPath);
-    return `${this.url}${decoded}`;
+    return this.getDbtDocsBaseUrl().pipe(
+      map(baseUrl => `${baseUrl}${decoded}`)
+    );
   }
 }

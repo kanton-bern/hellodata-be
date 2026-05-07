@@ -36,7 +36,7 @@ declare global {
   }
 }
 
-export const environment: Environment = window.environment != undefined ? window.environment : {
+export const environment: Environment = window.environment ?? {
   production: false,
   portalApi: 'http://localhost:8081/api',
   docsApi: 'http://localhost:8086',
@@ -58,14 +58,7 @@ export const environment: Environment = window.environment != undefined ? window
   domainNamespace: 'hellodata-local',
   baseDomain: 'cluster.local',
   subSystemsConfig: {
-    airflow: {protocol: 'http://', host: 'airflow', domain: '.cluster.local'},
-    dbtDocs: {protocol: 'http://', host: 'dbt-docs', domain: '.cluster.local'},
-    dmViewer: {protocol: 'http://', host: 'dm-db', domain: '.cluster.local'},
-    dwhViewer: {protocol: 'http://', host: 'dwh-db', domain: '.cluster.local'},
-    filebrowser: {protocol: 'http://', host: 'fs', domain: '.cluster.local'},
-    advancedAnalyticsViewer: {protocol: 'http://', host: 'jupyterhub', domain: '.cluster.local'},
-    devToolsMailbox: {protocol: 'http://', host: 'mb', domain: '.cluster.local'},
-    devToolsFileBrowser: {protocol: 'http://', host: 'fs', domain: '.cluster.local'}
+    devToolsMailbox: {protocol: 'http://', host: 'mb', domain: '.cluster.local'}
   },
   footerConfig: {
     openSourceDataPlatformUrl: 'https://kanton-bern.github.io/hellodata-be',

@@ -35,7 +35,7 @@ declare global {
     environment: Environment
   }
 }
-export const environment: Environment = window.environment != undefined ? window.environment : {
+export const environment: Environment = window.environment ?? {
   production: false,
   portalApi: '--configure me--',
   docsApi: '--configure me--',
@@ -55,14 +55,7 @@ export const environment: Environment = window.environment != undefined ? window
   domainNamespace: '--configure me--',
   baseDomain: '--configure me--',
   subSystemsConfig: {
-    airflow: {protocol: 'http://', host: 'airflow', domain: '--configure me--'},
-    dbtDocs: {protocol: 'http://', host: 'dbt-docs', domain: '--configure me--'},
-    dmViewer: {protocol: 'http://', host: 'dm-db', domain: '--configure me--'},
-    dwhViewer: {protocol: 'http://', host: 'dwh-db', domain: '--configure me--'},
-    filebrowser: {protocol: 'http://', host: 'fs', domain: '--configure me--'},
-    advancedAnalyticsViewer: {protocol: 'http://', host: 'jupyterhub', domain: '--configure me--'},
-    devToolsMailbox: {protocol: 'http://', host: 'mb', domain: '--configure me--'},
-    devToolsFileBrowser: {protocol: 'http://', host: 'fs', domain: '--configure me--'}
+    devToolsMailbox: {protocol: 'http://', host: 'mb', domain: '--configure me--'}
   },
   footerConfig: {
     openSourceDataPlatformUrl: '--configure me--',

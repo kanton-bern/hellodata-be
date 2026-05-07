@@ -172,7 +172,7 @@ export class MenuService {
         this.processDataEngMenu(menuItem, ctx.appInfos, ctx.contextRoles, ctx.selectedDataDomain);
         break;
       case 'devToolsMenu':
-        this.processDevToolsMenu(menuItem, ctx.contextRoles, ctx.availableDomainItems);
+        this.processDevToolsMenu(menuItem, ctx.appInfos, ctx.contextRoles, ctx.availableDomainItems);
         break;
       case 'administrationMenu':
         this.processAdministrationMenu(menuItem, ctx.availableDomainItems);
@@ -183,10 +183,11 @@ export class MenuService {
   private processDataEngMenu(menuItem: any, appInfos: MetaInfoResource[], contextRoles: any[], selectedDataDomain: any): void {
     const sftpgo = appInfos.filter(appInfo => appInfo.moduleType === "SFTPGO");
     if (sftpgo && sftpgo.length > 0) {
+      const sftpgoUrl = sftpgo[0].data.url;
       menuItem.items.push({
         id: 'filebrowserMenu',
         label: '@Filebrowser',
-        url: environment.subSystemsConfig.filebrowser.protocol + environment.subSystemsConfig.filebrowser.host + environment.subSystemsConfig.filebrowser.domain,
+        url: sftpgoUrl + '/web/client/oidclogin',
         target: '_blank',
         requiredPermissions: ['DATA_FILEBROWSER']
       });
@@ -197,10 +198,17 @@ export class MenuService {
     }
   }
 
-  private processDevToolsMenu(menuItem: any, contextRoles: any[], availableDomainItems: any[]): void {
+  private processDevToolsMenu(menuItem: any, appInfos: MetaInfoResource[], contextRoles: any[], availableDomainItems: any[]): void {
     if (this.displayQueries(contextRoles)) {
       const queriesMenu = menuItem.items.filter((item: { id: string; }) => item.id === 'queriesMenu')[0];
       queriesMenu.items = this.createQueriesSubNav(availableDomainItems);
+    }
+    const sftpgo = appInfos.filter(appInfo => appInfo.moduleType === "SFTPGO");
+    if (sftpgo && sftpgo.length > 0) {
+      const fileBrowserMenu = menuItem.items.find((item: { id: string; }) => item.id === 'devToolsFileBrowserMenu');
+      if (fileBrowserMenu) {
+        fileBrowserMenu.url = sftpgo[0].data.url + '/web/admin/login';
+      }
     }
   }
 

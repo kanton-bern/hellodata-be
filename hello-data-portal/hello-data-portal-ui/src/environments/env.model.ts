@@ -68,14 +68,7 @@ export interface DeploymentConfig {
 }
 
 export interface SubSystemsConfig {
-  airflow: SubSystemHost;
-  dbtDocs: SubSystemHost;
-  dmViewer: SubSystemHost;
-  dwhViewer: SubSystemHost;
-  filebrowser: SubSystemHost;
-  advancedAnalyticsViewer: SubSystemHost;
   devToolsMailbox: SubSystemHost;
-  devToolsFileBrowser: SubSystemHost;
 }
 
 export interface SubSystemHost {

@@ -25,20 +25,26 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule} from '@angular/core';
+import {Component, inject} from '@angular/core';
 
-import { SubsystemIframeComponent } from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
-import {environment} from "../../../../environments/environment";
+import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
+import {Store} from "@ngrx/store";
+import {AppState} from "../../../store/app/app.state";
+import {selectAppInfoByModuleType} from "../../../store/metainfo-resource/metainfo-resource.selector";
+import {map} from "rxjs";
+import {AsyncPipe} from "@angular/common";
 
 @Component({
-    selector: 'app-orchestration',
-    templateUrl: './orchestration.component.html',
-    styleUrls: ['./orchestration.component.scss'],
-    imports: [SubsystemIframeComponent]
+  selector: 'app-orchestration',
+  templateUrl: './orchestration.component.html',
+  styleUrls: ['./orchestration.component.scss'],
+  imports: [SubsystemIframeComponent, AsyncPipe]
 })
 export class OrchestrationComponent {
-  airflowCfg = environment.subSystemsConfig.airflow;
-  url = this.airflowCfg.protocol + this.airflowCfg.host + this.airflowCfg.domain;
+  private readonly store = inject<Store<AppState>>(Store);
+  url$ = this.store.select(selectAppInfoByModuleType('AIRFLOW')).pipe(
+    map(airflowInfos => airflowInfos.length > 0 ? airflowInfos[0].data.url : '')
+  );
 }
 
 
