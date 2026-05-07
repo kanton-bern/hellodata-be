@@ -103,8 +103,10 @@ public class DashboardAccessListRequestListener {
         dashboardIdFilter.addProperty("value", 0);
         filter.add(dashboardIdFilter);
 
-        SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-        SupersetLogResponse supersetLogResponse = supersetClient.logsFiltered(filter, page, pageSize);
+        SupersetLogResponse supersetLogResponse;
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+            supersetLogResponse = supersetClient.logsFiltered(filter, page, pageSize);
+        }
         return supersetLogResponse.getResult().stream().filter(logEntry -> logEntry.getJson().contains("mount_dashboard")).toList();
     }
 }

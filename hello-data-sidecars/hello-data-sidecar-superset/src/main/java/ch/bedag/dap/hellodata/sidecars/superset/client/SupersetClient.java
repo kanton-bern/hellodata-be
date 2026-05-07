@@ -62,6 +62,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +79,7 @@ import static ch.bedag.dap.hellodata.sidecars.superset.client.SupersetApiRequest
  * available dashboards and others.
  */
 @Log4j2
-public class SupersetClient {
+public class SupersetClient implements Closeable {
 
     private final String host;
     private final int port;
@@ -136,6 +137,13 @@ public class SupersetClient {
         this.authToken = authToken;
         this.host = host;
         this.port = port;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (this.client != null) {
+            this.client.close();
+        }
     }
 
     /**

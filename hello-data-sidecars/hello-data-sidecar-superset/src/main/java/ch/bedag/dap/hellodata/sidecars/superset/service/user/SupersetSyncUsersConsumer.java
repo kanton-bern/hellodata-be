@@ -31,8 +31,7 @@ public class SupersetSyncUsersConsumer {
         log.info("[SYNC_USERS] Started users synchronization");
         List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUPdate.getUserContextRoleUpdates();
         for (UserContextRoleUpdate userContextRoleUpdate : userContextRoleUpdates) {
-            try {
-                SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
+            try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
                 SupersetRolesResponse allRoles = supersetClient.roles();
                 supersetUpdateUserContextRoleConsumer.updateUserRoles(userContextRoleUpdate, supersetClient, allRoles);
             } catch (Exception e) {

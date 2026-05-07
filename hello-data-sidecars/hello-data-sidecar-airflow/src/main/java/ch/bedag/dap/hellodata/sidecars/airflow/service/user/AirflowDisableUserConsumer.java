@@ -33,9 +33,8 @@ public class AirflowDisableUserConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = DISABLE_USER, asyncRun = false)
     public void disableUser(SubsystemUserUpdate supersetUserUpdate) {
-        try {
+        try (AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance()) {
             log.info("------- Received airflow user disable request {}", supersetUserUpdate);
-            AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
             AirflowUserResponse airflowUser = airflowClient.getUser(supersetUserUpdate.getUsername());
             List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
             if (airflowUser != null) {

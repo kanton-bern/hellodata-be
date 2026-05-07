@@ -46,12 +46,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
 @Log4j2
-public class AirflowClient {
+public class AirflowClient implements Closeable {
 
     private final String host;
     private final int port;
@@ -72,6 +73,13 @@ public class AirflowClient {
         CredentialsProvider provider = new BasicCredentialsProvider();
         provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
         this.client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (this.client != null) {
+            this.client.close();
+        }
     }
 
     public static ObjectMapper getObjectMapper() {

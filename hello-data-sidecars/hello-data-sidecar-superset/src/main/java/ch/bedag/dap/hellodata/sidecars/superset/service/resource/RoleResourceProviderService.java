@@ -71,31 +71,32 @@ public class RoleResourceProviderService {
 
     private List<RolePermissions> getRolePermissions() throws URISyntaxException, IOException {
         List<RolePermissions> data = new ArrayList<>();
-        SupersetClient supersetClientInstance = supersetClientProvider.getSupersetClientInstance();
-        SupersetRolesResponse roles = supersetClientInstance.roles();
-        var roleList = roles.getResult();
-        for (int i = 0; i < roleList.size(); i++) {
-            if (i > 0 && i % BATCH_SIZE == 0) {
-                log.debug("Pausing for {} ms after {} role-permission requests to avoid Superset rate limit", BATCH_PAUSE_MS, BATCH_SIZE);
-                try {
-                    Thread.sleep(BATCH_PAUSE_MS);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException("Interrupted while throttling role-permission requests", e); //NOSONAR
+        try (SupersetClient supersetClientInstance = supersetClientProvider.getSupersetClientInstance()) {
+            SupersetRolesResponse roles = supersetClientInstance.roles();
+            var roleList = roles.getResult();
+            for (int i = 0; i < roleList.size(); i++) {
+                if (i > 0 && i % BATCH_SIZE == 0) {
+                    log.debug("Pausing for {} ms after {} role-permission requests to avoid Superset rate limit", BATCH_PAUSE_MS, BATCH_SIZE);
+                    try {
+                        Thread.sleep(BATCH_PAUSE_MS);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("Interrupted while throttling role-permission requests", e); //NOSONAR
+                    }
                 }
-            }
-            var role = roleList.get(i);
-            try {
-                SupersetRolePermissionsResponse supersetRolePermissionsResponse = supersetClientInstance.rolePermissions(role.getId());
-                List<RolePermissions.PermissionNameViewMenuName> permissions = supersetRolePermissionsResponse.getResult()
-                        .stream()
-                        .map(permission -> new RolePermissions.PermissionNameViewMenuName(
-                                permission.getId(), permission.getPermissionName(),
-                                permission.getViewMenuName()))
-                        .toList();
-                data.add(new RolePermissions(role.getId(), role.getName(), permissions));
-            } catch (URISyntaxException | IOException e) {
-                throw new RuntimeException(e); //NOSONAR
+                var role = roleList.get(i);
+                try {
+                    SupersetRolePermissionsResponse supersetRolePermissionsResponse = supersetClientInstance.rolePermissions(role.getId());
+                    List<RolePermissions.PermissionNameViewMenuName> permissions = supersetRolePermissionsResponse.getResult()
+                            .stream()
+                            .map(permission -> new RolePermissions.PermissionNameViewMenuName(
+                                    permission.getId(), permission.getPermissionName(),
+                                    permission.getViewMenuName()))
+                            .toList();
+                    data.add(new RolePermissions(role.getId(), role.getName(), permissions));
+                } catch (URISyntaxException | IOException e) {
+                    throw new RuntimeException(e); //NOSONAR
+                }
             }
         }
         return data;
