@@ -63,9 +63,10 @@ public class AirflowUserContextRoleConsumer {
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void subscribe(UserContextRoleUpdate userContextRoleUpdate) throws URISyntaxException, IOException {
         log.info("Update user context roles {}", userContextRoleUpdate);
-        AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
-        List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
-        updateUserRoles(userContextRoleUpdate, airflowClient, allAirflowRoles);
+        try (AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance()) {
+            List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
+            updateUserRoles(userContextRoleUpdate, airflowClient, allAirflowRoles);
+        }
     }
 
     public void updateUserRoles(UserContextRoleUpdate userContextRoleUpdate, AirflowClient airflowClient, List<AirflowRole> allAirflowRoles) {

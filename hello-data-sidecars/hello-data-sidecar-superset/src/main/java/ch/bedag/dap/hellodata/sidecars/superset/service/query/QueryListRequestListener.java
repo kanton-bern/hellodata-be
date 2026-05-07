@@ -67,16 +67,17 @@ public class QueryListRequestListener {
                     throw new IllegalStateException("Expected a JSON array or object but received: " + jsonString);
                 }
 
-                SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-                SupersetQueryResponse queries = supersetClient.queriesFiltered(filter, page, pageSize);
+                try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+                    SupersetQueryResponse queries = supersetClient.queriesFiltered(filter, page, pageSize);
 
-                ObjectNode responseNode = objectMapper.createObjectNode();
-                ArrayNode resultArray = objectMapper.valueToTree(queries.getResult());
-                responseNode.set("result", resultArray);
-                responseNode.put("count", queries.getCount());
+                    ObjectNode responseNode = objectMapper.createObjectNode();
+                    ArrayNode resultArray = objectMapper.valueToTree(queries.getResult());
+                    responseNode.set("result", resultArray);
+                    responseNode.put("count", queries.getCount());
 
-                String result = objectMapper.writeValueAsString(responseNode);
-                natsConnection.publish(msg.getReplyTo(), result.getBytes(StandardCharsets.UTF_8));
+                    String result = objectMapper.writeValueAsString(responseNode);
+                    natsConnection.publish(msg.getReplyTo(), result.getBytes(StandardCharsets.UTF_8));
+                }
                 msg.ack();
             } catch (URISyntaxException | IOException | RuntimeException e) {
                 log.error("Error fetching query list", e);

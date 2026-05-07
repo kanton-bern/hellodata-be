@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermission;
+import ch.bedag.dap.hellodata.sidecars.airflow.client.AirflowClient;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowPermissionsResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
 import lombok.RequiredArgsConstructor;
@@ -60,12 +61,14 @@ public class AirflowPermissionResourceProviderService {
     @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishPermissions() throws URISyntaxException, IOException {
         log.info("--> publishPermissions()");
-        AirflowPermissionsResponse response = airflowClientProvider.getAirflowClientInstance().permissions();
+        try (AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance()) {
+            AirflowPermissionsResponse response = airflowClient.permissions();
 
-        List<AirflowPermissionsResponse.Action> airflowPermissions = response.getActions();
-        List<SupersetPermission> supersetPermissions = toSupersetPermissions(airflowPermissions);
-        PermissionResource permissionResource = new PermissionResource(ModuleType.AIRFLOW, this.instanceName, supersetPermissions);
-        natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
+            List<AirflowPermissionsResponse.Action> airflowPermissions = response.getActions();
+            List<SupersetPermission> supersetPermissions = toSupersetPermissions(airflowPermissions);
+            PermissionResource permissionResource = new PermissionResource(ModuleType.AIRFLOW, this.instanceName, supersetPermissions);
+            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
+        }
     }
 
     private List<SupersetPermission> toSupersetPermissions(List<AirflowPermissionsResponse.Action> airflowPermissions) {

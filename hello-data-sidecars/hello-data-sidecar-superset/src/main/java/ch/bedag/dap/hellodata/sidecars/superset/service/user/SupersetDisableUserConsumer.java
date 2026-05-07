@@ -28,9 +28,8 @@ public class SupersetDisableUserConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = DISABLE_USER, asyncRun = false)
     public void disableUser(SubsystemUserUpdate subsystemUserUpdate) {
-        try {
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
             log.info("------- Received superset user disable request {}", subsystemUserUpdate);
-            SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
             SupersetUsersResponse response = supersetClient.getUser(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
             if (response == null || response.getResult().size() == 0) {
                 log.info("User {} doesn't exist in instance, omitting disable action", subsystemUserUpdate.getEmail());

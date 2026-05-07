@@ -33,6 +33,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemGetAllUsers;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.sidecars.airflow.client.AirflowClient;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserRole;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
@@ -75,12 +76,14 @@ public class AirflowUserResourceProviderService {
     @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishUsers() throws URISyntaxException, IOException {
         log.info("--> publishUsers()");
-        AirflowUsersResponse response = airflowClientProvider.getAirflowClientInstance().users();
+        try (AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance()) {
+            AirflowUsersResponse response = airflowClient.users();
 
-        List<AirflowUserResponse> airflowUsers = CollectionUtils.emptyIfNull(response.getUsers()).stream().toList();
-        List<SubsystemUser> subsystemUsers = toSupsetSetUsers(airflowUsers);
-        UserResource userResource = new UserResource(ModuleType.AIRFLOW, this.instanceName, subsystemUsers);
-        natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
+            List<AirflowUserResponse> airflowUsers = CollectionUtils.emptyIfNull(response.getUsers()).stream().toList();
+            List<SubsystemUser> subsystemUsers = toSupsetSetUsers(airflowUsers);
+            UserResource userResource = new UserResource(ModuleType.AIRFLOW, this.instanceName, subsystemUsers);
+            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
+        }
     }
 
     /**

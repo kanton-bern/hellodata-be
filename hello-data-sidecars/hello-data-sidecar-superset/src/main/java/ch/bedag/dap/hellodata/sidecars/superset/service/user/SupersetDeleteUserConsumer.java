@@ -58,9 +58,8 @@ public class SupersetDeleteUserConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = DELETE_USER, asyncRun = false)
     public void deleteUser(SubsystemUserDelete subsystemUserDelete) {
-        try {
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
             log.info("------- Received superset user deletion request {}", subsystemUserDelete);
-            SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
             SupersetUsersResponse response = supersetClient.getUser(subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
             if (response == null || response.getResult().isEmpty()) {
                 log.info("User {} doesn't exist in instance, omitting deletion", subsystemUserDelete.getEmail());

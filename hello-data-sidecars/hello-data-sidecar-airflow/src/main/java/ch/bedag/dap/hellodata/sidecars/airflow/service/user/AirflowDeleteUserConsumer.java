@@ -53,10 +53,9 @@ public class AirflowDeleteUserConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = DELETE_USER, asyncRun = false)
     public void deleteUser(SubsystemUserDelete subsystemUserDelete) {
-        try {
+        try (AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance()) {
             log.info("------- Received airflow user deletion request {}", subsystemUserDelete);
 
-            AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
             AirflowUserResponse user = airflowClient.getUser(subsystemUserDelete.getUsername());
 
             if (user == null) {

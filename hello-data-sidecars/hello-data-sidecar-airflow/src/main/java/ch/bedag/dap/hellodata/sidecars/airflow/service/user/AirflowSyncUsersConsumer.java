@@ -31,8 +31,7 @@ public class AirflowSyncUsersConsumer {
         log.info("[SYNC_USERS] Started users synchronization");
         List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUPdate.getUserContextRoleUpdates();
         for (UserContextRoleUpdate userContextRoleUpdate : userContextRoleUpdates) {
-            try {
-                AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
+            try (AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance()) {
                 List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
                 log.info("Update user context roles {}", userContextRoleUpdate);
                 airflowUserContextRoleConsumer.updateUserRoles(userContextRoleUpdate, airflowClient, allAirflowRoles);

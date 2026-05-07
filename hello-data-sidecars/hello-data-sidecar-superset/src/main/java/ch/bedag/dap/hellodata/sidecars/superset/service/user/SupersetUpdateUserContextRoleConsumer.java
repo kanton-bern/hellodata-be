@@ -73,9 +73,10 @@ public class SupersetUpdateUserContextRoleConsumer {
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void subscribe(UserContextRoleUpdate userContextRoleUpdate) throws URISyntaxException, IOException {
         log.info("-=-=-=-= RECEIVED USER CONTEXT ROLES UPDATE: payload: {}", userContextRoleUpdate);
-        SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-        SupersetRolesResponse allRoles = supersetClient.roles();
-        updateUserRoles(userContextRoleUpdate, supersetClient, allRoles);
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+            SupersetRolesResponse allRoles = supersetClient.roles();
+            updateUserRoles(userContextRoleUpdate, supersetClient, allRoles);
+        }
     }
 
     public void updateUserRoles(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient, SupersetRolesResponse allRoles) throws URISyntaxException, IOException {

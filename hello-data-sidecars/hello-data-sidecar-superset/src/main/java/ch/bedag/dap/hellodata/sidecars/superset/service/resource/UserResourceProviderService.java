@@ -68,10 +68,12 @@ public class UserResourceProviderService {
     @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishUsers() throws URISyntaxException, IOException {
         log.info("--> publishUsers()");
-        SupersetUsersResponse response = supersetClientProvider.getSupersetClientInstance().users();
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+            SupersetUsersResponse response = supersetClient.users();
 
-        List<SubsystemUser> subsystemUsers = CollectionUtils.emptyIfNull(response.getResult()).stream().filter(SubsystemUser::isActive).toList();
-        UserResource userResource = new UserResource(ModuleType.SUPERSET, this.instanceName, subsystemUsers);
-        natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
+            List<SubsystemUser> subsystemUsers = CollectionUtils.emptyIfNull(response.getResult()).stream().filter(SubsystemUser::isActive).toList();
+            UserResource userResource = new UserResource(ModuleType.SUPERSET, this.instanceName, subsystemUsers);
+            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
+        }
     }
 }

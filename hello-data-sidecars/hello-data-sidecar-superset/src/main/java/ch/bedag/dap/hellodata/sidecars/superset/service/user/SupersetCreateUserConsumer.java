@@ -61,9 +61,8 @@ public class SupersetCreateUserConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = CREATE_USER, asyncRun = false)
     public void createUser(SubsystemUserUpdate supersetUserCreate) {
-        try {
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
             log.info("------- Received superset user creation request {}", supersetUserCreate);
-            SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
             Optional<Integer> aPublicRoleId = supersetClient.roles()
                     .getResult()
                     .stream()
@@ -89,9 +88,8 @@ public class SupersetCreateUserConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = ENABLE_USER, asyncRun = false)
     public void enableUser(SubsystemUserUpdate subsystemUserUpdate) {
-        try {
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
             log.info("------- Received superset user enable request {}", subsystemUserUpdate);
-            SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
             SupersetUsersResponse response = supersetClient.getUser(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
             if (response != null && response.getResult().size() > 0) {
                 SubsystemUser user = response.getResult().get(0);
