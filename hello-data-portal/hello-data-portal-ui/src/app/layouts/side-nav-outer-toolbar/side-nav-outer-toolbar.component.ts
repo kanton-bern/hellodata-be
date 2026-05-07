@@ -35,6 +35,7 @@ import {selectNavItems} from "../../store/menu/menu.selector";
 import {NavigationEnd, Router} from "@angular/router";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {Toast} from "primeng/toast";
+import {ProgressBar} from "primeng/progressbar";
 import {
   UnsavedChangesDialogComponent
 } from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
@@ -46,13 +47,14 @@ import {Environment} from "../../shared/components/header/header.component";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {filter} from "rxjs/operators";
 import {ICON_REGISTRY} from '../../shared/icons';
+import {LoadingService} from "../../shared/services/loading.service";
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
   imports: [HeaderComponent,
-    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe, NgStyle,
+    Toast, ProgressBar, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe, NgStyle,
     NgClass,
 ]
 })
@@ -62,8 +64,10 @@ export class SideNavOuterToolbarComponent {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly loadingService = inject(LoadingService);
 
   readonly title = input.required<string>();
+  readonly isLoading$ = this.loadingService.isLoading$;
   navItems$: Observable<any[]>;
   sidebarMinimized = false;
   environment: Environment;

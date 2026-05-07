@@ -576,4 +576,17 @@ button.p-button.p-component:disabled:not(.p-button-text):not(.p-button-rounded):
   overflow-y: auto !important;
 }
 
+/* ─── Global Loading Bar ─── */
+.hd-global-loading-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  height: 3px;
+}
+
+.hd-global-loading-bar .p-progressbar-indeterminate .p-progressbar-value {
+  background-color: var(--hd-btn-primary, #0e7c7c) !important;
+}
 

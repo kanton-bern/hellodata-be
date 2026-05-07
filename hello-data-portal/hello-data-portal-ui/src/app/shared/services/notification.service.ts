@@ -58,7 +58,9 @@ export class NotificationService {
   }
 
   public error(message: string, interpolateParams?: Record<string, unknown>): void {
-    const translated = message.startsWith('@') ? this.translateService.translate(message, interpolateParams) : message;
+    const translated = message.split(' — ').map(part =>
+      part.startsWith('@') ? this.translateService.translate(part, interpolateParams) : part
+    ).join(' — ');
     this.showNotification(translated, 'error');
   }
 

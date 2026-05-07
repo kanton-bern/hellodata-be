@@ -88,29 +88,57 @@ export class AppEffects {
   }, {dispatch: false});
 
   private extractErrorMessage(error: any): string {
+    let message: string | undefined;
+
     // Angular HttpClient error (HttpErrorResponse)
     if (error?.error?.message) {
-      return error.error.message;
+      message = error.error.message;
     }
     // Direct message property
-    if (error?.message) {
-      return error.message;
+    else if (error?.message) {
+      message = error.message;
     }
     // PrimeNG FileUpload XHR error - try to parse response
-    if (error?.error && typeof error.error === 'string') {
+    else if (error?.error && typeof error.error === 'string') {
       try {
         const parsed = JSON.parse(error.error);
         if (parsed.message) {
-          return parsed.message;
+          message = parsed.message;
         }
       } catch {
-        // Not JSON, return as-is if it's a reasonable message
         if (error.error.length < 500) {
-          return error.error;
+          message = error.error;
         }
       }
     }
-    return '@Unexpected error occurred';
+
+    const guidance = this.getErrorGuidance(error?.status);
+    const baseMessage = message || '@Unexpected error occurred';
+    return guidance ? `${baseMessage} — ${guidance}` : baseMessage;
+  }
+
+  private getErrorGuidance(status: number | undefined): string {
+    switch (status) {
+      case 0:
+        return '@error.guidance.network';
+      case 400:
+        return '@error.guidance.bad_request';
+      case 403:
+        return '@error.guidance.forbidden';
+      case 404:
+        return '@error.guidance.not_found';
+      case 408:
+      case 504:
+        return '@error.guidance.timeout';
+      case 409:
+        return '@error.guidance.conflict';
+      case 500:
+      case 502:
+      case 503:
+        return '@error.guidance.server';
+      default:
+        return status && status >= 400 ? '@error.guidance.generic' : '';
+    }
   }
 
   logError$ = createEffect(() => {

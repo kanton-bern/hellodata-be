@@ -106,6 +106,9 @@
 </nav>
 
 <section class="content-section" [class.topbar-minimized]="sidebarMinimized">
+  @if (isLoading$ | async) {
+    <p-progressBar mode="indeterminate" styleClass="hd-global-loading-bar"/>
+  }
   <app-header [title]="title()" [minimized]="sidebarMinimized"/>
   <div class="overflow-y-scroll" id="mainContentDiv">
     <ng-content/>

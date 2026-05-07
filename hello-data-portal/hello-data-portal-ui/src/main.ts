@@ -30,6 +30,7 @@ import {importProvidersFrom, LOCALE_ID} from '@angular/core';
 import {environment} from './environments/environment';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {TokenInterceptor} from './app/shared/interceptor/token-interceptor.service';
+import {LoadingInterceptor} from './app/shared/interceptor/loading-interceptor.service';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {AsyncPipe, CommonModule, JsonPipe, registerLocaleData, TitleCasePipe} from '@angular/common';
 import {providePrimeNG} from 'primeng/config';
@@ -127,6 +128,11 @@ async function loadLocaleData(locale: string) {
       {
         provide: HTTP_INTERCEPTORS,
         useClass: TokenInterceptor,
+        multi: true
+      },
+      {
+        provide: HTTP_INTERCEPTORS,
+        useClass: LoadingInterceptor,
         multi: true
       },
       MessageService,
