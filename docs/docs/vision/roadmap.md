@@ -1,4 +1,4 @@
-# Feature Roadmap HD-BE - August 2024
+# 
 
 <figure markdown>
   ![Image title](../images/roadmap.png)

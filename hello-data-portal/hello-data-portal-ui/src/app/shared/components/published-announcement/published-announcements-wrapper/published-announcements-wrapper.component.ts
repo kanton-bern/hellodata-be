@@ -39,10 +39,10 @@ import {DialogService, DynamicDialogRef} from "primeng/dynamicdialog";
 import {
   PublishedAnnouncementsPopupComponent
 } from "../published-announcements-popup/published-announcements-popup.component";
-import {HideAllCurrentPublishedAnnouncementsService} from "../hide-all-current-published-announcements.service";
 import {selectUrl} from "../../../../store/router/router.selectors";
 import {naviElements} from "../../../../app-navi-elements";
 import {AsyncPipe} from '@angular/common';
+import {TranslateService} from "../../../services/translate.service";
 
 @Component({
   providers: [DialogService],
@@ -55,14 +55,13 @@ import {AsyncPipe} from '@angular/common';
   imports: [AsyncPipe]
 })
 export class PublishedAnnouncementsWrapperComponent {
-  private readonly store = inject<Store<AppState>>(Store);
   dialogService = inject(DialogService);
-  private readonly hideAllCurrentAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
-
-
   publishedAnnouncements$: Observable<any>;
   ref: DynamicDialogRef | null = null;
   onCloseSubscription!: Subscription | undefined;
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly translateService = inject(TranslateService);
+  private dismissedByUser = false;
 
   constructor() {
     this.hide = this.hide.bind(this);
@@ -78,13 +77,12 @@ export class PublishedAnnouncementsWrapperComponent {
             currentUrl.includes(naviElements.dataWarehouseViewer.path) || currentUrl.includes('advanced-analytics-viewer');
           if (skipAnnouncementsPopup || this.ref && announcements?.length === 0) {
             this.ref?.close();
-          } else if (!this.ref && announcements && announcements.length > 0) {
+          } else if (!this.ref && !this.dismissedByUser && announcements && announcements.length > 0) {
             this.openDialog(announcements);
           }
         }));
     this.store.dispatch(loadPublishedAnnouncementsFiltered());
   }
-
 
   hide(announcement: Announcement): void {
     this.store.dispatch(markAnnouncementAsRead({announcement}));
@@ -92,26 +90,26 @@ export class PublishedAnnouncementsWrapperComponent {
 
   private openDialog(announcements: Announcement[]) {
     this.ref = this.dialogService.open(PublishedAnnouncementsPopupComponent, {
-      header: '',
+      header: this.translateService.translate('@Announcements'),
       width: '90vw',
-      contentStyle: {overflow: 'auto'},
+      contentStyle: {overflow: 'visible'},
       height: 'auto',
-      closable: false,
+      closable: true,
       modal: true,
-
+      dismissableMask: true,
     });
     if (this.onCloseSubscription) {
       this.onCloseSubscription.unsubscribe();
     }
-    this.onCloseSubscription = this.ref?.onClose.subscribe(() => {
-      console.debug('Dialog closed, hiding announcements');
-      if (this.hideAllCurrentAnnouncementsService.hide) {
+    this.onCloseSubscription = this.ref?.onClose.subscribe((result) => {
+      console.debug('Dialog closed, result:', result);
+      this.ref = null;
+      this.dismissedByUser = true;
+      if (result?.dontShowAgain) {
         for (const announcement of announcements) {
           this.hide(announcement);
         }
-        this.hideAllCurrentAnnouncementsService.hide = false;
       }
     });
   }
-
 }

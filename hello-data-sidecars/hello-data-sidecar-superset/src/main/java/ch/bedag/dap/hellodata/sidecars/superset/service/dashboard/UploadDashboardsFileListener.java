@@ -65,8 +65,7 @@ public class UploadDashboardsFileListener {
         Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
             log.debug("\t-=-=-=-= Received message from NATS: {}", new String(msg.getData()));
             String binaryFileId = null;
-            try {
-                SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
+            try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
                 DashboardUpload dashboardUpload = objectMapper.readValue(msg.getData(), DashboardUpload.class);
                 saveChunk(dashboardUpload);
                 File destinationFile;

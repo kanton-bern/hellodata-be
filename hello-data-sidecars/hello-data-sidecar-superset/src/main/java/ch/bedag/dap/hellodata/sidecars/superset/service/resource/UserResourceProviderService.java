@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemGetAllUsers;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import lombok.RequiredArgsConstructor;
@@ -68,10 +69,12 @@ public class UserResourceProviderService {
     @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishUsers() throws URISyntaxException, IOException {
         log.info("--> publishUsers()");
-        SupersetUsersResponse response = supersetClientProvider.getSupersetClientInstance().users();
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+            SupersetUsersResponse response = supersetClient.users();
 
-        List<SubsystemUser> subsystemUsers = CollectionUtils.emptyIfNull(response.getResult()).stream().filter(SubsystemUser::isActive).toList();
-        UserResource userResource = new UserResource(ModuleType.SUPERSET, this.instanceName, subsystemUsers);
-        natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
+            List<SubsystemUser> subsystemUsers = CollectionUtils.emptyIfNull(response.getResult()).stream().filter(SubsystemUser::isActive).toList();
+            UserResource userResource = new UserResource(ModuleType.SUPERSET, this.instanceName, subsystemUsers);
+            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
+        }
     }
 }

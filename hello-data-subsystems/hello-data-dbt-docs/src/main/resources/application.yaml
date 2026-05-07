@@ -60,7 +60,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        generate_statistics: true
+        generate_statistics: false
   web:
     resources:
       static-locations: file:${hello-data.files.static-location}, classpath:/static/

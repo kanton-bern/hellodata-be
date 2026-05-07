@@ -11,8 +11,8 @@ import ch.bedag.dap.hellodata.portalcommon.query.entity.QueryEntity;
 import ch.bedag.dap.hellodata.portalcommon.query.repository.QueryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.nats.client.Connection;
 import io.nats.client.Message;
@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,9 @@ import java.util.concurrent.TimeUnit;
 @Service
 @AllArgsConstructor
 public class QuerySynchronizer {
+
+    private static final int PAGE_SIZE = 1000;
+    private static final int MAX_PAGES = 40;
 
     private final HdContextRepository contextRepository;
     private final QueryRepository queryRepository;
@@ -60,7 +64,7 @@ public class QuerySynchronizer {
                 LocalDateTime localDateTime = supersetQuery.getChangedOn();
                 OffsetDateTime offsetDateTime = localDateTime.atOffset(ZoneOffset.UTC);
                 queryEntity.setChangedOn(offsetDateTime);
-                queryEntity.setDatabaseName(supersetQuery.getDatabase().getDatabaseName());
+                queryEntity.setDatabaseName(supersetQuery.getDatabase() != null ? supersetQuery.getDatabase().getDatabaseName() : null);
                 queryEntity.setTrackingUrl(supersetQuery.getTrackingUrl());
                 queryEntity.setTmpTableName(supersetQuery.getTmpTableName());
                 queryEntity.setStatus(supersetQuery.getStatus());
@@ -77,7 +81,9 @@ public class QuerySynchronizer {
                 queryEntity.setSubsystemId(supersetQuery.getId());
                 queryEntity.setExecutedSql(supersetQuery.getExecutedSql());
                 queryEntity.setTabName(supersetQuery.getTabName());
-                queryEntity.setUserFullname(supersetQuery.getUser().getFirstName() + " " + supersetQuery.getUser().getLastName());
+                if (supersetQuery.getUser() != null) {
+                    queryEntity.setUserFullname(supersetQuery.getUser().getFirstName() + " " + supersetQuery.getUser().getLastName());
+                }
                 Optional<QueryEntity> found = queryRepository.findByContextKeyAndSubsystemId(contextEntity.getContextKey(), supersetQuery.getId());
                 if (found.isPresent()) {
                     QueryEntity existingQuery = found.get();
@@ -98,7 +104,7 @@ public class QuerySynchronizer {
             log.debug("[fetchQueries] Sending request to subject: {}", subject);
 
             Optional<QueryEntity> foundEntity = queryRepository.findFirstByContextKeyOrderByChangedOnDesc(contextKey);
-            ArrayNode filter = objectMapper.createArrayNode();
+            ObjectNode filterNode = objectMapper.createObjectNode();
 
             if (foundEntity.isPresent()) {
                 QueryEntity queryEntity = foundEntity.get();
@@ -107,27 +113,63 @@ public class QuerySynchronizer {
                 changedOnFilter.put("col", "changed_on");
                 changedOnFilter.put("opr", "gt");
                 changedOnFilter.put("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
-                filter.add(changedOnFilter);
+                filterNode.putArray("filters").add(changedOnFilter);
+            } else {
+                filterNode.putArray("filters");
             }
 
-            byte[] filterBytes = objectMapper.writeValueAsString(filter).getBytes(StandardCharsets.UTF_8);
-            Message reply = connection.request(subject, filterBytes, Duration.ofSeconds(60));
-            if (reply != null && reply.getData() != null) {
-                reply.ack();
-                List<SupersetQuery> supersetQueries = objectMapper.readValue(new String(reply.getData(), StandardCharsets.UTF_8), new TypeReference<>() {
-                });
-                log.debug("[fetchQueries] Received queries by filter {}, queries: {}", new String(filterBytes, StandardCharsets.UTF_8), supersetQueries);
-                return supersetQueries;
+            List<SupersetQuery> allQueries = new ArrayList<>();
+            for (int page = 0; page < MAX_PAGES; page++) {
+                filterNode.put("page", page);
+                filterNode.put("pageSize", PAGE_SIZE);
+                List<SupersetQuery> pageResults = fetchQueriesPage(subject, filterNode, contextKey, page);
+                allQueries.addAll(pageResults);
+                if (pageResults.size() < PAGE_SIZE) {
+                    break;
+                }
             }
-            if (reply != null) {
-                reply.ack();
-            }
-            return Collections.emptyList();
+            log.debug("[fetchQueries] Fetched total of {} queries for contextKey={}", allQueries.size(), contextKey);
+            return allQueries;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Thread was interrupted when fetching queries from the superset instance " + contextKey, e); //NOSONAR
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error fetching queries from the superset instance " + contextKey, e); //NOSONAR
+        }
+    }
+
+    private List<SupersetQuery> fetchQueriesPage(String subject, ObjectNode filterNode, String contextKey, int page)
+            throws JsonProcessingException, InterruptedException {
+        byte[] requestBytes = objectMapper.writeValueAsString(filterNode).getBytes(StandardCharsets.UTF_8);
+        Message reply = connection.request(subject, requestBytes, Duration.ofSeconds(60));
+        if (reply == null || reply.getData() == null) {
+            if (reply != null) {
+                reply.ack();
+            }
+            return Collections.emptyList();
+        }
+        reply.ack();
+        String content = new String(reply.getData(), StandardCharsets.UTF_8);
+        try {
+            JsonNode responseNode = objectMapper.readTree(content);
+            if (responseNode.has("error")) {
+                log.error("[fetchQueries] Error response from superset instance for contextKey={}: {}", contextKey, responseNode.get("error").asText());
+                return Collections.emptyList();
+            }
+            if (responseNode.has("result")) {
+                List<SupersetQuery> pageResults = objectMapper.readValue(
+                        responseNode.get("result").toString(), new TypeReference<>() {
+                        });
+                int totalCount = responseNode.has("count") ? responseNode.get("count").asInt() : 0;
+                log.debug("[fetchQueries] Page {} returned {} results (total count: {})", page, pageResults.size(), totalCount);
+                return pageResults;
+            }
+            // Legacy response: plain JSON array (no pagination support on responder)
+            return objectMapper.readValue(content, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            log.error("[fetchQueries] Non-JSON response from superset instance for contextKey={}: {}", contextKey, content, e);
+            return Collections.emptyList();
         }
     }
 }

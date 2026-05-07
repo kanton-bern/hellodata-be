@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.sidecars.superset.service.resource;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
+import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -55,9 +56,11 @@ public class DashboardResourceProviderService {
     @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishDashboards() throws URISyntaxException, IOException {
         log.info("--> publishDashboards()");
-        SupersetDashboardResponse dashboardsResponse = supersetClientProvider.getSupersetClientInstance().dashboards();
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+            SupersetDashboardResponse dashboardsResponse = supersetClient.dashboards();
 
-        DashboardResource dashboardResource = new DashboardResource(this.instanceName, dashboardsResponse.getResult());
-        natsSenderService.publishMessageToJetStream(PUBLISH_DASHBOARD_RESOURCES, dashboardResource);
+            DashboardResource dashboardResource = new DashboardResource(this.instanceName, dashboardsResponse.getResult());
+            natsSenderService.publishMessageToJetStream(PUBLISH_DASHBOARD_RESOURCES, dashboardResource);
+        }
     }
 }

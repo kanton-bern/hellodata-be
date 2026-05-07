@@ -36,4 +36,4 @@ USER 3012
 
 
 COPY target/*.jar /app/app.jar
-CMD ["java", "-jar", "/app/app.jar"]
+CMD ["java", "-Xmx1024m", "-XX:MaxMetaspaceSize=256m", "-jar", "/app/app.jar"]

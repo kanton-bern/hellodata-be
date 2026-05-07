@@ -72,19 +72,20 @@ public class AirflowRoleResourceProviderService {
 
     private List<RolePermissions> getRolePermissions() throws URISyntaxException, IOException {
         List<RolePermissions> data = new ArrayList<>();
-        AirflowClient airflowClientInstance = airflowClientProvider.getAirflowClientInstance();
-        AirflowRolesResponse rolesResponse = airflowClientInstance.roles();
-        List<AirflowRole> airflowRoles = rolesResponse.getRoles();
-        airflowRoles.sort(Comparator.comparing(AirflowRole::getName));
-        AtomicInteger atomicIndex = new AtomicInteger(1);
-        airflowRoles.forEach(role -> {
-            List<AirflowRoleAction> roleActions = role.getActions();
-            List<RolePermissions.PermissionNameViewMenuName> permissions =
-                    IntStream.range(0, roleActions.size()).mapToObj(i -> toSupersetPermissionNameViewMenuName(i, roleActions.get(i))).toList();
-            int index = atomicIndex.getAndIncrement();
-            data.add(new RolePermissions(index, role.getName(), permissions));
-        });
-        return data;
+        try (AirflowClient airflowClientInstance = airflowClientProvider.getAirflowClientInstance()) {
+            AirflowRolesResponse rolesResponse = airflowClientInstance.roles();
+            List<AirflowRole> airflowRoles = rolesResponse.getRoles();
+            airflowRoles.sort(Comparator.comparing(AirflowRole::getName));
+            AtomicInteger atomicIndex = new AtomicInteger(1);
+            airflowRoles.forEach(role -> {
+                List<AirflowRoleAction> roleActions = role.getActions();
+                List<RolePermissions.PermissionNameViewMenuName> permissions =
+                        IntStream.range(0, roleActions.size()).mapToObj(i -> toSupersetPermissionNameViewMenuName(i, roleActions.get(i))).toList();
+                int index = atomicIndex.getAndIncrement();
+                data.add(new RolePermissions(index, role.getName(), permissions));
+            });
+            return data;
+        }
     }
 
     private RolePermissions.PermissionNameViewMenuName toSupersetPermissionNameViewMenuName(int index, AirflowRoleAction airflowRoleAction) {

@@ -62,6 +62,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +79,7 @@ import static ch.bedag.dap.hellodata.sidecars.superset.client.SupersetApiRequest
  * available dashboards and others.
  */
 @Log4j2
-public class SupersetClient {
+public class SupersetClient implements Closeable {
 
     private final String host;
     private final int port;
@@ -136,6 +137,13 @@ public class SupersetClient {
         this.authToken = authToken;
         this.host = host;
         this.port = port;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (this.client != null) {
+            this.client.close();
+        }
     }
 
     /**
@@ -405,6 +413,22 @@ public class SupersetClient {
         return getObjectMapper().readValue(bytes, SupersetQueryResponse.class);
     }
 
+    public SupersetQueryResponse queriesFiltered(JsonArray filters, int page, int pageSize) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequestFiltered(host, port, authToken, filters, page, pageSize);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("queriesFiltered() page {} response json \n{}", page, new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetQueryResponse.class);
+    }
+
+    public SupersetQueryResponse queriesFiltered(JsonArray columns, JsonArray filters, int page, int pageSize) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequestFiltered(host, port, authToken, columns, filters, page, pageSize);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("queriesFiltered() page {} response json \n{}", page, new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetQueryResponse.class);
+    }
+
     /**
      * Returns a list of available logs.
      *
@@ -420,6 +444,14 @@ public class SupersetClient {
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("logsFiltered() response json \n{}", new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetLogResponse.class);
+    }
+
+    public SupersetLogResponse logsFiltered(JsonArray filters, int page, int pageSize) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getLisLogsRequestFiltered(host, port, authToken, filters, page, pageSize);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("logsFiltered() page {} response json \n{}", page, new String(bytes));
         return getObjectMapper().readValue(bytes, SupersetLogResponse.class);
     }
 

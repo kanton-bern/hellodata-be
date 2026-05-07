@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermissionResponse;
+import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -55,9 +56,11 @@ public class PermissionResourceProviderService {
     @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishPermissions() throws URISyntaxException, IOException {
         log.info("--> publishPermissions()");
-        SupersetPermissionResponse response = supersetClientProvider.getSupersetClientInstance().permissions();
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+            SupersetPermissionResponse response = supersetClient.permissions();
 
-        PermissionResource permissionResource = new PermissionResource(ModuleType.SUPERSET, this.instanceName, response.getResult());
-        natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
+            PermissionResource permissionResource = new PermissionResource(ModuleType.SUPERSET, this.instanceName, response.getResult());
+            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
+        }
     }
 }

@@ -13,10 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "concepts/data-publisher.md",
+                "file": "vision/roadmap.md",
                 "mode": "source",
                 "source": false
-              }
+              },
+              "icon": "lucide-file",
+              "title": "roadmap"
             }
           }
         ],
@@ -39,8 +41,11 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical"
-              }
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
             }
           },
           {
@@ -55,7 +60,9 @@
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-search",
+              "title": "Search"
             }
           },
           {
@@ -63,7 +70,9 @@
             "type": "leaf",
             "state": {
               "type": "bookmarks",
-              "state": {}
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
             }
           }
         ]
@@ -86,8 +95,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "concepts/data-publisher.md"
-              }
+                "file": "vision/roadmap.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of roadmap"
             }
           },
           {
@@ -96,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "concepts/data-publisher.md",
+                "file": "vision/roadmap.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +118,9 @@
                 "searchQuery": "",
                 "backlinkCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for roadmap"
             }
           },
           {
@@ -113,10 +129,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "concepts/data-publisher.md",
+                "file": "vision/roadmap.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from roadmap"
             }
           },
           {
@@ -126,8 +144,12 @@
               "type": "tag",
               "state": {
                 "sortOrder": "frequency",
-                "useHierarchy": true
-              }
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
             }
           }
         ]
@@ -138,6 +160,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -148,27 +171,28 @@
   },
   "active": "7069f0a79ca1ab29",
   "lastOpenFiles": [
-    "images/Pasted image 20240828142731.png",
+    "images/portal-airflow.jpg",
+    "images/portal-superset.jpg",
+    "images/roadmap.png",
+    "images/roadmap12.png",
+    "images/sftpgo-arch.png",
+    "images/workspaces-error-pull-image.png",
+    "images/workspaces-business-overview.png",
+    "images/showcase-boiler.png",
+    "images/1062338737.png",
+    "images/1062338731.png",
+    "images/1062338713.png",
+    "architecture/infrastructure.md",
+    "architecture/data-stack.md",
+    "architecture/architecture.md",
+    "index.md",
     "concepts/data-publisher.md",
-    "images/Pasted image 20240828160627.png",
-    "images/Pasted image 20240828142609.png",
-    "images/Pasted image 20240828160506.png",
-    "images/Pasted image 20240828144917.png",
-    "images/Pasted image 20240828160429.png",
-    "images/Pasted image 20240828143526.png",
-    "images/Pasted image 20240828160346.png",
     "manuals/user-manual.md",
     "vision/roadmap.md",
-    "images/Pasted image 20240828155058.png",
-    "images/Pasted image 20240828153902.png",
-    "images/Pasted image 20240828153754.png",
     "more/changelog.md",
     "vision/vision-and-goal.md",
     "concepts/workspaces.md",
     "test/examples.md",
-    "architecture/infrastructure.md",
-    "architecture/data-stack.md",
-    "architecture/architecture.md",
     "glossary.md",
     "architecture",
     "architecture.md",
@@ -184,7 +208,6 @@
     "architecture/components.md",
     "components.md",
     "roadmap.md",
-    "index.md",
     "assets/images",
     "test.md"
   ]

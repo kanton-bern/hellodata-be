@@ -16,8 +16,8 @@ import ch.bedag.dap.hellodata.portalcommon.dashboard_access.entity.DashboardAcce
 import ch.bedag.dap.hellodata.portalcommon.dashboard_access.repository.DashboardAccessRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.nats.client.Connection;
 import io.nats.client.Message;
@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +43,9 @@ import java.util.concurrent.TimeUnit;
 @Service
 @AllArgsConstructor
 public class DashboardAccessSynchronizer {
+
+    private static final int PAGE_SIZE = 1000;
+    private static final int MAX_PAGES = 40;
 
     private final HdContextRepository contextRepository;
     private final DashboardAccessRepository dashboardAccessRepository;
@@ -129,7 +133,7 @@ public class DashboardAccessSynchronizer {
             log.debug("[fetchDashboardAccess] Sending request to subject: {}", subject);
 
             Optional<DashboardAccessEntity> foundEntity = dashboardAccessRepository.findFirstByContextKeyOrderByDttmDesc(contextKey);
-            ArrayNode filter = objectMapper.createArrayNode();
+            ObjectNode requestNode = objectMapper.createObjectNode();
 
             if (foundEntity.isPresent()) {
                 DashboardAccessEntity dashboardAccessEntity = foundEntity.get();
@@ -138,29 +142,64 @@ public class DashboardAccessSynchronizer {
                 changedOnFilter.put("col", "dttm");
                 changedOnFilter.put("opr", "gt");
                 changedOnFilter.put("value", accessDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
-                filter.add(changedOnFilter);
+                requestNode.putArray("filters").add(changedOnFilter);
+            } else {
+                requestNode.putArray("filters");
             }
 
-            byte[] filterBytes = objectMapper.writeValueAsString(filter).getBytes(StandardCharsets.UTF_8);
-            Message reply = connection.request(subject, filterBytes, Duration.ofSeconds(60));
-            if (reply != null && reply.getData() != null) {
-                reply.ack();
-                String content = new String(reply.getData(), StandardCharsets.UTF_8);
-                log.debug("[fetchDashboardAccess] reply: {}", content);
-                List<SupersetLog> supersetLogs = objectMapper.readValue(content, new TypeReference<>() {
-                });
-                log.debug("[fetchDashboardAccess] Received dashboard accesses by filter {}, result: {}", new String(filterBytes, StandardCharsets.UTF_8), supersetLogs);
-                return supersetLogs;
+            List<SupersetLog> allLogs = new ArrayList<>();
+            for (int page = 0; page < MAX_PAGES; page++) {
+                requestNode.put("page", page);
+                requestNode.put("pageSize", PAGE_SIZE);
+                List<SupersetLog> pageResults = fetchDashboardAccessPage(subject, requestNode, supersetInstanceName, contextKey, page);
+                allLogs.addAll(pageResults);
+                if (pageResults.size() < PAGE_SIZE) {
+                    break;
+                }
             }
-            if (reply != null) {
-                reply.ack();
-            }
-            return Collections.emptyList();
+            log.debug("[fetchDashboardAccess] Fetched total of {} dashboard accesses for contextKey={}", allLogs.size(), contextKey);
+            return allLogs;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Thread was interrupted when fetching dashboard accesses from the superset instance " + contextKey, e); //NOSONAR
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error fetching dashboard accesses from the superset instance " + contextKey, e); //NOSONAR
+        }
+    }
+
+    private List<SupersetLog> fetchDashboardAccessPage(String subject, ObjectNode requestNode, String supersetInstanceName, String contextKey, int page)
+            throws JsonProcessingException, InterruptedException {
+        byte[] requestBytes = objectMapper.writeValueAsString(requestNode).getBytes(StandardCharsets.UTF_8);
+        Message reply = connection.request(subject, requestBytes, Duration.ofSeconds(60));
+        if (reply == null || reply.getData() == null) {
+            if (reply != null) {
+                reply.ack();
+            }
+            return Collections.emptyList();
+        }
+        reply.ack();
+        String content = new String(reply.getData(), StandardCharsets.UTF_8);
+        log.debug("[fetchDashboardAccess] reply page {}: {}", page, content);
+        try {
+            JsonNode responseNode = objectMapper.readTree(content);
+            if (responseNode.has("error")) {
+                log.error("[fetchDashboardAccess] Error response from superset instance {} (contextKey={}): {}", supersetInstanceName, contextKey, responseNode.get("error").asText());
+                return Collections.emptyList();
+            }
+            if (responseNode.has("result")) {
+                List<SupersetLog> pageResults = objectMapper.readValue(
+                        responseNode.get("result").toString(), new TypeReference<>() {
+                        });
+                int count = responseNode.has("count") ? responseNode.get("count").asInt() : 0;
+                log.debug("[fetchDashboardAccess] Page {} returned {} results (count: {})", page, pageResults.size(), count);
+                return pageResults;
+            }
+            // Legacy response: plain JSON array (no pagination support on responder)
+            return objectMapper.readValue(content, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            log.error("[fetchDashboardAccess] Non-JSON response from superset instance {} (contextKey={}): {}", supersetInstanceName, contextKey, content, e);
+            return Collections.emptyList();
         }
     }
 }
