@@ -44,7 +44,7 @@
         <testcontainers-keycloak.version>4.2.1</testcontainers-keycloak.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <docker-java.version>3.7.0</docker-java.version>
-        <jnats.version>2.25.2</jnats.version>
+        <jnats.version>2.25.3</jnats.version>
         <jsoup.version>1.22.2</jsoup.version>
         <nats-spring.version>0.6.2+3.5</nats-spring.version>
         <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
