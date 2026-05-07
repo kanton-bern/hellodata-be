@@ -30,11 +30,15 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Log4j2
 @Component
@@ -42,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContextsInitializer {
     private final HdContextRepository contextRepository;
     private final HelloDataContextConfig helloDataContextConfig;
+    private final EntityManager entityManager;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void initContexts() {
@@ -58,13 +63,15 @@ public class ContextsInitializer {
 
     private void saveContext(String contextTypeString, String contextName, String contextKey, boolean extra) {
         HdContextType contextType = HdContextType.findByTypeName(contextTypeString);
-        if (contextRepository.getByTypeAndNameAndKey(contextType, contextName, contextKey).isEmpty()) {
-            HdContextEntity context = new HdContextEntity();
-            context.setType(contextType);
-            context.setName(contextName);
-            context.setContextKey(contextKey);
-            context.setExtra(extra);
-            contextRepository.save(context);
-        }
+        Query upsertQuery = entityManager.createNativeQuery(
+                "INSERT INTO context (id, context_key, name, type, extra, created_by, created_date, modified_by, modified_date) " +
+                        "VALUES (:id, :key, :name, :type, :extra, 'system', now(), 'system', now()) " +
+                        "ON CONFLICT (context_key) DO NOTHING");
+        upsertQuery.setParameter("id", UUID.randomUUID());
+        upsertQuery.setParameter("key", contextKey);
+        upsertQuery.setParameter("name", contextName);
+        upsertQuery.setParameter("type", contextType.name());
+        upsertQuery.setParameter("extra", extra);
+        upsertQuery.executeUpdate();
     }
 }

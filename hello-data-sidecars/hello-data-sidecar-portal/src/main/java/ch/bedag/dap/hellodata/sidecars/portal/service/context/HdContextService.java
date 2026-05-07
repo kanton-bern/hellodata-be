@@ -30,6 +30,8 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Log4j2
 @Service
@@ -45,6 +48,7 @@ import java.util.Optional;
 public class HdContextService {
 
     private final HdContextRepository contextRepository;
+    private final EntityManager entityManager;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public HdContextEntity saveBusinessContext(HdBusinessContextInfo businessContextInfo) {
@@ -52,47 +56,61 @@ public class HdContextService {
         if (businessContextInfo == null || businessContextInfo.getKey() == null) {
             return null;
         }
-        HdContextEntity contextForResource;
         HdContextType type = HdContextType.findByTypeName(businessContextInfo.getType());
         String name = businessContextInfo.getName();
         String key = businessContextInfo.getKey();
 
-        HdContextEntity businessContextEntity;
-        Optional<HdContextEntity> businessContextEntityFound = contextRepository.getByTypeAndNameAndKey(type, name, key);
-        log.info("Business Context found: {} [by type {}, name {}, key {}]", businessContextEntityFound.isPresent(), type, name, key);
-        if (businessContextEntityFound.isEmpty()) {
-            HdContextEntity businessContext = new HdContextEntity();
-            businessContext.setType(type);
-            businessContext.setName(name);
-            businessContext.setContextKey(key);
-            businessContext.setExtra(businessContext.isExtra());
-            businessContextEntity = contextRepository.save(businessContext);
-        } else {
-            businessContextEntity = businessContextEntityFound.get();
-        }
-        contextForResource = businessContextEntity;
+        HdContextEntity businessContextEntity = findOrCreateContext(type, name, key, null, false);
+        HdContextEntity contextForResource = businessContextEntity;
+
         HdBusinessContextInfo subContext = businessContextInfo.getSubContext();
         if (subContext != null) {
             String subContextName = subContext.getName();
             HdContextType subContextType = HdContextType.findByTypeName(subContext.getType());
             String subContextKey = subContext.getKey();
-            HdContextEntity subContextEntity;
-            Optional<HdContextEntity> subContextEntityFound = contextRepository.getByTypeAndNameAndKey(subContextType, subContextName, subContextKey);
-            if (subContextEntityFound.isPresent()) {
-                subContextEntity = subContextEntityFound.get();
-                subContextEntity.setParentContextKey(businessContextEntity.getContextKey());
-            } else {
-                subContextEntity = new HdContextEntity();
-                subContextEntity.setName(subContextName);
-                subContextEntity.setType(subContextType);
-                subContextEntity.setContextKey(subContextKey);
-                subContextEntity.setParentContextKey(businessContextEntity.getContextKey());
-            }
-            subContextEntity.setExtra(subContext.isExtra());
-            log.info("Saving {} context, the name: {}, is extra? {}", subContextEntity.getType(), subContextEntity.getName(), subContextEntity.isExtra());
-            contextRepository.save(subContextEntity);
+            HdContextEntity subContextEntity = findOrCreateContext(subContextType, subContextName, subContextKey,
+                    businessContextEntity.getContextKey(), subContext.isExtra());
             contextForResource = subContextEntity;
         }
         return contextForResource;
+    }
+
+    private HdContextEntity findOrCreateContext(HdContextType type, String name, String key, String parentContextKey, boolean extra) {
+        Optional<HdContextEntity> existing = contextRepository.getByContextKey(key);
+        if (existing.isPresent()) {
+            HdContextEntity entity = existing.get();
+            boolean updated = false;
+            if (parentContextKey != null && !parentContextKey.equals(entity.getParentContextKey())) {
+                entity.setParentContextKey(parentContextKey);
+                updated = true;
+            }
+            if (entity.isExtra() != extra) {
+                entity.setExtra(extra);
+                updated = true;
+            }
+            if (updated) {
+                entity = contextRepository.save(entity);
+            }
+            return entity;
+        }
+
+        // Use native upsert to handle concurrent inserts safely
+        UUID id = UUID.randomUUID();
+        Query upsertQuery = entityManager.createNativeQuery(
+                "INSERT INTO context (id, context_key, name, type, parent_key, extra, created_by, created_date, modified_by, modified_date) " +
+                        "VALUES (:id, :key, :name, :type, :parentKey, :extra, 'system', now(), 'system', now()) " +
+                        "ON CONFLICT (context_key) DO NOTHING");
+        upsertQuery.setParameter("id", id);
+        upsertQuery.setParameter("key", key);
+        upsertQuery.setParameter("name", name);
+        upsertQuery.setParameter("type", type.name());
+        upsertQuery.setParameter("parentKey", parentContextKey);
+        upsertQuery.setParameter("extra", extra);
+        upsertQuery.executeUpdate();
+
+        // Fetch the entity (either we just inserted it, or it already existed)
+        entityManager.clear();
+        return contextRepository.getByContextKey(key)
+                .orElseThrow(() -> new IllegalStateException("Context with key " + key + " not found after upsert"));
     }
 }
