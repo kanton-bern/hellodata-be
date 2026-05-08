@@ -33,8 +33,6 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
 import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
-import {selectAppInfoByModuleType} from "../../store/metainfo-resource/metainfo-resource.selector";
-import {filter, take} from "rxjs";
 
 @Component({
     templateUrl: 'data-warehouse-viewer.component.html',
@@ -45,8 +43,7 @@ export class DataWarehouseViewerComponent extends BaseComponent {
   private store = inject<Store<AppState>>(Store);
   private cloudbeaverSessionService = inject(CloudbeaverSessionService);
 
-
-  url!: string;
+  url = window.location.origin + '/cloudbeaver/';
 
   constructor() {
     super();
@@ -61,13 +58,7 @@ export class DataWarehouseViewerComponent extends BaseComponent {
 
   override ngOnInit() {
     super.ngOnInit();
-    this.store.select(selectAppInfoByModuleType('CLOUDBEAVER')).pipe(
-      filter(infos => infos.length > 0),
-      take(1)
-    ).subscribe(cloudbeaverInfos => {
-      this.url = cloudbeaverInfos[0].data.url;
-      console.debug("Data Warehouse Component initiated", this.url);
-    });
+    console.debug("Data Warehouse Component initiated", this.url);
     this.cloudbeaverSessionService.createInterval();
   }
 

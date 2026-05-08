@@ -30,12 +30,11 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {combineLatest, Observable, tap} from "rxjs";
+import {Observable, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
 import {AsyncPipe} from '@angular/common';
 import {SubsystemIframeComponent} from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
-import {selectAppInfoByModuleType} from "../../store/metainfo-resource/metainfo-resource.selector";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
@@ -46,22 +45,16 @@ export class EmbeddedDmViewerComponent {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly cloudbeaverSessionService = inject(CloudbeaverSessionService);
 
-  baseUrl = '';
-  iframeUrl = '';
+  baseUrl = window.location.origin + '/cloudbeaver/';
+  iframeUrl = this.baseUrl;
   selectedLanguage$: Observable<any>;
 
   constructor() {
-    this.selectedLanguage$ = combineLatest([
-      this.store.select(selectAppInfoByModuleType('CLOUDBEAVER')),
-      this.store.select(selectSelectedLanguage)
-    ]).pipe(tap(([cloudbeaverInfos, selectedLang]) => {
-      if (cloudbeaverInfos.length > 0) {
-        this.baseUrl = cloudbeaverInfos[0].data.url;
-        if (selectedLang) {
-          this.iframeUrl = `${this.baseUrl}?lang=${selectedLang.code}`;
-        } else {
-          this.iframeUrl = this.baseUrl;
-        }
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage).pipe(tap(selectedLang => {
+      if (selectedLang) {
+        this.iframeUrl = `${this.baseUrl}?lang=${selectedLang.code}`;
+      } else {
+        this.iframeUrl = this.baseUrl;
       }
     }));
     this.store.dispatch(createBreadcrumbs({
