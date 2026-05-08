@@ -16,7 +16,7 @@
     <name>hello-data-nats-spring</name>
 
     <properties>
-        <jnats.version>2.25.2</jnats.version>
+        <jnats.version>2.25.3</jnats.version>
         <nats.version>0.6.2+3.5</nats.version>
     </properties>
 
