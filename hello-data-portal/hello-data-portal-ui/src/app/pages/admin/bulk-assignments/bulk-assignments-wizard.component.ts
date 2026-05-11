@@ -228,6 +228,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     ).subscribe(() => {
       this.userPage = 0;
       this.applyFiltersAndPagination();
+      this.cdr.markForCheck();
     });
 
     this.loadAllUsers();
