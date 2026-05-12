@@ -66,7 +66,7 @@ RUN pip install --no-cache-dir pyaxis pygdaltools
 # add helloDATA libraries
 RUN pip install \
     --extra-index-url https://pypi.fury.io/datenstreambedag/ \
-    hellodata_be_airflow_pod_operator_params==3.0.0 \
+    hellodata_be_airflow_pod_operator_params==4.0.0 \
     hellodata_be_dag_logs==1.0.0
 #USER root
 # Copy config files to container's $AIRFLOW_HOME
@@ -87,7 +87,7 @@ RUN apt-get update && \
     apt-get install --no-install-recommends -y wget
 
 # Make /liquibase directory and change owner to superset
-RUN mkdir /liquibase && chown airflow /liquibase
+RUN mkdir /liquibase && chown 65533:0 /liquibase
 WORKDIR /liquibase
 
 # Symbolic link will be broken until later
@@ -126,7 +126,7 @@ USER airflow
 # and still have the standard DAGs available in the image. Otherwise, the
 # mounted directory would overwrite the standard DAGs.
 RUN mkdir -p /opt/airflow/dags/hellodata-standard-dags/
-COPY ./hellodata-standard-dags/* /tmp/hellodata-standard-dags/
+COPY ./hellodata-standard-dags/* /hd-tmp/hellodata-standard-dags/
 
 WORKDIR /app
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/app/entrypoint.sh"]

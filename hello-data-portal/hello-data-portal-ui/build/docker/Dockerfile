@@ -29,14 +29,25 @@ FROM nginx:1.25.3
 
 LABEL MAINTAINER="HelloDATA Team"
 
+# Create app group and user, add nginx to app group for shared write access
+RUN groupadd -r -g 3012 app && \
+    useradd -r -u 3012 -g app -d /app app && \
+    usermod -aG app nginx
+
 COPY hello-data-portal-ui /app
 COPY 500.html /app/500.html
 RUN rm -rf /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY csp.conf /etc/nginx/conf.d/csp.conf.template
 
-RUN chown -R nginx: /app
+WORKDIR /app
 
-EXPOSE 80
+# Set ownership and group write permissions for /app and /etc/nginx
+RUN chown -R 3012:app /app && chmod -R g+w /app && \
+    chown -R 3012:app /etc/nginx && chmod -R g+w /etc/nginx
+
+USER 3012
+
+EXPOSE 8080
 
 CMD ["sh", "-c", "envsubst < /etc/nginx/conf.d/csp.conf.template > /etc/nginx/conf.d/csp.conf && nginx -g 'daemon off;'"]

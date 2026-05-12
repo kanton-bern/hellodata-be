@@ -40,7 +40,7 @@ RUN echo "window.environment = { \
             debugInfoEnabled: true, \
             authConfig: { \
               logLevel: 1, \
-              authority: 'http://keycloak.localhost:38080/realms/hellodata', \
+              authority: 'http://localhost:38080/realms/hellodata', \
               redirectUrl: 'http://localhost:8080/app/', \
               postLogoutRedirectUri: 'http://localhost:8080/app/', \
               clientId: 'frontend-client', \
@@ -58,7 +58,7 @@ RUN echo "window.environment = { \
               dbtDocs: {protocol: 'http://', host: 'localhost', domain: ':8086/dbt-docs'}, \
               dmViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
               dwhViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
-              advancedAnalyticsViewer: {protocol: 'http://', host: 'localhost', domain: ':8000'}, \
+              advancedAnalyticsViewer: {protocol: 'http://', host: 'localhost', domain: ':8088'}, \
               filebrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'}, \
               devToolsMailbox: {protocol: 'http://', host: 'localhost', domain: ':8001'}, \
               devToolsFileBrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'} \
@@ -75,9 +75,5 @@ RUN echo "window.environment = { \
 			  trackerUrl: 'https://demo.matomo.cloud/' \
 			} \
           }" > /app/config/environment.js
-
-RUN chown -R nginx: /app
-
-EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
