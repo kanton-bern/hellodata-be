@@ -605,12 +605,15 @@ button.p-button.p-component:disabled:not(.p-button-text):not(.p-button-rounded):
   font-weight: normal !important;
 }
 
-/* ─── Checkbox: improve unchecked border contrast ─── */
+/* ─── Checkbox: improve unchecked contrast with teal tinted background ─── */
 .p-checkbox-box {
   border-color: var(--p-surface-400, #9ca3af) !important;
+  background-color: rgba(14, 124, 124, 0.06) !important;
 }
 
 .p-checkbox.p-checkbox-checked .p-checkbox-box {
+  background-color: var(--hd-btn-primary, #0e7c7c) !important;
   border-color: var(--hd-btn-primary, #0e7c7c) !important;
+  color: #ffffff !important;
 }
 
