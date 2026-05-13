@@ -151,7 +151,7 @@ body {
   border: 2px solid transparent !important;
   cursor: pointer;
   transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease,
-    box-shadow 140ms ease, transform 80ms ease !important;
+  box-shadow 140ms ease, transform 80ms ease !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
@@ -272,7 +272,7 @@ body {
   font-weight: 600 !important;
   border: 2px solid transparent !important;
   transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease,
-    box-shadow 140ms ease, transform 80ms ease !important;
+  box-shadow 140ms ease, transform 80ms ease !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
@@ -366,7 +366,7 @@ body {
 .p-button[data-p-disabled="true"],
 button.p-button.p-component:disabled {
   cursor: not-allowed !important;
-  opacity: 0.6 !important;
+  opacity: 0.3 !important;
   box-shadow: none !important;
   transform: none !important;
 }
@@ -387,7 +387,7 @@ button.p-button.p-component:disabled:not(.p-button-text):not(.p-button-rounded):
 .p-button-text[data-p-disabled="true"] {
   color: var(--hd-btn-disabled-text) !important;
   cursor: not-allowed !important;
-  opacity: 1 !important;
+  opacity: 0.3 !important;
 }
 
 /* Focus ring for all buttons */

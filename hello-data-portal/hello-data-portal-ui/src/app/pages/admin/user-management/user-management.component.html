@@ -99,8 +99,8 @@
           <h3 class="m-0" style="margin: 0">{{ '@Users' | transloco }}</h3>
           @if ((syncStatus$ | async); as syncStatus) {
             <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
-                      [pTooltip]="'@Sync Users Title' | transloco" (keydown.enter)="syncUsers()"
-                      [icon]="icons.ACTION_REFRESH.class" tooltipPosition="top"
+                      (keydown.enter)="syncUsers()"
+                      [icon]="icons.ACTION_REFRESH.class"
                       [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
  pRipple/>
           }
