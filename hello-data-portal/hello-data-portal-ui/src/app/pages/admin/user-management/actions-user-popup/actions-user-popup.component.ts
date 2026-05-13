@@ -67,7 +67,7 @@ export class ActionsUserPopupComponent {
 
   getButtonTypeForAction(userForPopup: any) {
     if (userForPopup.action === UserAction.ENABLE) {
-      return 'success';
+      return 'primary';
     }
     return 'danger';
   }
