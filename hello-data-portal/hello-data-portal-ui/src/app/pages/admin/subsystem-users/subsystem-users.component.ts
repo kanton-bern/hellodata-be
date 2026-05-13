@@ -33,7 +33,7 @@ import {
   clearSubsystemUsersCache,
   loadSubsystemUsersPaginated
 } from "../../../store/users-management/users-management.action";
-import {Observable, Subject, takeUntil} from "rxjs";
+import {Observable, Subject, debounceTime, distinctUntilChanged, takeUntil} from "rxjs";
 import {
   selectPaginatedSubsystemUsers,
   selectPaginatedSubsystemUsersLoading,
@@ -77,8 +77,8 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   totalRecords$: Observable<number>;
   dataLoading$: Observable<boolean>;
 
-  filterTerms: string[] = [];
   currentFilterInput = '';
+  searchTerm = '';
   expandedRows: { [s: string]: boolean } = {};
   showInfoPanel = false;
   dynamicColumns: { field: string; header: string }[] = [];
@@ -92,14 +92,26 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   private readonly usersManagementService = inject(UsersManagementService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
+  private readonly searchInput$ = new Subject<string>();
 
   constructor() {
     super();
-    this.filterTerms = this.loadFilterTerms();
+    this.currentFilterInput = this.loadSearchTerm();
+    this.searchTerm = this.currentFilterInput;
     this.users$ = this.store.select(selectPaginatedSubsystemUsers);
     this.totalRecords$ = this.store.select(selectPaginatedSubsystemUsersTotalRecords);
     this.dataLoading$ = this.store.select(selectPaginatedSubsystemUsersLoading);
     this.createBreadcrumbs();
+    this.searchInput$.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(term => {
+      this.searchTerm = term;
+      this.saveSearchTerm();
+      this.currentPage = 0;
+      this.loadPage();
+    });
     this.loadPage();
   }
 
@@ -122,29 +134,14 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     this.loadPage();
   }
 
-  addFilterTerm(event: Event): void {
-    event.preventDefault();
-    const term = this.currentFilterInput.trim();
-    if (term && !this.filterTerms.includes(term)) {
-      this.filterTerms = [...this.filterTerms, term];
-      this.currentFilterInput = '';
-      this.saveFilterTerms();
-      this.currentPage = 0;
-      this.loadPage();
-    }
+  onSearchInput(value: string): void {
+    this.searchInput$.next(value.trim());
   }
 
-  removeFilterTerm(index: number): void {
-    this.filterTerms = this.filterTerms.filter((_, i) => i !== index);
-    this.saveFilterTerms();
-    this.currentPage = 0;
-    this.loadPage();
-  }
-
-  clearAllFilters(): void {
-    this.filterTerms = [];
+  clearSearch(): void {
     this.currentFilterInput = '';
-    this.saveFilterTerms();
+    this.searchTerm = '';
+    this.saveSearchTerm();
     this.currentPage = 0;
     this.loadPage();
   }
@@ -154,9 +151,9 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   }
 
   matchesFilter(value: string): boolean {
-    if (!value || this.filterTerms.length === 0) return false;
+    if (!value || !this.searchTerm) return false;
     const normalizedValue = value.toLowerCase().replace(/_/g, ' ');
-    return this.filterTerms.some(term => normalizedValue.includes(term.toLowerCase().replace(/_/g, ' ')));
+    return normalizedValue.includes(this.searchTerm.toLowerCase().replace(/_/g, ' '));
   }
 
   shouldShowTag(roles: string[]): boolean {
@@ -177,8 +174,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   }
 
   exportCsv(): void {
-    const search = this.filterTerms.join(' ');
-    this.usersManagementService.downloadSubsystemUsersCsvExport(search)
+    this.usersManagementService.downloadSubsystemUsersCsvExport(this.searchTerm)
       .pipe(takeUntil(this.destroy$))
       .subscribe(blob => {
         const link = document.createElement('a');
@@ -226,30 +222,24 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   }
 
   private loadPage(): void {
-    const search = this.filterTerms.join(' ');
     this.store.dispatch(loadSubsystemUsersPaginated({
       page: this.currentPage,
       size: this.pageSize,
       sort: this.currentSort,
-      search
+      search: this.searchTerm
     }));
   }
 
-  private saveFilterTerms(): void {
-    if (this.filterTerms.length > 0) {
-      sessionStorage.setItem(SubsystemUsersComponent.FILTER_STORAGE_KEY, JSON.stringify(this.filterTerms));
+  private saveSearchTerm(): void {
+    if (this.searchTerm) {
+      sessionStorage.setItem(SubsystemUsersComponent.FILTER_STORAGE_KEY, this.searchTerm);
     } else {
       sessionStorage.removeItem(SubsystemUsersComponent.FILTER_STORAGE_KEY);
     }
   }
 
-  private loadFilterTerms(): string[] {
-    try {
-      const stored = sessionStorage.getItem(SubsystemUsersComponent.FILTER_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
+  private loadSearchTerm(): string {
+    return sessionStorage.getItem(SubsystemUsersComponent.FILTER_STORAGE_KEY) ?? '';
   }
 
   private createBreadcrumbs(): void {

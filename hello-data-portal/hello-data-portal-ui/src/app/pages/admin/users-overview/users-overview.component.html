@@ -36,37 +36,23 @@
                         severity="secondary"
                         [outlined]="true"/>
             </div>
-            <div class="ml-auto filter-search-area">
-              <span class="filter-hint">{{ '@Filter hint' | transloco }}</span>
-              <form (submit)="addFilterTerm($event)" class="filter-search-form">
-                <p-iconfield>
-                  <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
-                  <input [(ngModel)]="currentFilterInput"
-                         name="filterInput"
-                         pInputText
-                         [placeholder]="getFilterPlaceholder()"
-                         type="text"/>
-                </p-iconfield>
-              </form>
+            <div class="ml-auto flex items-center gap-2">
+              <p-button
+                [label]="'@Clear' | transloco"
+                severity="secondary"
+                [icon]="icons.ACTION_FILTER_CLEAR.class"
+                (onClick)="clearSearch()"/>
+              <p-iconfield>
+                <p-inputicon [ngClass]="icons.ACTION_SEARCH.class"/>
+                <input [(ngModel)]="currentFilterInput"
+                       (input)="onSearchInput(currentFilterInput)"
+                       name="filterInput"
+                       pInputText
+                       [placeholder]="getFilterPlaceholder()"
+                       type="text"/>
+              </p-iconfield>
             </div>
           </div>
-          @if (filterTerms.length > 0) {
-            <div class="filter-chips-row">
-              <div class="filter-chips-list">
-                @for (term of filterTerms; track term; let i = $index) {
-                  <span class="filter-chip">
-                    <span class="filter-chip-label">{{ term }}</span>
-                    <i class="filter-chip-remove" [ngClass]="icons.ACTION_CLOSE.class" (click)="removeFilterTerm(i)"
-                       (keydown.enter)="removeFilterTerm(i)"
-                       pTooltip="{{ '@Remove filter' | transloco }}"></i>
-                  </span>
-                }
-                <p-button (onClick)="clearAllFilters()" [icon]="icons.ACTION_FILTER_CLEAR.class"
-                          severity="secondary"
-                          pTooltip="{{ '@Clear all filters' | transloco }}"/>
-              </div>
-            </div>
-          }
         </ng-template>
         <ng-template pTemplate="header">
           <tr>
@@ -87,17 +73,16 @@
               }
             </td>
             <td>
-              @if (user.enabled) {
-                <i class="text-success" [ngClass]="icons.STATUS_SUCCESS.class"></i>
-              } @else {
-                <i class="text-danger" [ngClass]="icons.STATUS_ERROR.class"></i>
-              }
+              <span [class.filter-highlight]="matchesFilter(user.enabled ? ('@Yes' | transloco) : ('@No' | transloco))">
+                {{ user.enabled ? ('@Yes' | transloco) : ('@No' | transloco) }}
+              </span>
             </td>
             <td>
               <p-button type="button" pRipple [pRowToggler]="user"
                         [text]="true"
                         severity="secondary"
-                        [icon]="icons.STATUS_INFO.class"/>
+                        [icon]="expanded ? icons.NAV_CHEVRON_DOWN.class : icons.NAV_CHEVRON_RIGHT.class"
+                        pTooltip="{{ '@More info' | transloco }}"/>
             </td>
           </tr>
         </ng-template>
