@@ -532,6 +532,16 @@ button.p-button.p-component:disabled:not(.p-button-text):not(.p-button-rounded):
   font-size: 0.8125rem !important;
 }
 
+.p-select-overlay .p-select-option.p-select-option-selected {
+  background-color: rgba(14, 124, 124, 0.12) !important;
+  color: var(--hd-btn-primary, #0e7c7c) !important;
+}
+
+.p-select-overlay .p-select-option:not(.p-disabled).p-focus {
+  background-color: rgba(14, 124, 124, 0.08) !important;
+  color: var(--hd-btn-primary, #0e7c7c) !important;
+}
+
 /* Reduce size of p-select component by ~10% */
 .p-select {
   padding: 0.45rem 0.7rem !important;
@@ -588,5 +598,22 @@ button.p-button.p-component:disabled:not(.p-button-text):not(.p-button-rounded):
 
 .hd-global-loading-bar .p-progressbar-indeterminate .p-progressbar-value {
   background-color: var(--hd-btn-primary, #0e7c7c) !important;
+}
+
+/* ─── p-tag: use normal weight globally ─── */
+.p-tag {
+  font-weight: normal !important;
+}
+
+/* ─── Checkbox: improve unchecked contrast with teal tinted background ─── */
+.p-checkbox-box {
+  border: none !important;
+  background-color: rgba(14, 124, 124, 0.12) !important;
+}
+
+.p-checkbox.p-checkbox-checked .p-checkbox-box {
+  background-color: var(--hd-btn-primary, #0e7c7c) !important;
+  border-color: var(--hd-btn-primary, #0e7c7c) !important;
+  color: #ffffff !important;
 }
 

@@ -42,10 +42,9 @@
 
 .subsystem-detail-header {
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: normal;
   color: var(--p-text-muted-color, #6b7280);
   margin-bottom: 0.5rem;
-  text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
@@ -92,62 +91,5 @@
   display: inline-flex;
 }
 
-
-.filter-chips-row {
-  display: flex;
-  justify-content: center;
-  margin-top: 0.75rem;
-}
-
-.filter-chips-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-}
-
-.filter-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  background: var(--p-primary-100, #dbeafe);
-  color: var(--p-primary-700, #1d4ed8);
-  border-radius: 16px;
-  padding: 0.25rem 0.6rem;
-  font-size: 0.82rem;
-  font-weight: 500;
-  white-space: nowrap;
-  animation: chip-appear 0.25s ease-out;
-}
-
-@keyframes chip-appear {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.filter-chip-label {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.filter-chip-remove {
-  cursor: pointer;
-  font-size: 0.7rem;
-  opacity: 0.6;
-  transition: opacity 0.15s ease;
-  padding: 2px;
-
-  &:hover {
-    opacity: 1;
-  }
-}
 
 

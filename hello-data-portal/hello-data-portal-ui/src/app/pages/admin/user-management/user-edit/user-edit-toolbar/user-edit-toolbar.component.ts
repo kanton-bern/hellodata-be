@@ -58,11 +58,11 @@ import {ICON_REGISTRY} from '../../../../../shared/icons';
         }
         <p-button (click)="cancelClicked.emit()" (keydown.enter)="cancelClicked.emit()"
                   (keydown.space)="cancelClicked.emit()"
-                  [pTooltip]="'@Cancel' | transloco"
                   class="mr-2"
-                  [icon]="icons.ACTION_BACK.class" severity="secondary" pRipple/>
+                  [label]="'@Cancel' | transloco"
+                  severity="secondary" pRipple/>
         <p-button (click)="saveClicked.emit()" (keydown.enter)="saveClicked.emit()" (keydown.space)="saveClicked.emit()"
-                  [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled()"
+                  [disabled]="saveDisabled()"
                   [loading]="saveLoading()"
                   [label]="'@Save' | transloco"
                   [icon]="icons.ACTION_SAVE.class"

@@ -39,7 +39,7 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {Observable, Subject, takeUntil} from "rxjs";
+import {Observable, Subject, debounceTime, distinctUntilChanged, takeUntil} from "rxjs";
 import {
   clearSubsystemUsersForDashboardsCache,
   loadDashboardUsersPaginated
@@ -74,8 +74,8 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   totalRecords$: Observable<number>;
   dataLoading$: Observable<boolean>;
 
-  filterTerms: string[] = [];
   currentFilterInput = '';
+  searchTerm = '';
   expandedRows: { [s: string]: boolean } = {};
   dynamicColumns: { field: string; header: string }[] = [];
 
@@ -88,14 +88,26 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   private readonly usersManagementService = inject(UsersManagementService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
+  private readonly searchInput$ = new Subject<string>();
 
   constructor() {
     super();
-    this.filterTerms = this.loadFilterTerms();
+    this.currentFilterInput = this.loadSearchTerm();
+    this.searchTerm = this.currentFilterInput;
     this.users$ = this.store.select(selectPaginatedDashboardUsers);
     this.totalRecords$ = this.store.select(selectPaginatedDashboardUsersTotalRecords);
     this.dataLoading$ = this.store.select(selectPaginatedDashboardUsersLoading);
     this.createBreadcrumbs();
+    this.searchInput$.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(term => {
+      this.searchTerm = term;
+      this.saveSearchTerm();
+      this.currentPage = 0;
+      this.loadPage();
+    });
     this.loadPage();
   }
 
@@ -118,29 +130,14 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     this.loadPage();
   }
 
-  addFilterTerm(event: Event): void {
-    event.preventDefault();
-    const term = this.currentFilterInput.trim();
-    if (term && !this.filterTerms.includes(term)) {
-      this.filterTerms = [...this.filterTerms, term];
-      this.currentFilterInput = '';
-      this.saveFilterTerms();
-      this.currentPage = 0;
-      this.loadPage();
-    }
+  onSearchInput(value: string): void {
+    this.searchInput$.next(value.trim());
   }
 
-  removeFilterTerm(index: number): void {
-    this.filterTerms = this.filterTerms.filter((_, i) => i !== index);
-    this.saveFilterTerms();
-    this.currentPage = 0;
-    this.loadPage();
-  }
-
-  clearAllFilters(): void {
-    this.filterTerms = [];
+  clearSearch(): void {
     this.currentFilterInput = '';
-    this.saveFilterTerms();
+    this.searchTerm = '';
+    this.saveSearchTerm();
     this.currentPage = 0;
     this.loadPage();
   }
@@ -150,9 +147,8 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 
   matchesFilter(value: string): boolean {
-    if (!value || this.filterTerms.length === 0) return false;
-    const lowerValue = value.toLowerCase();
-    return this.filterTerms.some(term => lowerValue.includes(term.toLowerCase()));
+    if (!value || !this.searchTerm) return false;
+    return value.toLowerCase().includes(this.searchTerm.toLowerCase());
   }
 
   shouldShowTag(roles: string[]): boolean {
@@ -187,8 +183,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 
   exportCsv(): void {
-    const search = this.filterTerms.join(' ');
-    this.usersManagementService.downloadDashboardUsersCsvExport(search)
+    this.usersManagementService.downloadDashboardUsersCsvExport(this.searchTerm)
       .pipe(takeUntil(this.destroy$))
       .subscribe(blob => {
         const link = document.createElement('a');
@@ -218,30 +213,24 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 
   private loadPage(): void {
-    const search = this.filterTerms.join(' ');
     this.store.dispatch(loadDashboardUsersPaginated({
       page: this.currentPage,
       size: this.pageSize,
       sort: this.currentSort,
-      search
+      search: this.searchTerm
     }));
   }
 
-  private saveFilterTerms(): void {
-    if (this.filterTerms.length > 0) {
-      sessionStorage.setItem(UsersOverviewComponent.FILTER_STORAGE_KEY, JSON.stringify(this.filterTerms));
+  private saveSearchTerm(): void {
+    if (this.searchTerm) {
+      sessionStorage.setItem(UsersOverviewComponent.FILTER_STORAGE_KEY, this.searchTerm);
     } else {
       sessionStorage.removeItem(UsersOverviewComponent.FILTER_STORAGE_KEY);
     }
   }
 
-  private loadFilterTerms(): string[] {
-    try {
-      const stored = sessionStorage.getItem(UsersOverviewComponent.FILTER_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
+  private loadSearchTerm(): string {
+    return sessionStorage.getItem(UsersOverviewComponent.FILTER_STORAGE_KEY) ?? '';
   }
 
   private createBreadcrumbs(): void {
