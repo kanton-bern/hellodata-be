@@ -12387,8 +12387,8 @@ __metadata:
   linkType: hard
 
 "primeng@npm:^21.0.0":
-  version: 21.1.6
-  resolution: "primeng@npm:21.1.6"
+  version: 21.1.7
+  resolution: "primeng@npm:21.1.7"
   dependencies:
     "@primeuix/motion": "npm:^0.0.10"
     "@primeuix/styled": "npm:^0.7.4"
@@ -12403,7 +12403,7 @@ __metadata:
     "@angular/platform-browser": ^21.0.0
     "@angular/router": ^21.0.0
     rxjs: ^6.0.0 || ^7.8.1
-  checksum: 10c0/7098382d3db0aceac1f46d23714caaf1feec68fd1651854b9404963fa8313b5cf2dc00300e950d7b8fcd8868f9a88614ec13940beab199e5baf0bb32ebcadb88
+  checksum: 10c0/48fe36897b7229160f1e113beef68b16354f5da689e5b29b277313a2044e63db20f050f96ddf9a0c7ca82b5f763d77a0fabc53afc3dff89e18d43c5df996b651
   languageName: node
   linkType: hard
 
