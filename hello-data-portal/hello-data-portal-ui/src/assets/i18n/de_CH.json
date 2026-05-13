@@ -223,6 +223,7 @@
   "@Hide": "Ausblenden",
   "@Home": "Startseite",
   "@Id": "Id",
+  "@Import": "Importieren",
   "@Import comments": "Kommentare importieren",
   "@Import dashboard": "Dashboards importieren",
   "@Import failed": "Import fehlgeschlagen",

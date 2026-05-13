@@ -226,6 +226,7 @@
   "@Hide": "Hide",
   "@Home": "Home",
   "@Id": "Id",
+  "@Import": "Import",
   "@Import comments": "Import comments",
   "@Import dashboard": "Import dashboards",
   "@Import failed": "Import failed",

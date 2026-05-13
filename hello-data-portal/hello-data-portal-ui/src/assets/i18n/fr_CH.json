@@ -226,6 +226,7 @@
   "@Hide": "Masquer",
   "@Home": "Accueil",
   "@Id": "Id",
+  "@Import": "Importer",
   "@Import comments": "Importer les commentaires",
   "@Import dashboard": "Importer les tableaux de bord",
   "@Import failed": "Échec de l'importation",
