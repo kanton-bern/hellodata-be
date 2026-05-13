@@ -117,11 +117,11 @@
                           </div>
                         </div>
                         <!-- Row 2: Dashboard comment permissions -->
-                        <div class="flex items-center flex-wrap gap-2 mb-3"
-                             [class.opacity-50]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole">
+                        <div class="flex items-center flex-wrap gap-2 mb-3">
                           <span class="text-sm text-gray-600 mr-2">{{ '@Dashboard comment permissions' | transloco }}
                             :</span>
-                          <div class="flex items-center mr-3">
+                          <div class="flex items-center mr-3"
+                               [class.hd-disabled-field]="isReadCommentDisabled(dataDomain.contextKey)">
                             <p-checkbox
                               [binary]="true"
                               [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'readComments')"
@@ -132,7 +132,8 @@
                             <label [for]="'read-' + dataDomain.contextKey"
                                    class="ml-1 text-sm">{{ '@Read' | transloco }}</label>
                           </div>
-                          <div class="flex items-center mr-3">
+                          <div class="flex items-center mr-3"
+                               [class.hd-disabled-field]="isWriteCommentDisabled(dataDomain.contextKey)">
                             <p-checkbox
                               [binary]="true"
                               [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'writeComments')"
@@ -143,7 +144,8 @@
                             <label [for]="'write-' + dataDomain.contextKey"
                                    class="ml-1 text-sm">{{ '@Write' | transloco }}</label>
                           </div>
-                          <div class="flex items-center">
+                          <div class="flex items-center"
+                               [class.hd-disabled-field]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole">
                             <p-checkbox
                               [binary]="true"
                               [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'reviewComments')"
