@@ -13,7 +13,7 @@
         </ref>
         <!-- For Gitflow branches, use the part after the branch prefix as version and add a -SNAPSHOT suffix -->
         <ref type="branch">
-            <pattern>(feature|release|hotfix|bugfix|support|renovate)/(.+)</pattern>
+            <pattern>(feature|release|hotfix|bugfix|support|renovate|fix)/(.+)</pattern>
             <version>${ref.2}-SNAPSHOT</version>
         </ref>
         <!--    &lt;!&ndash; For merge requests &ndash;&gt;-->
