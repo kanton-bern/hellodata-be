@@ -617,3 +617,53 @@ button.p-button.p-component:disabled:not(.p-button-text):not(.p-button-rounded):
   color: #ffffff !important;
 }
 
+/* ─── Disabled state: cursor and visual distinction for form controls ─── */
+.p-checkbox.p-disabled,
+.p-checkbox[data-p-disabled="true"],
+.p-select.p-disabled,
+.p-select[data-p-disabled="true"],
+.p-editor.p-disabled,
+.p-editor[data-p-disabled="true"] {
+  cursor: not-allowed !important;
+}
+
+.p-checkbox.p-disabled *,
+.p-checkbox[data-p-disabled="true"] *,
+.p-select.p-disabled *,
+.p-select[data-p-disabled="true"] *,
+.p-editor.p-disabled *,
+.p-editor[data-p-disabled="true"] * {
+  cursor: not-allowed !important;
+}
+
+/* PrimeNG checkbox uses an invisible disabled <input> overlay that ignores CSS
+   cursor. Wrap disabled checkboxes in .hd-disabled-field to show not-allowed. */
+.hd-disabled-field {
+  cursor: not-allowed !important;
+}
+
+.hd-disabled-field > * {
+  pointer-events: none !important;
+}
+
+/* Disabled unchecked checkbox: light gray so it's clearly "off" */
+.p-checkbox.p-disabled .p-checkbox-box,
+.p-checkbox[data-p-disabled="true"] .p-checkbox-box {
+  background-color: #d1d5db !important;
+  border-color: #d1d5db !important;
+}
+
+/* Disabled checked checkbox: dimmed teal so it's clearly "on" */
+.p-checkbox.p-disabled.p-checkbox-checked .p-checkbox-box,
+.p-checkbox[data-p-disabled="true"][data-p-checked="true"] .p-checkbox-box {
+  background-color: var(--hd-btn-primary, #0e7c7c) !important;
+  border-color: var(--hd-btn-primary, #0e7c7c) !important;
+  opacity: 0.6;
+}
+
+/* Ensure the check icon stays visible on disabled checked boxes */
+.p-checkbox.p-disabled.p-checkbox-checked .p-checkbox-icon,
+.p-checkbox[data-p-disabled="true"][data-p-checked="true"] .p-checkbox-icon {
+  color: #ffffff !important;
+}
+
