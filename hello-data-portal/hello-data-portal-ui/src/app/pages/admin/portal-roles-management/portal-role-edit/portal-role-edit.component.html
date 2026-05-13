@@ -100,8 +100,8 @@
         </div>
         <div class="p-toolbar-group-end">
           <p-button (click)="navigateToRoleList()" (keydown.enter)="navigateToRoleList()"
-                    [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    [icon]="icons.ACTION_BACK.class" severity="secondary"/>
+                    [label]="'@Cancel' | transloco"
+                    class="mr-2" severity="secondary"/>
           <p-button (click)="saveRole(editedRole)"
                     (keydown.enter)="saveRole(editedRole)"
                     [disabled]="roleForm.invalid||!roleForm.dirty"

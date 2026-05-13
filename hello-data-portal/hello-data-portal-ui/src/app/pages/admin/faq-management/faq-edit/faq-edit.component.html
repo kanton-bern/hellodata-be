@@ -122,9 +122,9 @@
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
-            <p-button (click)="navigateToFaqList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                      (keydown)="navigateToFaqList()"
-                      [icon]="icons.ACTION_BACK.class" severity="secondary" pRipple/>
+            <p-button (click)="navigateToFaqList()" (keydown)="navigateToFaqList()"
+                      [label]="'@Cancel' | transloco"
+                      class="mr-2" severity="secondary" pRipple/>
             <p-button (click)="saveFaq(editedFaq)" (keydown)="saveFaq(editedFaq)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
                       [icon]="icons.ACTION_SAVE.class"

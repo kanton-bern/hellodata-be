@@ -209,9 +209,9 @@
           }
         </div>
         <div class="p-toolbar-group-end">
-          <p-button (click)="navigateToList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    [icon]="icons.ACTION_BACK.class" severity="secondary" pRipple
-                    (keydown.enter)="navigateToList()"/>
+          <p-button (click)="navigateToList()" (keydown.enter)="navigateToList()"
+                    [label]="'@Cancel' | transloco"
+                    class="mr-2" severity="secondary" pRipple/>
           <p-button (click)="saveDashboardGroup(editedDashboardGroup)"
                     (keydown.enter)="saveDashboardGroup(editedDashboardGroup)"
                     [disabled]="!dashboardGroupForm.valid"

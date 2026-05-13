@@ -115,8 +115,9 @@
           }
         </div>
         <div class="p-toolbar-group-end">
-          <p-button (click)="cancel()" (onKeyDown)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    [icon]="icons.ACTION_BACK.class" severity="secondary" pRipple (keydown.enter)="cancel()"/>
+          <p-button (click)="cancel()" (keydown.enter)="cancel()"
+                    [label]="'@Cancel' | transloco"
+                    class="mr-2" severity="secondary" pRipple/>
           <p-button (click)="saveChanges(editedExternalDashboard)"
                     (keydown.enter)="saveChanges(editedExternalDashboard)"
                     [disabled]="externalDashboardForm.invalid||!externalDashboardForm.dirty"
