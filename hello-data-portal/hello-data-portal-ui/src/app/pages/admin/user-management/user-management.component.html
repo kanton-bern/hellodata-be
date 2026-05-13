@@ -193,30 +193,30 @@
                       [icon]="icons.ACTION_EDIT.class"
                       [pTooltip]="'@Edit' | transloco"
                       tooltipPosition="top"/>
-            @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
-              <p-button (click)="enableUser(user)" (keydown.enter)="enableUser(user)"
-                        severity="success"
-                        [text]="true"
-                        [icon]="icons.ACTION_APPROVE.class"
-                        [pTooltip]="'@Enable' | transloco"
-                        tooltipPosition="top"/>
-            }
-            @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
+            @if (user.enabled) {
               <p-button (click)="disableUser(user)" (keydown.enter)="disableUser(user)"
                         severity="warn"
                         [text]="true"
                         [icon]="icons.ACTION_CANCEL.class"
                         [pTooltip]="'@Disable' | transloco"
+                        [disabled]="user.superuser || user.email === loggedInUser.email"
                         tooltipPosition="top"/>
-            }
-            @if (!user.superuser && user.email !== loggedInUser.email) {
-              <p-button (click)="showUserDeletionPopup(user)" (keydown.enter)="showUserDeletionPopup(user)"
-                        severity="danger"
+            } @else {
+              <p-button (click)="enableUser(user)" (keydown.enter)="enableUser(user)"
+                        severity="success"
                         [text]="true"
-                        [icon]="icons.ACTION_DELETE.class"
-                        [pTooltip]="'@Delete' | transloco"
+                        [icon]="icons.ACTION_APPROVE.class"
+                        [pTooltip]="'@Enable' | transloco"
+                        [disabled]="user.superuser || user.email === loggedInUser.email"
                         tooltipPosition="top"/>
             }
+            <p-button (click)="showUserDeletionPopup(user)" (keydown.enter)="showUserDeletionPopup(user)"
+                      severity="danger"
+                      [text]="true"
+                      [icon]="icons.ACTION_DELETE.class"
+                      [pTooltip]="'@Delete' | transloco"
+                      [disabled]="user.superuser || user.email === loggedInUser.email"
+                      tooltipPosition="top"/>
             </div>
           </td>
         }
