@@ -36,14 +36,23 @@ hello-data:
 spring:
   application:
     name: HelloDATA Sidecar for dbt docs
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
   datasource:
     url: jdbc:postgresql://localhost:5432/hd_dbt_docs
     username: airflow
     password: airflow
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 2
-      max-lifetime: 900000 #15min
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 120000
+      max-lifetime: 900000
+      keepalive-time: 60000
+      data-source-properties:
+        tcpKeepAlive: true
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 #swagger props
 springdoc:
@@ -53,6 +62,7 @@ springdoc:
 
 server:
   port: 8084
+  shutdown: graceful
 
 nats:
   spring:

@@ -47,22 +47,32 @@ hello-data:
 spring:
   application:
     name: HelloDATA Sidecar for Jupyterhub
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/hd_metainfo
     password: postgres
     username: postgres
     hikari:
-      maximum-pool-size: 1
-      max-lifetime: 900000 #15min
-
-server:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 120000
+      max-lifetime: 900000
+      keepalive-time: 60000
+      data-source-properties:
+        tcpKeepAlive: true
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   port: 8089
   error:
     include-message: always
     include-exception: false
     include-stacktrace: never
   max-http-request-header-size: 32KB
+
+server:
+  shutdown: graceful
 
 # Actuator endpoints. List available under http://localhost:8081/api/actuator
 management:
