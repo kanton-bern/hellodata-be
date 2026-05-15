@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 $background-color: #ffffff;
-$background-color-hover: var(--surface-hover);
+$background-color-hover: var(--p-content-hover-background);
 $menu-item-text-color: #000000;
 $content-text-color: #11101d;
 
@@ -410,7 +410,7 @@ body {
   border-radius: 8px;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--p-content-hover-background);
   }
 
   &:focus-visible {
@@ -440,7 +440,7 @@ body {
 
 // Highlight second-level parent when a third-level child is hovered
 .nav-drawer__group:has(.nav-drawer__item--child:hover) > .nav-drawer__item--parent {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--p-content-hover-background);
 }
 
 .nav-drawer__item--child {
