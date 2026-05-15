@@ -37,7 +37,7 @@ public class BatchUsersCustomLogger {
             if (!Files.exists(dir)) {
                 log.info("Initializing log directory at {}", logDirectory);
                 // Set permissions for read and write for everyone
-                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-rw-rw-"); //NOSONAR
+                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwx---"); //NOSONAR
                 FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(perms);
                 Files.createDirectories(dir, attrs); // Ensure directory exists
                 File file = dir.toFile();
