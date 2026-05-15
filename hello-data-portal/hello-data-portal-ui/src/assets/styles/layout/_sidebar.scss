@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 $background-color: #ffffff;
-$background-color-hover: var(--p-content-hover-background);
+$background-color-hover: var(--surface-hover);
 $menu-item-text-color: #000000;
 $content-text-color: #11101d;
 
@@ -184,7 +184,7 @@ body {
 
 .sidebar.close > .nav-links > li:hover {
   color: var(--text-color);
-  background-color: var(--p-content-hover-background);
+  background-color: var(--surface-hover);
   border-radius: 3px !important;
 }
 
