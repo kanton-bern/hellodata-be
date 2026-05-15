@@ -159,7 +159,7 @@ export class FaqEffects {
     return this._actions$.pipe(
       ofType(deleteEditedFaqSuccess),
       tap(action => this._notificationService.success('@Faq deleted successfully')),
-      switchMap(() => scheduled([navigate({url: 'faq-management'}), hideDeleteFaqPopup()], asyncScheduler)),
+      switchMap(() => scheduled([clearUnsavedChanges(), hideDeleteFaqPopup(), navigate({url: 'faq-management'})], asyncScheduler)),
     )
   });
 }
