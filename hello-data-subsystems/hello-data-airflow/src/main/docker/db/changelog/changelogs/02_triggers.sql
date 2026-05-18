@@ -57,6 +57,7 @@ DROP TRIGGER IF EXISTS a_create_data_domain_role on ab_view_menu;
 DROP TRIGGER IF EXISTS add_default_permissions_to_view_menu on ab_view_menu;
 DROP TRIGGER IF EXISTS b_add_default_permissions_to_view_menu on ab_view_menu;
 DROP TRIGGER IF EXISTS add_permission_to_data_domain_role on ab_permission_view;
+DROP TRIGGER IF EXISTS remove_dag_view_menu_and_perms ON dag;
 
 DROP FUNCTION IF EXISTS create_view_menu_for_dag();
 DROP FUNCTION IF EXISTS create_data_domain_role();
@@ -64,6 +65,7 @@ DROP FUNCTION IF EXISTS add_default_permissions_to_view_menu();
 DROP FUNCTION IF EXISTS add_permission_to_data_domain_role();
 DROP FUNCTION IF EXISTS remove_dag_security_entries();
 DROP FUNCTION IF EXISTS delete_inactive_dag_entries();
+DROP FUNCTION IF EXISTS remove_dag_view_menu_and_perms();
 
 -- DROP FUNCTION create_dag_security_entries;
 --
