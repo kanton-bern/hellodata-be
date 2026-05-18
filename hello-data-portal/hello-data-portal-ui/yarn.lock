@@ -4779,6 +4779,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@primeuix/utils@npm:^0.7.2":
+  version: 0.7.2
+  resolution: "@primeuix/utils@npm:0.7.2"
+  checksum: 10c0/75a96ad2b22b655d0cd4f6186a26e6715d8938bee8cd395d407f645483e921e5bd0a2b5ffcbefd67271e6edbc29c7cf25503885a11155897243f93c1ec67d81d
+  languageName: node
+  linkType: hard
+
 "@rolldown/binding-android-arm64@npm:1.0.0-rc.4":
   version: 1.0.0-rc.4
   resolution: "@rolldown/binding-android-arm64@npm:1.0.0-rc.4"
@@ -12407,13 +12414,13 @@ __metadata:
   linkType: hard
 
 "primeng@npm:^21.0.0":
-  version: 21.1.7
-  resolution: "primeng@npm:21.1.7"
+  version: 21.1.8
+  resolution: "primeng@npm:21.1.8"
   dependencies:
     "@primeuix/motion": "npm:^0.0.10"
     "@primeuix/styled": "npm:^0.7.4"
     "@primeuix/styles": "npm:^2.0.3"
-    "@primeuix/utils": "npm:^0.6.3"
+    "@primeuix/utils": "npm:^0.7.2"
     tslib: "npm:^2.3.0"
   peerDependencies:
     "@angular/cdk": ^21.0.0
@@ -12423,7 +12430,7 @@ __metadata:
     "@angular/platform-browser": ^21.0.0
     "@angular/router": ^21.0.0
     rxjs: ^6.0.0 || ^7.8.1
-  checksum: 10c0/48fe36897b7229160f1e113beef68b16354f5da689e5b29b277313a2044e63db20f050f96ddf9a0c7ca82b5f763d77a0fabc53afc3dff89e18d43c5df996b651
+  checksum: 10c0/163f8f62e20206cd58997ccbc52e6774b7604e2ada99686c6b39d1ed5d498d4d427802414136217e9530ef75c3d9ad3722d011a3a81bd686e1192e25904d0273
   languageName: node
   linkType: hard
 
