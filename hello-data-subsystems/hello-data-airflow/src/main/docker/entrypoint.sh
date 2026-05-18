@@ -59,7 +59,7 @@ if [ ! -d "/opt/airflow/dags" ]; then
     echo "[ENTRYPOINT]: Created missing directory /opt/airflow/dags"
 fi
 
-cp -r /tmp/hellodata-standard-dags /opt/airflow/dags
+cp -r /hd-tmp/hellodata-standard-dags /opt/airflow/dags
 echo "[ENTRYPOINT]: Copied standard DAGs to /opt/airflow/dags"
 
 # Execute the entrypoint command for Airflow

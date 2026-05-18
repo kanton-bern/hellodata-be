@@ -26,63 +26,187 @@
 --
 
 --
--- Function to remove ab_permission_view_role, ab_permission_view and ab_view_menu for a specific DAG
--- Airflow unfortunately does not delete these records.
--- DROP FUNCTION remove_dag_view_menu_and_perms;
-CREATE OR REPLACE FUNCTION remove_dag_view_menu_and_perms() RETURNS TRIGGER AS
+-- DAG/FAB security synchronization triggers.
+--
+-- This changelog keeps Flask-AppBuilder security tables in sync with Airflow's
+-- dag table by creating, updating, and removing DAG-scoped security metadata.
+--
+
+--
+-- Overview:
+-- This script manages DAG-related security metadata in Flask-AppBuilder tables.
+-- It keeps definitions idempotent by dropping legacy objects first and using
+-- ON CONFLICT DO NOTHING for inserts.
+--
+-- Current active trigger flow:
+-- 1) AFTER INSERT ON dag      -> create_dag_security_entries
+-- 2) AFTER DELETE ON dag      -> remove_dag_security_entries
+-- 3) AFTER UPDATE ON dag      -> delete_inactive_dag_entries
+--
+
+
+--
+-- Delete old triggers and functions if they exist to avoid duplicates and ensure the latest version is used.
+--
+DROP TRIGGER IF EXISTS create_view_menu_for_dag on dag;
+DROP TRIGGER IF EXISTS create_dag_security_entries on dag;
+DROP TRIGGER IF EXISTS remove_dag_security_entries on dag;
+DROP TRIGGER IF EXISTS delete_inactive_dag_entries on dag;
+DROP TRIGGER IF EXISTS create_data_domain_role on ab_view_menu;
+DROP TRIGGER IF EXISTS a_create_data_domain_role on ab_view_menu;
+DROP TRIGGER IF EXISTS add_default_permissions_to_view_menu on ab_view_menu;
+DROP TRIGGER IF EXISTS b_add_default_permissions_to_view_menu on ab_view_menu;
+DROP TRIGGER IF EXISTS add_permission_to_data_domain_role on ab_permission_view;
+DROP TRIGGER IF EXISTS remove_dag_view_menu_and_perms ON dag;
+
+DROP FUNCTION IF EXISTS create_view_menu_for_dag();
+DROP FUNCTION IF EXISTS create_data_domain_role();
+DROP FUNCTION IF EXISTS add_default_permissions_to_view_menu();
+DROP FUNCTION IF EXISTS add_permission_to_data_domain_role();
+DROP FUNCTION IF EXISTS remove_dag_security_entries();
+DROP FUNCTION IF EXISTS delete_inactive_dag_entries();
+DROP FUNCTION IF EXISTS remove_dag_view_menu_and_perms();
+
+-- DROP FUNCTION create_dag_security_entries;
+--
+-- create_dag_security_entries()
+-- Trigger context: AFTER INSERT ON dag
+--
+-- Flow per new DAG row:
+-- 1) Build view menu key "DAG:<dag_id>" and role key "DD_<data_domain>".
+-- 2) Ensure ab_view_menu entry exists.
+-- 3) Ensure ab_role entry exists (if derivable from fileloc).
+-- 4) Ensure permission views for can_delete/can_read/can_edit exist.
+-- 5) Map those permission views to the domain role.
+--
+-- Result:
+-- The DAG becomes visible in FAB security with role mappings in a single
+-- trigger execution path.
+CREATE OR REPLACE FUNCTION create_dag_security_entries() RETURNS TRIGGER AS
 $$
 DECLARE
     _view_menu_id INTEGER;
-
+    _role_id INTEGER;
+    _view_menu_name VARCHAR(255);
+    _role_name VARCHAR(255);
 BEGIN
-    SELECT id INTO STRICT _view_menu_id FROM ab_view_menu WHERE name = 'DAG:' || old.dag_id;
-    DELETE FROM ab_permission_view_role WHERE permission_view_id in (SELECT id FROM ab_permission_view WHERE view_menu_id = _view_menu_id);
-    DELETE FROM ab_permission_view WHERE view_menu_id = _view_menu_id;
-    DELETE FROM ab_view_menu WHERE id = _view_menu_id;
+    _view_menu_name := 'DAG:' || new.dag_id;
+    _role_name := 'DD_' || substring(new.fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)');
+
+    INSERT INTO ab_view_menu (name)
+    VALUES (_view_menu_name)
+    ON CONFLICT (name) DO NOTHING;
+
+    SELECT id INTO _view_menu_id
+    FROM ab_view_menu
+    WHERE name = _view_menu_name;
+
+    IF _view_menu_id IS NULL THEN
+        RETURN new;
+    END IF;
+
+    IF _role_name IS NOT NULL THEN
+        INSERT INTO ab_role (name)
+        VALUES (_role_name)
+        ON CONFLICT (name) DO NOTHING;
+
+        SELECT id INTO _role_id
+        FROM ab_role
+        WHERE name = _role_name;
+    END IF;
+
+    INSERT INTO ab_permission_view (permission_id, view_menu_id)
+    SELECT p.id, _view_menu_id
+    FROM ab_permission p
+    WHERE p.name IN ('can_delete', 'can_read', 'can_edit')
+    ON CONFLICT (permission_id, view_menu_id) DO NOTHING;
+
+    IF _role_id IS NOT NULL THEN
+        INSERT INTO ab_permission_view_role (permission_view_id, role_id)
+        SELECT pv.id, _role_id
+        FROM ab_permission_view pv
+        JOIN ab_permission p ON p.id = pv.permission_id
+        WHERE pv.view_menu_id = _view_menu_id
+          AND p.name IN ('can_delete', 'can_read', 'can_edit')
+        ON CONFLICT (permission_view_id, role_id) DO NOTHING;
+    END IF;
+
+    RETURN new;
+END;
+$$
+    LANGUAGE plpgsql;
+
+-- Register trigger on dag table to create DAG security metadata.
+DROP TRIGGER IF EXISTS create_dag_security_entries on dag;
+CREATE TRIGGER create_dag_security_entries
+    AFTER INSERT ON dag
+    FOR EACH ROW
+EXECUTE FUNCTION create_dag_security_entries();
+
+--
+-- remove_dag_security_entries()
+-- Trigger context: AFTER DELETE ON dag
+--
+-- Removes security metadata created for one DAG:
+-- - permission-role mappings for that DAG view menu
+-- - permission views for that DAG view menu
+-- - the DAG view menu itself
+--
+-- Note:
+-- This function currently removes DAG view-menu based entries only.
+-- Role cleanup is intentionally not performed here.
+CREATE OR REPLACE FUNCTION remove_dag_security_entries() RETURNS TRIGGER AS
+$$
+DECLARE
+    _view_menu_id INTEGER;
+    _view_menu_name VARCHAR(255);
+BEGIN
+    _view_menu_name := 'DAG:' || old.dag_id;
+
+    SELECT id INTO _view_menu_id
+    FROM ab_view_menu
+    WHERE name = _view_menu_name;
+
+    IF _view_menu_id IS NOT NULL THEN
+        DELETE FROM ab_permission_view_role
+        WHERE permission_view_id IN (
+            SELECT id
+            FROM ab_permission_view
+            WHERE view_menu_id = _view_menu_id
+        );
+
+        DELETE FROM ab_permission_view
+        WHERE view_menu_id = _view_menu_id;
+
+        DELETE FROM ab_view_menu
+        WHERE id = _view_menu_id;
+    END IF;
 
     RETURN old;
 END;
 $$
     LANGUAGE plpgsql;
 
---
--- After delete trigger on dag to remove ab_permission_view_role, ab_permission_view and ab_view_menu for a specific DAG.
---
-DROP TRIGGER IF EXISTS remove_dag_view_menu_and_perms on dag;
-CREATE TRIGGER remove_dag_view_menu_and_perms
+-- Register trigger on dag table to remove security metadata for deleted DAGs.
+DROP TRIGGER IF EXISTS remove_dag_security_entries on dag;
+CREATE TRIGGER remove_dag_security_entries
     AFTER DELETE ON dag
     FOR EACH ROW
-EXECUTE FUNCTION remove_dag_view_menu_and_perms();
-
+EXECUTE FUNCTION remove_dag_security_entries();
 
 --
--- Function to add a data_domain role in ab_role if not there yet.
--- Role gets the name of the data domain key with the prefix of DD_
--- Example DD_DATA_DOMAIN_ONE
+-- delete_inactive_dag_entries()
+-- Trigger context: AFTER UPDATE ON dag
 --
--- DROP FUNCTION create_data_domain_role;
-CREATE OR REPLACE FUNCTION create_data_domain_role() RETURNS TRIGGER AS
+-- If a DAG row is updated with is_active = false (or NULL), delete that DAG row.
+-- This intentionally triggers the AFTER DELETE cleanup trigger
+-- (remove_dag_security_entries) to remove linked FAB security metadata.
+CREATE OR REPLACE FUNCTION delete_inactive_dag_entries() RETURNS TRIGGER AS
 $$
-DECLARE
-    dag_permission VARCHAR(10);
-    role_name VARCHAR(255);
-    role_id_count INTEGER;
-
 BEGIN
-    -- Check if this is a DAG-related view menu
-    SELECT substring(new.name from 1 for 4) INTO dag_permission;
-    
-    IF dag_permission = 'DAG:' THEN
-        SELECT 'DD_' || substring(fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') INTO role_name FROM dag WHERE dag.dag_id = substring(new.name from 5);
-        
-        -- Only proceed if we found a matching DAG
-        IF role_name IS NOT NULL THEN
-            SELECT count(ab_role.id) INTO role_id_count from ab_role where ab_role.name = role_name;
-
-            IF role_id_count = 0 THEN
-                INSERT INTO ab_role (name) VALUES(role_name);
-            END IF;
-        END IF;
+    IF new.is_active = false or new.is_active is null THEN
+        DELETE FROM dag
+        WHERE dag_id = new.dag_id;
     END IF;
 
     RETURN new;
@@ -90,64 +214,9 @@ END;
 $$
     LANGUAGE plpgsql;
 
---
--- After insert trigger on ab_view_menu to create data_domain role if not there yet.
---
-DROP TRIGGER IF EXISTS create_data_domain_role on ab_view_menu;
-CREATE TRIGGER create_data_domain_role
-    AFTER INSERT ON ab_view_menu
+-- Register trigger on dag table to delete rows switched to inactive/null.
+DROP TRIGGER IF EXISTS delete_inactive_dag_entries on dag;
+CREATE TRIGGER delete_inactive_dag_entries
+    AFTER UPDATE ON dag
     FOR EACH ROW
-EXECUTE FUNCTION create_data_domain_role();
-
-
---
--- Function to add dag permission to data_domain role on ab_permission_view_role if not there yet.
---
--- DROP FUNCTION add_permission_to_data_domain_role;
-CREATE OR REPLACE FUNCTION add_permission_to_data_domain_role() RETURNS TRIGGER AS
-$$
-DECLARE
-    dag_permission VARCHAR(10);
-    dag_name VARCHAR(255);
-    role_name VARCHAR(255);
-    _role_id INTEGER;
-    ab_permission_view_role_id_count INTEGER;
-
-BEGIN
-
-    SELECT substring(ab_view_menu.name from 1 for 4) INTO dag_permission FROM ab_view_menu WHERE ab_view_menu.id = new.view_menu_id;
-
-    IF dag_permission is not null and dag_permission = 'DAG:' THEN
-        SELECT substring(ab_view_menu.name from 5) INTO dag_name FROM ab_view_menu WHERE ab_view_menu.id = new.view_menu_id;
-        
-        -- Check if DAG exists before attempting to create role
-        SELECT 'DD_' || substring(fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') INTO role_name FROM dag WHERE dag.dag_id = dag_name;
-        
-        -- Only proceed if we found a matching DAG
-        IF role_name IS NOT NULL THEN
-            SELECT ab_role.id INTO _role_id FROM ab_role where name = role_name;
-            
-            -- Only proceed if we found a matching role
-            IF _role_id IS NOT NULL THEN
-                SELECT count(ab_permission_view_role.id) INTO ab_permission_view_role_id_count FROM ab_permission_view_role WHERE ab_permission_view_role.role_id = _role_id AND ab_permission_view_role.permission_view_id = new.id;
-
-                IF ab_permission_view_role_id_count = 0 THEN
-                    INSERT INTO ab_permission_view_role (permission_view_id, role_id) VALUES(new.id, _role_id);
-                END IF;
-            END IF;
-        END IF;
-    END IF;
-
-    RETURN new;
-END;
-$$
-    LANGUAGE plpgsql;
-
---
--- After insert trigger on ab_permission to create data_domain role if not there yet.
---
-DROP TRIGGER IF EXISTS add_permission_to_data_domain_role on ab_permission_view;
-CREATE TRIGGER add_permission_to_data_domain_role
-    AFTER INSERT ON ab_permission_view
-    FOR EACH ROW
-EXECUTE FUNCTION add_permission_to_data_domain_role();
+EXECUTE FUNCTION delete_inactive_dag_entries();
