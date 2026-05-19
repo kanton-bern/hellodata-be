@@ -195,30 +195,3 @@ CREATE TRIGGER remove_dag_security_entries
     AFTER DELETE ON dag
     FOR EACH ROW
 EXECUTE FUNCTION remove_dag_security_entries();
-
---
--- delete_inactive_dag_entries()
--- Trigger context: AFTER UPDATE ON dag
---
--- If a DAG row is updated with is_active = false (or NULL), delete that DAG row.
--- This intentionally triggers the AFTER DELETE cleanup trigger
--- (remove_dag_security_entries) to remove linked FAB security metadata.
-CREATE OR REPLACE FUNCTION delete_inactive_dag_entries() RETURNS TRIGGER AS
-$$
-BEGIN
-    IF new.is_active = false or new.is_active is null THEN
-        DELETE FROM dag
-        WHERE dag_id = new.dag_id;
-    END IF;
-
-    RETURN new;
-END;
-$$
-    LANGUAGE plpgsql;
-
--- Register trigger on dag table to delete rows switched to inactive/null.
-DROP TRIGGER IF EXISTS delete_inactive_dag_entries on dag;
-CREATE TRIGGER delete_inactive_dag_entries
-    AFTER UPDATE ON dag
-    FOR EACH ROW
-EXECUTE FUNCTION delete_inactive_dag_entries();
