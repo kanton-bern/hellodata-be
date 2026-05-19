@@ -26,8 +26,6 @@
  */
 package ch.bedag.dap.hellodata.portal.initialize.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import jakarta.persistence.EntityManager;
@@ -44,7 +42,6 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class ContextsInitializer {
-    private final HdContextRepository contextRepository;
     private final HelloDataContextConfig helloDataContextConfig;
     private final EntityManager entityManager;
 
