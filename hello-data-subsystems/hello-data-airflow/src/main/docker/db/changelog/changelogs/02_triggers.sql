@@ -29,7 +29,7 @@
 -- DAG/FAB security synchronization triggers.
 --
 -- This changelog keeps Flask-AppBuilder security tables in sync with Airflow's
--- dag table by creating, updating, and removing DAG-scoped security metadata.
+-- dag table by creating and removing DAG-scoped security metadata.
 --
 
 --
@@ -41,7 +41,9 @@
 -- Current active trigger flow:
 -- 1) AFTER INSERT ON dag      -> create_dag_security_entries
 -- 2) AFTER DELETE ON dag      -> remove_dag_security_entries
--- 3) AFTER UPDATE ON dag      -> delete_inactive_dag_entries
+--
+-- Legacy UPDATE-based cleanup objects are dropped below if present, but no
+-- UPDATE trigger/function is created by this changelog version.
 --
 
 
