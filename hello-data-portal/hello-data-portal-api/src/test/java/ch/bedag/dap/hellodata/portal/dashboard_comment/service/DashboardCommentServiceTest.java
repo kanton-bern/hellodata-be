@@ -92,6 +92,9 @@ class DashboardCommentServiceTest {
     @Mock
     private EmailNotificationService emailNotificationService;
 
+    @Mock
+    private DashboardCommentDwhSyncService dwhSyncService;
+
     private DashboardCommentService commentService;
 
     // In-memory storage for tests
@@ -112,7 +115,7 @@ class DashboardCommentServiceTest {
     @BeforeEach
     void setUp() {
         commentStore.clear();
-        commentService = new DashboardCommentService(commentRepository, commentPermissionRepository, commentMapper, metaInfoResourceService, userRepository, emailNotificationService);
+        commentService = new DashboardCommentService(commentRepository, commentPermissionRepository, commentMapper, metaInfoResourceService, userRepository, emailNotificationService, dwhSyncService);
 
         // Setup default mocking behavior for repository save
         lenient().when(commentRepository.save(any(DashboardCommentEntity.class)))

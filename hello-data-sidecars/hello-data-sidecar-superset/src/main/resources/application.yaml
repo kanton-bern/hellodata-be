@@ -45,6 +45,13 @@ hello-data:
     admin-password: local-admin
   sidecar:
     publish-interval-minutes: 10
+  dashboard-comments:
+    dwh-sync-enabled: false
+    dwh-jdbc-url: jdbc:postgresql://localhost:5432/dwh
+    dwh-username: postgres
+    dwh-password: postgres
+    dwh-schema: public
+    dwh-table: dashboard_comment_published
 
 spring:
   application:

@@ -79,6 +79,7 @@ public class DashboardCommentService {
     private final MetaInfoResourceService metaInfoResourceService;
     private final UserRepository userRepository;
     private final EmailNotificationService emailNotificationService;
+    private final DashboardCommentDwhSyncService dwhSyncService;
 
     private void checkDashboardAccess(String contextKey, int dashboardId) {
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
@@ -532,6 +533,9 @@ public class DashboardCommentService {
             log.warn("Failed to send comment deleted notification for comment {}: {}", commentId, e.getMessage());
         }
 
+        // Sync published comments to DWH (removes deleted comment)
+        dwhSyncService.publishCommentsForDashboard(contextKey, dashboardId);
+
         return commentMapper.toDto(savedComment);
     }
 
@@ -694,6 +698,9 @@ public class DashboardCommentService {
         } catch (Exception e) {
             log.warn("Failed to send comment published notification for comment {}: {}", commentId, e.getMessage());
         }
+
+        // Sync published comments to DWH
+        dwhSyncService.publishCommentsForDashboard(contextKey, dashboardId);
 
         return commentMapper.toDto(savedComment);
     }
@@ -1163,9 +1170,9 @@ public class DashboardCommentService {
     }
 
     /**
-     * Helper record to store dashboard info (title and instanceName).
+     * Helper record to store dashboard info (title, instanceName, and slug).
      */
-    private record DashboardInfo(String title, String instanceName) {
+    private record DashboardInfo(String title, String instanceName, String slug) {
     }
 
     /**
@@ -1183,7 +1190,7 @@ public class DashboardCommentService {
             if (dashboardResource != null && dashboardResource.getData() != null) {
                 String instanceName = dashboardResource.getInstanceName();
                 for (SupersetDashboard dashboard : dashboardResource.getData()) {
-                    infoMap.put(dashboard.getId(), new DashboardInfo(dashboard.getDashboardTitle(), instanceName));
+                    infoMap.put(dashboard.getId(), new DashboardInfo(dashboard.getDashboardTitle(), instanceName, dashboard.getSlug()));
                 }
             }
         } catch (Exception e) {
