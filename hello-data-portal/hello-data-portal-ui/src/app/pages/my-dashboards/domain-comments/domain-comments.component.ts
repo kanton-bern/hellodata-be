@@ -377,6 +377,11 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     return this.canPublish(comment) && activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW;
   }
 
+  canViewMetadata(comment: DomainDashboardComment): boolean {
+    if (!this.canViewMetadataFn) return false;
+    return this.canViewMetadataFn()(comment);
+  }
+
   canDelete(comment: DomainDashboardComment): boolean {
     if (!this.canDeleteFn) return false;
     return this.canDeleteFn()(comment);
