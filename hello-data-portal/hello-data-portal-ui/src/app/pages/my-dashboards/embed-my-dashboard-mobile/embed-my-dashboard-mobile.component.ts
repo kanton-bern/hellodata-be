@@ -61,6 +61,7 @@ export class EmbedMyDashboardMobileComponent extends BaseComponent implements On
   currentMyDashboardInfo$!: Observable<any>;
   isDrawerVisible = false;
   private loadedDashboardId: number | null = null;
+  private loadedDashboardContextKey: string | null = null;
 
   constructor() {
     super();
@@ -104,8 +105,9 @@ export class EmbedMyDashboardMobileComponent extends BaseComponent implements On
       const dashboardId = dashboardInfo.dashboard.id;
       const contextKey = dashboardInfo.appinfo?.businessContextInfo.subContext.key;
       const dashboardUrl = defaultUrl;
-      if (dashboardId && contextKey && this.loadedDashboardId !== dashboardId) {
+      if (dashboardId && contextKey && (this.loadedDashboardId !== dashboardId || this.loadedDashboardContextKey !== contextKey)) {
         this.loadedDashboardId = dashboardId;
+        this.loadedDashboardContextKey = contextKey;
         this.store.dispatch(setCurrentDashboard({dashboardId, contextKey, dashboardUrl}));
       }
     }
