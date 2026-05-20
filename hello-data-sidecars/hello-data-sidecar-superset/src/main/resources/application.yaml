@@ -50,8 +50,8 @@ hello-data:
     dwh-jdbc-url: jdbc:postgresql://localhost:5432/dwh
     dwh-username: postgres
     dwh-password: postgres
-    dwh-schema: public
-    dwh-table: dashboard_comment_published
+    dwh-schema: dashboard_comments
+    dwh-table: published
 
 spring:
   application:
