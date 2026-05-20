@@ -64,6 +64,8 @@ public class DwhCommentRepository {
         String table = properties.getDwhTable();
         String qualifiedTable = schema + "." + table;
 
+        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS " + schema);
+
         String ddl = """
                 CREATE TABLE IF NOT EXISTS %s (
                     comment_id      VARCHAR(36) PRIMARY KEY,
