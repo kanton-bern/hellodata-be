@@ -73,6 +73,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   isResizing = false;
 
   private loadedDashboardId: number | null = null;
+  private loadedDashboardContextKey: string | null = null;
   private isNavigatingToPointerUrl = false;
   private commentPermissionsSub: Subscription | null = null;
 
@@ -189,8 +190,9 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       const dashboardId = dashboardInfo.dashboard.id;
       const contextKey = dashboardInfo.appinfo?.businessContextInfo.subContext.key;
       const dashboardUrl = defaultUrl;
-      if (dashboardId && contextKey && this.loadedDashboardId !== dashboardId) {
+      if (dashboardId && contextKey && (this.loadedDashboardId !== dashboardId || this.loadedDashboardContextKey !== contextKey)) {
         this.loadedDashboardId = dashboardId;
+        this.loadedDashboardContextKey = contextKey;
         this.store.dispatch(setCurrentDashboard({dashboardId, contextKey, dashboardUrl}));
         // Note: loadDashboardComments is handled by comments-feed.component.ts
         // which respects the current filter state (includeDeleted)
