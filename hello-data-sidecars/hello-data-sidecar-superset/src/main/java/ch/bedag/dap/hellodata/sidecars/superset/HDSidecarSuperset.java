@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.sidecars.superset.client.properties.SupersetProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +41,7 @@ import org.springframework.web.client.RestTemplate;
 
 @EnableJetStream
 @EnableScheduling
-@SpringBootApplication
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @ConfigurationPropertiesScan
 @ComponentScan("ch.bedag.dap.hellodata")
 @EnableConfigurationProperties({SupersetProperties.class, HelloDataContextConfig.class})

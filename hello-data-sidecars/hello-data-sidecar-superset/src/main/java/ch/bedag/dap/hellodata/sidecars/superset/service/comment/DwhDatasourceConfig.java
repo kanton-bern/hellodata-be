@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.sidecars.superset.service.comment;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,12 +41,17 @@ public class DwhDatasourceConfig {
 
     @Bean("dwhDataSource")
     public DataSource dwhDataSource(DwhCommentSyncProperties properties) {
-        return DataSourceBuilder.create()
+        HikariDataSource ds = DataSourceBuilder.create()
+                .type(HikariDataSource.class)
                 .url(properties.getDwhJdbcUrl())
                 .username(properties.getDwhUsername())
                 .password(properties.getDwhPassword())
                 .driverClassName("org.postgresql.Driver")
                 .build();
+        ds.setPoolName("dwh-comments");
+        ds.setMaximumPoolSize(3);
+        ds.setMinimumIdle(1);
+        return ds;
     }
 
     @Bean("dwhJdbcTemplate")
