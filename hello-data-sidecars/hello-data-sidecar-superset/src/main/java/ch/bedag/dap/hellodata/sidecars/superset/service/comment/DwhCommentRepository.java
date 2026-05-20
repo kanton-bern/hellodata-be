@@ -85,7 +85,13 @@ public class DwhCommentRepository {
                 """.formatted(qualifiedTable);
 
         jdbcTemplate.execute(ddl);
-        log.info("Ensured DWH table {} exists", qualifiedTable);
+
+        // Grant read access to all existing roles in the database so Superset users can query
+        jdbcTemplate.execute("GRANT USAGE ON SCHEMA " + schema + " TO PUBLIC");
+        jdbcTemplate.execute("GRANT SELECT ON ALL TABLES IN SCHEMA " + schema + " TO PUBLIC");
+        jdbcTemplate.execute("ALTER DEFAULT PRIVILEGES IN SCHEMA " + schema + " GRANT SELECT ON TABLES TO PUBLIC");
+
+        log.info("Ensured DWH table {} exists with read grants", qualifiedTable);
     }
 
     /**
