@@ -101,26 +101,24 @@
         <td>
           <div class="action-buttons">
             <!-- Info button -->
-            @if (canViewMetadataFn()(comment)) {
-              <p-button
-                [icon]="icons.STATUS_INFO.class"
-                [text]="true"
-                severity="secondary"
-                class="mr-2"
-                [pTooltip]="'@Info' | transloco"
-                tooltipPosition="top"
-                (click)="toggleDetails(comment)" (keydown.enter)="toggleDetails(comment)"/>
-            }
+            <p-button
+              [icon]="icons.STATUS_INFO.class"
+              [text]="true"
+              severity="secondary"
+              class="mr-2"
+              [pTooltip]="'@Info' | transloco"
+              tooltipPosition="top"
+              [disabled]="!canViewMetadata(comment)"
+              (click)="toggleDetails(comment)" (keydown.enter)="toggleDetails(comment)"/>
             <!-- Edit button -->
-            @if (canEdit(comment)) {
-              <p-button
-                [icon]="icons.ACTION_EDIT.class"
-                [text]="true"
-                class="mr-2"
-                [pTooltip]="'@Edit' | transloco"
-                tooltipPosition="top"
-                (click)="editComment(comment)" (keydown.enter)="editComment(comment)"/>
-            }
+            <p-button
+              [icon]="icons.ACTION_EDIT.class"
+              [text]="true"
+              class="mr-2"
+              [pTooltip]="'@Edit' | transloco"
+              tooltipPosition="top"
+              [disabled]="!canEdit(comment)"
+              (click)="editComment(comment)" (keydown.enter)="editComment(comment)"/>
             <!-- Open dashboard button -->
             <p-button
               [icon]="icons.ACTION_EXTERNAL_LINK.class"
@@ -130,48 +128,42 @@
               tooltipPosition="top"
               (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
             <!-- Publish button -->
-            @if (canPublish(comment)) {
-              <p-button
-                [icon]="icons.ACTION_UPLOAD.class"
-                [text]="true"
-
-                class="mr-2"
-                [pTooltip]="'@Publish' | transloco"
-                tooltipPosition="top"
-                (click)="publishCommentAction(comment)" (keydown.enter)="publishCommentAction(comment)"/>
-            }
+            <p-button
+              [icon]="icons.ACTION_UPLOAD.class"
+              [text]="true"
+              class="mr-2"
+              [pTooltip]="'@Publish' | transloco"
+              tooltipPosition="top"
+              [disabled]="!canPublish(comment)"
+              (click)="publishCommentAction(comment)" (keydown.enter)="publishCommentAction(comment)"/>
             <!-- Send for review button -->
-            @if (canSendForReview(comment)) {
-              <p-button
-                [icon]="icons.ACTION_SEND.class"
-                [text]="true"
-
-                class="mr-2"
-                [pTooltip]="'@Send for review' | transloco"
-                tooltipPosition="top"
-                (click)="sendForReviewAction(comment)" (keydown.enter)="sendForReviewAction(comment)"/>
-            }
+            <p-button
+              [icon]="icons.ACTION_SEND.class"
+              [text]="true"
+              class="mr-2"
+              [pTooltip]="'@Send for review' | transloco"
+              tooltipPosition="top"
+              [disabled]="!canSendForReview(comment)"
+              (click)="sendForReviewAction(comment)" (keydown.enter)="sendForReviewAction(comment)"/>
             <!-- Decline button -->
-            @if (canDecline(comment)) {
-              <p-button
-                [icon]="icons.STATUS_STOPPED.class"
-                [text]="true"
-                severity="danger"
-                class="mr-2"
-                [pTooltip]="'@Decline' | transloco"
-                tooltipPosition="top"
-                (click)="openDeclineDialog(comment)" (keydown.enter)="openDeclineDialog(comment)"/>
-            }
+            <p-button
+              [icon]="icons.STATUS_STOPPED.class"
+              [text]="true"
+              severity="danger"
+              class="mr-2"
+              [pTooltip]="'@Decline' | transloco"
+              tooltipPosition="top"
+              [disabled]="!canDecline(comment)"
+              (click)="openDeclineDialog(comment)" (keydown.enter)="openDeclineDialog(comment)"/>
             <!-- Delete button -->
-            @if (canDelete(comment)) {
-              <p-button
-                [icon]="icons.ACTION_DELETE.class"
-                [text]="true"
-                severity="danger"
-                [pTooltip]="'@Delete' | transloco"
-                tooltipPosition="top"
-                (click)="deleteCommentAction(comment)" (keydown.enter)="deleteCommentAction(comment)"/>
-            }
+            <p-button
+              [icon]="icons.ACTION_DELETE.class"
+              [text]="true"
+              severity="danger"
+              [pTooltip]="'@Delete' | transloco"
+              tooltipPosition="top"
+              [disabled]="!canDelete(comment)"
+              (click)="deleteCommentAction(comment)" (keydown.enter)="deleteCommentAction(comment)"/>
           </div>
         </td>
       </tr>
