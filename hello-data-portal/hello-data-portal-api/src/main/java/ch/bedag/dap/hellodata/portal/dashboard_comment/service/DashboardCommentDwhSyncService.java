@@ -142,8 +142,7 @@ public class DashboardCommentDwhSyncService {
     private PublishedComment toPublishedComment(DashboardCommentEntity entity, Map<Integer, DashboardInfo> infoMap) {
         DashboardCommentVersionEntity activeVersion = entity.getHistory().stream()
                 .filter(v -> v.getVersion().equals(entity.getActiveVersion()))
-                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
-                .findFirst()
+                                .findFirst()
                 .orElse(null);
 
         if (activeVersion == null) {
