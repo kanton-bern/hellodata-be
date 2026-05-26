@@ -925,6 +925,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
   startOver(): void {
     this.result = null;
+    this.selectedUserIds.clear();
     this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
       this.router.navigate([naviElements.bulkAssignments.path]);
     });
