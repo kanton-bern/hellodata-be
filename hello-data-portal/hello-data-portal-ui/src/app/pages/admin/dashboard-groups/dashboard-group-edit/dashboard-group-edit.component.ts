@@ -148,14 +148,16 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     this.activeTab = sessionStorage.getItem(DashboardGroupEditComponent.TAB_STORAGE_KEY) || '0';
     this.store.dispatch(loadMyDashboards());
 
-    const groupId = this.route.snapshot.paramMap.get('groupId');
-    const contextKey = this.route.snapshot.paramMap.get('contextKey');
-    if (groupId) {
-      this.store.dispatch(loadDashboardGroupById());
-    } else if (contextKey) {
-      this.store.dispatch(setActiveContextKey({contextKey}));
-      this.store.dispatch(openDashboardGroupEdition({dashboardGroup: null}));
-    }
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const groupId = params.get('groupId');
+      const contextKey = params.get('contextKey');
+      if (groupId) {
+        this.store.dispatch(loadDashboardGroupById());
+      } else if (contextKey) {
+        this.store.dispatch(setActiveContextKey({contextKey}));
+        this.store.dispatch(openDashboardGroupEdition({dashboardGroup: null}));
+      }
+    });
 
     this.editedDashboardGroup$ = this.store.select(selectEditedDashboardGroup);
 
@@ -184,6 +186,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       takeUntil(this.destroy$),
       tap((dashboardGroup) => {
         if (dashboardGroup) {
+          const isGroupChange = this.currentGroupId !== dashboardGroup.id;
           this.currentContextKey = dashboardGroup.contextKey;
 
           if (!this.eligibleUsersInitialized) {
@@ -223,9 +226,16 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
             });
 
             this.initSelectedItems(dashboardGroup);
+          } else if (isGroupChange) {
+            this.initSelectedItems(dashboardGroup);
+            if (dashboardGroup.id) {
+              this.createEditBreadcrumbs(dashboardGroup.name);
+            } else {
+              this.createCreateBreadcrumbs();
+            }
           }
 
-          if (!this.dashboardGroupForm || this.currentGroupId !== dashboardGroup.id) {
+          if (!this.dashboardGroupForm || isGroupChange) {
             this.initForm(dashboardGroup);
           }
         }
