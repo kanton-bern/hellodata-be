@@ -46,7 +46,17 @@
                                       (onSelect)="onSelect($event)"
                                       [class]="'mt-2'"
                                       accept=".zip"
-                                      [maxFileSize]="5000000000"/>
+                                      [maxFileSize]="5000000000">
+                          <ng-template pTemplate="file" let-file>
+                            <div class="flex align-items-center gap-2">
+                              <i class="pi pi-file-zip" style="font-size: 1.5rem"></i>
+                              <div>
+                                <span>{{ file.name }}</span>
+                                <span class="ml-2 text-sm text-color-secondary">{{ (file.size / 1024).toFixed(3) }} KB</span>
+                              </div>
+                            </div>
+                          </ng-template>
+                        </p-fileUpload>
                       }
                     </ng-template>
                     <ng-template pTemplate="header">
