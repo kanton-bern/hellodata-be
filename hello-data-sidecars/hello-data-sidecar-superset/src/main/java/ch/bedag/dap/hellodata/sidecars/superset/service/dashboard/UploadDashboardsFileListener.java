@@ -94,6 +94,7 @@ public class UploadDashboardsFileListener {
                     return;
                 }
                 useDefaultSqlAlchemyUri(dashboardUpload, destinationFile);
+                remapDatabaseInZip(supersetClient, destinationFile, dashboardUpload);
                 JsonObject passwordsObject = getPasswordsObject(destinationFile);
                 log.debug("Passwords parameter send to API ");
                 supersetClient.importDashboard(destinationFile, passwordsObject, true);
@@ -122,6 +123,158 @@ public class UploadDashboardsFileListener {
         File tempZip = File.createTempFile("modified-", dashboardUpload.getFilename(), new File(tmpDir)); //NOSONAR
         replaceSqlalchemyUrisInZip(destinationFile, tempZip, defaultSqlAlchemyUri);
         Files.move(tempZip.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private void remapDatabaseInZip(SupersetClient supersetClient, File destinationFile, DashboardUpload dashboardUpload) throws IOException {
+        TargetDatabase targetDb = resolveTargetDatabase(supersetClient);
+        if (targetDb == null) {
+            log.warn("No target database found in Superset, skipping database remapping");
+            return;
+        }
+        log.info("Remapping database in zip to target: name='{}', uuid='{}'", targetDb.name, targetDb.uuid);
+
+        File tempZip = File.createTempFile("remapped-", dashboardUpload.getFilename(), new File(tmpDir)); //NOSONAR
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+
+        try (
+                ZipFile zipFile = new ZipFile(destinationFile);
+                FileOutputStream fos = new FileOutputStream(tempZip);
+                ZipOutputStream zos = new ZipOutputStream(fos, StandardCharsets.UTF_8)
+        ) {
+            // First pass: find the source database name from the zip
+            String sourceDatabaseName = findSourceDatabaseName(zipFile);
+            if (sourceDatabaseName == null) {
+                log.warn("No database entry found in zip, skipping remapping");
+                return;
+            }
+
+            if (sourceDatabaseName.equals(targetDb.name)) {
+                log.info("Source database name '{}' already matches target, skipping remapping", sourceDatabaseName);
+                return;
+            }
+
+            log.info("Remapping database from '{}' to '{}'", sourceDatabaseName, targetDb.name);
+
+            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                    if (entryName.contains("/databases/") && !entry.isDirectory()) {
+                        // Remap database yaml: replace name, uuid, and rename file
+                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                        Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
+                        parsed.put("database_name", targetDb.name);
+                        parsed.put("uuid", targetDb.uuid);
+
+                        String updatedYaml = yamlMapper.writeValueAsString(parsed);
+                        String newEntryName = entryName.replace("/databases/" + sourceDatabaseName + ".yaml",
+                                "/databases/" + targetDb.name + ".yaml");
+                        log.info("Renaming database entry: {} -> {}", entryName, newEntryName);
+
+                        zos.putNextEntry(new ZipEntry(newEntryName));
+                        zos.write(updatedYaml.getBytes(StandardCharsets.UTF_8));
+                        zos.closeEntry();
+
+                    } else if (entryName.contains("/datasets/" + sourceDatabaseName + "/") && !entry.isDirectory()) {
+                        // Remap dataset: rename folder and update catalog field
+                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                        Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
+                        if (parsed.containsKey("catalog")) {
+                            parsed.put("catalog", targetDb.name);
+                        }
+                        parsed.put("database_uuid", targetDb.uuid);
+
+                        String updatedYaml = yamlMapper.writeValueAsString(parsed);
+                        String newEntryName = entryName.replace("/datasets/" + sourceDatabaseName + "/",
+                                "/datasets/" + targetDb.name + "/");
+                        log.info("Remapping dataset entry: {} -> {}", entryName, newEntryName);
+
+                        zos.putNextEntry(new ZipEntry(newEntryName));
+                        zos.write(updatedYaml.getBytes(StandardCharsets.UTF_8));
+                        zos.closeEntry();
+
+                    } else {
+                        // Copy other files as-is
+                        zos.putNextEntry(new ZipEntry(entryName));
+                        inputStream.transferTo(zos);
+                        zos.closeEntry();
+                    }
+                }
+            }
+        }
+        Files.move(tempZip.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private String findSourceDatabaseName(ZipFile zipFile) throws IOException {
+        Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = entries.nextElement();
+            if (entry.getName().contains("/databases/") && !entry.isDirectory()) {
+                try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                    String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                    Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
+                    Object name = parsed.get("database_name");
+                    if (name instanceof String) {
+                        return (String) name;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private TargetDatabase resolveTargetDatabase(SupersetClient supersetClient) {
+        try {
+            JsonArray databases = supersetClient.listDatabases();
+            if (databases == null || databases.isEmpty()) {
+                log.warn("No databases found in Superset");
+                return null;
+            }
+
+            // Filter out 'examples' database, pick the oldest (lowest id) remaining one
+            JsonElement target = null;
+            int lowestId = Integer.MAX_VALUE;
+            for (JsonElement db : databases) {
+                JsonObject dbObj = db.getAsJsonObject();
+                String name = dbObj.has("database_name") ? dbObj.get("database_name").getAsString() : "";
+                if ("examples".equalsIgnoreCase(name)) {
+                    continue;
+                }
+                int id = dbObj.get("id").getAsInt();
+                if (id < lowestId) {
+                    lowestId = id;
+                    target = db;
+                }
+            }
+
+            if (target == null) {
+                log.warn("No non-examples database found in Superset");
+                return null;
+            }
+
+            // Fetch full details to get uuid
+            JsonElement detail = supersetClient.getDatabaseById(lowestId);
+            JsonObject detailObj = detail.getAsJsonObject();
+            String name = detailObj.get("database_name").getAsString();
+            String uuid = detailObj.has("uuid") && !detailObj.get("uuid").isJsonNull()
+                    ? detailObj.get("uuid").getAsString() : null;
+
+            if (uuid == null) {
+                log.warn("Target database '{}' has no uuid, skipping remapping", name);
+                return null;
+            }
+
+            return new TargetDatabase(name, uuid);
+        } catch (Exception e) {
+            log.error("Failed to resolve target database from Superset API", e);
+            return null;
+        }
+    }
+
+    private record TargetDatabase(String name, String uuid) {
     }
 
     private void replaceSqlalchemyUrisInZip(File sourceZip, File targetZip, String newSqlalchemyUri) throws IOException {
