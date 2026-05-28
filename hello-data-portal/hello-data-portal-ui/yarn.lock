@@ -688,8 +688,8 @@ __metadata:
   linkType: hard
 
 "@angular/cdk@npm:^21.0.0":
-  version: 21.2.12
-  resolution: "@angular/cdk@npm:21.2.12"
+  version: 21.2.13
+  resolution: "@angular/cdk@npm:21.2.13"
   dependencies:
     parse5: "npm:^8.0.0"
     tslib: "npm:^2.3.0"
@@ -698,7 +698,7 @@ __metadata:
     "@angular/core": ^21.0.0 || ^22.0.0
     "@angular/platform-browser": ^21.0.0 || ^22.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/c270ac2d7e9a0e1da0a8fc042f668b51ba1cd6f4b1ac03b76940fca6d863c3dde06dcce393bcce4a98d2892d61611e0c8da55ffc3458d4d2c4b0f48629653890
+  checksum: 10c0/f66a3e78562bb5d76814e804e4c99a3f3484f6aea7be8bf8f024cac29b35f9480b3eb7a830dbe31a0d27c05966648c9c55c9b0b41466a29d76996b1b30ccfeee
   languageName: node
   linkType: hard
 
@@ -829,18 +829,18 @@ __metadata:
   linkType: hard
 
 "@angular/material@npm:^21.0.0":
-  version: 21.2.12
-  resolution: "@angular/material@npm:21.2.12"
+  version: 21.2.13
+  resolution: "@angular/material@npm:21.2.13"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/cdk": 21.2.12
+    "@angular/cdk": 21.2.13
     "@angular/common": ^21.0.0 || ^22.0.0
     "@angular/core": ^21.0.0 || ^22.0.0
     "@angular/forms": ^21.0.0 || ^22.0.0
     "@angular/platform-browser": ^21.0.0 || ^22.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/69e14a2a7cf8b67428cdd5a7952079049f45601892fb0a343582e304159b1cd61c061b2ffd9afbf54164b3baa60872317ab11e35881fb9e0407fef1ef6f067f6
+  checksum: 10c0/213dbba935da65d4890de83756cb3ac5130cc41ecf74b5725d73d4d4ef0fc228a1560ab7892127a24e7af7c558c2eb74fd71ad4cf6bd6da989f5c1236a0c8ce7
   languageName: node
   linkType: hard
 
