@@ -180,7 +180,7 @@ services:
       KC_SPI_CONFIG_UPDATE_MODE: "IGNORE"
       KC_SPI_CONFIG_UPDATE_ENABLE: "false"
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:8080/realms/hellodata" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ready" ]
       interval: 10s
       timeout: 5s
       retries: 50
