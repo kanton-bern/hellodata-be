@@ -38,8 +38,12 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @Log4j2
 @Service
@@ -47,16 +51,23 @@ import java.util.List;
 public class StorageSizeService {
     private final HelloDataStorageConfigurationProperties helloDataStorageConfigurationProperties;
 
+    private static final Set<PosixFilePermission> DIRECTORY_PERMISSIONS = PosixFilePermissions.fromString("rwxrwx---");
+
     @PostConstruct
     public void init() {
         if (helloDataStorageConfigurationProperties.isCreateStorages()) {
             List<StorageConfigurationProperty> storages = helloDataStorageConfigurationProperties.getStorages();
             for (StorageConfigurationProperty storage : storages) {
                 String path = storage.getPath();
-                File folder = new File(path);
-                boolean created = folder.mkdirs();
-                if (created) {
-                    log.info("Created folder {}", folder);
+                Path folderPath = Path.of(path);
+                if (!Files.exists(folderPath)) {
+                    try {
+                        Files.createDirectories(folderPath,
+                                PosixFilePermissions.asFileAttribute(DIRECTORY_PERMISSIONS));
+                        log.info("Created folder {}", folderPath);
+                    } catch (IOException e) {
+                        log.error("Failed to create folder {}", folderPath, e);
+                    }
                 }
             }
         }
