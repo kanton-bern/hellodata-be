@@ -56,6 +56,10 @@ INSERT INTO temp_permission_view_role VALUES ('can_edit','My Password','AF_OPERA
 INSERT INTO temp_permission_view_role VALUES ('can_read','My Password','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('can_edit','My Profile','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('can_read','My Profile','AF_OPERATOR_TEMP');
+INSERT INTO temp_permission_view_role VALUES ('can_read','DAGs','AF_OPERATOR_TEMP');
+INSERT INTO temp_permission_view_role VALUES ('can_edit','DAGs','AF_OPERATOR_TEMP');
+INSERT INTO temp_permission_view_role VALUES ('can_delete','DAGs','AF_OPERATOR_TEMP');
+INSERT INTO temp_permission_view_role VALUES ('menu_access','DAGs','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('can_create','DAG Runs','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('can_read','DAG Runs','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('can_edit','DAG Runs','AF_OPERATOR_TEMP');
