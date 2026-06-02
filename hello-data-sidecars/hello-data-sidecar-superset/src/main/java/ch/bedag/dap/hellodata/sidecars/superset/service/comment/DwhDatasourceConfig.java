@@ -24,36 +24,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.superset;
+package ch.bedag.dap.hellodata.sidecars.superset.service.comment;
 
-import ch.bedag.dap.hellodata.commons.nats.annotation.EnableJetStream;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
-import ch.bedag.dap.hellodata.sidecars.superset.client.properties.SupersetProperties;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-@EnableJetStream
-@EnableScheduling
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-@ConfigurationPropertiesScan
-@ComponentScan("ch.bedag.dap.hellodata")
-@EnableConfigurationProperties({SupersetProperties.class, HelloDataContextConfig.class})
-public class HDSidecarSuperset {
+import javax.sql.DataSource;
 
-    public static void main(String[] args) {
-        SpringApplication.run(HDSidecarSuperset.class, args);
+@Configuration
+@ConditionalOnProperty(name = "hello-data.dashboard-comments.dwh-sync-enabled", havingValue = "true")
+public class DwhDatasourceConfig {
+
+    @Bean("dwhDataSource")
+    public DataSource dwhDataSource(DwhCommentSyncProperties properties) {
+        HikariDataSource ds = DataSourceBuilder.create()
+                .type(HikariDataSource.class)
+                .url(properties.getDwhJdbcUrl())
+                .username(properties.getDwhUsername())
+                .password(properties.getDwhPassword())
+                .driverClassName("org.postgresql.Driver")
+                .build();
+        ds.setPoolName("dwh-comments");
+        ds.setMaximumPoolSize(3);
+        ds.setMinimumIdle(1);
+        return ds;
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+    @Bean("dwhJdbcTemplate")
+    public JdbcTemplate dwhJdbcTemplate(DataSource dwhDataSource) {
+        return new JdbcTemplate(dwhDataSource);
     }
-
 }

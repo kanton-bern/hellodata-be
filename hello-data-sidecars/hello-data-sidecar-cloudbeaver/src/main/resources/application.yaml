@@ -42,14 +42,23 @@ hello-data:
 spring:
   application:
     name: HelloDATA Sidecar for Cloudbeaver
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
   datasource:
     url: jdbc:postgresql://localhost:5432/hd_cloudbeaver
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 2
-      max-lifetime: 900000 #15min
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 120000
+      max-lifetime: 900000
+      keepalive-time: 60000
+      data-source-properties:
+        tcpKeepAlive: true
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     url: "jdbc:postgresql://localhost:5432/hd_cloudbeaver"
     user: "postgres"
@@ -62,6 +71,7 @@ nats:
 
 server:
   port: 8087
+  shutdown: graceful
 
 # Actuator endpoints. List available under http://localhost:8081/api/actuator
 management:

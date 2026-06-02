@@ -26,15 +26,17 @@
 #
 
 # The fat JAR base-image executes a JAR /app/app.jar (or, if there is no /app/app.jar, it executes the first JAR it finds in the /app folder).
-# The java executable is wrapped with tini and executed as the user app with uid 3012.
+# The java executable is wrapped with tini and executed as the USER 3012 with uid 3012.
 
 FROM eclipse-temurin:21-jre
 LABEL MAINTAINER="HelloData Team"
 
 # add 'app' user with uid 3012 and corresponding group
-RUN useradd -d /app -m -s /bin/bash -u 3012 app -U
-USER app
+RUN groupadd -r -g 3012 app && useradd -r -u 3012 -g app -d /app app
 WORKDIR /app
+RUN chown -R 3012:3012 /app
+USER 3012
+
 
 COPY target/*.jar /app/app.jar
 CMD ["java", "-jar", "/app/app.jar"]

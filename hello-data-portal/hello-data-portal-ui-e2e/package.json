@@ -23,6 +23,7 @@
   },
   "resolutions": {
     "js-yaml": "^4.1.1",
-    "@cypress/request": "^4.0.0"
+    "@cypress/request": "^4.0.0",
+    "qs": "^6.15.2"
   }
 }

@@ -456,6 +456,35 @@ public class SupersetClient implements Closeable {
     }
 
     /**
+     * Lists all database connections registered in Superset.
+     *
+     * @return a JsonArray of database objects with id, database_name, uuid fields
+     * @throws URISyntaxException if the Superset URL is invalid
+     * @throws IOException        if there was an error communicating with the Superset server
+     */
+    public JsonArray listDatabases() throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListDatabasesRequest(host, port, authToken);
+        ApiResponse resp = executeRequest(request);
+        JsonElement respBody = JsonParser.parseString(resp.getBody());
+        return respBody.getAsJsonObject().getAsJsonArray("result");
+    }
+
+    /**
+     * Gets a single database connection by ID including its uuid.
+     *
+     * @param databaseId the ID of the database connection
+     * @return a JsonObject with database details
+     * @throws URISyntaxException if the Superset URL is invalid
+     * @throws IOException        if there was an error communicating with the Superset server
+     */
+    public JsonElement getDatabaseById(int databaseId) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getDatabaseByIdRequest(databaseId, host, port, authToken);
+        ApiResponse resp = executeRequest(request);
+        JsonElement respBody = JsonParser.parseString(resp.getBody());
+        return respBody.getAsJsonObject().get("result");
+    }
+
+    /**
      * Exports a dashboard with the specified ID and saves it to the given file.
      *
      * @param dashboardId the ID of the dashboard to export

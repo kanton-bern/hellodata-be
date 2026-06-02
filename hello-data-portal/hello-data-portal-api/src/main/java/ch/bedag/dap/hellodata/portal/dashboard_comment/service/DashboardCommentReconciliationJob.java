@@ -24,36 +24,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.superset;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.service;
 
-import ch.bedag.dap.hellodata.commons.nats.annotation.EnableJetStream;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
-import ch.bedag.dap.hellodata.sidecars.superset.client.properties.SupersetProperties;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.client.RestTemplate;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.config.DashboardCommentSyncProperties;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-@EnableJetStream
-@EnableScheduling
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-@ConfigurationPropertiesScan
-@ComponentScan("ch.bedag.dap.hellodata")
-@EnableConfigurationProperties({SupersetProperties.class, HelloDataContextConfig.class})
-public class HDSidecarSuperset {
+/**
+ * Periodic reconciliation job that re-publishes all published comments to NATS.
+ * Ensures the DWH stays in sync even if individual events were lost.
+ * Only active when {@code hello-data.dashboard-comments.dwh-sync-enabled=true}.
+ */
+@Log4j2
+@Component
+@RequiredArgsConstructor
+@ConditionalOnProperty(name = "hello-data.dashboard-comments.dwh-sync-enabled", havingValue = "true")
+public class DashboardCommentReconciliationJob {
 
-    public static void main(String[] args) {
-        SpringApplication.run(HDSidecarSuperset.class, args);
+    private final DashboardCommentDwhSyncService dwhSyncService;
+    private final DashboardCommentSyncProperties syncProperties;
+
+    @Scheduled(cron = "${hello-data.dashboard-comments.reconciliation-cron:0 0 */6 * * *}")
+    public void reconcile() {
+        if (!syncProperties.isDwhSyncEnabled()) {
+            return;
+        }
+        log.info("Starting scheduled dashboard comments DWH reconciliation");
+        try {
+            dwhSyncService.publishAllComments();
+            log.info("Scheduled dashboard comments DWH reconciliation completed");
+        } catch (Exception e) {
+            log.error("Scheduled dashboard comments DWH reconciliation failed", e);
+        }
     }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
 }

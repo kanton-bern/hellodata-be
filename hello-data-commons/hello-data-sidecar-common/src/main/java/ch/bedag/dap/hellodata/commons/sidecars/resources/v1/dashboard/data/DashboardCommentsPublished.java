@@ -24,36 +24,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.superset;
+package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.data;
 
-import ch.bedag.dap.hellodata.commons.nats.annotation.EnableJetStream;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
-import ch.bedag.dap.hellodata.sidecars.superset.client.properties.SupersetProperties;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.client.RestTemplate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@EnableJetStream
-@EnableScheduling
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-@ConfigurationPropertiesScan
-@ComponentScan("ch.bedag.dap.hellodata")
-@EnableConfigurationProperties({SupersetProperties.class, HelloDataContextConfig.class})
-public class HDSidecarSuperset {
+import java.io.Serializable;
+import java.util.List;
 
-    public static void main(String[] args) {
-        SpringApplication.run(HDSidecarSuperset.class, args);
-    }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
+/**
+ * NATS payload for publishing dashboard comments to the datadomain DWH.
+ * Contains all published comments for a specific (contextKey, dashboardId) pair.
+ * The consumer does a full-replace for idempotent sync.
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DashboardCommentsPublished implements Serializable {
+    private String contextKey;
+    private Integer dashboardId;
+    private List<PublishedComment> comments;
 }

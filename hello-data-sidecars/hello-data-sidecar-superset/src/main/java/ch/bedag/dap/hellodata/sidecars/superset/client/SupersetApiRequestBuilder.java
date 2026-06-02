@@ -78,6 +78,8 @@ public class SupersetApiRequestBuilder {
     private static final String DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/%d";
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
     private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
+    private static final String LIST_DATABASE_API_ENDPOINT = "/api/v1/database/";
+    private static final String DATABASE_API_ENDPOINT = "/api/v1/database/%d";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
     private static final String DELETE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
 
@@ -305,6 +307,14 @@ public class SupersetApiRequestBuilder {
                 .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
                 .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
                 .build();
+    }
+
+    public static HttpUriRequest getListDatabasesRequest(String host, int port, String authToken) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_DATABASE_API_ENDPOINT);
+    }
+
+    public static HttpUriRequest getDatabaseByIdRequest(int databaseId, String host, int port, String authToken) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, String.format(DATABASE_API_ENDPOINT, databaseId));
     }
 
     private static URI buildUri(String host, int port, String endpoint, List<Pair<String, String>> params) throws URISyntaxException {

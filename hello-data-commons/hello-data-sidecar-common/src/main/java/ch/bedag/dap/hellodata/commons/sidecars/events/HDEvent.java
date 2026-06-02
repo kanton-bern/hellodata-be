@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.commons.sidecars.events;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.data.DashboardCommentsPublished;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
@@ -56,6 +57,7 @@ public enum HDEvent {
     UPDATE_STORAGE_MONITORING_RESULT(METAINFO_STREAM, "update_storage_monitoring_result", StorageMonitoringResult.class),
     DELETE_USER(METAINFO_STREAM, "delete_user", SubsystemUserDelete.class),
     GET_ALL_USERS(METAINFO_STREAM, "users_refresh", SubsystemGetAllUsers.class),
+    PUBLISH_DASHBOARD_COMMENTS(METAINFO_STREAM, "publish_resources.dashboard_comments", DashboardCommentsPublished.class),
     ;
     private final HDStream stream;
     private final String subject;

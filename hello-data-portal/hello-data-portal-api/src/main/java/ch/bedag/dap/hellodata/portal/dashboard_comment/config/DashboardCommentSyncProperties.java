@@ -24,36 +24,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.superset;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.config;
 
-import ch.bedag.dap.hellodata.commons.nats.annotation.EnableJetStream;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
-import ch.bedag.dap.hellodata.sidecars.superset.client.properties.SupersetProperties;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.client.RestTemplate;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-@EnableJetStream
-@EnableScheduling
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-@ConfigurationPropertiesScan
-@ComponentScan("ch.bedag.dap.hellodata")
-@EnableConfigurationProperties({SupersetProperties.class, HelloDataContextConfig.class})
-public class HDSidecarSuperset {
-
-    public static void main(String[] args) {
-        SpringApplication.run(HDSidecarSuperset.class, args);
-    }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
+@Data
+@Configuration
+@ConfigurationProperties(prefix = "hello-data.dashboard-comments")
+public class DashboardCommentSyncProperties {
+    private boolean dwhSyncEnabled = false;
+    private String reconciliationCron = "0 0 */6 * * *";
 }

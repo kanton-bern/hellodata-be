@@ -52,6 +52,9 @@ hello-data:
     data-domain-viewer-password: viewer
     email-postfix: hellodata.ch
   check-user-context-roles-in-minutes: 5
+  dashboard-comments:
+    dwh-sync-enabled: false
+    reconciliation-cron: "0 0 */6 * * *"
   system-properties:
     no-reply-email: "no-reply@hellodata.ch"
     default-locale: "de_CH"
@@ -83,6 +86,8 @@ spring:
         - local-user-search
   application:
     name: HelloDATA Portal
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
   data:
     redis:
       host: localhost
@@ -93,15 +98,18 @@ spring:
     password: postgres #NOSONAR - datasource credentials are stored in environment variables and not hardcoded in the codebase. The values in this file are only for local development and testing purposes.
     driver-class-name: org.postgresql.Driver
     hikari:
-      max-lifetime: 900000 #15min
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 120000
+      max-lifetime: 900000
+      keepalive-time: 60000
+      data-source-properties:
+        tcpKeepAlive: true
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
     hibernate:
       ddl-auto: none
-  #    properties:
-  #      hibernate:
-  #        format_sql: true
-  #        generate_statistics: true
   security:
     oauth2:
       client:
@@ -149,6 +157,7 @@ spring:
 #server props
 server:
   port: 8081
+  shutdown: graceful
   servlet:
     context-path: /api
   error:

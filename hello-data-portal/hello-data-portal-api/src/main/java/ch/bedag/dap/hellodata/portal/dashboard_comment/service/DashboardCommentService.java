@@ -79,6 +79,7 @@ public class DashboardCommentService {
     private final MetaInfoResourceService metaInfoResourceService;
     private final UserRepository userRepository;
     private final EmailNotificationService emailNotificationService;
+    private final DashboardCommentDwhSyncService dwhSyncService;
 
     private void checkDashboardAccess(String contextKey, int dashboardId) {
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
@@ -363,7 +364,7 @@ public class DashboardCommentService {
         comment.addVersion(version);
 
         // Save to database
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        DashboardCommentEntity savedComment = commentRepository.saveAndFlush(comment);
 
         log.info("Created comment {} for dashboard {}/{}", savedComment.getId(), contextKey, dashboardId);
         return commentMapper.toDto(savedComment);
@@ -444,7 +445,7 @@ public class DashboardCommentService {
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        DashboardCommentEntity savedComment = commentRepository.saveAndFlush(comment);
 
         log.info("Updated comment {} for dashboard {}/{}, new entityVersion: {}",
                 commentId, contextKey, dashboardId, savedComment.getEntityVersion());
@@ -523,7 +524,7 @@ public class DashboardCommentService {
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        DashboardCommentEntity savedComment = commentRepository.saveAndFlush(comment);
 
         // Notify author about comment being deleted (only if deleted by someone else)
         try {
@@ -531,6 +532,9 @@ public class DashboardCommentService {
         } catch (Exception e) {
             log.warn("Failed to send comment deleted notification for comment {}: {}", commentId, e.getMessage());
         }
+
+        // Sync published comments to DWH (removes deleted comment)
+        dwhSyncService.publishCommentsForDashboard(contextKey, dashboardId);
 
         return commentMapper.toDto(savedComment);
     }
@@ -605,7 +609,7 @@ public class DashboardCommentService {
         activeVersion.setStatus(DashboardCommentStatus.READY_FOR_REVIEW);
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        DashboardCommentEntity savedComment = commentRepository.saveAndFlush(comment);
         log.info("Sent comment {} for review for dashboard {}/{} by {}",
                 commentId, contextKey, dashboardId, isReviewer ? "reviewer" : "author");
 
@@ -685,7 +689,7 @@ public class DashboardCommentService {
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        DashboardCommentEntity savedComment = commentRepository.saveAndFlush(comment);
         log.info("Published comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
 
         // Notify author about comment being published
@@ -694,6 +698,9 @@ public class DashboardCommentService {
         } catch (Exception e) {
             log.warn("Failed to send comment published notification for comment {}: {}", commentId, e.getMessage());
         }
+
+        // Sync published comments to DWH
+        dwhSyncService.publishCommentsForDashboard(contextKey, dashboardId);
 
         return commentMapper.toDto(savedComment);
     }
@@ -738,7 +745,7 @@ public class DashboardCommentService {
         comment.setHasActiveDraft(false);
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        DashboardCommentEntity savedComment = commentRepository.saveAndFlush(comment);
         log.info("Declined comment {} for dashboard {}/{} by {} with reason: {}",
                 commentId, contextKey, dashboardId, reviewerName, declineDto.getDeclineReason());
 
@@ -821,7 +828,7 @@ public class DashboardCommentService {
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        DashboardCommentEntity savedComment = commentRepository.saveAndFlush(comment);
         log.info("Created new version {} for comment {} on dashboard {}/{}",
                 newVersionNumber, commentId, contextKey, dashboardId);
 
@@ -1085,9 +1092,13 @@ public class DashboardCommentService {
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        DashboardCommentEntity savedComment = commentRepository.saveAndFlush(comment);
         log.info("Restored comment {} to version {} for dashboard {}/{}",
                 commentId, versionNumber, contextKey, dashboardId);
+
+        // Sync restored comments to DWH
+        dwhSyncService.publishCommentsForDashboard(contextKey, dashboardId);
+
         return commentMapper.toDto(savedComment);
     }
 
@@ -1163,9 +1174,9 @@ public class DashboardCommentService {
     }
 
     /**
-     * Helper record to store dashboard info (title and instanceName).
+     * Helper record to store dashboard info (title, instanceName, and slug).
      */
-    private record DashboardInfo(String title, String instanceName) {
+    private record DashboardInfo(String title, String instanceName, String slug) {
     }
 
     /**
@@ -1183,7 +1194,7 @@ public class DashboardCommentService {
             if (dashboardResource != null && dashboardResource.getData() != null) {
                 String instanceName = dashboardResource.getInstanceName();
                 for (SupersetDashboard dashboard : dashboardResource.getData()) {
-                    infoMap.put(dashboard.getId(), new DashboardInfo(dashboard.getDashboardTitle(), instanceName));
+                    infoMap.put(dashboard.getId(), new DashboardInfo(dashboard.getDashboardTitle(), instanceName, dashboard.getSlug()));
                 }
             }
         } catch (Exception e) {

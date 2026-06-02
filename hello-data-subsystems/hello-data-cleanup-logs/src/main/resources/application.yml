@@ -45,6 +45,8 @@ spring:
       jdbc-url: jdbc:postgresql://localhost:35432/superset
       password: superset
       username: superset
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 hello-data:
   log-cleanup:
