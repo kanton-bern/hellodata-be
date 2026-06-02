@@ -43,6 +43,8 @@
         <tomcat.version>11.0.22</tomcat.version>
         <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
         <bouncycastle.version>1.84</bouncycastle.version>
+        <!-- CVE-2026-42198 / BDSA-2026-8637: remove once Spring Boot ships postgresql >= 42.7.11 -->
+        <postgresql.version>42.7.11</postgresql.version>
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.x targets Boot 4.0.x -->
         <spring-cloud.version>2025.1.0</spring-cloud.version>
         <spring-ws-test.version>5.0.1</spring-ws-test.version>
@@ -61,6 +63,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- CVE-2026-42198 / BDSA-2026-8637: remove once Spring Boot ships postgresql >= 42.7.11 -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
             <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
