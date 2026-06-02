@@ -38,11 +38,11 @@
         <rest-assured.version>6.0.0</rest-assured.version>
         <spring-boot.version>4.0.6</spring-boot.version>
         <!-- CVE-2026-42584 / BDSA-2026-9440: remove once Spring Boot ships Netty >= 4.2.13.Final -->
-        <netty.version>4.2.13.Final</netty.version>
+        <netty.version>4.2.15.Final</netty.version>
         <!-- CVE-2026-41284 / BDSA-2026-10253: remove once Spring Boot ships Tomcat >= 11.0.22 -->
         <tomcat.version>11.0.22</tomcat.version>
         <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
-        <bouncycastle.version>1.82</bouncycastle.version>
+        <bouncycastle.version>1.84</bouncycastle.version>
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.x targets Boot 4.0.x -->
         <spring-cloud.version>2025.1.0</spring-cloud.version>
         <spring-ws-test.version>5.0.1</spring-ws-test.version>
