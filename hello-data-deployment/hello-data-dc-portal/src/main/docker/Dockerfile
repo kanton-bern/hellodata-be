@@ -76,4 +76,10 @@ RUN echo "window.environment = { \
 			} \
           }" > /app/config/environment.js
 
+USER root
+RUN chown -R 3012:app /var/cache/nginx && chmod -R g+w /var/cache/nginx && \
+    chown -R 3012:app /var/log/nginx && chmod -R g+w /var/log/nginx && \
+    chown -R 3012:app /var/run && chmod -R g+w /var/run
+USER 3012
+
 CMD ["nginx", "-g", "daemon off;"]
