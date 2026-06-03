@@ -12,15 +12,15 @@
 </p>
 
 <ul>
-    <li th:if="${BUSINESS_DOMAIN_ROLE_NAME != 'NONE'}">
+    <li>
         Business Domain Role <span
-            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unknown_') + ': ' + #objects.nullSafe(BUSINESS_DOMAIN_ROLE_NAME, '_Unknown_')}"></span>
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unknown_') + ': ' + (#objects.nullSafe(BUSINESS_DOMAIN_ROLE_NAME, 'NONE') != 'NONE' ? #objects.nullSafe(BUSINESS_DOMAIN_ROLE_NAME, '_Unknown_') : 'No role')}"></span>
     </li>
 </ul>
 <div th:each="item : ${DATA_DOMAIN_ROLES}">
-    <ul th:if="${item.role.name != 'NONE'}">
+    <ul>
         <li>
-            Data Domain Role <span th:text="${item.context.name + ': ' + item.role.name}"></span>
+            Data Domain Role <span th:text="${item.context.name + ': ' + (item.role.name != 'NONE' ? item.role.name : 'No role')}"></span>
         </li>
     </ul>
 </div>
