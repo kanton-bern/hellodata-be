@@ -41,6 +41,12 @@
 -- Current active trigger flow:
 -- 1) AFTER INSERT ON dag      -> create_dag_security_entries
 -- 2) AFTER DELETE ON dag      -> remove_dag_security_entries
+-- 3) AFTER INSERT ON ab_role  -> backfill_dag_permissions_for_role
+--
+-- Trigger (3) closes the race condition where a DD_<domain> role is created
+-- (by the sidecar) after the matching domain DAGs are already in the dag table.
+-- In that case trigger (1) ran without a role, so ab_permission_view_role rows
+-- were never written.  Trigger (3) backfills them when the role appears.
 --
 -- Legacy UPDATE-based cleanup objects are dropped below if present, but no
 -- UPDATE trigger/function is created by this changelog version.
@@ -61,6 +67,7 @@ DROP TRIGGER IF EXISTS b_add_default_permissions_to_view_menu on ab_view_menu;
 DROP TRIGGER IF EXISTS add_permission_to_data_domain_role on ab_permission_view;
 DROP TRIGGER IF EXISTS remove_dag_view_menu_and_perms ON dag;
 DROP TRIGGER IF EXISTS delete_inactive_dag_entries on dag;
+DROP TRIGGER IF EXISTS backfill_dag_permissions_for_role ON ab_role;
 
 DROP FUNCTION IF EXISTS create_view_menu_for_dag();
 DROP FUNCTION IF EXISTS create_data_domain_role();
@@ -70,6 +77,7 @@ DROP FUNCTION IF EXISTS remove_dag_security_entries();
 DROP FUNCTION IF EXISTS delete_inactive_dag_entries();
 DROP FUNCTION IF EXISTS remove_dag_view_menu_and_perms();
 DROP FUNCTION IF EXISTS delete_inactive_dag_entries();
+DROP FUNCTION IF EXISTS backfill_dag_permissions_for_role();
 
 -- DROP FUNCTION create_dag_security_entries;
 --
@@ -197,3 +205,52 @@ CREATE TRIGGER remove_dag_security_entries
     AFTER DELETE ON dag
     FOR EACH ROW
 EXECUTE FUNCTION remove_dag_security_entries();
+
+--
+-- backfill_dag_permissions_for_role()
+-- Trigger context: AFTER INSERT ON ab_role
+--
+-- Closes the race condition where a DD_<domain> role is created (by the sidecar)
+-- after the matching DAGs are already present in the dag table.
+-- In that scenario create_dag_security_entries fired with no role → ab_permission_view
+-- rows exist but ab_permission_view_role rows were never written.
+--
+-- Flow:
+-- 1) Ignore roles that are not DD_-prefixed.
+-- 2) Extract domain key from role name (e.g. "demo" from "DD_demo").
+-- 3) For every DAG whose fileloc maps to that domain (same regex as
+--    create_dag_security_entries), insert missing ab_permission_view_role rows.
+--    ab_view_menu and ab_permission_view rows must already exist (created by
+--    create_dag_security_entries on DAG INSERT).
+CREATE OR REPLACE FUNCTION backfill_dag_permissions_for_role() RETURNS TRIGGER AS
+$$
+DECLARE
+    _domain_key VARCHAR(255);
+BEGIN
+    IF new.name NOT LIKE 'DD_%' THEN
+        RETURN new;
+    END IF;
+
+    _domain_key := substring(new.name from '^DD_(.+)$');
+
+    INSERT INTO ab_permission_view_role (permission_view_id, role_id)
+    SELECT pv.id, new.id
+    FROM dag d
+    JOIN ab_view_menu vm ON vm.name = 'DAG:' || d.dag_id
+    JOIN ab_permission_view pv ON pv.view_menu_id = vm.id
+    JOIN ab_permission p ON p.id = pv.permission_id
+    WHERE substring(d.fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') = _domain_key
+      AND p.name IN ('can_delete', 'can_read', 'can_edit')
+    ON CONFLICT (permission_view_id, role_id) DO NOTHING;
+
+    RETURN new;
+END;
+$$
+    LANGUAGE plpgsql;
+
+-- Register trigger on ab_role table to backfill DAG permissions for new DD_ roles.
+DROP TRIGGER IF EXISTS backfill_dag_permissions_for_role ON ab_role;
+CREATE TRIGGER backfill_dag_permissions_for_role
+    AFTER INSERT ON ab_role
+    FOR EACH ROW
+EXECUTE FUNCTION backfill_dag_permissions_for_role();
