@@ -266,6 +266,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
         message: this.translateService.translate('@You have unsaved wizard progress. Are you sure you want to leave?'),
         icon: DIALOG_WARNING.class,
         acceptButtonStyleClass: 'p-button-danger',
+        rejectButtonStyleClass: 'p-button-secondary',
         acceptLabel: this.translateService.translate('@Yes'),
         rejectLabel: this.translateService.translate('@No'),
         accept: () => {
@@ -594,7 +595,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     this.confirmationService.confirm({
       message: msg,
       icon: DIALOG_WARNING.class,
-      acceptButtonStyleClass: 'p-button-success',
+      acceptButtonStyleClass: 'hd-btn-primary',
+      rejectButtonStyleClass: 'p-button-secondary',
       acceptLabel: this.translateService.translate('@Yes'),
       rejectLabel: this.translateService.translate('@No'),
       accept: () => {
