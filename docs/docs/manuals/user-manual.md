@@ -488,18 +488,9 @@ everything in detail, and everyone can write to it. It will appear on the dashbo
 
 ### Monitoring
 
-We provide two different ways of monitoring:
-
-- Status
-- Workspaces
+We provide monitoring via Workspaces:
 
 ![](../images/1068204614.png)
-
-#### Status
-
-It will show you detailed information on instances of HelloDATA, how is the situation for the Portal, is the monitoring
-running, etc.
-![](../images/1068204616.png)
 
 #### Data Domains
 
