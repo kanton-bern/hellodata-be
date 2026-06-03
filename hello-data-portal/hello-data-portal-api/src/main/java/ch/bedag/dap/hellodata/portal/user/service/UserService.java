@@ -349,7 +349,11 @@ public class UserService {
         // Invalidate user cache so permissions are refreshed immediately
         authenticationConverter.invalidateUserCache(userEntity.getEmail());
 
-        notifyUserViaEmail(userId, updateContextRolesForUserDto);
+        try {
+            notifyUserViaEmail(userId, updateContextRolesForUserDto);
+        } catch (Exception e) {
+            log.error("Failed to send role-change notification email for user {}", userId, e);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -443,7 +447,11 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserEntity> findHelloDataAdminUsers() {
-        return userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN).stream().filter(UserEntity::isEnabled).toList();
+        List<UserEntity> businessDomainAdmins = userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN).stream().filter(UserEntity::isEnabled).toList();
+        if (!businessDomainAdmins.isEmpty()) {
+            return businessDomainAdmins;
+        }
+        return userRepository.findUsersByHdRoleName(HdRoleName.HELLODATA_ADMIN).stream().filter(UserEntity::isEnabled).toList();
     }
 
     @Transactional
