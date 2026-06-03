@@ -15,9 +15,7 @@ on [Architecture & Concepts](../architecture/architecture.md).
 The entry page of HelloDATA is the [Web Portal](../architecture/data-stack.md#control-pane-portal).
 
 1. Navigation to jump to the different capabilities of HelloDATA
-2. Extended status information about
-    1. data pipelines, containers, performance and security
-    2. documentation and subscriptions
+2. Dashboard details: title, publication status, availability and last-modified information
 3. User and profile information of logged-in user.
 4. Overview of your dashboards
 
