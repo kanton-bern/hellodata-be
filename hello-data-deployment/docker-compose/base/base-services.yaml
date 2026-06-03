@@ -180,7 +180,7 @@ services:
       KC_SPI_CONFIG_UPDATE_MODE: "IGNORE"
       KC_SPI_CONFIG_UPDATE_ENABLE: "false"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ready" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/health/ready" ]
       interval: 10s
       timeout: 5s
       retries: 50
