@@ -13,7 +13,6 @@ The portal lets you see:
 - You can check out the latest runs. Gives you when the dashboards have been updated.
 - Create and view all company-wide reports and dashboards.
 - View your data tables as Data Marts: Accessing physical tables, columns, and schemas.
-- Central Monitoring of all processes running in the portal.
 - Manage and control all your user access and role permission and authorization.
 
 You can find more about the navigation and the features in the [User Manual](../manuals/user-manual.md).
