@@ -12,52 +12,70 @@ on [Architecture & Concepts](../architecture/architecture.md).
 
 ### Portal
 
-The entry page of HelloDATA is the [Web Portal](../architecture/data-stack.md#control-pane-portal).
+The entry page of HelloDATA is the [Web Portal](../architecture/data-stack.md#control-plane-portal).
 
-1. Navigation to jump to the different capabilities of HelloDATA
-2. Dashboard details: title, publication status, availability and last-modified information
-3. User and profile information of logged-in user.
-4. Overview of your dashboards
+![](../images/portal-home.png)
 
-![](../images/1068204566.png)
+The portal is organized into three areas:
+
+1. **Icon sidebar** (left) – the main navigation. Hovering over an icon expands it and reveals its sub-items. The
+   available sections depend on your roles and permissions:
+    - **Dashboards** – your Superset dashboards and external dashboards
+    - **Lineage** – the dbt documentation and data lineage
+    - **Data Marts** – the universal data mart (udm) viewer
+    - **Data Eng.** – DWH Viewer, Orchestration, Advanced Analytics and the File Browser
+    - **Administration** – user, role, dashboard-access, announcement, FAQ and documentation management
+    - **Monitoring** – workspaces and subsystem users
+    - **DevTools** – queries, mailbox and file browser
+2. **Top bar** – the data-domain switcher (`All Data Domains`), the language switcher (`DE | EN | FR`) and the user menu.
+3. **Home page** – an overview of your dashboards, external dashboards, data marts, lineage docs, FAQ and documentation.
+
+#### User menu
+
+In the top-right corner the user menu gives you quick access to your **Profile**, your **Notifications**, system
+**Info**, and **Logout**.
 
 #### Business & Data Domain
 
 As explained in [Domain View](../architecture/architecture.md#domain-view), a key feature is to create business domains
 with n-data domains. If you have access to more than one data domain, you can switch between them by clicking the
-`drop-down` at the top and switch between them.
+`All Data Domains` drop-down at the top and selecting the domain you want to work in. Most lists and menus are then
+filtered to the selected data domain.
 
-![](../images/Pasted%20image%2020231130145958.png)
+![](../images/portal-domain-switcher.png)
 
 ### Dashboards
 
-The most important navigation button is the dashboard links. If you hover over it, you'll see three options to choose
-from.
+The **Dashboards** entry in the sidebar is the most important one. Hovering over it reveals the **Dashboard List**, the
+dashboards grouped by their Superset instance, the link to open the native Superset instance, the dashboard comments and
+the external dashboards.
 
-You can either click the dashboard list in the hover menu (2) to see the list of dashboards with thumbnails, or directly
-choose your dashboard (3).
+The dashboard list shows all dashboards you have access to, together with their data domain, business process,
+department, professional responsibility, data analyst and publication status. From here you can open a dashboard, see its
+details or open it in a new tab.
 
-![](../images/1068204575.png)
+The overview of your dashboards is also available directly on the home page (see the **Dashboards** and
+**External dashboards** panels in the [portal entry page](#portal)).
 
-### Data-Lineage
+### Lineage
 
-To see the data lineage (dependencies of your data tables), you have the second menu option. Again, you chose the list
-or directly on "data lineage" (2).
+To see the data lineage (dependencies of your data tables), open the **Lineage** sidebar entry. You can either pick a
+specific lineage doc from the hover menu or open the **Lineage Docs List** to see all dbt documentation projects you have
+access to.
 
-Button 2 will bring you to the project site, where you choose your project and load the lineage.
-![](../images/1068204578.png)
+![](../images/portal-lineage-list.png)
 
-Once loaded, you see all sources (1) and dbt Projects (2). On the detail page, you can see all the beautiful and helpful
-documentation such as:
+Opening a project brings you to the dbt documentation, where you can see all sources and dbt projects. On the detail page
+you can see all the beautiful and helpful documentation such as:
 
-- table name (3)
-- columns and data types (4)
-- which table and model this selected object depends on (5)
-- the SQL code (6)
+- table name
+- columns and data types
+- which table and model this selected object depends on
+- the SQL code
     - as a template or compiled
-- and dependency graph (7)
-    - which you can expand to full view (8) after clicking (7)
-    - interactive data lineage view (9)
+- and the dependency graph
+    - which you can expand to full view
+    - interactive data lineage view
 
 ![](../images/1068204586.png)
 ![](../images/1068204588.png)
@@ -65,9 +83,8 @@ documentation such as:
 
 ### Data Marts Viewer
 
-This view lets you access the universal data mart (udm) layer:
-
-![](../images/Pasted%20image%2020231130155512.png)
+This view lets you access the universal data mart (udm) layer. Open the **Data Marts** sidebar entry and choose the
+**DM Viewer** for the data domain you want to inspect.
 
 These are cleaned and modeled data mart tables. Data marts are the tables that have been joined and cleaned from the
 source tables. This is effectively the latest layer of HelloDATA BE, which the Dashboards are accessing. Dashboards
@@ -77,6 +94,9 @@ We use CloudBeaver for this, same as the DWH Viewer later.
 ![](../images/Pasted%20image%2020231130155752.png)
 
 ### Data Engineering
+
+The **Data Eng.** sidebar entry bundles the tools for data engineers: the DWH Viewer, the Orchestration, the Advanced
+Analytics (JupyterHub) and the File Browser.
 
 #### DWH Viewer
 
@@ -108,11 +128,10 @@ tell [Airflow](https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDT
 our orchestrator, in which order the task will run. This is usually done ahead of time, and in the portal, you can see
 the latest runs and their status (successful, failed, etc.).
 
-- You can navigate to DAGs (2) and see all the details (3) with the DAG name, owner, runs, schedules, next run and
-  recent.
-- You can also dive deeper into Datasets, Security, Admin or similar (4)
-- Airflow offers lots of different visualization modes, e.g. the Graph view (6), that allows you to see each step of
-  this task.
+- You can navigate to DAGs and see all the details with the DAG name, owner, runs, schedules, next run and recent.
+- You can also dive deeper into Datasets, Security, Admin or similar
+- Airflow offers lots of different visualization modes, e.g. the Graph view, that allows you to see each step of this
+  task.
     - As you can see, you can choose calendar, task duration, Gantt, etc.
 
 ![](../images/1068204596.png)
@@ -319,14 +338,12 @@ def tutorial_taskflow_api():
 tutorial_taskflow_api()
 ```
 
-#### Jupyter Notebooks (Jupyter Hub)
+#### Advanced Analytics (JupyterHub)
 
 If you have one of the roles of `HELLODATA_ADMIN`, `BUSINESS_DOMAIN_ADMIN`, or `DATA_DOMAIN_ADMIN`, you can access
-Jupyter Hub and its notebooks with:
+**Advanced Analytics** from the **Data Eng.** sidebar entry. It opens JupyterHub for the selected data domain.
 
-![](../images/Pasted%20image%2020240828153754.png)
-
-That opens up Jupyter Hub where you choose the base image you want to start with. E.g. you choose Data Science to do ML
+That opens up JupyterHub where you choose the base image you want to start with. E.g. you choose Data Science to do ML
 workloads, or R if you solely want to work with R. This could look like this:
 
 ![](../images/Pasted%20image%2020240828153902.png)
@@ -398,117 +415,132 @@ finally:
 
 ### Administration
 
-Here you manage the portal configurations such as user, roles, announcements, FAQs, and documentation management.
+Here you manage the portal configuration such as users, dashboard groups, dashboard access, roles, announcements, FAQs,
+and documentation. Hover over the **Administration** sidebar entry to see all available sub-items.
 
-![](../images/1068204613.png)
+#### User Management
 
-#### Benutzerverwaltung / User Management
+The **User management** page is the central place to invite users, synchronize them and manage their permissions.
 
-##### Adding user
+![](../images/portal-user-management.png)
 
-First type your email and hit enter. Then choose the drop down and click on it.
-![](../images/Pasted%20image%2020231130151446.png)
+##### Inviting a user
 
-Now type the Name and hit `Berechtigungen setzen` to add the user:
-![](../images/Pasted%20image%2020231130151542.png)
+Fill in the **Email**, **First name** and **Last name** in the *Invite user* panel and click **Set permissions** to
+create the user and continue to the permission assignment.
 
-You should see something like this:
+##### Synchronizing users
 
-![](../images/Pasted%20image%2020231130151610.png)
+The **Synchronize Users** button reconciles the portal users with the identity provider (Keycloak) and the connected
+subsystems.
 
-##### Changing Permissions
+##### Changing permissions
 
-1. Search the user you want to give or change permissions
-2. Scroll to the right
-3. Click the green edit icon
-
-![](../images/Pasted%20image%2020231130151712.png)
-
-Now choose the `role` you want to give:
-
-![](../images/Pasted%20image%2020231130151757.png)
-
-And or give access to specific data domains:
-
-![](../images/Pasted%20image%2020231130151816.png)
+In the *Users* table you can search for a user and use the action icons on the right of each row to edit the user,
+enable/disable it or delete it. The edit icon opens the user's role and data-domain assignment, where you choose the
+`role` to grant and the specific data domains to give access to.
 
 See more in [role-authorization-concept](role-authorization-concept.md).
 
 ##### Bulk Assignments
 
-For assigning roles, dashboards, and dashboard groups to multiple users at once, use the **Bulk Assignments** wizard. See the dedicated [Bulk Assignments](bulk-assignments.md) guide for a full walkthrough.
+For assigning roles, dashboards, and dashboard groups to multiple users at once, use the **Bulk Assignments** wizard
+(reachable from the *Users* table). See the dedicated [Bulk Assignments](bulk-assignments.md) guide for a full
+walkthrough.
 
-#### Portal Rollenverwaltung / Portal Role Management
+#### Dashboard Groups
 
-In this portal role management, you can see all the roles that exist.
+Dashboard groups let you bundle dashboards and grant access to a set of users at once, per data domain. Select the data
+domain under **Dashboard groups** and use **Create** to define a new group with its dashboards and users.
+
+![](../images/portal-dashboard-groups.png)
+
+#### Users Overview
+
+The **Users overview** gives you a consolidated, read-only view of all users and their business-domain role across the
+platform. You can **Export** the list, **Refresh** it, or **Clear cache** to force a re-fetch. Expand a row to see the
+detailed role assignments per context.
+
+![](../images/portal-users-overview.png)
+
+#### Dashboard Access
+
+The **Dashboard access** page is an audit log that shows which user accessed which dashboard and when, including the data
+domain. Use the search box to filter the log.
+
+![](../images/portal-dashboard-access.png)
+
+#### Portal Role Management
+
+In **Portal role management** you can see all the roles that exist together with their permissions.
 
 !!! warning
 
-    Creating new roles is not supported, despite the fact "Rolle erstellen" button exists. All roles are defined and hard coded.
+    Creating new roles is not supported. All roles are system roles and are defined and hard coded.
 
-![](../images/Pasted%20image%2020231130152628.png)
+![](../images/portal-role-management.png)
 
-##### Creating a new role
+#### Announcements
 
-See how to create a new role below:
-![](../images/Pasted%20image%2020231130152819.png)
+You can create an announcement (notification) that is shown to all users. Open **Announcements** and click **Create**.
+The editor is multilingual — provide the text for **DE**, **EN** and **FR** using the rich-text editor, then toggle
+**Published** and **Save**. Published announcements appear at the top of the portal until the user closes them.
 
-#### Ankündigung / Announcement
-
-You can simply create an announcement that goes to all users by `Ankündigung erstellen`:
-![](../images/Pasted%20image%2020231130153025.png)
-
-Then you fill in your message. Save it.
-
-![](../images/Pasted%20image%2020231130153054.png)
-You'll see a success if everything went well:
-![](../images/Pasted%20image%2020231130153156.png)
-
-And this is how it looks to the users — It will appear until the user clicks the cross to close it.
-![](../images/Pasted%20image%2020231130153220.png)
+![](../images/portal-announcement-create.png)
 
 #### FAQ
 
-The FAQ works the same as the announcements above. They are shown on the starting dashboard, but you can set the
-granularity of a data domain:
+The FAQ works similarly to the announcements. Open **FAQ management**, click **Create**, choose the **Data Domain** the
+FAQ should apply to (or *All Data Domains*), enter a **Title** and the content for each language. FAQs are shown on the
+home page.
 
-![](../images/Pasted%20image%2020231130153427.png)
+![](../images/portal-faq-create.png)
 
-And this is how it looks:
-![](../images/Pasted%20image%2020231130153507.png)
+#### Documentation Management
 
-#### Dokumentationsmanagement / Documentation Management
+With **Documentation management** you maintain a single documentation entry that everyone with the permission can edit.
+The editor is multilingual (**DE / EN / FR**) and the content is shown on the home page.
 
-Lastly, you can document the system with documentation management. Here you have one document that you can document
-everything in detail, and everyone can write to it. It will appear on the dashboard as well:
+![](../images/portal-documentation-management.png)
 
-![](../images/Pasted%20image%2020231130153801.png)
+#### Dashboard Import / Export
+
+The **Dashboard import-export** page lets administrators export dashboards from a data domain and import them into
+another. Each data domain has its own **Export** / **Import** controls and a table where you select the dashboards to
+transfer, together with their metadata (business process, department, professional responsibility, data analyst).
+
+![](../images/portal-dashboard-import-export.png)
 
 ### Monitoring
 
-We provide monitoring via Workspaces:
+The **Monitoring** sidebar entry bundles the workspaces overview and the subsystem users.
 
-![](../images/1068204614.png)
+#### Workspaces
 
-#### Data Domains
+The **Workspaces** page gives you a single entry point to every connected subsystem and its native application — Airflow,
+CloudBeaver, dbt docs, JupyterHub, SFTPGo and the Superset instances per data domain. Click a card to open the
+corresponding tool.
 
-In Monitoring your data domains you see each system and the link to the native application. You can easily and quickly
-observe permissions, roles and users by different subsystems (1). Click the one you want, and you can choose different
-levels (2) for each, and see its permissions (3).
+![](../images/portal-workspaces.png)
 
-![](../images/1068204622.png)
+#### Subsystem Users
 
-![](../images/1068204620.png)
+The **Subsystem users** page lets you observe and reconcile users across the connected subsystems. You can **Export** the
+list, **Export for batch import**, **Refresh** or **Clear cache**, and expand a user to see their state in each
+subsystem.
 
-By clicking on the blue underlined `DBT Docs`, you will be navigated to the native dbt docs. Same is true if you click
-on an Airflow or Superset instance.
+![](../images/portal-subsystem-users.png)
 
 ### DevTools
 
-DevTools are additional tools HelloDATA provides out of the box to e.g. send Mail (Mailbox) or browse files (
-FileBrowser).
+DevTools are additional tools HelloDATA provides out of the box: the query history, a mailbox and a file browser.
 
-![](../images/1068204623.png)
+#### Queries
+
+The **Queries** page shows the history of SQL queries executed against the data warehouse, with their status, time,
+duration, originating tab, database, schema, tables and the user who ran them.
+
+![](../images/portal-queries.png)
 
 #### Mailbox
 
@@ -520,7 +552,7 @@ accounts are updated.
 #### FileBrowser
 
 Here you can browse all the documentation or code from the git repos as file browser. We
-use [SFTPGo](https://github.com/drakkan/sftpgo) here. Please use with care, as some of the folder are system relevant.
+use [SFTPGo](https://github.com/drakkan/sftpgo) here. Please use with care, as some of the folders are system relevant.
 
 !!! note "Log in"
 
