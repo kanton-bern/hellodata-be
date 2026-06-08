@@ -46,6 +46,7 @@ public class DashboardAccessSynchronizer {
 
     private static final int PAGE_SIZE = 1000;
     private static final int MAX_PAGES = 40;
+    private static final int RETENTION_DAYS = 365;
 
     private final HdContextRepository contextRepository;
     private final DashboardAccessRepository dashboardAccessRepository;
@@ -83,6 +84,14 @@ public class DashboardAccessSynchronizer {
             log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses for data domain {}", contextEntity.getName());
         }
         log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
+    }
+
+    @Scheduled(cron = "${hello-data.cleanup-dashboard-access-cron:0 0 3 * * *}")
+    @Transactional
+    public void cleanupOldDashboardAccess() {
+        OffsetDateTime cutoff = OffsetDateTime.now(ZoneOffset.UTC).minusDays(RETENTION_DAYS);
+        int deleted = dashboardAccessRepository.deleteByDttmBefore(cutoff);
+        log.info("[cleanupDashboardAccess] Deleted {} dashboard access entries older than {} days (before {})", deleted, RETENTION_DAYS, cutoff);
     }
 
     private void assembleAndSaveEntity(HdContextEntity contextEntity, SupersetLog supersetLog, String supersetInstanceName) {
