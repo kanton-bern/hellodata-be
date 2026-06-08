@@ -24,11 +24,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -95,93 +91,22 @@ public class DashboardAccessListRequestListener {
         dispatcher.subscribe(supersetSidecarSubject);
     }
 
-    private List<SupersetLog> getSupersetLogResponse(JsonArray callerFilters, int page, int pageSize) throws URISyntaxException, IOException {
-        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
-            List<SupersetLog> mountDashboardLogs = fetchMountDashboardLogs(supersetClient, callerFilters, page, pageSize);
-            List<SupersetLog> dashboardRestApiLogs = fetchDashboardRestApiGetLogs(supersetClient, callerFilters, page, pageSize);
-            return deduplicate(mountDashboardLogs, dashboardRestApiLogs);
-        }
-    }
-
-    /**
-     * Fetches action=log entries that contain a mount_dashboard event.
-     * On Superset <4.1.3 the dashboard_id column is NULL — the id is parsed from source_id in the JSON payload as a fallback.
-     */
-    private List<SupersetLog> fetchMountDashboardLogs(SupersetClient supersetClient, JsonArray callerFilters, int page, int pageSize)
-            throws URISyntaxException, IOException {
-        JsonArray filter = copyFilters(callerFilters);
+    private List<SupersetLog> getSupersetLogResponse(JsonArray filter, int page, int pageSize) throws URISyntaxException, IOException {
         JsonObject logFilter = new JsonObject();
         logFilter.addProperty("col", "action");
         logFilter.addProperty("opr", "eq");
         logFilter.addProperty("value", "log");
         filter.add(logFilter);
-
-        SupersetLogResponse response = supersetClient.logsFiltered(filter, page, pageSize);
-        return response.getResult().stream()
-                .filter(entry -> entry.getJson() != null && entry.getJson().contains("mount_dashboard"))
-                .peek(entry -> {
-                    if (entry.getDashboardId() == null) {
-                        JsonElement jsonEl = JsonParser.parseString(entry.getJson());
-                        if (jsonEl.isJsonObject()) {
-                            JsonObject obj = jsonEl.getAsJsonObject();
-                            if (obj.has("source_id") && !obj.get("source_id").isJsonNull()) {
-                                entry.setDashboardId(obj.get("source_id").getAsInt());
-                            }
-                        }
-                    }
-                })
-                .filter(entry -> entry.getDashboardId() != null)
-                .toList();
-    }
-
-    /**
-     * Fetches action=DashboardRestApi.get entries as a fallback for Superset versions
-     * that do not populate dashboard_id on action=log events.
-     */
-    private List<SupersetLog> fetchDashboardRestApiGetLogs(SupersetClient supersetClient, JsonArray callerFilters, int page, int pageSize)
-            throws URISyntaxException, IOException {
-        JsonArray filter = copyFilters(callerFilters);
-        JsonObject actionFilter = new JsonObject();
-        actionFilter.addProperty("col", "action");
-        actionFilter.addProperty("opr", "eq");
-        actionFilter.addProperty("value", "DashboardRestApi.get");
-        filter.add(actionFilter);
         JsonObject dashboardIdFilter = new JsonObject();
         dashboardIdFilter.addProperty("col", "dashboard_id");
         dashboardIdFilter.addProperty("opr", "gt");
         dashboardIdFilter.addProperty("value", 0);
         filter.add(dashboardIdFilter);
 
-        SupersetLogResponse response = supersetClient.logsFiltered(filter, page, pageSize);
-        return response.getResult();
-    }
-
-    /**
-     * Removes DashboardRestApi.get entries that are already represented by a mount_dashboard log entry.
-     * Both events fire within seconds of each other for the same visit, so a 60-second window
-     * keyed on (userId, dashboardId) is used to detect duplicates.
-     */
-    private List<SupersetLog> deduplicate(List<SupersetLog> mountDashboardLogs, List<SupersetLog> dashboardRestApiLogs) {
-        Set<String> mountDashboardKeys = mountDashboardLogs.stream()
-                .map(this::visitKey)
-                .collect(Collectors.toSet());
-
-        List<SupersetLog> result = new ArrayList<>(mountDashboardLogs);
-        dashboardRestApiLogs.stream()
-                .filter(entry -> !mountDashboardKeys.contains(visitKey(entry)))
-                .forEach(result::add);
-        return result;
-    }
-
-    /** Groups events into 60-second buckets per user+dashboard to detect same-visit duplicates. */
-    private String visitKey(SupersetLog entry) {
-        long bucket = entry.getDttm() != null ? entry.getDttm().toEpochSecond(ZoneOffset.UTC) / 60 : 0;
-        return entry.getUserId() + ":" + entry.getDashboardId() + ":" + bucket;
-    }
-
-    private JsonArray copyFilters(JsonArray source) {
-        JsonArray copy = new JsonArray();
-        source.forEach(copy::add);
-        return copy;
+        SupersetLogResponse supersetLogResponse;
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+            supersetLogResponse = supersetClient.logsFiltered(filter, page, pageSize);
+        }
+        return supersetLogResponse.getResult().stream().filter(logEntry -> logEntry.getJson().contains("mount_dashboard")).toList();
     }
 }
