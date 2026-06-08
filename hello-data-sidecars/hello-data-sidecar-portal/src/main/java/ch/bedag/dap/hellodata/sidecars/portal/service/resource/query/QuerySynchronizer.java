@@ -41,6 +41,7 @@ public class QuerySynchronizer {
 
     private static final int PAGE_SIZE = 1000;
     private static final int MAX_PAGES = 40;
+    private static final int RETENTION_DAYS = 365;
 
     private final HdContextRepository contextRepository;
     private final QueryRepository queryRepository;
@@ -95,6 +96,14 @@ public class QuerySynchronizer {
             log.info("Finished synchronizing queries for data domain {}", contextEntity.getName());
 
         }
+    }
+
+    @Scheduled(cron = "${hello-data.cleanup-query-cron:0 0 3 * * *}")
+    @Transactional
+    public void cleanupOldQueries() {
+        OffsetDateTime cutoff = OffsetDateTime.now(ZoneOffset.UTC).minusDays(RETENTION_DAYS);
+        int deleted = queryRepository.deleteByChangedOnBefore(cutoff);
+        log.info("[cleanupQueries] Deleted {} query entries older than {} days (before {})", deleted, RETENTION_DAYS, cutoff);
     }
 
     private List<SupersetQuery> fetchQueries(String contextKey) {

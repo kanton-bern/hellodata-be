@@ -36,4 +36,6 @@ public interface DashboardAccessRepository extends JpaRepository<DashboardAccess
 
     Optional<DashboardAccessEntity> findFirstByContextKeyOrderByDttmDesc(String contextKey);
 
+    int deleteByDttmBefore(OffsetDateTime cutoff);
+
 }
