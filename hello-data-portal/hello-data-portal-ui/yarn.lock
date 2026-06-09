@@ -688,8 +688,8 @@ __metadata:
   linkType: hard
 
 "@angular/cdk@npm:^21.0.0":
-  version: 21.2.13
-  resolution: "@angular/cdk@npm:21.2.13"
+  version: 21.2.14
+  resolution: "@angular/cdk@npm:21.2.14"
   dependencies:
     parse5: "npm:^8.0.0"
     tslib: "npm:^2.3.0"
@@ -698,7 +698,7 @@ __metadata:
     "@angular/core": ^21.0.0 || ^22.0.0
     "@angular/platform-browser": ^21.0.0 || ^22.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/f66a3e78562bb5d76814e804e4c99a3f3484f6aea7be8bf8f024cac29b35f9480b3eb7a830dbe31a0d27c05966648c9c55c9b0b41466a29d76996b1b30ccfeee
+  checksum: 10c0/9c52a7942d8758ae0659583762ab6a56cde4fb97e3f6b47fca80e2bb0d99c4e9925a45136eefbb1442b98fd781f211fbe788adc0da2c091a5e58687d3818042f
   languageName: node
   linkType: hard
 
@@ -829,18 +829,18 @@ __metadata:
   linkType: hard
 
 "@angular/material@npm:^21.0.0":
-  version: 21.2.13
-  resolution: "@angular/material@npm:21.2.13"
+  version: 21.2.14
+  resolution: "@angular/material@npm:21.2.14"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/cdk": 21.2.13
+    "@angular/cdk": 21.2.14
     "@angular/common": ^21.0.0 || ^22.0.0
     "@angular/core": ^21.0.0 || ^22.0.0
     "@angular/forms": ^21.0.0 || ^22.0.0
     "@angular/platform-browser": ^21.0.0 || ^22.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/213dbba935da65d4890de83756cb3ac5130cc41ecf74b5725d73d4d4ef0fc228a1560ab7892127a24e7af7c558c2eb74fd71ad4cf6bd6da989f5c1236a0c8ce7
+  checksum: 10c0/5d2e45790817f944c840ae52bcb70195bcfe56f2c3e2530719a6bb08ee865eedcd40f8466f7c9baa96b72057539a44cd7728efd680eb50ed5af55a573825b5f6
   languageName: node
   linkType: hard
 
@@ -12410,8 +12410,8 @@ __metadata:
   linkType: hard
 
 "primeng@npm:^21.0.0":
-  version: 21.1.8
-  resolution: "primeng@npm:21.1.8"
+  version: 21.1.9
+  resolution: "primeng@npm:21.1.9"
   dependencies:
     "@primeuix/motion": "npm:^0.0.10"
     "@primeuix/styled": "npm:^0.7.4"
@@ -12426,7 +12426,7 @@ __metadata:
     "@angular/platform-browser": ^21.0.0
     "@angular/router": ^21.0.0
     rxjs: ^6.0.0 || ^7.8.1
-  checksum: 10c0/163f8f62e20206cd58997ccbc52e6774b7604e2ada99686c6b39d1ed5d498d4d427802414136217e9530ef75c3d9ad3722d011a3a81bd686e1192e25904d0273
+  checksum: 10c0/912fac5d3221ad6936a252debc8832082c71a886f6f418d58f410eb22cf9dba115b30f8d823fedec81f14ee2e8d1c23ab881d946e0a8b55a4cd955d632941de7
   languageName: node
   linkType: hard
 
