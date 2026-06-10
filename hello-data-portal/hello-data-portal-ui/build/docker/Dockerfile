@@ -42,9 +42,12 @@ COPY csp.conf /etc/nginx/conf.d/csp.conf.template
 
 WORKDIR /app
 
-# Set ownership and group write permissions for /app and /etc/nginx
+# Set ownership and group write permissions for /app, /etc/nginx, nginx runtime dirs
 RUN chown -R 3012:app /app && chmod -R g+w /app && \
-    chown -R 3012:app /etc/nginx && chmod -R g+w /etc/nginx
+    chown -R 3012:app /etc/nginx && chmod -R g+w /etc/nginx && \
+    chown -R 3012:app /var/cache/nginx && chmod -R g+w /var/cache/nginx && \
+    chown -R 3012:app /var/log/nginx && chmod -R g+w /var/log/nginx && \
+    chown -R 3012:app /var/run && chmod -R g+w /var/run
 
 USER 3012
 
