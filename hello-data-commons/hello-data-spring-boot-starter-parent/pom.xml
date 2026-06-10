@@ -36,7 +36,7 @@
         <modelmapper.version>3.2.6</modelmapper.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <rest-assured.version>6.0.0</rest-assured.version>
-        <spring-boot.version>4.0.6</spring-boot.version>
+        <spring-boot.version>4.1.0</spring-boot.version>
         <!-- CVE-2026-42584 / BDSA-2026-9440: remove once Spring Boot ships Netty >= 4.2.13.Final -->
         <netty.version>4.2.15.Final</netty.version>
         <!-- CVE-2026-41284 / BDSA-2026-10253: remove once Spring Boot ships Tomcat >= 11.0.22 -->
