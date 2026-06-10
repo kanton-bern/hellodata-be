@@ -2,7 +2,7 @@
 <p-card>
   @if ((availableDataDomains$ | async); as dataDomains) {
     <div>
-      @for (dataDomain of dataDomains | orderBy: 'data.name'; track dataDomain) {
+      @for (dataDomain of dataDomains | orderBy: 'data.name'; track dataDomain.data.key) {
         <div>
           @if ((dashboards$ | async); as dashboards) {
             <div>
