@@ -37,6 +37,7 @@ import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.dbt.service.resource.DbtDocsUserResourceProviderService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -58,12 +59,7 @@ public class DbtDocsUserContextRoleConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void processContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
-        User user = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
-        if (user == null) {
-            log.info("User {} not found, creating", userContextRoleUpdate.getUsername());
-            User dbtDocUser = toDbtDocUser(userContextRoleUpdate);
-            user = userRepository.saveAndFlush(dbtDocUser);
-        }
+        User user = findOrCreateUser(userContextRoleUpdate);
         Set<String> userDataDomainKeys = getRelevantUserDataDomainContextKeys(userContextRoleUpdate);
         if (!userDataDomainKeys.isEmpty()) {
             log.info("Update roles for user: {}", user.getEmail());
@@ -76,6 +72,24 @@ public class DbtDocsUserContextRoleConsumer {
         userRepository.saveAndFlush(user);
         if (userContextRoleUpdate.isSendBackUsersList()) {
             userResourceProviderService.publishUsers();
+        }
+    }
+
+    private User findOrCreateUser(UserContextRoleUpdate userContextRoleUpdate) {
+        User user = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+        if (user != null) {
+            return user;
+        }
+        log.info("User {} not found, creating", userContextRoleUpdate.getUsername());
+        try {
+            return userRepository.saveAndFlush(toDbtDocUser(userContextRoleUpdate));
+        } catch (DataIntegrityViolationException e) {
+            log.warn("User {} was created concurrently, re-fetching existing user", userContextRoleUpdate.getUsername());
+            User existing = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+            if (existing == null) {
+                throw e;
+            }
+            return existing;
         }
     }
 
