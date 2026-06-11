@@ -134,6 +134,13 @@ public class DashboardAccessSynchronizer {
                 dashboardAccessEntity.setUserFullname(userInInstance.getFirstName() + " " + userInInstance.getLastName());
             }
         }
+        if (dashboardAccessEntity.getUserFullname() == null || dashboardAccessEntity.getUserFullname().isBlank()) {
+            String fallback = supersetLog.getUser().getUsername();
+            if (fallback == null || fallback.isBlank()) {
+                fallback = "unknown [id: " + supersetLog.getUserId() + "]";
+            }
+            dashboardAccessEntity.setUserFullname(fallback);
+        }
     }
 
     private List<SupersetLog> fetchDashboardAccess(String contextKey, String supersetInstanceName) {
