@@ -54,14 +54,24 @@
       "enabled": false
     },
     {
-      "description": "Pin spring-cloud-dependencies to 2025.0.x (2025.1.x targets Spring Boot 4.0.x)",
+      "description": "Pin spring-boot to 4.0.x until a Spring Cloud train targets Boot 4.1.x",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchPackageNames": [
+        "org.springframework.boot:spring-boot-dependencies"
+      ],
+      "allowedVersions": "<4.1.0"
+    },
+    {
+      "description": "Keep spring-cloud on Oakwood (2025.1.x) which targets Spring Boot 4.0.x",
       "matchManagers": [
         "maven"
       ],
       "matchPackageNames": [
         "org.springframework.cloud:spring-cloud-dependencies"
       ],
-      "allowedVersions": "<2025.1.0"
+      "allowedVersions": "<2025.2.0"
     },
     {
       "description": "Group all Spring packages (minor/patch)",
