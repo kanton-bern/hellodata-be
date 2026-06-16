@@ -37,18 +37,6 @@
                                   [icon]="icons.ACTION_EXPORT.class"
 
                                   pRipple/>
-                        @if (uploadVisible(dataDomain.data.key)) {
-                          <div class="flex align-items-center ml-2">
-                            <p-checkbox [binary]="true"
-                                        [inputId]="'prune-checkbox-' + dataDomain.data.key"
-                                        [(ngModel)]="pruneMap[dataDomain.data.key]"
-                                        (onChange)="onPruneCheckboxChange($event, dataDomain.data.key)">
-                            </p-checkbox>
-                            <label [for]="'prune-checkbox-' + dataDomain.data.key" class="ml-2 cursor-pointer">
-                              {{ '@Prune charts and datasets' | transloco }}
-                            </label>
-                          </div>
-                        }
                       </div>
                       @if (uploadVisible(dataDomain.data.key)) {
                         <p-fileUpload name="file"
@@ -60,6 +48,18 @@
                                       [class]="'mt-2'"
                                       accept=".zip"
                                       [maxFileSize]="5000000000">
+                          <ng-template pTemplate="header">
+                            <div class="flex align-items-center ml-2">
+                              <p-checkbox [binary]="true"
+                                          [inputId]="'prune-checkbox-' + dataDomain.data.key"
+                                          [(ngModel)]="pruneMap[dataDomain.data.key]"
+                                          (onChange)="onPruneCheckboxChange($event, dataDomain.data.key)">
+                              </p-checkbox>
+                              <label [for]="'prune-checkbox-' + dataDomain.data.key" class="ml-2 cursor-pointer">
+                                {{ '@Prune charts and datasets' | transloco }}
+                              </label>
+                            </div>
+                          </ng-template>
                           <ng-template pTemplate="file" let-file>
                             <div class="flex align-items-center gap-2">
                               <i class="pi pi-file-zip" style="font-size: 1.5rem"></i>
