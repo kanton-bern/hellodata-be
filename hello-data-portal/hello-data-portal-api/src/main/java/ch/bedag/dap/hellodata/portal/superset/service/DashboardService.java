@@ -218,7 +218,7 @@ public class DashboardService {
         }
     }
 
-    public void uploadDashboardsFile(MultipartFile file, String contextKey) {
+    public void uploadDashboardsFile(MultipartFile file, String contextKey, boolean prune) {
         try (InputStream inputStream = file.getInputStream()) {
             String fileName = file.getName();
 
@@ -234,7 +234,7 @@ public class DashboardService {
                 bytesReadTotal += bytesRead;
                 boolean isLastChunk = bytesReadTotal == file.getSize();
                 log.info("Sending file to superset, bytes read total: {}, file size: {}", bytesReadTotal, file.getSize());
-                DashboardUpload dashboardUpload = new DashboardUpload(Arrays.copyOf(buffer, bytesRead), ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize());
+                DashboardUpload dashboardUpload = new DashboardUpload(Arrays.copyOf(buffer, bytesRead), ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize(), prune);
                 sendToSidecar(dashboardUpload, subject);
             }
         } catch (InterruptedException e) {
@@ -247,7 +247,8 @@ public class DashboardService {
 
     private void sendToSidecar(DashboardUpload dashboardUpload, String subject) throws InterruptedException, JsonProcessingException {
         log.debug("[uploadDashboardsFile] Sending request to subject: {}", subject);
-        Message reply = connection.request(subject, objectMapper.writeValueAsString(dashboardUpload).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(60));
+        Duration timeout = (dashboardUpload.isPruneChartsAndDatasets() && dashboardUpload.isLastChunk()) ? Duration.ofMinutes(5) : Duration.ofSeconds(60);
+        Message reply = connection.request(subject, objectMapper.writeValueAsString(dashboardUpload).getBytes(StandardCharsets.UTF_8), timeout);
         if (reply == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not upload dashboard. The reply is null, please verify superset sidecar or nats connection");
         }

@@ -317,6 +317,50 @@ public class SupersetApiRequestBuilder {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, String.format(DATABASE_API_ENDPOINT, databaseId));
     }
 
+    public static HttpUriRequest getListDashboardsRequestFiltered(String host, int port, String authToken, JsonArray filters) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_DASHBOARD_API_ENDPOINT);
+    }
+
+    public static HttpUriRequest getDashboardChartsRequest(String host, int port, String authToken, int dashboardId) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, "/api/v1/dashboard/" + dashboardId + "/charts", null);
+        return RequestBuilder.get()
+                .setUri(apiUri)
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .build();
+    }
+
+    public static HttpUriRequest getListChartsRequestFiltered(String host, int port, String authToken, JsonArray filters) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, "/api/v1/chart/");
+    }
+
+    public static HttpUriRequest getDeleteChartsRequest(String host, int port, String authToken, List<Integer> chartIds) throws URISyntaxException {
+        StringBuilder qBuilder = new StringBuilder("!(");
+        for (int i = 0; i < chartIds.size(); i++) {
+            qBuilder.append(chartIds.get(i));
+            if (i < chartIds.size() - 1) {
+                qBuilder.append(",");
+            }
+        }
+        qBuilder.append(")");
+
+        URI apiUri = buildUri(host, port, "/api/v1/chart/", List.of(Pair.of("q", qBuilder.toString())));
+        return RequestBuilder.delete()
+                .setUri(apiUri)
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .build();
+    }
+
+    public static HttpUriRequest getDeleteDatasetRequest(String host, int port, String authToken, int datasetId) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, "/api/v1/dataset/" + datasetId, null);
+        return RequestBuilder.delete()
+                .setUri(apiUri)
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .build();
+    }
+
     private static URI buildUri(String host, int port, String endpoint, List<Pair<String, String>> params) throws URISyntaxException {
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http").setHost(host).setPort(port).setPath(endpoint);

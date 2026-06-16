@@ -44,9 +44,12 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedRespo
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetDashboardPublishedFlagUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -532,6 +535,53 @@ public class SupersetClient implements Closeable {
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("updateUsersActiveFlag({}) response json \n{}", dashboardId, new String(bytes));
         return getObjectMapper().readValue(bytes, SupersetDashboard.class);
+    }
+
+    public SupersetDashboardResponse dashboards(JsonArray filters) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListDashboardsRequestFiltered(host, port, authToken, filters);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        return getObjectMapper().readValue(bytes, SupersetDashboardResponse.class);
+    }
+
+    public JsonArray getDashboardCharts(int dashboardId) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getDashboardChartsRequest(host, port, authToken, dashboardId);
+        ApiResponse resp = executeRequest(request);
+        JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
+        return obj.has("result") && !obj.get("result").isJsonNull() ? obj.getAsJsonArray("result") : new JsonArray();
+    }
+
+    public JsonArray getChartsForDatasource(int datasourceId) throws URISyntaxException, IOException {
+        JsonArray filters = new JsonArray();
+
+        JsonObject f1 = new JsonObject();
+        f1.addProperty("col", "datasource_id");
+        f1.addProperty("opr", "eq");
+        f1.addProperty("value", datasourceId);
+        filters.add(f1);
+
+        JsonObject f2 = new JsonObject();
+        f2.addProperty("col", "datasource_type");
+        f2.addProperty("opr", "eq");
+        f2.addProperty("value", "table");
+        filters.add(f2);
+
+        HttpUriRequest request = SupersetApiRequestBuilder.getListChartsRequestFiltered(host, port, authToken, filters);
+        ApiResponse resp = executeRequest(request);
+        JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
+        return obj.has("result") && !obj.get("result").isJsonNull() ? obj.getAsJsonArray("result") : new JsonArray();
+    }
+
+    public void deleteCharts(List<Integer> chartIds) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getDeleteChartsRequest(host, port, authToken, chartIds);
+        ApiResponse resp = executeRequest(request);
+        log.debug("deleteCharts response: {}", resp.getBody());
+    }
+
+    public void deleteDataset(int datasetId) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getDeleteDatasetRequest(host, port, authToken, datasetId);
+        ApiResponse resp = executeRequest(request);
+        log.debug("deleteDataset response: {}", resp.getBody());
     }
 
     private void csrf() throws URISyntaxException, IOException {

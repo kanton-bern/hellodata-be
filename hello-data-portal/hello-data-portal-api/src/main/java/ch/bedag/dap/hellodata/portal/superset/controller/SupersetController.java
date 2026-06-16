@@ -77,8 +77,8 @@ public class SupersetController {
     @PostMapping(value = "/upload-dashboards/{contextKey}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasAnyAuthority('DASHBOARD_IMPORT_EXPORT')")
     @ResponseStatus(HttpStatus.CREATED)
-    public void uploadFile(@RequestParam MultipartFile file, @PathVariable String contextKey) {
-        dashboardService.uploadDashboardsFile(file, contextKey);
+    public void uploadFile(@RequestParam MultipartFile file, @PathVariable String contextKey, @RequestParam(defaultValue = "false") boolean prune) {
+        dashboardService.uploadDashboardsFile(file, contextKey, prune);
     }
 
     @PreAuthorize("hasAnyAuthority('QUERIES')")

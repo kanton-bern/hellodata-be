@@ -3,6 +3,7 @@ package ch.bedag.dap.hellodata.sidecars.superset.service.dashboard;
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardUpload;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
@@ -96,8 +97,34 @@ public class UploadDashboardsFileListener {
                 useDefaultSqlAlchemyUri(dashboardUpload, destinationFile);
                 remapDatabaseInZip(supersetClient, destinationFile, dashboardUpload);
                 JsonObject passwordsObject = getPasswordsObject(destinationFile);
-                log.debug("Passwords parameter send to API ");
-                supersetClient.importDashboard(destinationFile, passwordsObject, true);
+                File backupFile = null;
+                boolean pruned = false;
+                try {
+                    if (dashboardUpload.isPruneChartsAndDatasets()) {
+                        backupFile = backupDashboardIfExists(supersetClient, destinationFile);
+                        if (backupFile != null) {
+                            pruneExistingDashboardAssets(supersetClient, destinationFile);
+                            pruned = true;
+                        }
+                    }
+                    log.debug("Passwords parameter send to API ");
+                    supersetClient.importDashboard(destinationFile, passwordsObject, true);
+                } catch (Exception e) {
+                    if (pruned && backupFile != null) {
+                        log.error("Failed to import dashboard. Restoring from backup...", e);
+                        try {
+                            supersetClient.importDashboard(backupFile, passwordsObject, true);
+                            log.info("Successfully restored dashboard from backup");
+                        } catch (Exception restoreEx) {
+                            log.error("Failed to restore dashboard from backup!", restoreEx);
+                        }
+                    }
+                    throw e;
+                } finally {
+                    if (backupFile != null && backupFile.exists() && !backupFile.delete()) {
+                        log.warn("Could not delete backup file: {}", backupFile.getAbsolutePath());
+                    }
+                }
                 ackMessage(msg);
                 dashboardResourceProviderService.publishDashboards();
             } catch (URISyntaxException | IOException | RuntimeException e) {
@@ -609,6 +636,133 @@ public class UploadDashboardsFileListener {
             if (issueCode.isJsonObject() && issueCode.getAsJsonObject().has(JSON_KEY_MESSAGE)) {
                 messages.append(" - ").append(issueCode.getAsJsonObject().get(JSON_KEY_MESSAGE).getAsString());
             }
+        }
+    }
+
+    private List<String> findDashboardUuidsFromZip(File destinationFile) throws IOException {
+        List<String> uuids = new ArrayList<>();
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+        try (ZipFile zipFile = new ZipFile(destinationFile)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().contains("/dashboards/") && !entry.isDirectory() && entry.getName().endsWith(".yaml")) {
+                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                        Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
+                        Object uuid = parsed.get("uuid");
+                        if (uuid instanceof String) {
+                            uuids.add((String) uuid);
+                        }
+                    }
+                }
+            }
+        }
+        return uuids;
+    }
+
+    private File backupDashboardIfExists(SupersetClient supersetClient, File destinationFile) {
+        try {
+            List<String> uuids = findDashboardUuidsFromZip(destinationFile);
+            if (uuids.isEmpty()) {
+                log.warn("No dashboard UUIDs found in zip, cannot backup");
+                return null;
+            }
+            for (String uuid : uuids) {
+                Integer existingDashboardId = findDashboardIdByUuid(supersetClient, uuid);
+                if (existingDashboardId != null) {
+                    log.info("Found existing dashboard ID {} for UUID {}, exporting backup...", existingDashboardId, uuid);
+                    File backupFile = File.createTempFile("superset-dashboard-backup-", ".zip", new File(tmpDir));
+                    return supersetClient.exportDashboard(existingDashboardId, backupFile);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to backup existing dashboard", e);
+        }
+        return null;
+    }
+
+    private Integer findDashboardIdByUuid(SupersetClient supersetClient, String uuid) {
+        try {
+            JsonArray filters = new JsonArray();
+            JsonObject filter = new JsonObject();
+            filter.addProperty("col", "uuid");
+            filter.addProperty("opr", "eq");
+            filter.addProperty("value", uuid);
+            filters.add(filter);
+
+            SupersetDashboardResponse response = supersetClient.dashboards(filters);
+            if (response != null && response.getResult() != null && !response.getResult().isEmpty()) {
+                return response.getResult().get(0).getId();
+            }
+        } catch (Exception e) {
+            log.error("Error finding dashboard by UUID: {}", uuid, e);
+        }
+        return null;
+    }
+
+    private void pruneExistingDashboardAssets(SupersetClient supersetClient, File destinationFile) {
+        try {
+            List<String> uuids = findDashboardUuidsFromZip(destinationFile);
+            for (String uuid : uuids) {
+                Integer existingDashboardId = findDashboardIdByUuid(supersetClient, uuid);
+                if (existingDashboardId != null) {
+                    log.info("Pruning assets for existing dashboard ID {}", existingDashboardId);
+
+                    // 1. Get all charts of this dashboard
+                    JsonArray charts = supersetClient.getDashboardCharts(existingDashboardId);
+                    List<Integer> chartIdsToDelete = new ArrayList<>();
+                    List<Integer> datasetIdsToCheck = new ArrayList<>();
+
+                    for (JsonElement chartEl : charts) {
+                        JsonObject chartObj = chartEl.getAsJsonObject();
+                        int chartId = chartObj.get("id").getAsInt();
+                        chartIdsToDelete.add(chartId);
+
+                        if (chartObj.has("datasource_id") && !chartObj.get("datasource_id").isJsonNull()) {
+                            int datasourceId = chartObj.get("datasource_id").getAsInt();
+                            String datasourceType = chartObj.has("datasource_type") && !chartObj.get("datasource_type").isJsonNull()
+                                    ? chartObj.get("datasource_type").getAsString() : "";
+                            if ("table".equalsIgnoreCase(datasourceType)) {
+                                datasetIdsToCheck.add(datasourceId);
+                            }
+                        }
+                    }
+
+                    // 2. Delete the charts
+                    if (!chartIdsToDelete.isEmpty()) {
+                        log.info("Deleting {} charts for dashboard {}: {}", chartIdsToDelete.size(), existingDashboardId, chartIdsToDelete);
+                        supersetClient.deleteCharts(chartIdsToDelete);
+                    }
+
+                    // 3. For each dataset, check if it's referenced by any other chart. If not, delete it.
+                    for (Integer datasetId : datasetIdsToCheck) {
+                        JsonArray referencingCharts = supersetClient.getChartsForDatasource(datasetId);
+                        boolean referencedElsewhere = false;
+                        for (JsonElement refChartEl : referencingCharts) {
+                            JsonObject refChartObj = refChartEl.getAsJsonObject();
+                            int refChartId = refChartObj.get("id").getAsInt();
+                            if (!chartIdsToDelete.contains(refChartId)) {
+                                referencedElsewhere = true;
+                                break;
+                            }
+                        }
+
+                        if (!referencedElsewhere) {
+                            log.info("Dataset ID {} is not referenced by any other charts. Deleting dataset...", datasetId);
+                            try {
+                                supersetClient.deleteDataset(datasetId);
+                            } catch (Exception e) {
+                                log.error("Failed to delete dataset ID {}", datasetId, e);
+                            }
+                        } else {
+                            log.info("Dataset ID {} is referenced by other charts. Skipping deletion.", datasetId);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error during pruneExistingDashboardAssets", e);
         }
     }
 }

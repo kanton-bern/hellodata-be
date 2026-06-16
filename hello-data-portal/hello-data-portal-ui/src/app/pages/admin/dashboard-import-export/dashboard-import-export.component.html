@@ -21,7 +21,7 @@
                            dataKey="id"
                            selectionMode="single">
                     <ng-template pTemplate="caption">
-                      <div class="flex ">
+                      <div class="flex align-items-center">
                         <p-button (click)="exportDashboards(dataDomain.data.key)"
                                   (keydown.enter)="exportDashboards(dataDomain.data.key)"
                                   [disabled]="getSelectedDashboards(dataDomain.data.key).length === 0"
@@ -37,10 +37,23 @@
                                   [icon]="icons.ACTION_EXPORT.class"
 
                                   pRipple/>
+                        @if (uploadVisible(dataDomain.data.key)) {
+                          <div class="flex align-items-center ml-2">
+                            <p-checkbox [binary]="true"
+                                        [inputId]="'prune-checkbox-' + dataDomain.data.key"
+                                        [(ngModel)]="pruneMap[dataDomain.data.key]"
+                                        (onChange)="onPruneCheckboxChange($event, dataDomain.data.key)">
+                            </p-checkbox>
+                            <label [for]="'prune-checkbox-' + dataDomain.data.key" class="ml-2 cursor-pointer">
+                              {{ '@Prune charts and datasets' | transloco }}
+                            </label>
+                          </div>
+                        }
                       </div>
                       @if (uploadVisible(dataDomain.data.key)) {
                         <p-fileUpload name="file"
                                       url="{{uploadDashboardsUrl}}{{dataDomain.data.key}}"
+                                      (onBeforeSend)="onBeforeSend($event, dataDomain.data.key)"
                                       (onUpload)="onUploadCompleted($event)"
                                       (onError)="onError($event)"
                                       (onSelect)="onSelect($event)"
@@ -122,6 +135,14 @@
     </div>
   }
 </p-card>
+<p-confirmDialog #cd [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd.onReject()" [icon]="icons.ACTION_CANCEL.class" [label]="'@No' | transloco"
+              pRipple severity="secondary" type="button" (keydown.enter)="cd.onReject()"/>
+    <p-button (click)="cd.onAccept()" [icon]="icons.ACTION_CONFIRM.class" [label]="'@Yes' | transloco"
+              pRipple severity="primary" type="button" (keydown.enter)="cd.onAccept()"/>
+  </ng-template>
+</p-confirmDialog>
 <div style="display: none">
   <app-silent-login/>
 </div>
