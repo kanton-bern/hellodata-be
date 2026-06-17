@@ -36,13 +36,12 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {selectAvailableDataDomainItems, selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
-import {FileSelectEvent, FileUpload, FileUploadErrorEvent, FileUploadEvent} from "primeng/fileupload";
+import {FileSelectEvent, FileUpload, FileUploadHandlerEvent} from "primeng/fileupload";
 import {
   loadMyDashboards,
-  uploadDashboardsError,
-  uploadDashboardsSuccess
+  uploadDashboards
 } from "../../../store/my-dashboards/my-dashboards.action";
-import {environment} from "../../../../environments/environment";
+
 import {AsyncPipe} from '@angular/common';
 import {TableModule} from 'primeng/table';
 import {ConfirmationService, PrimeTemplate} from 'primeng/api';
@@ -55,15 +54,17 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {NgArrayPipesModule} from 'ngx-pipes';
 import {ICON_REGISTRY} from '../../../shared/icons';
 import {Checkbox} from 'primeng/checkbox';
+import {Message} from 'primeng/message';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {TranslateService} from "../../../shared/services/translate.service";
+import {NotificationService} from "../../../shared/services/notification.service";
 import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard-import-export',
   templateUrl: './dashboard-import-export.component.html',
   styleUrl: './dashboard-import-export.component.scss',
-  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule, Card, Checkbox, ConfirmDialog, FormsModule]
+  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule, Card, Checkbox, Message, ConfirmDialog, FormsModule]
 })
 export class DashboardImportExportComponent extends BaseComponent {
   protected readonly icons = ICON_REGISTRY;
@@ -72,11 +73,11 @@ export class DashboardImportExportComponent extends BaseComponent {
   availableDataDomains$: Observable<any>;
   selectedDashboardsMap = new Map<string, SupersetDashboard[]>();
   showUploadForContextMap = new Map<string, boolean>();
-  uploadDashboardsUrl = `${environment.portalApi}/superset/upload-dashboards/`;
   pruneMap: { [key: string]: boolean } = {};
   private readonly store = inject<Store<AppState>>(Store);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
+  private readonly notificationService = inject(NotificationService);
 
   constructor() {
     super();
@@ -152,13 +153,15 @@ export class DashboardImportExportComponent extends BaseComponent {
     return this.showUploadForContextMap.get(contextKey);
   }
 
-  onUploadCompleted($event: FileUploadEvent) {
-    console.debug("upload completed", $event);
-    this.store.dispatch(uploadDashboardsSuccess());
-  }
-
-  onError($event: FileUploadErrorEvent) {
-    this.store.dispatch(uploadDashboardsError({error: $event.error}));
+  onUpload(event: FileUploadHandlerEvent, contextKey: string, fileUpload: FileUpload) {
+    const file = event.files?.[0];
+    if (!file) {
+      return;
+    }
+    const prune = !!this.pruneMap[contextKey];
+    this.notificationService.info('@Dashboard upload started');
+    this.store.dispatch(uploadDashboards({file, contextKey, prune}));
+    fileUpload.clear();
   }
 
   onPruneCheckboxChange(event: any, contextKey: string) {
@@ -177,10 +180,5 @@ export class DashboardImportExportComponent extends BaseComponent {
     } else {
       this.pruneMap[contextKey] = false;
     }
-  }
-
-  onBeforeSend(event: any, contextKey: string) {
-    const prune = !!this.pruneMap[contextKey];
-    event.formData.append('prune', prune.toString());
   }
 }

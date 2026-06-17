@@ -64,6 +64,16 @@ export class MyDashboardsService {
     return this.httpClient.get<DataDomain[]>(`${environment.portalApi}/users/data-domains`);
   }
 
+  public uploadDashboards(file: File, contextKey: string, prune: boolean): Observable<void> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.httpClient.post<void>(
+      `${this.baseUrl}/upload-dashboards/${contextKey}`,
+      formData,
+      {params: {prune: prune.toString()}}
+    );
+  }
+
   // Comments API methods
   public getDashboardComments(contextKey: string, dashboardId: number, includeDeleted?: boolean): Observable<DashboardCommentEntry[]> {
     let params: any = undefined;

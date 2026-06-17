@@ -334,6 +334,15 @@ public class SupersetApiRequestBuilder {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, "/api/v1/chart/");
     }
 
+    public static HttpUriRequest getChartByIdRequest(String host, int port, String authToken, int chartId) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, "/api/v1/chart/" + chartId, null);
+        return RequestBuilder.get()
+                .setUri(apiUri)
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .build();
+    }
+
     public static HttpUriRequest getDeleteChartsRequest(String host, int port, String authToken, List<Integer> chartIds) throws URISyntaxException {
         StringBuilder qBuilder = new StringBuilder("!(");
         for (int i = 0; i < chartIds.size(); i++) {

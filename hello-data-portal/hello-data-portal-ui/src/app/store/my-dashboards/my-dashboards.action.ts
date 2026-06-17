@@ -37,6 +37,7 @@ export enum MyDashboardsActionType {
   LOAD_AVAILABLE_DATA_DOMAINS = '[MYDASHBOARDS] Load available Data Domains',
   LOAD_AVAILABLE_DATA_DOMAINS_SUCCESS = '[MYDASHBOARDS] Load available Data Domains SUCCESS',
 
+  UPLOAD_DASHBOARDS_FILE = '[MYDASHBOARDS] Upload dashboards file',
   UPLOAD_DASHBOARDS_FILE_SUCCESS = '[MYDASHBOARDS] Upload dashboards file SUCCESS',
   UPLOAD_DASHBOARDS_FILE_ERROR = '[MYDASHBOARDS] Upload dashboards file ERROR',
 
@@ -97,6 +98,11 @@ export const loadAvailableDataDomains = createAction(
 export const loadAvailableDataDomainsSuccess = createAction(
   MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS_SUCCESS,
   props<{ payload: DataDomain[] }>()
+);
+
+export const uploadDashboards = createAction(
+  MyDashboardsActionType.UPLOAD_DASHBOARDS_FILE,
+  props<{ file: File; contextKey: string; prune: boolean }>()
 );
 
 export const uploadDashboardsSuccess = createAction(

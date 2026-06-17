@@ -1,5 +1,6 @@
 <h2 class="content-block">{{ '@Dashboard import-export' | transloco }}</h2>
 <p-card>
+  <p-message severity="info" styleClass="mb-3 w-full" [text]="'@Dashboard export info' | transloco"></p-message>
   @if ((availableDataDomains$ | async); as dataDomains) {
     <div>
       @for (dataDomain of dataDomains | orderBy: 'data.name'; track dataDomain.data.key) {
@@ -51,11 +52,10 @@
                         }
                       </div>
                       @if (uploadVisible(dataDomain.data.key)) {
-                        <p-fileUpload name="file"
-                                      url="{{uploadDashboardsUrl}}{{dataDomain.data.key}}"
-                                      (onBeforeSend)="onBeforeSend($event, dataDomain.data.key)"
-                                      (onUpload)="onUploadCompleted($event)"
-                                      (onError)="onError($event)"
+                        <p-fileUpload #fileUpload
+                                      name="file"
+                                      [customUpload]="true"
+                                      (uploadHandler)="onUpload($event, dataDomain.data.key, fileUpload)"
                                       (onSelect)="onSelect($event)"
                                       [class]="'mt-2'"
                                       accept=".zip"

@@ -72,6 +72,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static ch.bedag.dap.hellodata.sidecars.superset.client.SupersetApiRequestBuilder.getObjectMapper;
@@ -551,8 +552,26 @@ public class SupersetClient implements Closeable {
         return obj.has("result") && !obj.get("result").isJsonNull() ? obj.getAsJsonArray("result") : new JsonArray();
     }
 
-    public JsonArray getChartsForDatasource(int datasourceId) throws URISyntaxException, IOException {
-        JsonArray filters = new JsonArray();
+    public List<Integer> getChartDashboardIds(int chartId) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getChartByIdRequest(host, port, authToken, chartId);
+        ApiResponse resp = executeRequest(request);
+        JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
+        List<Integer> dashboardIds = new ArrayList<>();
+        if (obj.has("result") && !obj.get("result").isJsonNull()) {
+            JsonObject result = obj.getAsJsonObject("result");
+            if (result.has("dashboards") && !result.get("dashboards").isJsonNull()) {
+                for (JsonElement dashboardEl : result.getAsJsonArray("dashboards")) {
+                    JsonObject dashboardObj = dashboardEl.getAsJsonObject();
+                    if (dashboardObj.has("id") && !dashboardObj.get("id").isJsonNull()) {
+                        dashboardIds.add(dashboardObj.get("id").getAsInt());
+                    }
+                }
+            }
+        }
+        return dashboardIds;
+    }
+
+    public JsonArray getChartsForDatasource(int datasourceId) throws URISyntaxException, IOException {        JsonArray filters = new JsonArray();
 
         JsonObject f1 = new JsonObject();
         f1.addProperty("col", "datasource_id");

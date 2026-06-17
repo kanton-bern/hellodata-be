@@ -109,6 +109,7 @@ public class UploadDashboardsFileListener {
                     }
                     log.debug("Passwords parameter send to API ");
                     supersetClient.importDashboard(destinationFile, passwordsObject, true);
+                    verifyImportedDashboards(supersetClient, destinationFile);
                 } catch (Exception e) {
                     if (pruned && backupFile != null) {
                         log.error("Failed to import dashboard. Restoring from backup...", e);
@@ -717,6 +718,12 @@ public class UploadDashboardsFileListener {
                     for (JsonElement chartEl : charts) {
                         JsonObject chartObj = chartEl.getAsJsonObject();
                         int chartId = chartObj.get("id").getAsInt();
+
+                        // Skip charts that are also used by other dashboards
+                        if (isChartUsedByOtherDashboards(supersetClient, chartId, existingDashboardId)) {
+                            log.info("Chart ID {} is used by other dashboards. Skipping deletion.", chartId);
+                            continue;
+                        }
                         chartIdsToDelete.add(chartId);
 
                         if (chartObj.has("datasource_id") && !chartObj.get("datasource_id").isJsonNull()) {
@@ -763,6 +770,41 @@ public class UploadDashboardsFileListener {
             }
         } catch (Exception e) {
             log.error("Error during pruneExistingDashboardAssets", e);
+        }
+    }
+
+    private boolean isChartUsedByOtherDashboards(SupersetClient supersetClient, int chartId, int currentDashboardId) {
+        try {
+            List<Integer> dashboardIds = supersetClient.getChartDashboardIds(chartId);
+            return dashboardIds.stream().anyMatch(id -> id != currentDashboardId);
+        } catch (Exception e) {
+            // On uncertainty, do not delete the chart to avoid affecting other dashboards
+            log.warn("Could not determine dashboards for chart ID {}. Treating it as shared and skipping deletion.", chartId, e);
+            return true;
+        }
+    }
+
+    private void verifyImportedDashboards(SupersetClient supersetClient, File destinationFile) throws IOException {
+        List<String> uuids = findDashboardUuidsFromZip(destinationFile);
+        if (uuids.isEmpty()) {
+            log.warn("No dashboard UUIDs found in zip, skipping import verification");
+            return;
+        }
+        for (String uuid : uuids) {
+            Integer dashboardId = findDashboardIdByUuid(supersetClient, uuid);
+            if (dashboardId == null) {
+                throw new IllegalStateException("Import verification failed: dashboard with UUID " + uuid + " not found after import");
+            }
+            JsonArray charts;
+            try {
+                charts = supersetClient.getDashboardCharts(dashboardId);
+            } catch (URISyntaxException | IOException e) {
+                throw new IllegalStateException("Import verification failed: could not read charts for dashboard ID " + dashboardId, e);
+            }
+            if (charts == null || charts.isEmpty()) {
+                throw new IllegalStateException("Import verification failed: dashboard ID " + dashboardId + " has no charts after import");
+            }
+            log.info("Import verification passed for dashboard ID {} (UUID {}) with {} chart(s)", dashboardId, uuid, charts.size());
         }
     }
 }

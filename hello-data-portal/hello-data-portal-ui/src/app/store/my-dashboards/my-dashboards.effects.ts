@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, map, mergeMap, of, scheduled, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, navigateToList, showError, showSuccess, showWarning, trackEvent} from "../app/app.action";
 import {
@@ -59,6 +59,7 @@ import {
   updateComment,
   updateCommentError,
   updateCommentSuccess,
+  uploadDashboards,
   uploadDashboardsError,
   uploadDashboardsSuccess
 } from "./my-dashboards.action";
@@ -137,12 +138,24 @@ export class MyDashboardsEffects {
     )
   });
 
+  uploadDashboardsFile$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(uploadDashboards),
+      mergeMap(({file, contextKey, prune}) => {
+        return this._myDashboardsService.uploadDashboards(file, contextKey, prune).pipe(
+          map(() => uploadDashboardsSuccess()),
+          catchError(error => of(uploadDashboardsError({error})))
+        );
+      })
+    )
+  });
+
   uploadDashboardsFileSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(uploadDashboardsSuccess),
       switchMap(() => {
         this._notificationService.success('@Dashboards uploaded successfully');
-        return scheduled([navigate({url: 'redirect/dashboard-import-export'})], asyncScheduler)
+        return scheduled([loadMyDashboards()], asyncScheduler)
       })
     )
   });
@@ -151,7 +164,7 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(uploadDashboardsError),
       switchMap((payload) => {
-        return scheduled([showError({error: payload.error}), navigate({url: 'redirect/dashboard-import-export'})], asyncScheduler)
+        return scheduled([showError({error: payload.error})], asyncScheduler)
       }),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
