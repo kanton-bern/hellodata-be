@@ -38,7 +38,7 @@
 
                                   pRipple/>
                         @if (uploadVisible(dataDomain.data.key)) {
-                          <div class="flex align-items-center ml-2">
+                          <div class="flex align-items-center ml-2" style="margin: auto; margin-left: 0;">
                             <p-checkbox [binary]="true"
                                         [inputId]="'prune-checkbox-' + dataDomain.data.key"
                                         [(ngModel)]="pruneMap[dataDomain.data.key]"
