@@ -321,6 +321,10 @@ public class SupersetApiRequestBuilder {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_DASHBOARD_API_ENDPOINT);
     }
 
+    public static HttpUriRequest getListDashboardsRequestFiltered(String host, int port, String authToken, JsonArray columns, JsonArray filters) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, columns, filters, LIST_DASHBOARD_API_ENDPOINT);
+    }
+
     public static HttpUriRequest getDashboardChartsRequest(String host, int port, String authToken, int dashboardId) throws URISyntaxException {
         URI apiUri = buildUri(host, port, "/api/v1/dashboard/" + dashboardId + "/charts", null);
         return RequestBuilder.get()

@@ -3,6 +3,7 @@ package ch.bedag.dap.hellodata.sidecars.superset.service.dashboard;
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardUpload;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
@@ -685,16 +686,19 @@ public class UploadDashboardsFileListener {
 
     private Integer findDashboardIdByUuid(SupersetClient supersetClient, String uuid) {
         try {
-            JsonArray filters = new JsonArray();
-            JsonObject filter = new JsonObject();
-            filter.addProperty("col", "uuid");
-            filter.addProperty("opr", "eq");
-            filter.addProperty("value", uuid);
-            filters.add(filter);
+            // Superset does not allow filtering dashboards by uuid (not in search_columns),
+            // but uuid is returned in list_columns, so fetch id+uuid and match client-side.
+            JsonArray columns = new JsonArray();
+            columns.add("id");
+            columns.add("uuid");
 
-            SupersetDashboardResponse response = supersetClient.dashboards(filters);
-            if (response != null && response.getResult() != null && !response.getResult().isEmpty()) {
-                return response.getResult().get(0).getId();
+            SupersetDashboardResponse response = supersetClient.dashboards(columns, null);
+            if (response != null && response.getResult() != null) {
+                return response.getResult().stream()
+                        .filter(dashboard -> uuid.equals(dashboard.getUuid()))
+                        .map(SupersetDashboard::getId)
+                        .findFirst()
+                        .orElse(null);
             }
         } catch (Exception e) {
             log.error("Error finding dashboard by UUID: {}", uuid, e);

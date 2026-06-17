@@ -545,6 +545,13 @@ public class SupersetClient implements Closeable {
         return getObjectMapper().readValue(bytes, SupersetDashboardResponse.class);
     }
 
+    public SupersetDashboardResponse dashboards(JsonArray columns, JsonArray filters) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListDashboardsRequestFiltered(host, port, authToken, columns, filters);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        return getObjectMapper().readValue(bytes, SupersetDashboardResponse.class);
+    }
+
     public JsonArray getDashboardCharts(int dashboardId) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getDashboardChartsRequest(host, port, authToken, dashboardId);
         ApiResponse resp = executeRequest(request);

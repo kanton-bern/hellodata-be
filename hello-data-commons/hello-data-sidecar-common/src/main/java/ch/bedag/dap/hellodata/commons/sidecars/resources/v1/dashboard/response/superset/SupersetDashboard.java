@@ -39,6 +39,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SupersetDashboard implements Serializable {
     private int id;
+    private String uuid;
     @JsonProperty("dashboard_title")
     private String dashboardTitle;
     @JsonProperty("certification_details")
