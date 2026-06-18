@@ -85,6 +85,7 @@ export class CommentEntryComponent {
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
   comment = input.required<DashboardCommentEntry>();
+  invalidPointerUrls = input<Set<string>>(new Set<string>());
   pointerUrlClick = output<string>();
 
   expanded = false;
@@ -181,14 +182,24 @@ export class CommentEntryComponent {
     this.expanded = !this.expanded;
   }
 
+  /**
+   * Returns true when the given pointer URL's Superset target no longer resolves.
+   */
+  isPointerInvalid(url: string | null | undefined): boolean {
+    return !!url && this.invalidPointerUrls().has(url);
+  }
+
   navigateToPointerUrl(): void {
     const url = this.activeVersion()?.pointerUrl;
-    if (url) {
+    if (url && !this.isPointerInvalid(url)) {
       this.pointerUrlClick.emit(url);
     }
   }
 
   navigateToUrl(url: string): void {
+    if (this.isPointerInvalid(url)) {
+      return;
+    }
     this.pointerUrlClick.emit(url);
   }
 

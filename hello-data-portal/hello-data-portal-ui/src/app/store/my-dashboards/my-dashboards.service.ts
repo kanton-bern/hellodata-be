@@ -128,4 +128,10 @@ export class MyDashboardsService {
   public getAvailableTags(contextKey: string, dashboardId: number): Observable<string[]> {
     return this.httpClient.get<string[]>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/tags`);
   }
+
+  public validateCommentPointers(contextKey: string, dashboardId: number): Observable<{ [url: string]: boolean }> {
+    return this.httpClient.get<{ [url: string]: boolean }>(
+      `${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/validate-pointers`
+    );
+  }
 }

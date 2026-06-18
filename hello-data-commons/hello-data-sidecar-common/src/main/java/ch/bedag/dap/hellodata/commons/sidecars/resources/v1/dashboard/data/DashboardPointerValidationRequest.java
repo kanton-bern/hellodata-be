@@ -24,25 +24,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.events;
+package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.data;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
- * Subjects for request/reply NATS pattern
+ * Request/reply NATS payload sent from the portal to a Superset sidecar to check whether
+ * dashboard-comment pointer URLs (Superset permalinks / chart / dashboard links) still resolve.
  */
-@Getter
-public enum RequestReplySubject {
-    UPDATE_DASHBOARD_ROLES_FOR_USER("-update_dashboard_roles_for_user"),
-    UPLOAD_DASHBOARDS_FILE("-upload_dashboards_file"),
-    NATS_CONNECTION_HEALTH_CHECK("nats_connection_health_check"),
-    GET_QUERY_LIST("-get_query_list"),
-    GET_DASHBOARD_ACCESS_LIST("-get_logs_list"),
-    VALIDATE_DASHBOARD_POINTERS("-validate_dashboard_pointers"),
-    ;
-    private final String subject;
-
-    RequestReplySubject(String subject) {
-        this.subject = subject;
-    }
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class DashboardPointerValidationRequest implements Serializable {
+    private List<String> pointerUrls;
 }

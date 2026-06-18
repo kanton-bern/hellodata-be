@@ -365,6 +365,42 @@ public class SupersetApiRequestBuilder {
                 .build();
     }
 
+    public static HttpUriRequest getDatasetByIdRequest(String host, int port, String authToken, int datasetId) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, "/api/v1/dataset/" + datasetId, null);
+        return RequestBuilder.get()
+                .setUri(apiUri)
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .build();
+    }
+
+    public static HttpUriRequest getDashboardByIdOrSlugRequest(String host, int port, String authToken, String idOrSlug) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, "/api/v1/dashboard/" + idOrSlug, null);
+        return RequestBuilder.get()
+                .setUri(apiUri)
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .build();
+    }
+
+    public static HttpUriRequest getDashboardPermalinkRequest(String host, int port, String authToken, String key) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, "/api/v1/dashboard/permalink/" + key, null);
+        return RequestBuilder.get()
+                .setUri(apiUri)
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .build();
+    }
+
+    public static HttpUriRequest getExplorePermalinkRequest(String host, int port, String authToken, String key) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, "/api/v1/explore/permalink/" + key, null);
+        return RequestBuilder.get()
+                .setUri(apiUri)
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .build();
+    }
+
     public static HttpUriRequest getDeleteDatasetRequest(String host, int port, String authToken, int datasetId) throws URISyntaxException {
         URI apiUri = buildUri(host, port, "/api/v1/dataset/" + datasetId, null);
         return RequestBuilder.delete()

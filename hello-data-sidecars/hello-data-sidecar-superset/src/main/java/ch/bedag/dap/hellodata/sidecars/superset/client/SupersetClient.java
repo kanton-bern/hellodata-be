@@ -73,7 +73,9 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static ch.bedag.dap.hellodata.sidecars.superset.client.SupersetApiRequestBuilder.getObjectMapper;
 
@@ -608,6 +610,127 @@ public class SupersetClient implements Closeable {
         HttpUriRequest request = SupersetApiRequestBuilder.getDeleteDatasetRequest(host, port, authToken, datasetId);
         ApiResponse resp = executeRequest(request);
         log.debug("deleteDataset response: {}", resp.getBody());
+    }
+
+    /**
+     * Reads the UUID of a chart. The dashboard charts endpoint does not expose the UUID,
+     * so the chart has to be fetched individually.
+     *
+     * @return the chart UUID, or {@code null} if it could not be determined
+     */
+    public String getChartUuid(int chartId) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getChartByIdRequest(host, port, authToken, chartId);
+        ApiResponse resp = executeRequest(request);
+        return extractResultUuid(resp.getBody());
+    }
+
+    /**
+     * Reads the UUID of a dataset.
+     *
+     * @return the dataset UUID, or {@code null} if it could not be determined
+     */
+    public String getDatasetUuid(int datasetId) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getDatasetByIdRequest(host, port, authToken, datasetId);
+        ApiResponse resp = executeRequest(request);
+        return extractResultUuid(resp.getBody());
+    }
+
+    private String extractResultUuid(String body) {
+        JsonObject obj = new Gson().fromJson(body, JsonObject.class);
+        if (obj != null && obj.has("result") && obj.get("result").isJsonObject()) {
+            JsonObject result = obj.getAsJsonObject("result");
+            if (result.has("uuid") && !result.get("uuid").isJsonNull()) {
+                return result.get("uuid").getAsString();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Fetches the stored state of a dashboard permalink.
+     *
+     * @return the permalink value ({@code dashboardId} + {@code state}), or {@code null} if the
+     * permalink (or its referenced dashboard) no longer exists.
+     */
+    public JsonObject getDashboardPermalinkState(String key) throws URISyntaxException, IOException {
+        return getJsonObjectOrNullOnNotFound(SupersetApiRequestBuilder.getDashboardPermalinkRequest(host, port, authToken, key));
+    }
+
+    /**
+     * Fetches the stored state of an explore (chart) permalink.
+     *
+     * @return the permalink value, or {@code null} if the permalink no longer exists.
+     */
+    public JsonObject getExplorePermalinkState(String key) throws URISyntaxException, IOException {
+        return getJsonObjectOrNullOnNotFound(SupersetApiRequestBuilder.getExplorePermalinkRequest(host, port, authToken, key));
+    }
+
+    /**
+     * @return {@code true} if a chart with the given id still exists in Superset.
+     */
+    public boolean chartExists(int chartId) throws URISyntaxException, IOException {
+        return existsOrNotFound(SupersetApiRequestBuilder.getChartByIdRequest(host, port, authToken, chartId));
+    }
+
+    /**
+     * @return {@code true} if a dashboard with the given id or slug still exists in Superset.
+     */
+    public boolean dashboardExists(String idOrSlug) throws URISyntaxException, IOException {
+        return existsOrNotFound(SupersetApiRequestBuilder.getDashboardByIdOrSlugRequest(host, port, authToken, idOrSlug));
+    }
+
+    /**
+     * Reads the layout component ids (e.g. {@code CHART-xxxx}, {@code TAB-xxxx}) of a dashboard from
+     * its {@code position_json}. Permalink anchors reference these component ids, so they can be used
+     * to determine whether a permalink still points to a chart that is part of the dashboard.
+     *
+     * @return the set of component ids, or {@link Optional#empty()} if it could not be determined.
+     */
+    public Optional<Set<String>> getDashboardComponentIds(String idOrSlug) throws URISyntaxException, IOException {
+        JsonObject body = getJsonObjectOrNullOnNotFound(SupersetApiRequestBuilder.getDashboardByIdOrSlugRequest(host, port, authToken, idOrSlug));
+        if (body == null || !body.has("result") || !body.get("result").isJsonObject()) {
+            return Optional.empty();
+        }
+        JsonObject result = body.getAsJsonObject("result");
+        if (!result.has("position_json") || result.get("position_json").isJsonNull()) {
+            return Optional.empty();
+        }
+        try {
+            JsonElement positionElement = JsonParser.parseString(result.get("position_json").getAsString());
+            if (!positionElement.isJsonObject()) {
+                return Optional.empty();
+            }
+            Set<String> componentIds = new HashSet<>(positionElement.getAsJsonObject().keySet());
+            return Optional.of(componentIds);
+        } catch (RuntimeException e) {
+            log.warn("Could not parse position_json for dashboard {}", idOrSlug, e);
+            return Optional.empty();
+        }
+    }
+
+    private JsonObject getJsonObjectOrNullOnNotFound(HttpUriRequest request) throws URISyntaxException, IOException {
+        try {
+            ApiResponse resp = executeRequest(request);
+            JsonElement parsed = JsonParser.parseString(resp.getBody());
+            return parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
+        } catch (UnexpectedResponseException e) {
+            if (e.getCode() == 404) {
+                return null;
+            }
+            throw e;
+        }
+    }
+
+    private boolean existsOrNotFound(HttpUriRequest request) throws URISyntaxException, IOException {
+        try {
+            executeRequest(request);
+            return true;
+        } catch (UnexpectedResponseException e) {
+            if (e.getCode() == 404) {
+                return false;
+            }
+            throw e;
+        }
     }
 
     private void csrf() throws URISyntaxException, IOException {

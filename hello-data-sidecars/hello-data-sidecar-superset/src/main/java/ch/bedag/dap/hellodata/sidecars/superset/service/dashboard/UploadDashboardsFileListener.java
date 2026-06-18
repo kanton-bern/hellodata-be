@@ -642,13 +642,23 @@ public class UploadDashboardsFileListener {
     }
 
     private List<String> findDashboardUuidsFromZip(File destinationFile) throws IOException {
+        return findUuidsFromZip(destinationFile, "/dashboards/");
+    }
+
+    /**
+     * Collects the UUIDs of all assets of a given type from a Superset export ZIP.
+     *
+     * @param pathSegment path segment identifying the asset folder, e.g. {@code "/dashboards/"},
+     *                    {@code "/charts/"} or {@code "/datasets/"}
+     */
+    private List<String> findUuidsFromZip(File destinationFile, String pathSegment) throws IOException {
         List<String> uuids = new ArrayList<>();
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
         try (ZipFile zipFile = new ZipFile(destinationFile)) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                if (entry.getName().contains("/dashboards/") && !entry.isDirectory() && entry.getName().endsWith(".yaml")) {
+                if (entry.getName().contains(pathSegment) && !entry.isDirectory() && entry.getName().endsWith(".yaml")) {
                     try (InputStream inputStream = zipFile.getInputStream(entry)) {
                         String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                         Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
@@ -709,6 +719,10 @@ public class UploadDashboardsFileListener {
     private void pruneExistingDashboardAssets(SupersetClient supersetClient, File destinationFile) {
         try {
             List<String> uuids = findDashboardUuidsFromZip(destinationFile);
+            // Assets whose UUID is present in the new export are kept: the import overwrites them
+            // in place, preserving their IDs so that permalinks / dashboard comment pointers survive.
+            Set<String> newChartUuids = new HashSet<>(findUuidsFromZip(destinationFile, "/charts/"));
+            Set<String> newDatasetUuids = new HashSet<>(findUuidsFromZip(destinationFile, "/datasets/"));
             for (String uuid : uuids) {
                 Integer existingDashboardId = findDashboardIdByUuid(supersetClient, uuid);
                 if (existingDashboardId != null) {
@@ -722,6 +736,14 @@ public class UploadDashboardsFileListener {
                     for (JsonElement chartEl : charts) {
                         JsonObject chartObj = chartEl.getAsJsonObject();
                         int chartId = chartObj.get("id").getAsInt();
+
+                        // Skip charts that are still part of the new export - they will be overwritten
+                        // in place, keeping their IDs (and therefore any permalinks pointing to them).
+                        String chartUuid = resolveChartUuid(supersetClient, chartId);
+                        if (chartUuid != null && newChartUuids.contains(chartUuid)) {
+                            log.info("Chart ID {} (UUID {}) is part of the new export. Keeping it for in-place overwrite.", chartId, chartUuid);
+                            continue;
+                        }
 
                         // Skip charts that are also used by other dashboards
                         if (isChartUsedByOtherDashboards(supersetClient, chartId, existingDashboardId)) {
@@ -746,8 +768,15 @@ public class UploadDashboardsFileListener {
                         supersetClient.deleteCharts(chartIdsToDelete);
                     }
 
-                    // 3. For each dataset, check if it's referenced by any other chart. If not, delete it.
+                    // 3. For each dataset, delete it only if it is not part of the new export and is not
+                    //    referenced by any other chart.
                     for (Integer datasetId : datasetIdsToCheck) {
+                        String datasetUuid = resolveDatasetUuid(supersetClient, datasetId);
+                        if (datasetUuid != null && newDatasetUuids.contains(datasetUuid)) {
+                            log.info("Dataset ID {} (UUID {}) is part of the new export. Keeping it for in-place overwrite.", datasetId, datasetUuid);
+                            continue;
+                        }
+
                         JsonArray referencingCharts = supersetClient.getChartsForDatasource(datasetId);
                         boolean referencedElsewhere = false;
                         for (JsonElement refChartEl : referencingCharts) {
@@ -774,6 +803,26 @@ public class UploadDashboardsFileListener {
             }
         } catch (Exception e) {
             log.error("Error during pruneExistingDashboardAssets", e);
+        }
+    }
+
+    private String resolveChartUuid(SupersetClient supersetClient, int chartId) {
+        try {
+            return supersetClient.getChartUuid(chartId);
+        } catch (Exception e) {
+            // On uncertainty, treat the chart as not matching the export so the existing
+            // "used by other dashboards" guard still protects shared charts.
+            log.warn("Could not determine UUID for chart ID {}. Treating it as not part of the new export.", chartId, e);
+            return null;
+        }
+    }
+
+    private String resolveDatasetUuid(SupersetClient supersetClient, int datasetId) {
+        try {
+            return supersetClient.getDatasetUuid(datasetId);
+        } catch (Exception e) {
+            log.warn("Could not determine UUID for dataset ID {}. Treating it as not part of the new export.", datasetId, e);
+            return null;
         }
     }
 

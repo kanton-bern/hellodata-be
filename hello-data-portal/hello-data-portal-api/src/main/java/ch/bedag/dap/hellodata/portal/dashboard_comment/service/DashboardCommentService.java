@@ -31,8 +31,11 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceServ
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
+import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.data.DashboardPointerValidationRequest;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.data.DashboardPointerValidationResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
@@ -47,6 +50,9 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardComme
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nats.client.Connection;
+import io.nats.client.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -55,6 +61,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,6 +88,8 @@ public class DashboardCommentService {
     private final UserRepository userRepository;
     private final EmailNotificationService emailNotificationService;
     private final DashboardCommentDwhSyncService dwhSyncService;
+    private final Connection connection;
+    private final ObjectMapper objectMapper;
 
     private void checkDashboardAccess(String contextKey, int dashboardId) {
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
@@ -216,6 +226,54 @@ public class DashboardCommentService {
                 .map(c -> filterCommentByPermissions(c, currentUserEmail, currentUserFullName, hasWritePermission, hasReviewPermission, includeDeleted))
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    /**
+     * Checks, for every distinct pointer URL referenced by this dashboard's comments (across all
+     * versions), whether the Superset target it points to still resolves. The actual liveness check
+     * is delegated to the Superset sidecar via a NATS request/reply call.
+     *
+     * @return a map of pointer URL to {@code true} (still resolves) / {@code false} (target gone).
+     * Pointer URLs missing from the map (e.g. on sidecar/NATS failure) should be treated as valid.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Boolean> validatePointers(String contextKey, int dashboardId) {
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        if (perm == null || !perm.isReadComments()) {
+            return Collections.emptyMap();
+        }
+
+        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
+        List<String> pointerUrls = comments.stream()
+                .flatMap(comment -> comment.getHistory().stream())
+                .map(DashboardCommentVersionEntity::getPointerUrl)
+                .filter(url -> url != null && !url.isBlank())
+                .distinct()
+                .toList();
+
+        if (pointerUrls.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        try {
+            String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
+            String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.VALIDATE_DASHBOARD_POINTERS.getSubject());
+            byte[] payload = objectMapper.writeValueAsBytes(new DashboardPointerValidationRequest(pointerUrls));
+            Message reply = connection.request(subject, payload, Duration.ofSeconds(30));
+            if (reply == null) {
+                log.warn("No reply when validating dashboard pointers for contextKey={}, dashboardId={}; treating all as valid", contextKey, dashboardId);
+                return Collections.emptyMap();
+            }
+            DashboardPointerValidationResponse response = objectMapper.readValue(reply.getData(), DashboardPointerValidationResponse.class);
+            return response.getValidityByUrl() != null ? response.getValidityByUrl() : Collections.emptyMap();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted while validating dashboard pointers for contextKey={}, dashboardId={}", contextKey, dashboardId, e);
+            return Collections.emptyMap();
+        } catch (Exception e) {
+            log.warn("Could not validate dashboard pointers for contextKey={}, dashboardId={}; treating all as valid", contextKey, dashboardId, e);
+            return Collections.emptyMap();
+        }
     }
 
     private DashboardCommentDto handleReviewOrDeclinedVisibility(DashboardCommentDto comment, String userEmail,

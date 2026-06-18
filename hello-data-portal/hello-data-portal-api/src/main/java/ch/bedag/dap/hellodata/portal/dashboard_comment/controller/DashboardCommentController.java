@@ -33,6 +33,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,6 +49,14 @@ public class DashboardCommentController {
             @PathVariable int dashboardId,
             @RequestParam(required = false, defaultValue = "false") boolean includeDeleted) {
         return commentService.getComments(contextKey, dashboardId, includeDeleted);
+    }
+
+    @GetMapping("/validate-pointers")
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    public Map<String, Boolean> validatePointers(
+            @PathVariable String contextKey,
+            @PathVariable int dashboardId) {
+        return commentService.validatePointers(contextKey, dashboardId);
     }
 
     @GetMapping("/tags")

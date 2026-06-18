@@ -31,9 +31,16 @@
     <div class="pointer-url-container px-1 pb-1">
       <button type="button"
               class="pointer-url-link text-xs cursor-pointer bg-transparent border-none p-0"
+              [class.pointer-url-inactive]="isPointerInvalid(activeVersion()?.pointerUrl)"
+              [disabled]="isPointerInvalid(activeVersion()?.pointerUrl)"
+              [pTooltip]="isPointerInvalid(activeVersion()?.pointerUrl) ? ('@Pointer target no longer exists' | transloco) : null"
+              tooltipPosition="top"
               (click)="navigateToPointerUrl()"
               (keydown.enter)="navigateToPointerUrl()">
         <i class="mr-1" [ngClass]="icons.ACTION_PIN.class"></i>{{ '@Go to dashboard element' | transloco }}
+        @if (isPointerInvalid(activeVersion()?.pointerUrl)) {
+          <span class="pointer-url-inactive-badge ml-1">({{ '@inactive' | transloco }})</span>
+        }
       </button>
     </div>
   }
@@ -175,12 +182,17 @@
             <strong>{{ '@Link' | transloco }}:</strong>
             <button type="button"
                     class="pointer-url-info-link ml-1"
-                    [pTooltip]="activeVersion()?.pointerUrl"
+                    [class.pointer-url-inactive]="isPointerInvalid(activeVersion()?.pointerUrl)"
+                    [disabled]="isPointerInvalid(activeVersion()?.pointerUrl)"
+                    [pTooltip]="isPointerInvalid(activeVersion()?.pointerUrl) ? ('@Pointer target no longer exists' | transloco) : activeVersion()?.pointerUrl"
                     tooltipPosition="top"
                     (click)="navigateToUrl(activeVersion()!.pointerUrl)"
                     (keydown.enter)="navigateToUrl(activeVersion()!.pointerUrl)">
               <i class="mr-1" [ngClass]="icons.ACTION_PIN.class"></i>
               {{ activeVersion()?.pointerUrl | slice:0:40 }}{{ activeVersion()!.pointerUrl.length > 40 ? '...' : '' }}
+              @if (isPointerInvalid(activeVersion()?.pointerUrl)) {
+                <span class="pointer-url-inactive-badge ml-1">({{ '@inactive' | transloco }})</span>
+              }
             </button>
           </div>
         }
@@ -240,12 +252,17 @@
                       <span class="history-pointer-url-label">{{ '@Link' | transloco }}:</span>
                       <button type="button"
                               class="history-pointer-url-link"
-                              [pTooltip]="historyItem.pointerUrl"
+                              [class.pointer-url-inactive]="isPointerInvalid(historyItem.pointerUrl)"
+                              [disabled]="isPointerInvalid(historyItem.pointerUrl)"
+                              [pTooltip]="isPointerInvalid(historyItem.pointerUrl) ? ('@Pointer target no longer exists' | transloco) : historyItem.pointerUrl"
                               tooltipPosition="top"
                               (click)="navigateToUrl(historyItem.pointerUrl)"
                               (keydown.enter)="navigateToUrl(historyItem.pointerUrl)">
                         <i
                           class="mr-1" [ngClass]="icons.ACTION_PIN.class"></i>{{ historyItem.pointerUrl | slice:0:50 }}{{ historyItem.pointerUrl.length > 50 ? '...' : '' }}
+                        @if (isPointerInvalid(historyItem.pointerUrl)) {
+                          <span class="pointer-url-inactive-badge ml-1">({{ '@inactive' | transloco }})</span>
+                        }
                       </button>
                     </div>
                   }
