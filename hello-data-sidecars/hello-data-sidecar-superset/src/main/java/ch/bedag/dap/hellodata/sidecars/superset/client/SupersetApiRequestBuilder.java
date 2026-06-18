@@ -347,7 +347,40 @@ public class SupersetApiRequestBuilder {
                 .build();
     }
 
-    public static HttpUriRequest getDeleteChartsRequest(String host, int port, String authToken, List<Integer> chartIds) throws URISyntaxException {
+    /**
+     * The chart "show" endpoint ({@code GET /api/v1/chart/{id}}) does not expose the {@code uuid}
+     * in this Superset distribution, but the list endpoint does when {@code uuid} is requested
+     * explicitly via {@code columns}. This request fetches the chart's id + uuid through the list
+     * endpoint filtered by id.
+     */
+    public static HttpUriRequest getChartUuidByIdRequest(String host, int port, String authToken, int chartId) throws URISyntaxException {
+        return getUuidByIdListRequest(host, port, authToken, "/api/v1/chart/", chartId);
+    }
+
+    /**
+     * Same rationale as {@link #getChartUuidByIdRequest}: the dataset "show" endpoint does not
+     * expose the {@code uuid}, so resolve it through the list endpoint filtered by id.
+     */
+    public static HttpUriRequest getDatasetUuidByIdRequest(String host, int port, String authToken, int datasetId) throws URISyntaxException {
+        return getUuidByIdListRequest(host, port, authToken, "/api/v1/dataset/", datasetId);
+    }
+
+    private static HttpUriRequest getUuidByIdListRequest(String host, int port, String authToken, String listEndpoint, int id) throws URISyntaxException {
+        JsonArray columns = new JsonArray();
+        columns.add("id");
+        columns.add("uuid");
+
+        JsonObject filter = new JsonObject();
+        filter.addProperty("col", "id");
+        filter.addProperty("opr", "eq");
+        filter.addProperty("value", id);
+        JsonArray filters = new JsonArray();
+        filters.add(filter);
+
+        return getHttpUriRequestWithBasicParams(host, port, authToken, columns, filters, listEndpoint);
+    }
+
+    public static HttpUriRequest getDeleteChartsRequest(String host, int port, String authToken, List<Integer> chartIds, String csrfToken, String sessionCookie) throws URISyntaxException {
         StringBuilder qBuilder = new StringBuilder("!(");
         for (int i = 0; i < chartIds.size(); i++) {
             qBuilder.append(chartIds.get(i));
@@ -362,15 +395,8 @@ public class SupersetApiRequestBuilder {
                 .setUri(apiUri)
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
                 .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
-                .build();
-    }
-
-    public static HttpUriRequest getDatasetByIdRequest(String host, int port, String authToken, int datasetId) throws URISyntaxException {
-        URI apiUri = buildUri(host, port, "/api/v1/dataset/" + datasetId, null);
-        return RequestBuilder.get()
-                .setUri(apiUri)
-                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
-                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .setHeader("X-CSRFToken", csrfToken)
+                .setHeader("Cookie", sessionCookie)
                 .build();
     }
 
@@ -401,12 +427,14 @@ public class SupersetApiRequestBuilder {
                 .build();
     }
 
-    public static HttpUriRequest getDeleteDatasetRequest(String host, int port, String authToken, int datasetId) throws URISyntaxException {
+    public static HttpUriRequest getDeleteDatasetRequest(String host, int port, String authToken, int datasetId, String csrfToken, String sessionCookie) throws URISyntaxException {
         URI apiUri = buildUri(host, port, "/api/v1/dataset/" + datasetId, null);
         return RequestBuilder.delete()
                 .setUri(apiUri)
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
                 .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .setHeader("X-CSRFToken", csrfToken)
+                .setHeader("Cookie", sessionCookie)
                 .build();
     }
 

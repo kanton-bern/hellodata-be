@@ -601,46 +601,53 @@ public class SupersetClient implements Closeable {
     }
 
     public void deleteCharts(List<Integer> chartIds) throws URISyntaxException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getDeleteChartsRequest(host, port, authToken, chartIds);
+        csrf();
+        HttpUriRequest request = SupersetApiRequestBuilder.getDeleteChartsRequest(host, port, authToken, chartIds, csrfToken, sessionCookie);
         ApiResponse resp = executeRequest(request);
         log.debug("deleteCharts response: {}", resp.getBody());
     }
 
     public void deleteDataset(int datasetId) throws URISyntaxException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getDeleteDatasetRequest(host, port, authToken, datasetId);
+        csrf();
+        HttpUriRequest request = SupersetApiRequestBuilder.getDeleteDatasetRequest(host, port, authToken, datasetId, csrfToken, sessionCookie);
         ApiResponse resp = executeRequest(request);
         log.debug("deleteDataset response: {}", resp.getBody());
     }
 
     /**
-     * Reads the UUID of a chart. The dashboard charts endpoint does not expose the UUID,
-     * so the chart has to be fetched individually.
+     * Reads the UUID of a chart. Neither the dashboard charts endpoint nor the chart "show"
+     * endpoint expose the UUID in this Superset distribution, so it is resolved through the
+     * list endpoint which returns it when requested explicitly via {@code columns}.
      *
      * @return the chart UUID, or {@code null} if it could not be determined
      */
     public String getChartUuid(int chartId) throws URISyntaxException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getChartByIdRequest(host, port, authToken, chartId);
+        HttpUriRequest request = SupersetApiRequestBuilder.getChartUuidByIdRequest(host, port, authToken, chartId);
         ApiResponse resp = executeRequest(request);
-        return extractResultUuid(resp.getBody());
+        return extractFirstResultUuid(resp.getBody());
     }
 
     /**
-     * Reads the UUID of a dataset.
+     * Reads the UUID of a dataset through the list endpoint (the "show" endpoint does not
+     * expose the UUID in this Superset distribution).
      *
      * @return the dataset UUID, or {@code null} if it could not be determined
      */
     public String getDatasetUuid(int datasetId) throws URISyntaxException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getDatasetByIdRequest(host, port, authToken, datasetId);
+        HttpUriRequest request = SupersetApiRequestBuilder.getDatasetUuidByIdRequest(host, port, authToken, datasetId);
         ApiResponse resp = executeRequest(request);
-        return extractResultUuid(resp.getBody());
+        return extractFirstResultUuid(resp.getBody());
     }
 
-    private String extractResultUuid(String body) {
+    private String extractFirstResultUuid(String body) {
         JsonObject obj = new Gson().fromJson(body, JsonObject.class);
-        if (obj != null && obj.has("result") && obj.get("result").isJsonObject()) {
-            JsonObject result = obj.getAsJsonObject("result");
-            if (result.has("uuid") && !result.get("uuid").isJsonNull()) {
-                return result.get("uuid").getAsString();
+        if (obj != null && obj.has("result") && obj.get("result").isJsonArray()) {
+            JsonArray result = obj.getAsJsonArray("result");
+            if (!result.isEmpty() && result.get(0).isJsonObject()) {
+                JsonObject first = result.get(0).getAsJsonObject();
+                if (first.has("uuid") && !first.get("uuid").isJsonNull()) {
+                    return first.get("uuid").getAsString();
+                }
             }
         }
         return null;
