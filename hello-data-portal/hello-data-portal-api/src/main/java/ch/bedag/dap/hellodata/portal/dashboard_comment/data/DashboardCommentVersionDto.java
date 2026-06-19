@@ -52,4 +52,5 @@ public class DashboardCommentVersionDto {
     private boolean deleted;
     private List<String> tags; // Tags snapshot for this version
     private String pointerUrl; // Pointer URL snapshot for this version
+    private Boolean pointerActive; // Liveness of the pointer URL (null/true = active, false = inactive)
 }

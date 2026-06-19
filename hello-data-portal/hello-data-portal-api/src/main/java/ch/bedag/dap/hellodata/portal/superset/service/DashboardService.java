@@ -41,6 +41,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.s
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentService;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardWithMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
@@ -80,6 +81,7 @@ public class DashboardService {
     private final ModelMapper modelMapper;
     private final Connection connection;
     private final ObjectMapper objectMapper;
+    private final DashboardCommentService dashboardCommentService;
 
     @Transactional(readOnly = true)
     public Set<SupersetDashboardDto> fetchMyDashboards() {
@@ -237,6 +239,9 @@ public class DashboardService {
                 DashboardUpload dashboardUpload = new DashboardUpload(Arrays.copyOf(buffer, bytesRead), ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize(), prune);
                 sendToSidecar(dashboardUpload, subject);
             }
+            // The upload may have overwritten/pruned charts, so refresh the persisted permalink
+            // liveness of dashboard comments for this context (asynchronous, best-effort).
+            dashboardCommentService.refreshPointerStatusForContext(contextKey);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Error sending bytes to the superset instance " + contextKey, e); //NOSONAR

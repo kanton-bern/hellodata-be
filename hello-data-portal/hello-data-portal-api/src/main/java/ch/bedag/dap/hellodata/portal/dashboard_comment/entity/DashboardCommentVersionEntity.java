@@ -103,5 +103,13 @@ public class DashboardCommentVersionEntity {
      */
     @Column(name = "pointer_url", length = 2000)
     private String pointerUrl;
+
+    /**
+     * Liveness of {@link #pointerUrl}, refreshed during dashboard upload. {@code null} means
+     * "not yet validated" and is treated as active by the UI; {@code false} means the pointer's
+     * Superset target no longer exists and the link is rendered as inactive.
+     */
+    @Column(name = "pointer_active")
+    private Boolean pointerActive;
 }
 

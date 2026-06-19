@@ -85,7 +85,6 @@ export class CommentEntryComponent {
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
   comment = input.required<DashboardCommentEntry>();
-  invalidPointerUrls = input<Set<string>>(new Set<string>());
   pointerUrlClick = output<string>();
 
   expanded = false;
@@ -183,10 +182,24 @@ export class CommentEntryComponent {
   }
 
   /**
+   * Pointer URLs whose Superset target no longer resolves, derived from the persisted
+   * {@code pointerActive} flag of each version (refreshed during dashboard upload).
+   */
+  protected readonly inactivePointerUrls = computed(() => {
+    const inactive = new Set<string>();
+    for (const version of this.comment().history ?? []) {
+      if (version.pointerUrl && version.pointerActive === false) {
+        inactive.add(version.pointerUrl);
+      }
+    }
+    return inactive;
+  });
+
+  /**
    * Returns true when the given pointer URL's Superset target no longer resolves.
    */
   isPointerInvalid(url: string | null | undefined): boolean {
-    return !!url && this.invalidPointerUrls().has(url);
+    return !!url && this.inactivePointerUrls().has(url);
   }
 
   navigateToPointerUrl(): void {

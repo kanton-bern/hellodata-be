@@ -63,8 +63,7 @@ import {HttpClient} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
 import {NotificationService} from "../../../shared/services/notification.service";
 import {DashboardCommentUtilsService} from "../services/dashboard-comment-utils.service";
-import {MyDashboardsService} from "../../../store/my-dashboards/my-dashboards.service";
-import {filter, switchMap, withLatestFrom, catchError} from "rxjs/operators";
+import {filter, switchMap, withLatestFrom} from "rxjs/operators";
 import {ICON_REGISTRY} from '../../../shared/icons';
 
 const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
@@ -166,9 +165,6 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   availableTags$ = this.store.select(selectAvailableTags);
   private readonly http = inject(HttpClient);
   private readonly notificationService = inject(NotificationService);
-  private readonly myDashboardsService = inject(MyDashboardsService);
-  // Set of comment pointer URLs whose Superset target no longer resolves (rendered as inactive)
-  protected readonly invalidPointerUrls = signal<Set<string>>(new Set<string>());
   private previousSelectedStatus: DashboardCommentStatus | null = null;
   // Signal to track filtered comments for auto-scroll
   private readonly filteredCommentsSignal;
@@ -245,34 +241,6 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
     this.filteredCommentsSignal = toSignal(this.filteredComments$);
 
     this.startRefreshTimer();
-
-    // Validate comment pointer URLs against Superset whenever the comment set changes, so links
-    // whose target chart/element no longer exists can be rendered as inactive.
-    combineLatest([
-      this.comments$,
-      this.currentDashboardId$,
-      this.currentDashboardContextKey$
-    ]).pipe(
-      takeUntilDestroyed(),
-      switchMap(([comments, dashboardId, contextKey]) => {
-        const hasPointers = !!comments && comments.some(c => c.history?.some(v => !!v.pointerUrl));
-        if (!hasPointers || !dashboardId || !contextKey) {
-          return [new Set<string>()];
-        }
-        return this.myDashboardsService.validateCommentPointers(contextKey, dashboardId).pipe(
-          map(validityByUrl => {
-            const invalid = new Set<string>();
-            Object.entries(validityByUrl || {}).forEach(([url, valid]) => {
-              if (valid === false) {
-                invalid.add(url);
-              }
-            });
-            return invalid;
-          }),
-          catchError(() => [new Set<string>()])
-        );
-      })
-    ).subscribe(invalid => this.invalidPointerUrls.set(invalid));
 
     // Auto-scroll to bottom when comments change (only if enabled)
     effect(() => {

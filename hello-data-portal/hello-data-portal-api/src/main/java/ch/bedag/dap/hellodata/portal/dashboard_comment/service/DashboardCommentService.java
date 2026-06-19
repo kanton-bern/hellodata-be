@@ -57,6 +57,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -229,49 +230,62 @@ public class DashboardCommentService {
     }
 
     /**
-     * Checks, for every distinct pointer URL referenced by this dashboard's comments (across all
-     * versions), whether the Superset target it points to still resolves. The actual liveness check
-     * is delegated to the Superset sidecar via a NATS request/reply call.
-     *
-     * @return a map of pointer URL to {@code true} (still resolves) / {@code false} (target gone).
-     * Pointer URLs missing from the map (e.g. on sidecar/NATS failure) should be treated as valid.
+     * Re-validates the permalink liveness of all comment pointers in a context and persists the
+     * result on each version ({@code pointerActive}). Triggered after a dashboard upload so the
+     * check runs once per upload instead of on every comment-panel load. Runs asynchronously and
+     * best-effort: on any failure the existing {@code pointerActive} values are left untouched.
      */
-    @Transactional(readOnly = true)
-    public Map<String, Boolean> validatePointers(String contextKey, int dashboardId) {
-        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
-        if (perm == null || !perm.isReadComments()) {
-            return Collections.emptyMap();
+    @Async
+    @Transactional
+    public void refreshPointerStatusForContext(String contextKey) {
+        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyOrderByCreatedDateAsc(contextKey);
+        List<DashboardCommentVersionEntity> versionsWithPointer = comments.stream()
+                .flatMap(comment -> comment.getHistory().stream())
+                .filter(version -> version.getPointerUrl() != null && !version.getPointerUrl().isBlank())
+                .toList();
+        if (versionsWithPointer.isEmpty()) {
+            return;
         }
 
-        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
-        List<String> pointerUrls = comments.stream()
-                .flatMap(comment -> comment.getHistory().stream())
+        List<String> pointerUrls = versionsWithPointer.stream()
                 .map(DashboardCommentVersionEntity::getPointerUrl)
-                .filter(url -> url != null && !url.isBlank())
                 .distinct()
                 .toList();
 
-        if (pointerUrls.isEmpty()) {
-            return Collections.emptyMap();
+        Map<String, Boolean> validity = requestPointerValidity(contextKey, pointerUrls);
+        if (validity.isEmpty()) {
+            // No reply / error - keep the previously persisted state rather than flipping everything.
+            return;
         }
 
+        for (DashboardCommentVersionEntity version : versionsWithPointer) {
+            Boolean valid = validity.get(version.getPointerUrl());
+            if (valid != null) {
+                version.setPointerActive(valid);
+            }
+        }
+        commentRepository.saveAll(comments);
+        log.info("Refreshed pointer liveness for {} comment version(s) in context {}", versionsWithPointer.size(), contextKey);
+    }
+
+    private Map<String, Boolean> requestPointerValidity(String contextKey, List<String> pointerUrls) {
         try {
             String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
             String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.VALIDATE_DASHBOARD_POINTERS.getSubject());
             byte[] payload = objectMapper.writeValueAsBytes(new DashboardPointerValidationRequest(pointerUrls));
             Message reply = connection.request(subject, payload, Duration.ofSeconds(30));
             if (reply == null) {
-                log.warn("No reply when validating dashboard pointers for contextKey={}, dashboardId={}; treating all as valid", contextKey, dashboardId);
+                log.warn("No reply when validating dashboard pointers for contextKey={}; keeping previous state", contextKey);
                 return Collections.emptyMap();
             }
             DashboardPointerValidationResponse response = objectMapper.readValue(reply.getData(), DashboardPointerValidationResponse.class);
             return response.getValidityByUrl() != null ? response.getValidityByUrl() : Collections.emptyMap();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.warn("Interrupted while validating dashboard pointers for contextKey={}, dashboardId={}", contextKey, dashboardId, e);
+            log.warn("Interrupted while validating dashboard pointers for contextKey={}", contextKey, e);
             return Collections.emptyMap();
         } catch (Exception e) {
-            log.warn("Could not validate dashboard pointers for contextKey={}, dashboardId={}; treating all as valid", contextKey, dashboardId, e);
+            log.warn("Could not validate dashboard pointers for contextKey={}; keeping previous state", contextKey, e);
             return Collections.emptyMap();
         }
     }

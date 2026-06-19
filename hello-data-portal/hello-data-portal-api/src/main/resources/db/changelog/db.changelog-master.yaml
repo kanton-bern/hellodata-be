@@ -154,3 +154,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/63_create_user_selected_dashboard_table.xml
   - include:
       file: db/changelog/changelogs/64_create_app_migration_table.xml
+  - include:
+      file: db/changelog/changelogs/65_add_pointer_active_to_comment_version.xml

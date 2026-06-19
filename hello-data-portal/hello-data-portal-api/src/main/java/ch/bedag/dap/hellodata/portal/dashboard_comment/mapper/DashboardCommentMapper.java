@@ -133,6 +133,7 @@ public class DashboardCommentMapper {
                 .deleted(entity.getStatus() == DashboardCommentStatus.DELETED || entity.isDeleted())
                 .tags(parseTagsFromString(entity.getTags()))
                 .pointerUrl(entity.getPointerUrl())
+                .pointerActive(entity.getPointerActive())
                 .build();
     }
 
@@ -152,6 +153,7 @@ public class DashboardCommentMapper {
                 .deleted(dto.isDeleted())
                 .tags(tagsToString(dto.getTags()))
                 .pointerUrl(dto.getPointerUrl())
+                .pointerActive(dto.getPointerActive())
                 .build();
     }
 

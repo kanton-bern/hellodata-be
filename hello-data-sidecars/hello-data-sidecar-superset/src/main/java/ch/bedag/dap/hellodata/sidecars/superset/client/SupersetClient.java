@@ -74,6 +74,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -711,6 +712,48 @@ public class SupersetClient implements Closeable {
             return Optional.of(componentIds);
         } catch (RuntimeException e) {
             log.warn("Could not parse position_json for dashboard {}", idOrSlug, e);
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Reads the chart ids ({@code meta.chartId}) of all chart components in a dashboard's
+     * {@code position_json}. Permalink chart anchors (e.g. {@code CHART-explore-156-1}) reference a
+     * chart by its id, so this set can be used to determine whether a permalink still points to a
+     * chart that is part of the dashboard.
+     *
+     * @return the set of chart ids, or {@link Optional#empty()} if it could not be determined.
+     */
+    public Optional<Set<Integer>> getDashboardChartIds(String idOrSlug) throws URISyntaxException, IOException {
+        JsonObject body = getJsonObjectOrNullOnNotFound(SupersetApiRequestBuilder.getDashboardByIdOrSlugRequest(host, port, authToken, idOrSlug));
+        if (body == null || !body.has("result") || !body.get("result").isJsonObject()) {
+            return Optional.empty();
+        }
+        JsonObject result = body.getAsJsonObject("result");
+        if (!result.has("position_json") || result.get("position_json").isJsonNull()) {
+            return Optional.empty();
+        }
+        try {
+            JsonElement positionElement = JsonParser.parseString(result.get("position_json").getAsString());
+            if (!positionElement.isJsonObject()) {
+                return Optional.empty();
+            }
+            Set<Integer> chartIds = new HashSet<>();
+            for (Map.Entry<String, JsonElement> entry : positionElement.getAsJsonObject().entrySet()) {
+                if (!entry.getValue().isJsonObject()) {
+                    continue;
+                }
+                JsonObject component = entry.getValue().getAsJsonObject();
+                if (component.has("meta") && component.get("meta").isJsonObject()) {
+                    JsonObject meta = component.getAsJsonObject("meta");
+                    if (meta.has("chartId") && !meta.get("chartId").isJsonNull()) {
+                        chartIds.add(meta.get("chartId").getAsInt());
+                    }
+                }
+            }
+            return Optional.of(chartIds);
+        } catch (RuntimeException e) {
+            log.warn("Could not parse position_json chart ids for dashboard {}", idOrSlug, e);
             return Optional.empty();
         }
     }

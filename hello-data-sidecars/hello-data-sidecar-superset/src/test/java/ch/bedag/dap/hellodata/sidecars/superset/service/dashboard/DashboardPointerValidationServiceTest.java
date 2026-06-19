@@ -97,6 +97,35 @@ class DashboardPointerValidationServiceTest {
     }
 
     @Test
+    void dashboardPermalinkWithChartAnchorStillInDashboardIsValid() throws Exception {
+        when(supersetClient.getDashboardPermalinkState("abc"))
+                .thenReturn(json("{\"dashboardId\":\"10\",\"state\":{\"anchor\":\"CHART-explore-156-1\"}}"));
+        when(supersetClient.getDashboardChartIds("10"))
+                .thenReturn(Optional.of(Set.of(153, 154, 156)));
+
+        assertThat(service.isPointerValid(supersetClient, "https://superset/superset/dashboard/p/abc/")).isTrue();
+    }
+
+    @Test
+    void dashboardPermalinkWithChartAnchorRemovedFromDashboardIsInvalid() throws Exception {
+        when(supersetClient.getDashboardPermalinkState("abc"))
+                .thenReturn(json("{\"dashboardId\":\"10\",\"state\":{\"anchor\":\"CHART-explore-156-1\"}}"));
+        when(supersetClient.getDashboardChartIds("10"))
+                .thenReturn(Optional.of(Set.of(153, 154)));
+
+        assertThat(service.isPointerValid(supersetClient, "https://superset/superset/dashboard/p/abc/")).isFalse();
+    }
+
+    @Test
+    void dashboardPermalinkWithChartAnchorAndUnreadableLayoutIsValid() throws Exception {
+        when(supersetClient.getDashboardPermalinkState("abc"))
+                .thenReturn(json("{\"dashboardId\":\"10\",\"state\":{\"anchor\":\"CHART-explore-156-1\"}}"));
+        when(supersetClient.getDashboardChartIds("10")).thenReturn(Optional.empty());
+
+        assertThat(service.isPointerValid(supersetClient, "https://superset/superset/dashboard/p/abc/")).isTrue();
+    }
+
+    @Test
     void explorePermalinkWithDeletedChartIsInvalid() throws Exception {
         when(supersetClient.getExplorePermalinkState("xyz"))
                 .thenReturn(json("{\"chartId\":42}"));

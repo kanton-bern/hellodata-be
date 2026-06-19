@@ -125,7 +125,6 @@
         <div class="comments-list">
           @for (comment of comments; track comment.id) {
             <app-comment-entry [comment]="comment"
-                               [invalidPointerUrls]="invalidPointerUrls()"
                                (pointerUrlClick)="onPointerUrlClick($event)"></app-comment-entry>
           }
         </div>

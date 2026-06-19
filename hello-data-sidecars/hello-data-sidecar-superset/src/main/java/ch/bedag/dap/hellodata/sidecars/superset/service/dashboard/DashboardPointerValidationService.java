@@ -53,6 +53,8 @@ public class DashboardPointerValidationService {
     private static final Pattern CHART_PATH = Pattern.compile("/chart/(\\d+)");
     private static final Pattern DASHBOARD_PATH = Pattern.compile("/dashboard/([^/?#]+)");
     private static final Pattern SLICE_ID_PARAM = Pattern.compile("[?&]slice_id=(\\d+)");
+    // A permalink chart anchor has the shape "CHART-explore-<sliceId>-<n>" and references the chart by id.
+    private static final Pattern ANCHOR_CHART_ID = Pattern.compile("CHART-explore-(\\d+)");
 
     public boolean isPointerValid(SupersetClient supersetClient, String pointerUrl) {
         if (pointerUrl == null || pointerUrl.isBlank()) {
@@ -108,6 +110,21 @@ public class DashboardPointerValidationService {
         if (dashboardId == null) {
             return true;
         }
+
+        // A chart anchor ("CHART-explore-<sliceId>-<n>") references a chart by id; it is only valid
+        // while that chart is still part of the dashboard layout.
+        Matcher anchorChartId = ANCHOR_CHART_ID.matcher(anchor);
+        if (anchorChartId.find()) {
+            int sliceId = Integer.parseInt(anchorChartId.group(1));
+            Optional<Set<Integer>> chartIds = supersetClient.getDashboardChartIds(dashboardId);
+            if (chartIds.isEmpty()) {
+                // could not read the layout - avoid a false negative
+                return true;
+            }
+            return chartIds.get().contains(sliceId);
+        }
+
+        // Otherwise the anchor is a layout component id; match it against the dashboard's components.
         Optional<Set<String>> componentIds = supersetClient.getDashboardComponentIds(dashboardId);
         if (componentIds.isEmpty()) {
             // could not read the layout - avoid a false negative

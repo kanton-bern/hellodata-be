@@ -75,6 +75,7 @@ export interface DashboardCommentVersion {
   deleted: boolean; // Soft delete - only non-deleted PUBLISHED versions are shown
   tags?: string[]; // Tags snapshot for this version (for history tracking)
   pointerUrl?: string; // Pointer URL snapshot for this version (for history tracking)
+  pointerActive?: boolean; // Liveness of the pointer URL (undefined/true = active, false = inactive)
 }
 
 export interface DashboardCommentEntry {
