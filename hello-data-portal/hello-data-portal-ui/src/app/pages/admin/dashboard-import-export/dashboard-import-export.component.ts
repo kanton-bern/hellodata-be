@@ -167,8 +167,8 @@ export class DashboardImportExportComponent extends BaseComponent {
   onPruneCheckboxChange(event: any, contextKey: string) {
     if (event.checked) {
       this.confirmationService.confirm({
-        message: this.translateService.translate('@Prune warning message'),
-        header: this.translateService.translate('@Prune warning header'),
+        message: this.translateService.translate('@Replace dashboard warning message'),
+        header: this.translateService.translate('@Replace dashboard warning header'),
         icon: 'pi pi-exclamation-triangle',
         accept: () => {
           this.pruneMap[contextKey] = true;
