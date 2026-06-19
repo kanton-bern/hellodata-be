@@ -39,7 +39,6 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVe
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
-import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -92,7 +91,7 @@ class DashboardCommentServiceTest {
     private MetaInfoResourceService metaInfoResourceService;
 
     @Mock
-    private EmailNotificationService emailNotificationService;
+    private DashboardCommentNotificationService notificationService;
 
     @Mock
     private DashboardCommentDwhSyncService dwhSyncService;
@@ -123,7 +122,7 @@ class DashboardCommentServiceTest {
     @BeforeEach
     void setUp() {
         commentStore.clear();
-        commentService = new DashboardCommentService(commentRepository, commentPermissionRepository, commentMapper, metaInfoResourceService, userRepository, emailNotificationService, dwhSyncService, connection, objectMapper);
+        commentService = new DashboardCommentService(commentRepository, commentPermissionRepository, commentMapper, metaInfoResourceService, userRepository, notificationService, dwhSyncService, connection, objectMapper);
 
         // Setup default mocking behavior for repository save
         lenient().when(commentRepository.saveAndFlush(any())).thenAnswer(invocation -> commentRepository.save((DashboardCommentEntity)invocation.getArgument(0)));

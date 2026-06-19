@@ -47,7 +47,6 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVe
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
-import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,7 +86,7 @@ public class DashboardCommentService {
     private final DashboardCommentMapper commentMapper;
     private final MetaInfoResourceService metaInfoResourceService;
     private final UserRepository userRepository;
-    private final EmailNotificationService emailNotificationService;
+    private final DashboardCommentNotificationService notificationService;
     private final DashboardCommentDwhSyncService dwhSyncService;
     private final Connection connection;
     private final ObjectMapper objectMapper;
@@ -926,192 +925,47 @@ public class DashboardCommentService {
      */
     private void sendCommentStatusNotification(DashboardCommentEntity comment, String contextKey, int dashboardId,
                                                String reviewerFullName, boolean published, String declineReason) {
-        String authorEmail = comment.getAuthorEmail();
-        if (authorEmail == null || authorEmail.isBlank()) {
-            log.debug("No author email for comment {}, skipping notification", comment.getId());
-            return;
-        }
+        notificationService.notifyStatusChange(contextKey, dashboardId, comment.getId(),
+                comment.getAuthorEmail(), comment.getAuthor(), getActiveVersionText(comment),
+                SecurityUtils.getCurrentUserEmail(), reviewerFullName, published, declineReason);
+    }
 
-        // Don't notify if the reviewer is the author themselves
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        if (currentUserEmail != null && currentUserEmail.equalsIgnoreCase(authorEmail)) {
-            log.debug("Reviewer is the author, skipping self-notification for comment {}", comment.getId());
-            return;
-        }
-
-        String authorFirstName = comment.getAuthor();
-        Locale authorLocale = null;
-
-        // Try to get author's preferred language from user entity
-        Optional<UserEntity> authorUser = userRepository.findUserEntityByEmailIgnoreCase(authorEmail);
-        if (authorUser.isPresent()) {
-            UserEntity author = authorUser.get();
-            if (!author.isEnabled()) {
-                log.debug("Author {} is disabled, skipping notification for comment {}", authorEmail, comment.getId());
-                return;
-            }
-            if (author.getFirstName() != null) {
-                authorFirstName = author.getFirstName();
-            }
-            authorLocale = author.getSelectedLanguage();
-        }
-
-        String dashboardName = getDashboardTitle(contextKey, dashboardId);
-
-        // Get active version text
-        String commentText = comment.getHistory().stream()
+    /**
+     * Extracts the text of the comment's currently active version. Must be called on the request
+     * thread while the entity's history collection is still attached to the session.
+     */
+    private String getActiveVersionText(DashboardCommentEntity comment) {
+        return comment.getHistory().stream()
                 .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
                 .map(DashboardCommentVersionEntity::getText)
                 .findFirst()
                 .orElse("");
-
-        if (published) {
-            emailNotificationService.notifyAboutCommentPublished(
-                    authorFirstName, authorEmail, commentText, dashboardName, reviewerFullName, authorLocale);
-        } else {
-            emailNotificationService.notifyAboutCommentDeclined(
-                    authorFirstName, authorEmail, commentText, dashboardName, declineReason, reviewerFullName, authorLocale);
-        }
     }
 
     /**
      * Send email notification to all reviewers when a comment is sent for review.
      */
     private void sendCommentSentForReviewNotification(DashboardCommentEntity comment, String contextKey, int dashboardId) {
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        String senderFullName = SecurityUtils.getCurrentUserFullName();
-
-        String dashboardName = getDashboardTitle(contextKey, dashboardId);
-
-        // Get active version text
-        String commentText = comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                .map(DashboardCommentVersionEntity::getText)
-                .findFirst()
-                .orElse("");
-
-        // Find all reviewers for this context
-        List<DashboardCommentPermissionEntity> reviewerPermissions =
-                commentPermissionRepository.findByContextKeyAndReviewCommentsTrue(contextKey);
-
-        for (DashboardCommentPermissionEntity reviewerPerm : reviewerPermissions) {
-            notifySingleReviewer(reviewerPerm, comment, currentUserEmail, commentText, dashboardName, senderFullName);
-        }
-    }
-
-    private void notifySingleReviewer(DashboardCommentPermissionEntity reviewerPerm, DashboardCommentEntity comment,
-                                      String currentUserEmail, String commentText, String dashboardName, String senderFullName) {
-        try {
-            Optional<UserEntity> reviewerUser = userRepository.findById(reviewerPerm.getUserId());
-            if (reviewerUser.isEmpty()) {
-                return;
-            }
-            UserEntity reviewer = reviewerUser.get();
-            if (!reviewer.isEnabled()) {
-                log.debug("Reviewer {} is disabled, skipping notification for comment {}", reviewer.getEmail(), comment.getId());
-                return;
-            }
-            String reviewerEmail = reviewer.getEmail();
-            boolean isSelf = reviewerEmail != null && reviewerEmail.equalsIgnoreCase(currentUserEmail);
-            if (isSelf) {
-                log.debug("Skipping self-notification for reviewer {} on comment {}", reviewerEmail, comment.getId());
-                return;
-            }
-            String reviewerFirstName = reviewer.getFirstName() != null ? reviewer.getFirstName() : reviewerEmail;
-            Locale reviewerLocale = reviewer.getSelectedLanguage();
-            emailNotificationService.notifyAboutCommentSentForReview(
-                    reviewerFirstName, reviewerEmail, commentText, dashboardName, senderFullName, reviewerLocale);
-        } catch (Exception e) {
-            log.warn("Failed to send sent-for-review notification to reviewer {}: {}", reviewerPerm.getUserId(), e.getMessage());
-        }
+        notificationService.notifySentForReview(contextKey, dashboardId, comment.getId(), getActiveVersionText(comment),
+                SecurityUtils.getCurrentUserEmail(), SecurityUtils.getCurrentUserFullName());
     }
 
     /**
      * Send email notification to the comment author when their comment is deleted by another user.
      */
     private void sendCommentDeletedNotification(DashboardCommentEntity comment, String contextKey, int dashboardId, String deletionReason) {
-        String authorEmail = comment.getAuthorEmail();
-        if (authorEmail == null || authorEmail.isBlank()) {
-            log.debug("No author email for comment {}, skipping deletion notification", comment.getId());
-            return;
-        }
-
-        // Don't notify if the deleter is the author themselves
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        if (currentUserEmail != null && currentUserEmail.equalsIgnoreCase(authorEmail)) {
-            log.debug("Deleter is the author, skipping self-notification for comment {}", comment.getId());
-            return;
-        }
-
-        String authorFirstName = comment.getAuthor();
-        Locale authorLocale = null;
-
-        // Try to get author's preferred language from user entity
-        Optional<UserEntity> authorUser = userRepository.findUserEntityByEmailIgnoreCase(authorEmail);
-        if (authorUser.isPresent()) {
-            UserEntity author = authorUser.get();
-            if (!author.isEnabled()) {
-                log.debug("Author {} is disabled, skipping deletion notification for comment {}", authorEmail, comment.getId());
-                return;
-            }
-            if (author.getFirstName() != null) {
-                authorFirstName = author.getFirstName();
-            }
-            authorLocale = author.getSelectedLanguage();
-        }
-
-        String dashboardName = getDashboardTitle(contextKey, dashboardId);
-        String deleterFullName = SecurityUtils.getCurrentUserFullName();
-
-        // Get the last known text of the comment (from the most recent version)
-        String commentText = comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                .map(DashboardCommentVersionEntity::getText)
-                .findFirst()
-                .orElse("");
-
-        emailNotificationService.notifyAboutCommentDeleted(
-                authorFirstName, authorEmail, commentText, dashboardName, deletionReason, deleterFullName, authorLocale);
+        notificationService.notifyDeleted(contextKey, dashboardId, comment.getId(),
+                comment.getAuthorEmail(), comment.getAuthor(), getActiveVersionText(comment),
+                SecurityUtils.getCurrentUserEmail(), SecurityUtils.getCurrentUserFullName(), deletionReason);
     }
 
     /**
      * Send email notification to the comment author when their comment is edited by a reviewer.
      */
     private void sendCommentEditedByReviewerNotification(DashboardCommentEntity comment, String contextKey, int dashboardId, String newText) {
-        String authorEmail = comment.getAuthorEmail();
-        if (authorEmail == null || authorEmail.isBlank()) {
-            log.debug("No author email for comment {}, skipping edited-by-reviewer notification", comment.getId());
-            return;
-        }
-
-        // Don't notify if the editor is the author themselves
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        if (currentUserEmail != null && currentUserEmail.equalsIgnoreCase(authorEmail)) {
-            log.debug("Editor is the author, skipping self-notification for comment {}", comment.getId());
-            return;
-        }
-
-        String authorFirstName = comment.getAuthor();
-        Locale authorLocale = null;
-
-        Optional<UserEntity> authorUser = userRepository.findUserEntityByEmailIgnoreCase(authorEmail);
-        if (authorUser.isPresent()) {
-            UserEntity author = authorUser.get();
-            if (!author.isEnabled()) {
-                log.debug("Author {} is disabled, skipping edited-by-reviewer notification for comment {}", authorEmail, comment.getId());
-                return;
-            }
-            if (author.getFirstName() != null) {
-                authorFirstName = author.getFirstName();
-            }
-            authorLocale = author.getSelectedLanguage();
-        }
-
-        String dashboardName = getDashboardTitle(contextKey, dashboardId);
-        String reviewerFullName = SecurityUtils.getCurrentUserFullName();
-
-        emailNotificationService.notifyAboutCommentEditedByReviewer(
-                authorFirstName, authorEmail, newText, dashboardName, reviewerFullName, authorLocale);
+        notificationService.notifyEditedByReviewer(contextKey, dashboardId, comment.getId(),
+                comment.getAuthorEmail(), comment.getAuthor(), newText,
+                SecurityUtils.getCurrentUserEmail(), SecurityUtils.getCurrentUserFullName());
     }
 
     /**
