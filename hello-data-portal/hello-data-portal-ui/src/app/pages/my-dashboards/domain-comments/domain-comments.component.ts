@@ -30,7 +30,7 @@ import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {DatePipe, LowerCasePipe, SlicePipe, NgClass} from '@angular/common';
+import {DatePipe, SlicePipe, NgClass} from '@angular/common';
 import {Table, TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
 import {Tag} from 'primeng/tag';
@@ -79,7 +79,6 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
     TranslocoPipe,
     DatePipe,
     SlicePipe,
-    LowerCasePipe,
     TableModule,
     Button,
     Tag,
@@ -330,7 +329,21 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     return this.commentUtils.getAllVersions(comment, canView);
   }
 
+  /**
+   * Returns true when the given pointer URL's Superset target no longer resolves, derived from the
+   * persisted {@code pointerActive} flag of the comment's versions (refreshed during dashboard upload).
+   */
+  isPointerInvalid(comment: DomainDashboardComment, url: string | null | undefined): boolean {
+    if (!url) {
+      return false;
+    }
+    return (comment.history ?? []).some(version => version.pointerUrl === url && version.pointerActive === false);
+  }
+
   navigateToDashboard(comment: DomainDashboardComment, pointerUrl?: string): void {
+    if (pointerUrl && this.isPointerInvalid(comment, pointerUrl)) {
+      return;
+    }
     if (comment.dashboardId && comment.instanceName) {
       const queryParams: any = {};
 

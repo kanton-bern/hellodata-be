@@ -140,6 +140,23 @@
   }
 }
 
+.pointer-url-inactive {
+  color: var(--p-text-muted-color, #9ca3af) !important;
+  text-decoration: line-through;
+  cursor: not-allowed;
+  opacity: 0.7;
+
+  &:hover {
+    text-decoration: line-through;
+    color: var(--p-text-muted-color, #9ca3af) !important;
+  }
+
+  .pointer-url-inactive-badge {
+    font-style: italic;
+    text-decoration: none;
+  }
+}
+
 .active-version-row {
   background-color: rgba(21, 128, 61, 0.06);
 }

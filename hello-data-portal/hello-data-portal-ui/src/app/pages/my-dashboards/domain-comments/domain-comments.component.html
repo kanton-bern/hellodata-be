@@ -175,7 +175,7 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <strong>{{ '@Status' | transloco }}:</strong>
-                  {{ (comment.deleted ? '@deleted' : '@' + (getActiveVersionData(comment)?.status | lowercase)) | transloco }}
+                  {{ (comment.deleted ? '@deleted' : getStatusLabel(getActiveVersionData(comment)?.status || 'DRAFT')) | transloco }}
                 </div>
                 <div>
                   <strong>{{ '@Version' | transloco }}:</strong>
@@ -251,9 +251,17 @@
                 @if (comment.pointerUrl) {
                   <div>
                     <strong>{{ '@Pointer URL' | transloco }}:</strong>
-                    <a [href]="comment.pointerUrl" appExternalLink class="hover:underline">
-                      {{ comment.pointerUrl | slice:0:50 }}...
-                    </a>
+                    @if (isPointerInvalid(comment, comment.pointerUrl)) {
+                      <span class="pointer-url-inactive"
+                            [pTooltip]="'@Pointer target no longer exists' | transloco" tooltipPosition="top">
+                        {{ comment.pointerUrl | slice:0:50 }}...
+                        <span class="pointer-url-inactive-badge ml-1">({{ '@inactive' | transloco }})</span>
+                      </span>
+                    } @else {
+                      <a [href]="comment.pointerUrl" appExternalLink class="hover:underline">
+                        {{ comment.pointerUrl | slice:0:50 }}...
+                      </a>
+                    }
                   </div>
                 }
               </div>
@@ -305,11 +313,16 @@
                             @if (historyItem.pointerUrl) {
                               <button type="button"
                                       class="history-pointer-url-link cursor-pointer text-left bg-transparent border-none p-0"
-                                      [pTooltip]="historyItem.pointerUrl"
+                                      [class.pointer-url-inactive]="isPointerInvalid(comment, historyItem.pointerUrl)"
+                                      [disabled]="isPointerInvalid(comment, historyItem.pointerUrl)"
+                                      [pTooltip]="isPointerInvalid(comment, historyItem.pointerUrl) ? ('@Pointer target no longer exists' | transloco) : historyItem.pointerUrl"
                                       tooltipPosition="top"
                                       (click)="navigateToDashboard(comment, historyItem.pointerUrl)">
                                 <i class="mr-1" [ngClass]="icons.ACTION_PIN.class" style="font-size: 0.6rem;"></i>
                                 {{ historyItem.pointerUrl | slice:0:20 }}{{ historyItem.pointerUrl.length > 20 ? '...' : '' }}
+                                @if (isPointerInvalid(comment, historyItem.pointerUrl)) {
+                                  <span class="pointer-url-inactive-badge ml-1">({{ '@inactive' | transloco }})</span>
+                                }
                               </button>
                             } @else {
                               <span class="text-gray-400">-</span>
