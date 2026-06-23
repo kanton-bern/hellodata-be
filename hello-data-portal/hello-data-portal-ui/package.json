@@ -88,7 +88,7 @@
   },
   "resolutions": {
     "tar": "^7.5.11",
-    "js-yaml": "^4.1.1",
+    "js-yaml": "^4.2.0",
     "glob": "^13.0.0",
     "qs": "^6.14.2",
     "lodash": "^4.17.23",
@@ -107,7 +107,12 @@
     "router/path-to-regexp": "^8.4.0",
     "picomatch": "^4.0.4",
     "vite": "^7.3.2",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.0",
+    "piscina": "^5.2.0",
+    "@angular-devkit/build-angular/http-proxy-middleware": "^3.0.7",
+    "launch-editor": "^2.14.1",
+    "@babel/core": "^7.29.6",
+    "esbuild": "^0.28.1"
   },
   "packageManager": "yarn@4.17.0+sha512.c2957de2f9025ab14d63b24d0d8be1f1655810e22c341042c27f7ecd017b180ec12db73d69ac366d71b304ef9f069349ce462de96f04f8f1da317f4f762c95ae"
 }
