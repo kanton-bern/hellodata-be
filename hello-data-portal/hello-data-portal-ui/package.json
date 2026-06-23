@@ -110,6 +110,7 @@
     "uuid": "^14.0.0",
     "piscina": "^5.2.0",
     "@angular-devkit/build-angular/http-proxy-middleware": "^3.0.7",
+    "webpack-dev-server/http-proxy-middleware": "^2.0.10",
     "launch-editor": "^2.14.1",
     "@babel/core": "^7.29.6",
     "esbuild": "^0.28.1"
