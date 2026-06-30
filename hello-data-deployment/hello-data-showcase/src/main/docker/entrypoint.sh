@@ -16,8 +16,14 @@ if [ -z "$CONNECTION_ID" ]; then
     exit 1
 fi
 
+if [ -z "$DD_KEY" ]; then
+    echo "Error: DD_KEY is not set."
+    exit 1
+fi
+
 mkdir -p "$DESTINATION_PATH/files"
-mkdir -p "$DESTINATION_PATH/dbt-docs"
+# dbt-docs are served from a dedicated top-level folder, one subfolder per data domain: /storage/dbt-docs/<DD_KEY>
+mkdir -p "/storage/dbt-docs/$DD_KEY"
 
 cp -R /showcase-src/* "$DESTINATION_PATH"
 

@@ -21,7 +21,7 @@ SQL_SCHEMA_NAME = "lzn."
 cron_expression = '0 3 * * *' if is_daylight_savings_time(datetime.datetime.now(), pytz.timezone("Europe/Zurich")) else '0 4 * * *'
 
 # the key below should be overwritten
-sys.path.append("/opt/airflow/dags/" + "DD_KEY" + "/git/*/")
+sys.path.append("/storage/airflow/dags/" + "DD_KEY" + "/git/*/")
 
 
 @dag(
@@ -69,7 +69,7 @@ def hdShowCase():
             return df_data_new
 
         import sys
-        sys.path.append("/opt/airflow/dags/" + "DD_KEY" + "/git/*/")
+        sys.path.append("/storage/airflow/dags/" + "DD_KEY" + "/git/*/")
         from rdfpandas.graph import to_dataframe
         import rdflib
         import pandas as pd
@@ -79,7 +79,7 @@ def hdShowCase():
         g.parse('https://tierstatistik.identitas.ch/tierstatistik.rdf', format='xml')
         df = to_dataframe(g)
 
-        data_path = "/opt/airflow/dags/" + "DD_KEY" + "/files/"
+        data_path = "/storage/airflow/dags/" + "DD_KEY" + "/files/"
 
         for index in df.index:
             if "csv" in index:
@@ -98,7 +98,7 @@ def hdShowCase():
         conn = postgres_hook.get_conn()
         cur = conn.cursor()
 
-        data_path = "/opt/airflow/dags/" + "DD_KEY" + "/files/"
+        data_path = "/storage/airflow/dags/" + "DD_KEY" + "/files/"
 
         for file in os.listdir(data_path):
             file_path_csv = os.path.join(data_path, file)
@@ -122,7 +122,7 @@ def hdShowCase():
         conn = postgres_hook.get_conn()
         cur = conn.cursor()
 
-        data_path = "/opt/airflow/dags/" + "DD_KEY" + "/files/"
+        data_path = "/storage/airflow/dags/" + "DD_KEY" + "/files/"
 
         for file in os.listdir(data_path):
             file_path_csv = os.path.join(data_path, file)
@@ -136,19 +136,19 @@ def hdShowCase():
 
     dbt_run = BashOperator(
         task_id='dbt_run',
-        bash_command='cd /opt/airflow/dags/' + "DD_KEY" + '/dbt && dbt deps && dbt run'
+        bash_command='cd /storage/airflow/dags/' + "DD_KEY" + '/dbt && dbt deps && dbt run'
     )
 
     dbt_docs = BashOperator(
         task_id='dbt_docs',
-        bash_command='cd /opt/airflow/dags/' + "DD_KEY" + '/dbt && dbt docs generate --target-path /opt/airflow/dags/' + "DD_KEY" + '/dbt-docs'
+        bash_command='cd /storage/airflow/dags/' + "DD_KEY" + '/dbt && dbt docs generate --target-path /storage/dbt-docs/' + "DD_KEY"
     )
 
     @task
     def dbt_docs_serve():
         import json
 
-        dbt_path = "/opt/airflow/dags/" + "DD_KEY" + "/dbt-docs/"
+        dbt_path = "/storage/dbt-docs/" + "DD_KEY" + "/"
         search_str = 'o=[i("manifest","manifest.json"+t),i("catalog","catalog.json"+t)]'
 
         with open(os.path.join(dbt_path, 'index.html'), 'r', encoding="utf8") as f:

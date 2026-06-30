@@ -52,6 +52,7 @@ import java.util.stream.Stream;
 public class StorageTraverseService {
 
     private static final List<String> INDEX_FILE_NAMES = List.of("index.html", "index.htm", "index");
+    private static final String DBT_DOCS_FOLDER_NAME = "dbt-docs";
     private final ProjectDocService projectDocService;
     @Value("${hello-data.files.static-location}")
     private String storageLocation;
@@ -71,21 +72,27 @@ public class StorageTraverseService {
     /**
      * Walk file tree in storage to search for documentation files.
      * <p>
-     * The storage location is the root-location where each data-domain contains one folder. Each folder itself can hold n subfolders / project-docs
+     * The documentation lives under the {@value #DBT_DOCS_FOLDER_NAME} subfolder of the storage location. Each direct subfolder of it represents one
+     * data-domain and contains the documentation files (e.g. index.html) for that domain.
      */
     @Scheduled(fixedDelayString = "${hello-data.files.scan-interval-seconds}", timeUnit = TimeUnit.SECONDS)
     public void walkFilesInStorage() {
-        Path storagePath = Path.of(storageLocation);
-        log.info("--- Searching for changes in documentation storage: {}", storagePath);
+        Path dbtDocsPath = getDbtDocsPath();
+        log.info("--- Searching for changes in documentation storage: {}", dbtDocsPath);
+        if (!Files.isDirectory(dbtDocsPath)) {
+            log.warn("dbt-docs folder does not exist yet: {}", dbtDocsPath);
+            projectDocService.clearCache();
+            return;
+        }
         List<Path> storageLocationsToOmit = new ArrayList<>();
         if (storageLocationToOmit != null) {
             storageLocationsToOmit.addAll(Arrays.stream(storageLocationToOmit.split(",")).map(Paths::get).toList());
         }
 
         List<ProjectDoc> result = new ArrayList<>();
-        try (Stream<Path> walk = Files.walk(storagePath, 1)) {
+        try (Stream<Path> walk = Files.walk(dbtDocsPath, 1)) {
             walk.filter(Files::isDirectory)
-                    .filter(path -> !path.equals(storagePath))
+                    .filter(path -> !path.equals(dbtDocsPath))
                     .filter(path -> storageLocationsToOmit.stream().noneMatch(path::startsWith))
                     .forEach(path -> {
                         List<ProjectDoc> subDocs = collectProjectDocs(path);
@@ -102,15 +109,23 @@ public class StorageTraverseService {
 
     public List<String> listDataDomainDirectories() {
         try {
-            Path storagePath = Path.of(storageLocation);
-            log.info("--- Searching for data domain directories in: {}", storagePath);
-            try (Stream<Path> list = Files.list(storagePath)) {
+            Path dbtDocsPath = getDbtDocsPath();
+            log.info("--- Searching for data domain directories in: {}", dbtDocsPath);
+            if (!Files.isDirectory(dbtDocsPath)) {
+                log.warn("dbt-docs folder does not exist yet: {}", dbtDocsPath);
+                return Collections.emptyList();
+            }
+            try (Stream<Path> list = Files.list(dbtDocsPath)) {
                 return list.toList().stream().map(t -> t.getFileName().toString()).toList();
             }
         } catch (Exception e) {
             log.error("Could not search for data domain directories", e);
             return Collections.emptyList();
         }
+    }
+
+    private Path getDbtDocsPath() {
+        return Path.of(storageLocation).resolve(DBT_DOCS_FOLDER_NAME);
     }
 
     private void printDebugOutput(Path path, List<ProjectDoc> subDocs) {
