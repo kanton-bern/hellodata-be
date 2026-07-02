@@ -608,6 +608,46 @@ public class SupersetClient implements Closeable {
         log.debug("deleteCharts response: {}", resp.getBody());
     }
 
+    /**
+     * Finds datasets that share the given physical identity (schema + table name). Superset enforces a
+     * unique constraint on {@code (database_id, schema, table_name)}, so callers can use the returned rows
+     * to detect an incoming dataset that would collide with an existing one carrying a different uuid.
+     * <p>
+     * The {@code uuid} and {@code database.id} are not exposed by the dataset "show" endpoint in this
+     * Superset distribution, but the list endpoint returns them when requested explicitly via
+     * {@code columns}.
+     *
+     * @return a JsonArray of dataset objects with {@code id}, {@code uuid}, {@code schema},
+     * {@code table_name} and nested {@code database.id}
+     */
+    public JsonArray getDatasetsBySchemaAndTable(String schema, String tableName) throws URISyntaxException, IOException {
+        JsonArray columns = new JsonArray();
+        columns.add("id");
+        columns.add("uuid");
+        columns.add("schema");
+        columns.add("table_name");
+        columns.add("database.id");
+
+        JsonArray filters = new JsonArray();
+        JsonObject tableFilter = new JsonObject();
+        tableFilter.addProperty("col", "table_name");
+        tableFilter.addProperty("opr", "eq");
+        tableFilter.addProperty("value", tableName);
+        filters.add(tableFilter);
+        if (schema != null) {
+            JsonObject schemaFilter = new JsonObject();
+            schemaFilter.addProperty("col", "schema");
+            schemaFilter.addProperty("opr", "eq");
+            schemaFilter.addProperty("value", schema);
+            filters.add(schemaFilter);
+        }
+
+        HttpUriRequest request = SupersetApiRequestBuilder.getListDatasetsRequestFiltered(host, port, authToken, columns, filters);
+        ApiResponse resp = executeRequest(request);
+        JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
+        return obj.has("result") && !obj.get("result").isJsonNull() ? obj.getAsJsonArray("result") : new JsonArray();
+    }
+
     public void deleteDataset(int datasetId) throws URISyntaxException, IOException {
         csrf();
         HttpUriRequest request = SupersetApiRequestBuilder.getDeleteDatasetRequest(host, port, authToken, datasetId, csrfToken, sessionCookie);
