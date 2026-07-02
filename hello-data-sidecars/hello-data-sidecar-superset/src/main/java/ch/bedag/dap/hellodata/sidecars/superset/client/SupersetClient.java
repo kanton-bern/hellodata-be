@@ -526,6 +526,24 @@ public class SupersetClient implements Closeable {
     }
 
     /**
+     * Imports charts from a chart-export file. Unlike the dashboard importer - which imports nested
+     * charts with {@code overwrite=False} and therefore never refreshes an existing chart - the chart
+     * importer honours {@code overwrite}: with {@code override=true} an existing chart (matched by uuid)
+     * is updated <em>in place</em>, keeping its numeric id so that permalinks and dashboard-comment
+     * pointers referencing that chart survive.
+     *
+     * @param chartsFile a chart-export zip ({@code charts/}, {@code datasets/}, {@code databases/} and a
+     *                   {@code metadata.yaml} of type {@code Slice})
+     * @param password   A JSON format database password, e.g: {@code {"databases/database.yaml":"password"}}
+     * @param override   overwrite existing charts
+     */
+    public void importCharts(File chartsFile, JsonElement password, boolean override) throws URISyntaxException, IOException {
+        csrf();
+        HttpUriRequest request = SupersetApiRequestBuilder.getImportChartsRequest(host, port, authToken, csrfToken, chartsFile, override, password, sessionCookie);
+        executeRequest(request);
+    }
+
+    /**
      * Updates dashboards published flag (publish/un-publish dashboard).
      *
      * @return an updated dashboard.
@@ -701,7 +719,7 @@ public class SupersetClient implements Closeable {
      * permalink (or its referenced dashboard) no longer exists.
      */
     public JsonObject getDashboardPermalinkState(String key) throws URISyntaxException, IOException {
-        return getJsonObjectOrNullOnNotFound(SupersetApiRequestBuilder.getDashboardPermalinkRequest(host, port, authToken, key));
+        return getPermalinkStateOrNull(SupersetApiRequestBuilder.getDashboardPermalinkRequest(host, port, authToken, key));
     }
 
     /**
@@ -710,7 +728,7 @@ public class SupersetClient implements Closeable {
      * @return the permalink value, or {@code null} if the permalink no longer exists.
      */
     public JsonObject getExplorePermalinkState(String key) throws URISyntaxException, IOException {
-        return getJsonObjectOrNullOnNotFound(SupersetApiRequestBuilder.getExplorePermalinkRequest(host, port, authToken, key));
+        return getPermalinkStateOrNull(SupersetApiRequestBuilder.getExplorePermalinkRequest(host, port, authToken, key));
     }
 
     /**
@@ -805,6 +823,29 @@ public class SupersetClient implements Closeable {
             return parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
         } catch (UnexpectedResponseException e) {
             if (e.getCode() == 404) {
+                return null;
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * Resolves a permalink and returns its state, or {@code null} when the permalink cannot be resolved.
+     * <p>
+     * Superset returns {@code 404} when the permalink key itself is unknown, but a generic {@code 500}
+     * ("Fatal error") when the key resolves yet its referenced dashboard/chart no longer exists - the
+     * {@code GetDashboardPermalinkCommand} wraps the {@code DashboardNotFoundError} in a
+     * {@code DashboardPermalinkGetFailedError} that surfaces as a 500. Both cases mean the pointer is
+     * broken, so both are reported as {@code null} rather than propagated as an error.
+     */
+    private JsonObject getPermalinkStateOrNull(HttpUriRequest request) throws URISyntaxException, IOException {
+        try {
+            ApiResponse resp = executeRequest(request);
+            JsonElement parsed = JsonParser.parseString(resp.getBody());
+            return parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
+        } catch (UnexpectedResponseException e) {
+            if (e.getCode() == 404 || e.getCode() == 500) {
+                log.debug("Permalink {} could not be resolved (HTTP {}); treating it as no longer existing", request.getURI(), e.getCode());
                 return null;
             }
             throw e;

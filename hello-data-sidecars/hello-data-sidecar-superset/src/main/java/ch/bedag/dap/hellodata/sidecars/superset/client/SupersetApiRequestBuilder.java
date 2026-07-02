@@ -78,6 +78,7 @@ public class SupersetApiRequestBuilder {
     private static final String DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/%d";
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
     private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
+    private static final String IMPORT_CHART_API_ENDPOINT = "/api/v1/chart/import/";
     private static final String LIST_DATABASE_API_ENDPOINT = "/api/v1/database/";
     private static final String DATABASE_API_ENDPOINT = "/api/v1/database/%d";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
@@ -252,18 +253,28 @@ public class SupersetApiRequestBuilder {
 
     public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride, //NOSONAR
                                                            JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
-        URI apiUri = buildUri(host, port, IMPORT_DASHBOARD_API_ENDPOINT, null);
-        log.debug("create import dashboard request, auth token {}", authToken);
-        log.debug("create import dashboard request, csrf token {}", csrfToken);
-        log.debug("create import dashboard request, cookie {}", sessionCookie);
-        try (FileInputStream fis = new FileInputStream(compressedDashboardFile)) {
-            byte[] arr = new byte[(int) compressedDashboardFile.length()];
+        return getImportRequest(host, port, authToken, csrfToken, IMPORT_DASHBOARD_API_ENDPOINT, compressedDashboardFile, isOverride, passwords, sessionCookie);
+    }
+
+    public static HttpUriRequest getImportChartsRequest(String host, int port, String authToken, String csrfToken, File compressedChartsFile, boolean isOverride, //NOSONAR
+                                                        JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
+        return getImportRequest(host, port, authToken, csrfToken, IMPORT_CHART_API_ENDPOINT, compressedChartsFile, isOverride, passwords, sessionCookie);
+    }
+
+    private static HttpUriRequest getImportRequest(String host, int port, String authToken, String csrfToken, String endpoint, File compressedFile, boolean isOverride, //NOSONAR
+                                                   JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
+        URI apiUri = buildUri(host, port, endpoint, null);
+        log.debug("create import request for {}, auth token {}", endpoint, authToken);
+        log.debug("create import request, csrf token {}", csrfToken);
+        log.debug("create import request, cookie {}", sessionCookie);
+        try (FileInputStream fis = new FileInputStream(compressedFile)) {
+            byte[] arr = new byte[(int) compressedFile.length()];
             int read = fis.read(arr);
             log.debug("{} bytes were read", read);
 
             ContentType contentType = ContentType.create("multipart/form-data", StandardCharsets.UTF_8);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
+            builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "import.zip");
             builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
             builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
 

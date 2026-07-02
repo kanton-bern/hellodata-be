@@ -111,6 +111,7 @@ public class UploadDashboardsFileListener {
                     reconcileConflictingDatasets(supersetClient, destinationFile);
                     log.debug("Passwords parameter send to API ");
                     supersetClient.importDashboard(destinationFile, passwordsObject, true);
+                    refreshChartsInPlace(supersetClient, destinationFile, passwordsObject);
                     verifyImportedDashboards(supersetClient, destinationFile);
                 } catch (Exception e) {
                     if (pruned && backupFile != null) {
@@ -400,6 +401,96 @@ public class UploadDashboardsFileListener {
         String qualifiedName() {
             return schema != null ? schema + "." + tableName : tableName;
         }
+    }
+
+    /**
+     * Refreshes the definitions of charts that already exist in the target Superset.
+     * <p>
+     * The dashboard importer imports nested charts with {@code overwrite=False}, so an existing chart
+     * (matched by uuid) keeps its old definition even when the export carries a newer one. The chart
+     * importer, in contrast, honours {@code overwrite}, and {@code overwrite=true} updates the chart
+     * <em>in place</em> - preserving its numeric id so permalinks and dashboard-comment pointers to that
+     * chart survive. A dedicated chart-import zip is built from the (already database-remapped) export
+     * because the chart importer rejects a zip whose {@code metadata.yaml} type is not {@code Slice}.
+     */
+    private void refreshChartsInPlace(SupersetClient supersetClient, File destinationFile, JsonObject passwordsObject) throws IOException {
+        File chartsZip = buildChartImportZip(destinationFile);
+        if (chartsZip == null) {
+            log.info("No charts found in export, skipping in-place chart refresh");
+            return;
+        }
+        try {
+            log.info("Refreshing chart definitions in place via chart import (overwrite=true)");
+            supersetClient.importCharts(chartsZip, passwordsObject, true);
+        } catch (URISyntaxException e) {
+            throw new UploadDashboardsFileException("Failed to refresh charts after dashboard import", e);
+        } finally {
+            if (chartsZip.exists() && !chartsZip.delete()) {
+                log.warn("Could not delete temporary chart-import file: {}", chartsZip.getAbsolutePath());
+            }
+        }
+    }
+
+    /**
+     * Builds a chart-import zip from a dashboard export: it copies the {@code charts/}, {@code datasets/}
+     * and {@code databases/} entries verbatim and writes a {@code metadata.yaml} of type {@code Slice}
+     * (the type the chart importer requires). Returns {@code null} when the export contains no charts.
+     */
+    private File buildChartImportZip(File destinationFile) throws IOException {
+        File chartsZip = File.createTempFile("charts-import-", ".zip", new File(tmpDir)); //NOSONAR
+        boolean hasChart = false;
+        String root = "";
+        String metadataContent = null;
+        try (ZipFile zipFile = new ZipFile(destinationFile);
+             ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(chartsZip), StandardCharsets.UTF_8)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String name = entry.getName();
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                if (name.endsWith("metadata.yaml")) {
+                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                        metadataContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                    }
+                    root = name.substring(0, name.length() - "metadata.yaml".length());
+                    continue;
+                }
+                if (name.contains("/charts/") || name.contains("/datasets/") || name.contains("/databases/")) {
+                    if (name.contains("/charts/")) {
+                        hasChart = true;
+                    }
+                    zos.putNextEntry(new ZipEntry(name));
+                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                        inputStream.transferTo(zos);
+                    }
+                    zos.closeEntry();
+                }
+            }
+            zos.putNextEntry(new ZipEntry(root + "metadata.yaml"));
+            zos.write(buildSliceMetadata(metadataContent).getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+        }
+        if (!hasChart) {
+            if (chartsZip.exists() && !chartsZip.delete()) {
+                log.warn("Could not delete temporary chart-import file: {}", chartsZip.getAbsolutePath());
+            }
+            return null;
+        }
+        return chartsZip;
+    }
+
+    private String buildSliceMetadata(String existingMetadata) throws IOException {
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        if (existingMetadata != null && !existingMetadata.isBlank()) {
+            metadata = yamlMapper.readValue(existingMetadata, Map.class);
+        }
+        metadata.putIfAbsent("version", "1.0.0");
+        // The chart importer validates that metadata type equals the model name (Slice).
+        metadata.put("type", "Slice");
+        return yamlMapper.writeValueAsString(metadata);
     }
 
     private void replaceSqlalchemyUrisInZip(File sourceZip, File targetZip, String newSqlalchemyUri) throws IOException {
