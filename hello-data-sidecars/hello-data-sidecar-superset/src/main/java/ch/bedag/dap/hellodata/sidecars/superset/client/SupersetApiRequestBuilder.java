@@ -338,6 +338,10 @@ public class SupersetApiRequestBuilder {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, "/api/v1/chart/");
     }
 
+    public static HttpUriRequest getListDatasetsRequestFiltered(String host, int port, String authToken, JsonArray columns, JsonArray filters) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, columns, filters, "/api/v1/dataset/");
+    }
+
     public static HttpUriRequest getChartByIdRequest(String host, int port, String authToken, int chartId) throws URISyntaxException {
         URI apiUri = buildUri(host, port, "/api/v1/chart/" + chartId, null);
         return RequestBuilder.get()

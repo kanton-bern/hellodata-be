@@ -108,6 +108,7 @@ public class UploadDashboardsFileListener {
                             pruned = true;
                         }
                     }
+                    reconcileConflictingDatasets(supersetClient, destinationFile);
                     log.debug("Passwords parameter send to API ");
                     supersetClient.importDashboard(destinationFile, passwordsObject, true);
                     verifyImportedDashboards(supersetClient, destinationFile);
@@ -296,14 +297,109 @@ public class UploadDashboardsFileListener {
                 return null;
             }
 
-            return new TargetDatabase(name, uuid);
+            return new TargetDatabase(lowestId, name, uuid);
         } catch (Exception e) {
             log.error("Failed to resolve target database from Superset API", e);
             return null;
         }
     }
 
-    private record TargetDatabase(String name, String uuid) {
+    private record TargetDatabase(int id, String name, String uuid) {
+    }
+
+    /**
+     * Reconciles datasets in the incoming export against datasets already present in Superset before the
+     * import runs.
+     * <p>
+     * Superset matches datasets by uuid on import; when the export carries a dataset whose uuid differs
+     * from an existing dataset occupying the same {@code (database_id, schema, table_name)} slot, the
+     * import tries to INSERT a new row and fails on the {@code _customer_location_uc} unique constraint
+     * (surfaced only as "Import dashboard failed for an unknown reason"). Neither uuid matching nor
+     * {@link #pruneExistingDashboardAssets} covers a colliding dataset that is orphaned or attached to an
+     * unrelated dashboard.
+     * <p>
+     * For each incoming dataset this deletes an orphaned colliding dataset so the import can recreate it,
+     * or fails fast with an actionable message when the colliding dataset is still in use.
+     */
+    private void reconcileConflictingDatasets(SupersetClient supersetClient, File destinationFile) throws IOException {
+        TargetDatabase targetDb = resolveTargetDatabase(supersetClient);
+        if (targetDb == null) {
+            log.warn("No target database resolved, skipping dataset conflict reconciliation");
+            return;
+        }
+        for (DatasetIdentity incoming : readIncomingDatasets(destinationFile)) {
+            try {
+                reconcileDataset(supersetClient, targetDb, incoming);
+            } catch (URISyntaxException | IOException e) {
+                throw new UploadDashboardsFileException("Failed to check dataset '" + incoming.qualifiedName() + "' for conflicts before import", e);
+            }
+        }
+    }
+
+    private void reconcileDataset(SupersetClient supersetClient, TargetDatabase targetDb, DatasetIdentity incoming) throws URISyntaxException, IOException {
+        JsonArray existingDatasets = supersetClient.getDatasetsBySchemaAndTable(incoming.schema(), incoming.tableName());
+        for (JsonElement element : existingDatasets) {
+            JsonObject existing = element.getAsJsonObject();
+            if (extractDatabaseId(existing) != targetDb.id()) {
+                // Same schema/table on a different database - not the slot this import targets.
+                continue;
+            }
+            String existingUuid = existing.has("uuid") && !existing.get("uuid").isJsonNull() ? existing.get("uuid").getAsString() : null;
+            if (incoming.uuid() != null && incoming.uuid().equals(existingUuid)) {
+                // Same identity - the importer overwrites it in place, no collision.
+                continue;
+            }
+            int existingId = existing.get("id").getAsInt();
+            JsonArray charts = supersetClient.getChartsForDatasource(existingId);
+            if (charts == null || charts.isEmpty()) {
+                log.warn("Dataset '{}' (id {}, uuid {}) collides with the incoming dataset (uuid {}) and is orphaned. Deleting it so the import can recreate it.",
+                        incoming.qualifiedName(), existingId, existingUuid, incoming.uuid());
+                supersetClient.deleteDataset(existingId);
+            } else {
+                throw new UploadDashboardsFileException(String.format(
+                        "Cannot import: dataset '%s' already exists in Superset with a different identity (existing uuid %s, import uuid %s) and is used by %d chart(s). " +
+                                "Re-upload with the 'prune charts and datasets' option enabled, or remove/realign the existing dataset first.",
+                        incoming.qualifiedName(), existingUuid, incoming.uuid(), charts.size()));
+            }
+        }
+    }
+
+    private int extractDatabaseId(JsonObject dataset) {
+        if (dataset.has("database") && dataset.get("database").isJsonObject()) {
+            JsonObject database = dataset.getAsJsonObject("database");
+            if (database.has("id") && !database.get("id").isJsonNull()) {
+                return database.get("id").getAsInt();
+            }
+        }
+        return -1;
+    }
+
+    private List<DatasetIdentity> readIncomingDatasets(File destinationFile) throws IOException {
+        List<DatasetIdentity> datasets = new ArrayList<>();
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+        try (ZipFile zipFile = new ZipFile(destinationFile)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().contains("/datasets/") && !entry.isDirectory() && entry.getName().endsWith(".yaml")) {
+                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                        Map<String, Object> parsed = yamlMapper.readValue(inputStream.readAllBytes(), Map.class);
+                        if (parsed.get("table_name") instanceof String tableName) {
+                            String schema = parsed.get("schema") instanceof String s ? s : null;
+                            String uuid = parsed.get("uuid") instanceof String u ? u : null;
+                            datasets.add(new DatasetIdentity(schema, tableName, uuid));
+                        }
+                    }
+                }
+            }
+        }
+        return datasets;
+    }
+
+    private record DatasetIdentity(String schema, String tableName, String uuid) {
+        String qualifiedName() {
+            return schema != null ? schema + "." + tableName : tableName;
+        }
     }
 
     private void replaceSqlalchemyUrisInZip(File sourceZip, File targetZip, String newSqlalchemyUri) throws IOException {
