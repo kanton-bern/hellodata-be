@@ -188,6 +188,26 @@ class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
+    void momiUser_getMomiProjectByPathWithDbtDocsPrefix_shouldReturnData() {
+        // regression for HELLODATA-3958: storage layout changed to /dbt-docs/<data-domain>/... so the served path is
+        // prefixed with the dbt-docs folder; the data-domain (momi) must still be resolved for the role check.
+        List<ProjectDoc> projectDocs = getListWith3ProjectDocsNewLayout();
+        Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
+        Mockito.when(projectDocService.getByName("momi")).thenReturn(Optional.of(new ProjectDoc("momi", "momi", "/dbt-docs/momi/index.html", "image.jpg", "image")));
+        Response response = given().header("Authorization", getMomiUserBearer()).queryParam("path", "/dbt-docs/momi/index.html").when().get("/api/projects-docs/get-by-path");
+        response.then().statusCode(HttpStatus.OK.value()).body(containsStringIgnoringCase("<html>momi</html>"));
+    }
+
+    @Test
+    void momiUser_getKibonProjectByPathWithDbtDocsPrefix_shouldReturnForbidden() {
+        // regression for HELLODATA-3958: a momi user must not reach kibon docs even with the new /dbt-docs/<data-domain>/... layout.
+        List<ProjectDoc> projectDocs = getListWith3ProjectDocsNewLayout();
+        Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
+        Response response = given().header("Authorization", getMomiUserBearer()).queryParam("path", "/dbt-docs/kibon/index.html").when().get("/api/projects-docs/get-by-path");
+        response.then().statusCode(HttpStatus.FORBIDDEN.value()).body(emptyString());
+    }
+
+    @Test
     void momiUser_getKibonProjectByPath_shouldReturnForbidden() {
         List<ProjectDoc> projectDocs = getListWith3ProjectDocs();
         Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
@@ -208,6 +228,14 @@ class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
         projectDocs.add(new ProjectDoc("kibon", "kibon", "/kibon/index.html", "image.jpg", "image"));
         projectDocs.add(new ProjectDoc("momi", "momi", "/momi/index.html", "image.jpg", "image"));
         projectDocs.add(new ProjectDoc("efan", "efan", "/efan/index.html", "image.jpg", "image"));
+        return projectDocs;
+    }
+
+    private List<ProjectDoc> getListWith3ProjectDocsNewLayout() {
+        List<ProjectDoc> projectDocs = new ArrayList<>();
+        projectDocs.add(new ProjectDoc("kibon", "kibon", "/dbt-docs/kibon/index.html", "image.jpg", "image"));
+        projectDocs.add(new ProjectDoc("momi", "momi", "/dbt-docs/momi/index.html", "image.jpg", "image"));
+        projectDocs.add(new ProjectDoc("efan", "efan", "/dbt-docs/efan/index.html", "image.jpg", "image"));
         return projectDocs;
     }
 }

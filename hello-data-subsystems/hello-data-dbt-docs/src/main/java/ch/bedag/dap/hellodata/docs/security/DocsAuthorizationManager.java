@@ -42,6 +42,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 @Log4j2
@@ -49,6 +50,7 @@ import java.util.function.Supplier;
 public class DocsAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 
     private static final String GET_PROJECTS_DOCS_BY_PATH_URI = "/api/projects-docs/get-by-path"; // NOSONAR
+    private static final String DBT_DOCS_FOLDER_NAME = "dbt-docs";
 
     private final SecurityService securityService;
 
@@ -61,11 +63,25 @@ public class DocsAuthorizationManager implements AuthorizationManager<RequestAut
     }
 
     private static String getProjectName(HttpServletRequest request) {
-        String[] parts = request.getRequestURI().split("/", 4);
-        if (request.getContextPath().isEmpty()) {
-            return parts.length > 1 ? parts[1] : "";
+        String uri = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        if (!contextPath.isEmpty() && uri.startsWith(contextPath)) {
+            uri = uri.substring(contextPath.length());
         }
-        return parts.length > 2 ? parts[2] : "";
+        return extractDataDomain(uri);
+    }
+
+    /**
+     * Extracts the data-domain key from a documentation path. The documentation is served under the
+     * {@value #DBT_DOCS_FOLDER_NAME} storage folder, so a path looks like {@code /dbt-docs/<data-domain>/...index.html}.
+     * The leading {@value #DBT_DOCS_FOLDER_NAME} segment is skipped so the data-domain (used for the role check) is returned.
+     */
+    private static String extractDataDomain(String path) {
+        String[] segments = Arrays.stream(path.split("/")).filter(segment -> !segment.isBlank()).toArray(String[]::new);
+        if (segments.length > 0 && segments[0].equalsIgnoreCase(DBT_DOCS_FOLDER_NAME)) {
+            return segments.length > 1 ? segments[1] : "";
+        }
+        return segments.length > 0 ? segments[0] : "";
     }
 
     @Override
@@ -133,13 +149,7 @@ public class DocsAuthorizationManager implements AuthorizationManager<RequestAut
 
     private String getRequestedProject(@NotNull String path) {
         log.info("Request path: " + path);
-        String[] split = path.split("/");
-        if (split.length == 0) {
-            return null;
-        }
-        if (split[0].isBlank() && split.length > 1) {
-            return split[1];
-        }
-        return null;
+        String dataDomain = extractDataDomain(path);
+        return dataDomain.isBlank() ? null : dataDomain;
     }
 }
