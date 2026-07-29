@@ -1,0 +1,139 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+
+FROM apache/airflow:slim-3.2.2-python3.12
+
+ARG ARG_AIRFLOW_VERSION=3.2.2
+ARG ARG_PYTHON_VERSION=3.12
+ARG AUTHLIB_VERSION=1.3.2
+# TODO(airflow3): verify dbt supports py3.12 (dbt-core/-postgres >= 1.8); bump if the build fails.
+ARG DBT_CORE_VERSION=1.8.2
+ARG DBT_POSTGRES_VERSION=1.8.2
+
+ENV AIRFLOW_VERSION=${ARG_AIRFLOW_VERSION}
+ENV PYTHON_VERSION=${ARG_PYTHON_VERSION}
+
+## Change container image to root user to allow for global
+## installation of software
+USER root
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+         vim nano gdal-bin \
+  # deps for liquibase
+  && apt-get install --no-install-recommends -y openjdk-17-jre-headless gnupg unzip postgresql-client \
+  && apt-get autoremove -yqq --purge \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+## Install needed airflow dependencies
+USER airflow
+RUN python -m pip install --upgrade pip
+RUN pip install --upgrade pip  \
+  &&  pip install --no-cache-dir psycopg2-binary Redis authlib==${AUTHLIB_VERSION} \
+  # Airflow 3: kubernetes extra is now `cncf.kubernetes`; FAB (auth manager) and
+  # `standard` (Bash/Python/Empty operators) are separate providers in Airflow 3.
+  &&  pip install --no-cache-dir "apache-airflow[celery,postgres,cncf.kubernetes,statsd,mssql,fab]==${AIRFLOW_VERSION}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt" \
+  &&  pip install --no-cache-dir apache-airflow-providers-standard --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt" \
+  &&  pip install --no-cache-dir virtualenv
+
+# dbt dependencies
+RUN pip install --no-cache-dir dbt-core==${DBT_CORE_VERSION} dbt-postgres==${DBT_POSTGRES_VERSION}
+
+# add additional python requirements
+RUN pip install --no-cache-dir pyaxis pygdaltools
+
+# add helloDATA libraries
+# TODO(airflow3): these private plugins are built for Airflow 2. Publish/point at
+# Airflow-3-compatible versions before this image is usable in production.
+RUN pip install \
+    --extra-index-url https://pypi.fury.io/datenstreambedag/ \
+    hellodata_be_airflow_pod_operator_params==4.0.0 \
+    hellodata_be_dag_logs==1.0.0
+
+# Copy config files to container's $AIRFLOW_HOME
+COPY airflow.cfg $AIRFLOW_HOME/airflow.cfg
+# FAB auth manager config (OAuth to Keycloak, public client + PKCE, auto-redirect,
+# AUTH_ROLES_MAPPING, hd_base) — read by the api-server.
+COPY webserver_config.py $AIRFLOW_HOME/webserver_config.py
+# Cluster policy: dag_policy stamps per-domain access_control (replaces 02_triggers.sql).
+COPY airflow_local_settings.py $AIRFLOW_HOME/config/airflow_local_settings.py
+
+
+##################### Add Liquibase to manage custom database scripts ######################
+USER root
+
+# install drivers to take screenshots
+RUN apt-get update && \
+    apt-get install -y dos2unix && \
+    # deps for airflow
+    apt-get install --no-install-recommends -y wget
+
+# Make /liquibase directory and change owner to superset
+RUN mkdir /liquibase && chown 65533:0 /liquibase
+WORKDIR /liquibase
+
+# Symbolic link will be broken until later
+RUN ln -s /liquibase/liquibase /usr/local/bin/liquibase
+
+# Set LIQUIBASE_HOME environment variable
+ENV LIQUIBASE_HOME=/liquibase
+
+# Latest Liquibase Release Version
+ARG LIQUIBASE_VERSION=4.21.1
+# Download, verify, extract liquibase
+ARG LB_SHA256=C04542865E5ECE8B7B1EE9BD6BEAEFC5315E350620288D6AC1A2D32C3B1F7D8B
+RUN set -x &&  \
+    wget -q -O liquibase-${LIQUIBASE_VERSION}.tar.gz "https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.tar.gz"
+RUN echo "$LB_SHA256 liquibase-${LIQUIBASE_VERSION}.tar.gz" | sha256sum -c -
+RUN tar -xzf liquibase-${LIQUIBASE_VERSION}.tar.gz
+
+
+# add liquibase migrations
+COPY --chown=airflow:root ./db/changelog /db/changelog
+COPY --chown=airflow:root ./db/wait-and-migrate.sh /db/wait-and-migrate.sh
+COPY --chown=airflow:root ./entrypoint.sh /app/entrypoint.sh
+
+RUN chmod a+x /db/*.sh
+RUN chmod a+x /app/*.sh
+
+#Change line-endings for liquibase-file from Windows to Unix and cleanup
+RUN dos2unix /db/wait-and-migrate.sh && apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt/lists/*
+
+# Switching back to using the `airflow` user
+USER airflow
+
+# Copy standard DAGs to the image
+# Have a look at entrypoint.sh to see how the DAGs are copied to the right place
+# This is done to enable mounting a k8s PVC in the /opt/airflow/dags directory
+# and still have the standard DAGs available in the image. Otherwise, the
+# mounted directory would overwrite the standard DAGs.
+RUN mkdir -p /opt/airflow/dags/hellodata-standard-dags/
+COPY ./hellodata-standard-dags/* /hd-tmp/hellodata-standard-dags/
+
+WORKDIR /app
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/app/entrypoint.sh"]

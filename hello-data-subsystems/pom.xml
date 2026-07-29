@@ -15,6 +15,7 @@
     <modules>
         <module>hello-data-superset</module>
         <module>hello-data-airflow</module>
+        <module>hello-data-airflow3</module>
         <module>hello-data-cloudbeaver</module>
         <module>hello-data-cloudbeaver-gateway</module>
         <module>hello-data-dbt-docs</module>
