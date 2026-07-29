@@ -39,6 +39,11 @@ hello-data:
     admin-client-secret: LiLlI86eFxXNWXUWqov4eyG1ocgWwPEq
     sync-users-schedule-hours: 1
     delete-user-in-provider: false
+  airflow3:
+    # When true, the portal mirrors each user's context roles into Keycloak realm roles
+    # (airflow_*, DD_<domain>) that the Airflow 3 FAB OAuth login maps to FAB roles.
+    # Requires the admin client to additionally hold "manage-realm". Off = Airflow 2 behaviour.
+    role-sync-enabled: ${AIRFLOW3_ROLE_SYNC_ENABLED:false}
   default-admin:
     email: admin@hellodata.ch
     username: admin

@@ -42,6 +42,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.Dashboa
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
+import ch.bedag.dap.hellodata.portal.role.service.AirflowKeycloakRoleService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -70,6 +71,7 @@ public class UserSubsystemSyncService {
     private final UserSelectedDashboardService userSelectedDashboardService;
     private final DashboardGroupService dashboardGroupService;
     private final DashboardCommentPermissionService dashboardCommentPermissionService;
+    private final AirflowKeycloakRoleService airflowKeycloakRoleService;
 
     public void synchronizeUser(UserEntity userEntity, boolean sendBackUsersList,
                                 Map<String, List<ModuleRoleNames>> extraModuleRoles,
@@ -78,6 +80,10 @@ public class UserSubsystemSyncService {
         userContextRoleUpdate.setExtraModuleRoles(extraModuleRoles);
         userContextRoleUpdate.setDashboardsPerContext(dashboardsPerContext);
         natsSenderService.publishMessageToJetStream(HDEvent.UPDATE_USER_CONTEXT_ROLE, userContextRoleUpdate);
+        // Airflow 3 reads a user's roles from Keycloak at login (FAB OAuth), not from a REST push,
+        // so mirror the context-role change into the user's Keycloak realm roles. No-op unless the
+        // Airflow 3 role sync is enabled.
+        airflowKeycloakRoleService.reconcileUserAirflowRoles(userEntity);
     }
 
     public void synchronizeContextRoles(UserEntity userEntity, boolean sendBackUsersList,

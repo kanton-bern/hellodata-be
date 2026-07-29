@@ -26,11 +26,14 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
@@ -40,7 +43,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -86,6 +92,49 @@ public class KeycloakService {
             return null;
         }
         return userRepresentations.get(0);
+    }
+
+    /**
+     * Idempotently create a realm role. Airflow 3 authenticates via Keycloak (FAB OAuth) and maps
+     * Keycloak realm roles to FAB roles at login, so the per-domain {@code DD_<domain>} and
+     * {@code airflow_*} roles the api-server expects must exist as realm roles. Requires the admin
+     * client to hold the {@code manage-realm} (realm-management) capability.
+     */
+    public void createRealmRoleIfMissing(String roleName) {
+        RolesResource rolesResource = keycloak.realm(realmName).roles();
+        try {
+            rolesResource.get(roleName).toRepresentation();
+        } catch (NotFoundException e) {
+            RoleRepresentation role = new RoleRepresentation();
+            role.setName(roleName);
+            role.setDescription("Managed by the HelloDATA portal for Airflow 3 access");
+            rolesResource.create(role);
+            log.info("Created Keycloak realm role '{}'", roleName);
+        }
+    }
+
+    public Set<String> getRealmRoleNamesOfUser(String userId) {
+        return keycloak.realm(realmName).users().get(userId).roles().realmLevel().listAll()
+                .stream().map(RoleRepresentation::getName).collect(Collectors.toSet());
+    }
+
+    public void addRealmRolesToUser(String userId, Collection<String> roleNames) {
+        if (CollectionUtils.isEmpty(roleNames)) {
+            return;
+        }
+        keycloak.realm(realmName).users().get(userId).roles().realmLevel().add(toRoleRepresentations(roleNames));
+    }
+
+    public void removeRealmRolesFromUser(String userId, Collection<String> roleNames) {
+        if (CollectionUtils.isEmpty(roleNames)) {
+            return;
+        }
+        keycloak.realm(realmName).users().get(userId).roles().realmLevel().remove(toRoleRepresentations(roleNames));
+    }
+
+    private List<RoleRepresentation> toRoleRepresentations(Collection<String> roleNames) {
+        RolesResource rolesResource = keycloak.realm(realmName).roles();
+        return roleNames.stream().map(name -> rolesResource.get(name).toRepresentation()).toList();
     }
 
     private String getCreatedId(Response response) {
