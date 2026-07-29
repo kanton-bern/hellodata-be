@@ -10,6 +10,11 @@
         {{ loginAirflows(airflowInfos, profile.email) }}
       </div>
     }
+    @if ((airflow3Infos$ | async); as airflow3Infos) {
+      <div>
+        {{ loginAirflows3(airflow3Infos, profile.email) }}
+      </div>
+    }
   </div>
 }
 

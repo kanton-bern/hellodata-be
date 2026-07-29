@@ -57,6 +57,7 @@ export class LogoutComponent implements AfterViewInit {
     }
 
     this.logoutAirflow();
+    this.logoutAirflow3();
     this.logoutFilebrowser();
   }
 
@@ -74,6 +75,15 @@ export class LogoutComponent implements AfterViewInit {
       if (airflowInfos.length > 0) {
         const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
         componentRef.setInput('url', airflowInfos[0].data.url + '/logout');
+      }
+    });
+  }
+
+  private logoutAirflow3() {
+    this.store.select(selectAppInfoByModuleType('AIRFLOW3')).pipe(take(1)).subscribe(airflow3Infos => {
+      if (airflow3Infos.length > 0) {
+        const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+        componentRef.setInput('url', airflow3Infos[0].data.url + '/logout');
       }
     });
   }

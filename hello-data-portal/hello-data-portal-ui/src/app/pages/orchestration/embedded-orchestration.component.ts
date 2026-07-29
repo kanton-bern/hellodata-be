@@ -49,6 +49,9 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
   private route = inject(ActivatedRoute);
   private store = inject<Store<AppState>>(Store);
 
+  // Which orchestrator this embedded view targets. Airflow 2 ('AIRFLOW') and the side-by-side
+  // Airflow 3 ('AIRFLOW3') coexist; the module type is provided via route data (default 'AIRFLOW').
+  private readonly moduleType: string = this.route.snapshot.data['moduleType'] ?? 'AIRFLOW';
 
   url!: string;
 
@@ -56,9 +59,11 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
 
   constructor() {
     super();
+    // Airflow 3 dropped the legacy '/home' landing page; land on the app root instead.
+    const homePath = this.moduleType === 'AIRFLOW3' ? '/' : '/home';
     this.currentPipelineInfo$ = combineLatest([
       this.store.select(selectCurrentPipelineInfo),
-      this.store.select(selectAppInfoByModuleType('AIRFLOW'))
+      this.store.select(selectAppInfoByModuleType(this.moduleType))
     ]).pipe(tap(([pipelineInfo, airflowInfos]) => {
       if (!airflowInfos || airflowInfos.length === 0) {
         return;
@@ -66,7 +71,7 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
       const pipelineId = pipelineInfo.pipelineId;
       const airflowBaseUrl = airflowInfos[0].data.url;
       const airflowLogoutUrl = `${airflowBaseUrl}/logout?redirect=${airflowBaseUrl}`;
-      const loggedInAirflowUser = sessionStorage.getItem(LOGGED_IN_AIRFLOW_USER);
+      const loggedInAirflowUser = sessionStorage.getItem(this.loggedInUserKey());
       let airflowLoginUrl;
       if (!loggedInAirflowUser || loggedInAirflowUser !== pipelineInfo.profile.email) {
         airflowLoginUrl = `${airflowLogoutUrl}/login/keycloak?next=${airflowBaseUrl}`;
@@ -76,9 +81,9 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
       if (pipelineId) {
         this.url = `${airflowLoginUrl}/dags/${pipelineId}`;
       } else {
-        this.url = `${airflowLoginUrl}/home`;
+        this.url = `${airflowLoginUrl}${homePath}`;
       }
-      sessionStorage.setItem(LOGGED_IN_AIRFLOW_USER, pipelineInfo.profile.email);
+      sessionStorage.setItem(this.loggedInUserKey(), pipelineInfo.profile.email);
     }));
 
     this.createBreadcrumbs();
@@ -88,12 +93,19 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
     super.ngOnInit();
   }
 
+  private loggedInUserKey(): string {
+    return this.moduleType === 'AIRFLOW3' ? `${LOGGED_IN_AIRFLOW_USER}_airflow3` : LOGGED_IN_AIRFLOW_USER;
+  }
+
   private createBreadcrumbs() {
+    const naviElement = this.moduleType === 'AIRFLOW3'
+      ? naviElements.embeddedOrchestrationAirflow3
+      : naviElements.embeddedOrchestration;
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
-          label: naviElements.embeddedOrchestration.label,
-          routerLink: 'redirect/' + naviElements.embeddedOrchestration.path
+          label: naviElement.label,
+          routerLink: 'redirect/' + naviElement.path
         }
       ]
     }));

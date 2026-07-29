@@ -93,6 +93,10 @@ export const naviElements: any = {
     path: 'embedded-orchestration',
     label: '@Orchestration'
   },
+  embeddedOrchestrationAirflow3: {
+    path: 'embedded-orchestration-airflow3',
+    label: '@Orchestration (airflow3)'
+  },
   embeddedOrchestrationDetails: {
     path: 'details/:id',
     label: '@Detail'

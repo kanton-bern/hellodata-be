@@ -294,6 +294,7 @@
   "@Open": "Ouvert",
   "@Open Dashboard": "Ouvrir le tableau de bord",
   "@Orchestration": "Orchestration",
+  "@Orchestration (airflow3)": "Orchestration (airflow3)",
   "@Owners": "Owners",
   "@Path": "Chemin",
   "@Permission missing": "Vous n'avez pas encore l'autorisation d'accéder à un domaine de données à {{businessdomain}}. \n Veuillez contacter votre administrateur afin qu'il vous accorde les autorisations nécessaires.",

@@ -94,6 +94,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         label: '@Orchestration',
         routerLink: naviElements.embeddedOrchestration.path,
         requiredPermissions: ['DATA_ENG']
+      },
+      {
+        id: 'dataEngOrchestrationAirflow3Menu',
+        label: '@Orchestration (airflow3)',
+        routerLink: naviElements.embeddedOrchestrationAirflow3.path,
+        requiredPermissions: ['DATA_ENG']
       }
     ],
     isFirstLevel: true

@@ -224,10 +224,31 @@ const routes: Routes = [
     children: [
       {
         path: '',
+        data: {moduleType: 'AIRFLOW'},
         loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
       },
       {
         path: naviElements.embeddedOrchestrationDetails.path,
+        data: {moduleType: 'AIRFLOW'},
+        loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
+      }
+    ]
+  },
+  {
+    path: naviElements.embeddedOrchestrationAirflow3.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DATA_ENG'],
+    },
+    children: [
+      {
+        path: '',
+        data: {moduleType: 'AIRFLOW3'},
+        loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
+      },
+      {
+        path: naviElements.embeddedOrchestrationDetails.path,
+        data: {moduleType: 'AIRFLOW3'},
         loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
       }
     ]

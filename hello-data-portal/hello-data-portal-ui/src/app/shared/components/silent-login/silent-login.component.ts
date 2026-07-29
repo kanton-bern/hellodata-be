@@ -48,13 +48,16 @@ export class SilentLoginComponent {
 
   supersetInfos$: Observable<MetaInfoResource[]>;
   airflowInfos$: Observable<MetaInfoResource[]>;
+  airflow3Infos$: Observable<MetaInfoResource[]>;
   supersetsLoggedIn = false;
   airflowsLoggedIn = false;
+  airflows3LoggedIn = false;
   profile$: Observable<any>;
 
   constructor() {
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
     this.airflowInfos$ = this.store.select(selectAppInfoByModuleType('AIRFLOW'));
+    this.airflow3Infos$ = this.store.select(selectAppInfoByModuleType('AIRFLOW3'));
     this.profile$ = this.store.select(selectProfile);
   }
 
@@ -89,5 +92,22 @@ export class SilentLoginComponent {
       });
     }
     return 'airflows-logged-in';
+  }
+
+  loginAirflows3(airflow3Infos: MetaInfoResource[], email: any) {
+    if (!this.airflows3LoggedIn) {
+      airflow3Infos.forEach(airflow3Info => {
+        const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+        componentRef.setInput('switchStyleOverflow', false);
+
+        const airflowLogoutUrl = airflow3Info.data.url + 'logout';
+        const airflowLoginUrl = airflow3Info.data.url + `login/keycloak`;
+
+        componentRef.setInput('url', airflowLogoutUrl + `?redirect=${airflowLoginUrl}`);
+        sessionStorage.setItem(`${LOGGED_IN_AIRFLOW_USER}_airflow3`, email);
+        this.airflows3LoggedIn = true;
+      });
+    }
+    return 'airflows3-logged-in';
   }
 }
