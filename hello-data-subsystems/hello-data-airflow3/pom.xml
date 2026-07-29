@@ -153,7 +153,12 @@
                             <imagePullPolicy>Always</imagePullPolicy>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-airflow3:${docker.tag.name}</name>
+                                    <!-- TEMP: publish into the existing hello-data-airflow repo (the dedicated
+                                         hello-data-airflow3 repo is not provisioned yet). The Airflow 3 build
+                                         overwrites this repo under its own branch/version tag; Airflow 2
+                                         deployments pin an older tag. Point back to hello-data-airflow3 once
+                                         the repo exists. -->
+                                    <name>${docker.namespace}/hello-data-airflow:${docker.tag.name}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/main/docker</contextDir>
                                         <assembly>
