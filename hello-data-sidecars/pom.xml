@@ -15,6 +15,7 @@
 
     <modules>
         <module>hello-data-sidecar-airflow</module>
+        <module>hello-data-sidecar-airflow3</module>
         <module>hello-data-sidecar-portal</module>
         <module>hello-data-sidecar-superset</module>
         <module>hello-data-sidecar-dbt-docs</module>
