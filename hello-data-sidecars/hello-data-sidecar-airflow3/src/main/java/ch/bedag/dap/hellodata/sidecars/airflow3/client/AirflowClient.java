@@ -122,7 +122,7 @@ public class AirflowClient implements Closeable {
         return Jwts.builder()
                 .header().add("kid", "not-used").and()
                 .subject(apiUserId)
-                .audience().single(AUDIENCE).and()
+                .audience().single(AUDIENCE)
                 .id(UUID.randomUUID().toString())
                 .issuedAt(Date.from(now))
                 .notBefore(Date.from(now))
