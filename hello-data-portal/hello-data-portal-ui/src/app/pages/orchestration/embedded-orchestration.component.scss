@@ -24,3 +24,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+.orchestration-embed {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+// Toggle to show/hide the Airflow 3 native sidebar, overlaid on the iframe (top-right) so it
+// does not consume layout height. The iframe is cross-origin, so this button lives in the
+// portal DOM and only flips the portal-side crop.
+.af3-menu-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  opacity: 0.9;
+}

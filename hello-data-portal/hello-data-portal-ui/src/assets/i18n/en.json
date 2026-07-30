@@ -295,6 +295,8 @@
   "@Open Dashboard": "Open Dashboard",
   "@Orchestration": "Orchestration",
   "@Orchestration (airflow3)": "Orchestration (airflow3)",
+  "@Show Airflow menu": "Show Airflow menu",
+  "@Hide Airflow menu": "Hide Airflow menu",
   "@Owners": "Owners",
   "@Path": "Path",
   "@Permission missing": "You do not yet have authorization to a data domain at {{businessdomain}}. \n Please contact your administrator to give you the appropriate permissions.",

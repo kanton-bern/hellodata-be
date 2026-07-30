@@ -37,13 +37,15 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import { AsyncPipe } from '@angular/common';
 import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
 import {selectAppInfoByModuleType} from "../../store/metainfo-resource/metainfo-resource.selector";
+import {TranslocoPipe} from '@jsverse/transloco';
+import {Button} from 'primeng/button';
 
 export const LOGGED_IN_AIRFLOW_USER = 'logged_in_airflow_user';
 
 @Component({
     templateUrl: 'embedded-orchestration.component.html',
     styleUrls: ['./embedded-orchestration.component.scss'],
-    imports: [SubsystemIframeComponent, AsyncPipe]
+    imports: [SubsystemIframeComponent, AsyncPipe, TranslocoPipe, Button]
 })
 export class EmbeddedOrchestrationComponent extends BaseComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -53,9 +55,21 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
   // Airflow 3 ('AIRFLOW3') coexist; the module type is provided via route data (default 'AIRFLOW').
   private readonly moduleType: string = this.route.snapshot.data['moduleType'] ?? 'AIRFLOW';
 
-  // Airflow 3 renders its own left sidebar inside the (cross-origin) iframe; crop it off in the
-  // embedded portal view since the portal already provides navigation. 0 = no crop (Airflow 2).
-  protected readonly cropLeftPx = this.moduleType === 'AIRFLOW3' ? 96 : 0;
+  protected readonly isAirflow3 = this.moduleType === 'AIRFLOW3';
+
+  // Airflow 3 renders its own left nav inside the (cross-origin) iframe. The portal already
+  // provides navigation, so default to hiding it, with a toggle to show it on demand. The crop
+  // is pure portal-side CSS on the iframe element (SubsystemIframeComponent.cropLeftPx), so
+  // toggling needs no iframe reload and never touches the cross-origin iframe DOM.
+  protected airflowSidebarHidden = true;
+
+  protected get cropLeftPx(): number {
+    return this.isAirflow3 && this.airflowSidebarHidden ? 96 : 0;
+  }
+
+  protected toggleAirflowSidebar(): void {
+    this.airflowSidebarHidden = !this.airflowSidebarHidden;
+  }
 
   url!: string;
 

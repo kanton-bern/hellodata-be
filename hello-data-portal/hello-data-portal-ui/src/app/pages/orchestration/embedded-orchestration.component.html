@@ -1,3 +1,12 @@
 @if (currentPipelineInfo$ | async) {
-  <app-subsystem-iframe [delay]="600" [url]="url" [cropLeftPx]="cropLeftPx"/>
+  <div class="orchestration-embed">
+    @if (isAirflow3) {
+      <button pButton type="button"
+              class="af3-menu-toggle p-button-sm p-button-secondary p-button-text"
+              [icon]="airflowSidebarHidden ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"
+              [label]="(airflowSidebarHidden ? '@Show Airflow menu' : '@Hide Airflow menu') | transloco"
+              (click)="toggleAirflowSidebar()"></button>
+    }
+    <app-subsystem-iframe [delay]="600" [url]="url" [cropLeftPx]="cropLeftPx"/>
+  </div>
 }
