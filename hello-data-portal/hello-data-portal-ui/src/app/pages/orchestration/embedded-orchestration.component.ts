@@ -53,6 +53,10 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
   // Airflow 3 ('AIRFLOW3') coexist; the module type is provided via route data (default 'AIRFLOW').
   private readonly moduleType: string = this.route.snapshot.data['moduleType'] ?? 'AIRFLOW';
 
+  // Airflow 3 renders its own left sidebar inside the (cross-origin) iframe; crop it off in the
+  // embedded portal view since the portal already provides navigation. 0 = no crop (Airflow 2).
+  protected readonly cropLeftPx = this.moduleType === 'AIRFLOW3' ? 96 : 0;
+
   url!: string;
 
   currentPipelineInfo$: Observable<any>;

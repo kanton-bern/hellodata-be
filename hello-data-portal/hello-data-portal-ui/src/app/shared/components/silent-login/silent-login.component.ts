@@ -100,8 +100,11 @@ export class SilentLoginComponent {
         const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
         componentRef.setInput('switchStyleOverflow', false);
 
-        const airflowLogoutUrl = airflow3Info.data.url + 'logout';
-        const airflowLoginUrl = airflow3Info.data.url + `login/keycloak`;
+        // Normalize trailing slash: the Airflow 3 AppInfo url has no trailing slash (unlike the
+        // Airflow 2 one), so build the paths robustly for either form.
+        const base = airflow3Info.data.url.replace(/\/+$/, '');
+        const airflowLogoutUrl = `${base}/logout`;
+        const airflowLoginUrl = `${base}/login/keycloak`;
 
         componentRef.setInput('url', airflowLogoutUrl + `?redirect=${airflowLoginUrl}`);
         sessionStorage.setItem(`${LOGGED_IN_AIRFLOW_USER}_airflow3`, email);

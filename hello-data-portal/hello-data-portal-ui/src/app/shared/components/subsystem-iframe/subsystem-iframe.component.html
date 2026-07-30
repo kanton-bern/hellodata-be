@@ -4,6 +4,8 @@
     <iframe #iframe id="subsystem-iframe"
             [src]="frameUrl | safe : 'resourceUrl'"
             style="border:none;height:100%;width: 100%;display:block;"
+            [style.width]="cropLeftPx() ? 'calc(100% + ' + cropLeftPx() + 'px)' : '100%'"
+            [style.marginLeft.px]="cropLeftPx() ? -cropLeftPx() : null"
             allow="fullscreen"
             title="subsystem iframe"></iframe>
   </div>

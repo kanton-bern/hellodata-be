@@ -59,6 +59,10 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     [p: string]: any;
   } | null>(null);
   readonly switchStyleOverflow = input(true);
+  // Visually crop N px off the LEFT of the embedded page by widening the iframe and shifting it
+  // left inside the overflow-hidden wrapper. Used to hide the Airflow 3 native left sidebar in
+  // the portal iframe (the iframe is cross-origin, so its DOM can't be touched directly).
+  readonly cropLeftPx = input(0);
   readonly iframeSetup = output<boolean>();
   frameUrl: string | undefined;
   readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
