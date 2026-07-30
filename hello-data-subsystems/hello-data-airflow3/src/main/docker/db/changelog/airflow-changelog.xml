@@ -52,4 +52,10 @@
         <sqlFile path="changelogs/04_update_usernames.sql" relativeToChangelogFile="true" splitStatements="false"/>
     </changeSet>
 
+    <!-- Technical service user (fixed id 900000, Viewer) the sidecar authenticates as for
+         read-only DAG/DAG-run monitoring over the Airflow 3 REST API. -->
+    <changeSet id="0005" author="hellodata" runOnChange="true">
+        <sqlFile path="changelogs/05_hd_technical_user.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+
 </databaseChangeLog>

@@ -35,7 +35,10 @@ hello-data:
     # AIRFLOW__API_AUTH__JWT_SECRET (aud=apache-airflow). api-user-id is the `sub`
     # (FAB user id of a service/admin user with DAG read). Set both on k8s.
     jwt-secret: "${AIRFLOW_API_JWT_SECRET}"
-    api-user-id: "${AIRFLOW_API_USER_ID}"
+    # FAB user id used as the JWT `sub`. Defaults to the technical service user seeded by the
+    # Airflow 3 image migration (05_hd_technical_user.sql: id 900000, Viewer) so DAG monitoring
+    # works out of the box; override AIRFLOW_API_USER_ID only for a different service account.
+    api-user-id: "${AIRFLOW_API_USER_ID:900000}"
     jwt-ttl-seconds: 300
   instance:
     # enforce to be set on k8s externally
