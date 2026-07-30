@@ -63,8 +63,6 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
 
   constructor() {
     super();
-    // Airflow 3 dropped the legacy '/home' landing page; land on the app root instead.
-    const homePath = this.moduleType === 'AIRFLOW3' ? '/' : '/home';
     this.currentPipelineInfo$ = combineLatest([
       this.store.select(selectCurrentPipelineInfo),
       this.store.select(selectAppInfoByModuleType(this.moduleType))
@@ -74,18 +72,25 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
       }
       const pipelineId = pipelineInfo.pipelineId;
       const airflowBaseUrl = airflowInfos[0].data.url;
-      const airflowLogoutUrl = `${airflowBaseUrl}/logout?redirect=${airflowBaseUrl}`;
-      const loggedInAirflowUser = sessionStorage.getItem(this.loggedInUserKey());
-      let airflowLoginUrl;
-      if (!loggedInAirflowUser || loggedInAirflowUser !== pipelineInfo.profile.email) {
-        airflowLoginUrl = `${airflowLogoutUrl}/login/keycloak?next=${airflowBaseUrl}`;
+
+      if (this.moduleType === 'AIRFLOW3') {
+        // Airflow 3 is a SPA: '/logout' and '/login/keycloak' are NOT client routes (they render
+        // the app's own 404). Auth is handled transparently — the SPA redirects unauthenticated
+        // users to the FAB login, which auto-logs them in from the portal's auth.access_token
+        // cookie (see webserver_config). So just deep-link to a valid route and let SSO happen.
+        const base = airflowBaseUrl.replace(/\/+$/, '');
+        this.url = pipelineId ? `${base}/dags/${pipelineId}` : `${base}/dags`;
       } else {
-        airflowLoginUrl = `${airflowBaseUrl}/login/keycloak?next=${airflowBaseUrl}`;
-      }
-      if (pipelineId) {
-        this.url = `${airflowLoginUrl}/dags/${pipelineId}`;
-      } else {
-        this.url = `${airflowLoginUrl}${homePath}`;
+        // Airflow 2: force a re-login as the current user via the FAB logout->login redirect.
+        const airflowLogoutUrl = `${airflowBaseUrl}/logout?redirect=${airflowBaseUrl}`;
+        const loggedInAirflowUser = sessionStorage.getItem(this.loggedInUserKey());
+        let airflowLoginUrl;
+        if (!loggedInAirflowUser || loggedInAirflowUser !== pipelineInfo.profile.email) {
+          airflowLoginUrl = `${airflowLogoutUrl}/login/keycloak?next=${airflowBaseUrl}`;
+        } else {
+          airflowLoginUrl = `${airflowBaseUrl}/login/keycloak?next=${airflowBaseUrl}`;
+        }
+        this.url = pipelineId ? `${airflowLoginUrl}/dags/${pipelineId}` : `${airflowLoginUrl}/home`;
       }
       sessionStorage.setItem(this.loggedInUserKey(), pipelineInfo.profile.email);
     }));

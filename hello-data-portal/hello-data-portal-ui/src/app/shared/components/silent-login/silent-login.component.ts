@@ -100,13 +100,11 @@ export class SilentLoginComponent {
         const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
         componentRef.setInput('switchStyleOverflow', false);
 
-        // Normalize trailing slash: the Airflow 3 AppInfo url has no trailing slash (unlike the
-        // Airflow 2 one), so build the paths robustly for either form.
+        // Airflow 3 is a SPA: '/logout' / '/login/keycloak' are not routes. Hit the FAB login
+        // endpoint directly — the webserver_config auto-logs-in from the auth.access_token cookie
+        // and redirects to the app, silently establishing the Airflow session.
         const base = airflow3Info.data.url.replace(/\/+$/, '');
-        const airflowLogoutUrl = `${base}/logout`;
-        const airflowLoginUrl = `${base}/login/keycloak`;
-
-        componentRef.setInput('url', airflowLogoutUrl + `?redirect=${airflowLoginUrl}`);
+        componentRef.setInput('url', `${base}/auth/login/`);
         sessionStorage.setItem(`${LOGGED_IN_AIRFLOW_USER}_airflow3`, email);
         this.airflows3LoggedIn = true;
       });
