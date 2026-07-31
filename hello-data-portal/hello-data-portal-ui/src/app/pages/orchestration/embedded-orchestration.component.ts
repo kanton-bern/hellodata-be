@@ -59,7 +59,8 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
 
   // Width (px) of the Airflow 3 native left nav we crop off when hidden. Must match the actual
   // sidebar width: too large clips the page content, too small leaves a sliver of the nav.
-  private readonly AIRFLOW3_SIDEBAR_WIDTH_PX = 84;
+  // Tuned slightly below the measured width to avoid clipping page content.
+  private readonly AIRFLOW3_SIDEBAR_WIDTH_PX = 68;
 
   // Airflow 3 renders its own left nav inside the (cross-origin) iframe. The portal already
   // provides navigation, so default to hiding it, with a toggle to show it on demand. The crop
