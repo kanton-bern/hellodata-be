@@ -57,6 +57,10 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
 
   protected readonly isAirflow3 = this.moduleType === 'AIRFLOW3';
 
+  // Width (px) of the Airflow 3 native left nav we crop off when hidden. Must match the actual
+  // sidebar width: too large clips the page content, too small leaves a sliver of the nav.
+  private readonly AIRFLOW3_SIDEBAR_WIDTH_PX = 84;
+
   // Airflow 3 renders its own left nav inside the (cross-origin) iframe. The portal already
   // provides navigation, so default to hiding it, with a toggle to show it on demand. The crop
   // is pure portal-side CSS on the iframe element (SubsystemIframeComponent.cropLeftPx), so
@@ -64,7 +68,7 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
   protected airflowSidebarHidden = true;
 
   protected get cropLeftPx(): number {
-    return this.isAirflow3 && this.airflowSidebarHidden ? 96 : 0;
+    return this.isAirflow3 && this.airflowSidebarHidden ? this.AIRFLOW3_SIDEBAR_WIDTH_PX : 0;
   }
 
   protected toggleAirflowSidebar(): void {
