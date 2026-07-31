@@ -11,6 +11,7 @@
     }
     <app-subsystem-iframe [delay]="600" [url]="url" [cropLeftPx]="cropLeftPx"
                           [forceTokenRefreshBeforeLoad]="isAirflow3"
-                          [beforeLoad]="airflow3Prepare$"/>
+                          [beforeLoad]="airflow3Prepare$"
+                          [reloadOnLanguageChange]="isAirflow3"/>
   </div>
 }
