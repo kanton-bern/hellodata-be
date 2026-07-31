@@ -99,21 +99,29 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
         .subscribe(() => this.reloadIframe());
     }
 
-    // Load sequence: optional beforeLoad step (e.g. Airflow 3 role reconcile) -> optional forced
-    // token refresh (so the auth cookie carries current roles) -> read current access token. Any
-    // failure falls back to the existing token so the iframe still loads.
-    const refreshThenToken$: Observable<string> = this.forceTokenRefreshBeforeLoad()
-      ? this.authService.forceRefreshSession().pipe(switchMap(() => this.authService.accessToken))
-      : this.authService.accessToken;
+    this.load();
+  }
 
-    const token$: Observable<string> = (this.beforeLoad() ?? of(null)).pipe(
-      switchMap(() => refreshThenToken$),
-      catchError(() => this.authService.accessToken)
-    );
+  // (Re)load the iframe through the full prepare chain: optional beforeLoad step (e.g. the Airflow 3
+  // role reconcile) -> optional forced token refresh (so the auth.access_token cookie carries the
+  // user's CURRENT roles) -> read the current access token -> (re-)navigate the iframe. Every load
+  // (initial AND language-change reload) runs this so a reload can never re-authenticate the embed
+  // from a stale cookie and re-apply outdated roles. Each step is best-effort and, crucially, a
+  // beforeLoad failure must NOT skip the refresh (its own catchError keeps the chain going).
+  private load(): void {
+    if (this.accessTokenSub) {
+      this.accessTokenSub.unsubscribe();
+    }
+    const prepare$ = (this.beforeLoad() ?? of(null)).pipe(catchError(() => of(null)));
+    const refresh$ = this.forceTokenRefreshBeforeLoad()
+      ? this.authService.forceRefreshSession().pipe(catchError(() => of(null)))
+      : of(null);
 
-    this.accessTokenSub = token$.subscribe({
+    this.accessTokenSub = prepare$.pipe(
+      switchMap(() => refresh$),
+      switchMap(() => this.authService.accessToken)
+    ).subscribe({
       next: value => {
-        console.debug('access token changed', value)
         console.debug("creating an auth cookie for a domain: ." + environment.baseDomain);
         document.cookie = 'auth.access_token=' + value + '; path=/; domain=.' + environment.baseDomain + '; secure;';
         setTimeout(() => {
@@ -140,18 +148,15 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     this.notifyIframeResize();
   }
 
-  // Force a full reload of the iframe by removing it (@if frameUrl) and re-adding it next tick.
-  // Re-creating the element re-navigates the src, so the embedded subsystem re-reads cookies/state.
+  // Force a full reload of the iframe: drop it (@if frameUrl) and re-run the whole prepare chain
+  // (reconcile + token refresh + re-navigate) so the reload picks up current cookies/state AND
+  // current roles — never re-authenticating from a stale cookie.
   private reloadIframe() {
-    const current = this.frameUrl;
-    if (!current) {
+    if (!this.frameUrl) {
       return;
     }
     this.frameUrl = undefined;
-    setTimeout(() => {
-      this.frameUrl = current;
-      setTimeout(() => this.setupIframeLoadListener(), 100);
-    });
+    this.load();
   }
 
   ngOnDestroy() {
