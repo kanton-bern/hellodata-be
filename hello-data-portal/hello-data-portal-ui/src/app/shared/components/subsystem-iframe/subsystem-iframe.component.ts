@@ -41,7 +41,7 @@ import {
 import {NgStyle} from "@angular/common";
 
 import {AuthService} from "../../services";
-import {catchError, Observable, Subscription, switchMap} from "rxjs";
+import {catchError, Observable, of, Subscription, switchMap} from "rxjs";
 import {environment} from "../../../../environments/environment";
 import {SafePipe} from '../../pipes/safe.pipe';
 
@@ -68,6 +68,10 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   // from that cookie on every open (logout-first), but a not-yet-renewed cookie still holds the old
   // roles, so a role change wouldn't show until the portal's next silent renew without this.
   readonly forceTokenRefreshBeforeLoad = input(false);
+  // Optional one-shot step to run BEFORE the token refresh + first load (e.g. the Airflow 3 embed
+  // synchronously reconciles the user's Keycloak roles so the subsequent force-refresh already
+  // carries the latest roles). Errors are swallowed so the iframe still loads.
+  readonly beforeLoad = input<Observable<unknown> | null>(null);
   readonly iframeSetup = output<boolean>();
   frameUrl: string | undefined;
   readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
@@ -77,14 +81,17 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   ngOnInit(): void {
     console.debug('on init', this.url(), this.delay());
 
-    // Optionally refresh the token first (Airflow 3), then read the current access token. On refresh
-    // failure fall back to the existing token so the iframe still loads.
-    const token$: Observable<string> = this.forceTokenRefreshBeforeLoad()
-      ? this.authService.forceRefreshSession().pipe(
-          switchMap(() => this.authService.accessToken),
-          catchError(() => this.authService.accessToken)
-        )
+    // Load sequence: optional beforeLoad step (e.g. Airflow 3 role reconcile) -> optional forced
+    // token refresh (so the auth cookie carries current roles) -> read current access token. Any
+    // failure falls back to the existing token so the iframe still loads.
+    const refreshThenToken$: Observable<string> = this.forceTokenRefreshBeforeLoad()
+      ? this.authService.forceRefreshSession().pipe(switchMap(() => this.authService.accessToken))
       : this.authService.accessToken;
+
+    const token$: Observable<string> = (this.beforeLoad() ?? of(null)).pipe(
+      switchMap(() => refreshThenToken$),
+      catchError(() => this.authService.accessToken)
+    );
 
     this.accessTokenSub = token$.subscribe({
       next: value => {

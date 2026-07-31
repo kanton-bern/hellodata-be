@@ -33,6 +33,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
 import ch.bedag.dap.hellodata.portal.orchestration.data.PipelineDto;
+import ch.bedag.dap.hellodata.portal.role.service.AirflowKeycloakRoleService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
@@ -51,6 +52,24 @@ import java.util.UUID;
 public class OrchestrationService {
     private final MetaInfoResourceService metaInfoResourceService;
     private final UserRepository userRepository;
+    private final AirflowKeycloakRoleService airflowKeycloakRoleService;
+
+    /**
+     * Synchronously reconcile the current user's Airflow-managed Keycloak roles. Called right before
+     * the portal embeds Airflow 3 so the immediate token refresh already reflects the latest portal
+     * role changes: the normal reconcile is an async AFTER_COMMIT event listener and can lag the open
+     * by seconds, which would make the freshly minted token still carry stale roles.
+     */
+    public void syncCurrentUserAirflowRoles() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        if (currentUserId == null) {
+            return;
+        }
+        UserEntity userEntity = userRepository.getByIdOrAuthId(currentUserId.toString());
+        if (userEntity != null) {
+            airflowKeycloakRoleService.reconcileUserAirflowRoles(userEntity);
+        }
+    }
 
     public List<PipelineDto> getAllPipelines() {
         UUID currentUserId = SecurityUtils.getCurrentUserId();

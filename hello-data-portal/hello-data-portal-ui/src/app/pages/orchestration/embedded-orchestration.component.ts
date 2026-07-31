@@ -27,7 +27,9 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
+import {HttpClient} from "@angular/common/http";
 import {combineLatest, Observable, tap} from "rxjs";
+import {environment} from "../../../environments/environment";
 import {naviElements} from "../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -50,6 +52,15 @@ export const LOGGED_IN_AIRFLOW_USER = 'logged_in_airflow_user';
 export class EmbeddedOrchestrationComponent extends BaseComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private store = inject<Store<AppState>>(Store);
+  private http = inject(HttpClient);
+
+  // For Airflow 3: synchronously reconcile the current user's Keycloak roles before the embed loads
+  // (the SubsystemIframeComponent runs this as its beforeLoad step, then force-refreshes the token),
+  // so a just-made portal role change is reflected on this open instead of after the async reconcile.
+  protected readonly airflow3Prepare$: Observable<unknown> | null =
+    this.route.snapshot.data['moduleType'] === 'AIRFLOW3'
+      ? this.http.post(`${environment.portalApi}/pipelines/airflow3/sync-my-roles`, {})
+      : null;
 
   // Which orchestrator this embedded view targets. Airflow 2 ('AIRFLOW') and the side-by-side
   // Airflow 3 ('AIRFLOW3') coexist; the module type is provided via route data (default 'AIRFLOW').

@@ -10,6 +10,7 @@
         (click)="toggleAirflowSidebar()"/>
     }
     <app-subsystem-iframe [delay]="600" [url]="url" [cropLeftPx]="cropLeftPx"
-                          [forceTokenRefreshBeforeLoad]="isAirflow3"/>
+                          [forceTokenRefreshBeforeLoad]="isAirflow3"
+                          [beforeLoad]="airflow3Prepare$"/>
   </div>
 }
