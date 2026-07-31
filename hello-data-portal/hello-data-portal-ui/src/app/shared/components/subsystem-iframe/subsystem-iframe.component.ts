@@ -41,7 +41,7 @@ import {
 import {NgStyle} from "@angular/common";
 
 import {AuthService} from "../../services";
-import {catchError, distinctUntilChanged, Observable, of, skip, Subscription, switchMap} from "rxjs";
+import {catchError, distinctUntilChanged, map, Observable, of, skip, Subscription, switchMap} from "rxjs";
 import {environment} from "../../../../environments/environment";
 import {SafePipe} from '../../pipes/safe.pipe';
 import {TranslocoService} from '@jsverse/transloco';
@@ -113,13 +113,22 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
       this.accessTokenSub.unsubscribe();
     }
     const prepare$ = (this.beforeLoad() ?? of(null)).pipe(catchError(() => of(null)));
-    const refresh$ = this.forceTokenRefreshBeforeLoad()
-      ? this.authService.forceRefreshSession().pipe(catchError(() => of(null)))
+    // Use the access token straight from the forceRefreshSession RESPONSE (the just-minted one).
+    // Re-reading getAccessToken() after the refresh raced the lib's storage update and often
+    // returned the PRE-refresh token, so the cookie carried stale roles. null => fall back below.
+    const refresh$: Observable<string | null> = this.forceTokenRefreshBeforeLoad()
+      ? this.authService.forceRefreshSession().pipe(
+          map((r: any) => (r && r.accessToken) ? r.accessToken as string : null),
+          catchError(err => {
+            console.error('Airflow embed: forceRefreshSession failed, using existing token', err);
+            return of(null);
+          })
+        )
       : of(null);
 
     this.accessTokenSub = prepare$.pipe(
       switchMap(() => refresh$),
-      switchMap(() => this.authService.accessToken)
+      switchMap((refreshed: string | null) => refreshed ? of(refreshed) : this.authService.accessToken)
     ).subscribe({
       next: value => {
         console.debug("creating an auth cookie for a domain: ." + environment.baseDomain);
