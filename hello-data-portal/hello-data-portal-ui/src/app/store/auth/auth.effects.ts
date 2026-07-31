@@ -273,7 +273,11 @@ export class AuthEffects {
         )
       )
     );
-  });
+    // dispatch:false — this effect is side-effect only (setActiveLang + backend/CloudBeaver pref
+    // update). updateUserPreferences resolves with the raw GraphQL response (200 even on a
+    // "not-authenticated" error body), which is NOT an NgRx action; dispatching it threw
+    // "Actions must have a type property". The catchError branches already ignoreElements().
+  }, {dispatch: false});
 
   prolongCloudBeaverSession$ = createEffect(() => {
     return this._actions$.pipe(

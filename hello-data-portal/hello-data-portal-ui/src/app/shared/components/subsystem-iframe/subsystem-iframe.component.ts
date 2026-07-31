@@ -102,12 +102,12 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     this.load();
   }
 
-  // (Re)load the iframe through the full prepare chain: optional beforeLoad step (e.g. the Airflow 3
-  // role reconcile) -> optional forced token refresh (so the auth.access_token cookie carries the
-  // user's CURRENT roles) -> read the current access token -> (re-)navigate the iframe. Every load
-  // (initial AND language-change reload) runs this so a reload can never re-authenticate the embed
-  // from a stale cookie and re-apply outdated roles. Each step is best-effort and, crucially, a
-  // beforeLoad failure must NOT skip the refresh (its own catchError keeps the chain going).
+  // Initial load through the full prepare chain: optional beforeLoad step (e.g. the Airflow 3 role
+  // reconcile) -> optional forced token refresh (so the auth.access_token cookie carries the user's
+  // CURRENT roles) -> read the current access token -> navigate the iframe. This is where role
+  // propagation happens (on open); language-change reloads use the lighter reloadIframe(). Each step
+  // is best-effort and, crucially, a beforeLoad failure must NOT skip the refresh (its own
+  // catchError keeps the chain going).
   private load(): void {
     if (this.accessTokenSub) {
       this.accessTokenSub.unsubscribe();
@@ -148,15 +148,22 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     this.notifyIframeResize();
   }
 
-  // Force a full reload of the iframe: drop it (@if frameUrl) and re-run the whole prepare chain
-  // (reconcile + token refresh + re-navigate) so the reload picks up current cookies/state AND
-  // current roles — never re-authenticating from a stale cookie.
+  // Lightweight reload for a portal language change: drop the iframe (@if frameUrl) and re-add it
+  // next tick with the SAME url so it re-navigates and re-reads the hd_lang cookie. Deliberately
+  // does NOT go through load()/forceRefreshSession: a language change doesn't change roles, and the
+  // oidc refresh resolves outside Angular's zone, which left the re-created iframe blank until a
+  // change-detection tick (e.g. opening devtools). The re-auth still re-syncs roles from the current
+  // cookie, which the open-time force-refresh already made current.
   private reloadIframe() {
-    if (!this.frameUrl) {
+    const current = this.frameUrl;
+    if (!current) {
       return;
     }
     this.frameUrl = undefined;
-    this.load();
+    setTimeout(() => {
+      this.frameUrl = current;
+      setTimeout(() => this.setupIframeLoadListener(), 100);
+    });
   }
 
   ngOnDestroy() {
