@@ -41,7 +41,7 @@ import {
 import {NgStyle} from "@angular/common";
 
 import {AuthService} from "../../services";
-import {catchError, Observable, of, skip, Subscription, switchMap} from "rxjs";
+import {catchError, distinctUntilChanged, Observable, of, skip, Subscription, switchMap} from "rxjs";
 import {environment} from "../../../../environments/environment";
 import {SafePipe} from '../../pipes/safe.pipe';
 import {TranslocoService} from '@jsverse/transloco';
@@ -89,10 +89,14 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     console.debug('on init', this.url(), this.delay());
 
     // Reload the iframe on portal language change (Airflow 3 only) so it re-reads the hd_lang cookie.
-    // skip(1) ignores the initial emission; TranslateService.setActiveLang writes the cookie
-    // synchronously before this fires, and reloadIframe defers the re-create, so ordering is safe.
+    // distinctUntilChanged is essential: the portal re-applies the selected language on every profile
+    // refresh (~30s) via setActiveLang, and Transloco's langChanges$ emits even when the value is
+    // unchanged — without it the iframe would reload every ~30s. skip(1) ignores the initial emission;
+    // TranslateService.setActiveLang writes the cookie synchronously before this fires.
     if (this.reloadOnLanguageChange()) {
-      this.langSub = this.transloco.langChanges$.pipe(skip(1)).subscribe(() => this.reloadIframe());
+      this.langSub = this.transloco.langChanges$
+        .pipe(distinctUntilChanged(), skip(1))
+        .subscribe(() => this.reloadIframe());
     }
 
     // Load sequence: optional beforeLoad step (e.g. Airflow 3 role reconcile) -> optional forced
