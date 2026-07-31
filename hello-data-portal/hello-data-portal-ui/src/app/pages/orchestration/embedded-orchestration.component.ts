@@ -94,12 +94,13 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
 
       if (this.moduleType === 'AIRFLOW3') {
         // Airflow 3 is a SPA: '/logout' and '/login/keycloak' are NOT client routes (they 404).
-        // Route through the FAB login endpoint on every open: the webserver_config auto-logs-in
-        // from the portal's auth.access_token cookie AND re-syncs the user's roles from the token
-        // (so revoked per-domain DD_ access drops immediately), then lands on `next`.
+        // Deep-link to /dags and let the SPA drive its own auth-manager flow — that flow issues
+        // the JWT the UI API (/ui/config, /api/v2/*) requires. (Do NOT point the iframe straight
+        // at /auth/login/: that establishes only the FAB session, not the JWT, so /ui/config 401s.)
+        // Auth is still transparent: the SPA's login hits /auth/login/, which cookie-SSO logs in
+        // and re-syncs roles (webserver_config).
         const base = airflowBaseUrl.replace(/\/+$/, '');
-        const dest = pipelineId ? `/dags/${pipelineId}` : '/dags';
-        this.url = `${base}/auth/login/?next=${encodeURIComponent(dest)}`;
+        this.url = pipelineId ? `${base}/dags/${pipelineId}` : `${base}/dags`;
       } else {
         // Airflow 2: force a re-login as the current user via the FAB logout->login redirect.
         const airflowLogoutUrl = `${airflowBaseUrl}/logout?redirect=${airflowBaseUrl}`;
