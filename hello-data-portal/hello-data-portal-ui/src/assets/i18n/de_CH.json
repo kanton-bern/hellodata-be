@@ -291,7 +291,7 @@
   "@Open": "Öffnen",
   "@Open Dashboard": "Dashboard öffnen",
   "@Orchestration": "Orchestration",
-  "@Orchestration (airflow3)": "Orchestration (airflow3)",
+  "@Orchestration (airflow3)": "Orchestration (Airflow3)",
   "@Show Airflow menu": "Airflow-Menü anzeigen",
   "@Hide Airflow menu": "Airflow-Menü ausblenden",
   "@Owners": "Owners",

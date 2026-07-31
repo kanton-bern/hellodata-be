@@ -294,7 +294,7 @@
   "@Open": "Ouvert",
   "@Open Dashboard": "Ouvrir le tableau de bord",
   "@Orchestration": "Orchestration",
-  "@Orchestration (airflow3)": "Orchestration (airflow3)",
+  "@Orchestration (airflow3)": "Orchestration (Airflow3)",
   "@Show Airflow menu": "Afficher le menu Airflow",
   "@Hide Airflow menu": "Masquer le menu Airflow",
   "@Owners": "Owners",
