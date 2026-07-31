@@ -41,9 +41,10 @@ import {
 import {NgStyle} from "@angular/common";
 
 import {AuthService} from "../../services";
-import {Subscription} from "rxjs";
+import {skip, Subscription} from "rxjs";
 import {environment} from "../../../../environments/environment";
 import {SafePipe} from '../../pipes/safe.pipe';
+import {TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-subsystem-iframe[url]',
@@ -67,10 +68,18 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   frameUrl: string | undefined;
   readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
   accessTokenSub!: Subscription;
+  private langSub?: Subscription;
   private readonly authService = inject(AuthService);
+  private readonly transloco = inject(TranslocoService);
 
   ngOnInit(): void {
     console.debug('on init', this.url(), this.delay());
+
+    // Reload the iframe when the portal language changes so the embedded subsystem picks up the
+    // new language (e.g. the Airflow 3 hd_lang cookie -> i18nextLng bootstrap). skip(1) ignores
+    // the initial emission; the deferred re-create runs after TranslateService.setActiveLang has
+    // written the cookie.
+    this.langSub = this.transloco.langChanges$.pipe(skip(1)).subscribe(() => this.reloadIframe());
 
 
     this.accessTokenSub = this.authService.accessToken.subscribe({
@@ -102,9 +111,27 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     this.notifyIframeResize();
   }
 
+  // Force a full reload of the iframe by removing it (@if frameUrl) and re-adding it next tick.
+  // Re-creating the element re-navigates the src, so the subsystem re-reads cookies/state — used
+  // to apply a language change without touching the cross-origin iframe DOM.
+  private reloadIframe() {
+    const current = this.frameUrl;
+    if (!current) {
+      return;
+    }
+    this.frameUrl = undefined;
+    setTimeout(() => {
+      this.frameUrl = current;
+      setTimeout(() => this.setupIframeLoadListener(), 100);
+    });
+  }
+
   ngOnDestroy() {
     if (this.accessTokenSub) {
       this.accessTokenSub.unsubscribe();
+    }
+    if (this.langSub) {
+      this.langSub.unsubscribe();
     }
     const mainContentDiv = document.getElementById('mainContentDiv');
     if (this.switchStyleOverflow() && mainContentDiv) {
