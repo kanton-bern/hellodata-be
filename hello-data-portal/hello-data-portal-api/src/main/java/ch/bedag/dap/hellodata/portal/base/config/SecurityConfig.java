@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
+import ch.bedag.dap.hellodata.portal.base.sse.SseCookieBearerTokenResolver;
 import ch.bedag.dap.hellodata.portal.user.service.KeycloakLogoutHandler;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -90,8 +91,11 @@ public class SecurityConfig {
         });
         http.oauth2Login(withDefaults());
         http.logout(httpSecurityLogoutConfigurer -> httpSecurityLogoutConfigurer.addLogoutHandler(keycloakLogoutHandler).logoutSuccessUrl("/"));
-        http.oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> httpSecurityOAuth2ResourceServerConfigurer.jwt(
-                jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(hellodataAuthenticationConverter)));
+        http.oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> httpSecurityOAuth2ResourceServerConfigurer
+                // EventSource (SSE) cannot send an Authorization header, so /sse/** falls back to the
+                // auth.access_token cookie; all other endpoints stay header-only.
+                .bearerTokenResolver(new SseCookieBearerTokenResolver())
+                .jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(hellodataAuthenticationConverter)));
         return http.build();
     }
 

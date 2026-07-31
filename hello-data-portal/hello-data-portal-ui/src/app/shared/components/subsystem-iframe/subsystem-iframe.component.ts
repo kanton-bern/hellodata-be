@@ -41,6 +41,7 @@ import {
 import {NgStyle} from "@angular/common";
 
 import {AuthService} from "../../services";
+import {AirflowSseService} from "../../services/airflow-sse.service";
 import {skip, Subscription} from "rxjs";
 import {environment} from "../../../../environments/environment";
 import {SafePipe} from '../../pipes/safe.pipe';
@@ -64,13 +65,20 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   // left inside the overflow-hidden wrapper. Used to hide the Airflow 3 native left sidebar in
   // the portal iframe (the iframe is cross-origin, so its DOM can't be touched directly).
   readonly cropLeftPx = input(0);
+  // When true, subscribe to the portal SSE stream and reload this iframe whenever the user's Airflow
+  // roles change server-side, so the embedded Airflow 3 re-syncs the new roles instantly. Scoped to
+  // the Airflow 3 orchestration embed; other subsystem iframes leave this off.
+  readonly reloadOnAirflowRolesChange = input(false);
   readonly iframeSetup = output<boolean>();
   frameUrl: string | undefined;
   readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
   accessTokenSub!: Subscription;
   private langSub?: Subscription;
+  private rolesChangedSub?: Subscription;
+  private airflowSseConnected = false;
   private readonly authService = inject(AuthService);
   private readonly transloco = inject(TranslocoService);
+  private readonly airflowSse = inject(AirflowSseService);
 
   ngOnInit(): void {
     console.debug('on init', this.url(), this.delay());
@@ -81,6 +89,14 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     // written the cookie.
     this.langSub = this.transloco.langChanges$.pipe(skip(1)).subscribe(() => this.reloadIframe());
 
+    // Reload the iframe when the portal pushes an Airflow-roles-changed SSE event for this user. The
+    // service force-refreshes the OIDC token first (so the auth.access_token cookie carries the new
+    // roles) before emitting, so the reloaded iframe re-runs its cookie SSO login with fresh roles.
+    if (this.reloadOnAirflowRolesChange()) {
+      this.airflowSse.connect();
+      this.airflowSseConnected = true;
+      this.rolesChangedSub = this.airflowSse.airflowRolesChanged$.subscribe(() => this.reloadIframe());
+    }
 
     this.accessTokenSub = this.authService.accessToken.subscribe({
       next: value => {
@@ -132,6 +148,13 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     }
     if (this.langSub) {
       this.langSub.unsubscribe();
+    }
+    if (this.rolesChangedSub) {
+      this.rolesChangedSub.unsubscribe();
+    }
+    if (this.airflowSseConnected) {
+      this.airflowSse.disconnect();
+      this.airflowSseConnected = false;
     }
     const mainContentDiv = document.getElementById('mainContentDiv');
     if (this.switchStyleOverflow() && mainContentDiv) {

@@ -9,6 +9,7 @@
         [label]="(airflowSidebarHidden ? '@Show Airflow menu' : '@Hide Airflow menu') | transloco"
         (click)="toggleAirflowSidebar()"/>
     }
-    <app-subsystem-iframe [delay]="600" [url]="url" [cropLeftPx]="cropLeftPx"/>
+    <app-subsystem-iframe [delay]="600" [url]="url" [cropLeftPx]="cropLeftPx"
+                          [reloadOnAirflowRolesChange]="isAirflow3"/>
   </div>
 }
