@@ -59,6 +59,13 @@ export class AuthService {
     return this.oidcSecurityService.checkAuth();
   }
 
+  // Force a refresh-token grant so the access token (and the auth.access_token cookie the
+  // token-interceptor rewrites from it) carries the user's current Keycloak claims/roles. Used
+  // before embedding Airflow 3, whose FAB roles are re-synced from that cookie on each open.
+  forceRefreshSession() {
+    return this.oidcSecurityService.forceRefreshSession();
+  }
+
   doLogin() {
     this.oidcSecurityService.authorize();
   }

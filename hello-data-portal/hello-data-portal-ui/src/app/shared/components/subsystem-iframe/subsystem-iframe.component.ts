@@ -41,7 +41,7 @@ import {
 import {NgStyle} from "@angular/common";
 
 import {AuthService} from "../../services";
-import {Subscription} from "rxjs";
+import {catchError, Observable, Subscription, switchMap} from "rxjs";
 import {environment} from "../../../../environments/environment";
 import {SafePipe} from '../../pipes/safe.pipe';
 
@@ -63,6 +63,11 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   // left inside the overflow-hidden wrapper. Used to hide the Airflow 3 native left sidebar in
   // the portal iframe (the iframe is cross-origin, so its DOM can't be touched directly).
   readonly cropLeftPx = input(0);
+  // Force an OIDC refresh-token grant before the first load so the auth.access_token cookie carries
+  // the user's CURRENT Keycloak claims/roles. Needed for the Airflow 3 embed: it re-syncs FAB roles
+  // from that cookie on every open (logout-first), but a not-yet-renewed cookie still holds the old
+  // roles, so a role change wouldn't show until the portal's next silent renew without this.
+  readonly forceTokenRefreshBeforeLoad = input(false);
   readonly iframeSetup = output<boolean>();
   frameUrl: string | undefined;
   readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
@@ -72,7 +77,16 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   ngOnInit(): void {
     console.debug('on init', this.url(), this.delay());
 
-    this.accessTokenSub = this.authService.accessToken.subscribe({
+    // Optionally refresh the token first (Airflow 3), then read the current access token. On refresh
+    // failure fall back to the existing token so the iframe still loads.
+    const token$: Observable<string> = this.forceTokenRefreshBeforeLoad()
+      ? this.authService.forceRefreshSession().pipe(
+          switchMap(() => this.authService.accessToken),
+          catchError(() => this.authService.accessToken)
+        )
+      : this.authService.accessToken;
+
+    this.accessTokenSub = token$.subscribe({
       next: value => {
         console.debug('access token changed', value)
         console.debug("creating an auth cookie for a domain: ." + environment.baseDomain);
