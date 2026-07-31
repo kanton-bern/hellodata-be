@@ -135,6 +135,11 @@ public class UserSubsystemSyncService {
             update.setDashboardsPerContext(dashboards);
 
             updates.add(update);
+
+            // Also reconcile this user's Airflow 3 Keycloak roles here (not only on per-user role
+            // changes), so the scheduled/startup full sync covers users whose roles predate the
+            // Airflow 3 role sync. No-op unless AIRFLOW3_ROLE_SYNC_ENABLED; best-effort (never throws).
+            airflowKeycloakRoleService.reconcileUserAirflowRoles(userEntity);
         }
 
         // Partition and send in batches
