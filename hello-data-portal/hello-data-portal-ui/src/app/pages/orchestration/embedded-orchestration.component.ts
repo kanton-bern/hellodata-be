@@ -93,14 +93,18 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
       const airflowBaseUrl = airflowInfos[0].data.url;
 
       if (this.moduleType === 'AIRFLOW3') {
-        // Airflow 3 is a SPA: '/logout' and '/login/keycloak' are NOT client routes (they 404).
-        // Deep-link to /dags and let the SPA drive its own auth-manager flow — that flow issues
-        // the JWT the UI API (/ui/config, /api/v2/*) requires. (Do NOT point the iframe straight
-        // at /auth/login/: that establishes only the FAB session, not the JWT, so /ui/config 401s.)
-        // Auth is still transparent: the SPA's login hits /auth/login/, which cookie-SSO logs in
-        // and re-syncs roles (webserver_config).
+        // Logout-first, mirroring the Superset embed. Open the FAB logout endpoint, which tears
+        // down the current Airflow session AND the UI _token JWT, then redirects to /auth/login/.
+        // That cookie-SSO login (webserver_config) re-runs auth_user_oauth on every open, so it
+        // re-syncs FAB roles from the current portal token — portal role changes (added/removed
+        // DD_<domain>) take effect the next time the orchestration is opened, and the login mints
+        // a fresh _token so the UI API (/ui/config, /api/v2/*) stays authenticated.
+        // NB: landing straight on /dags reuses a still-valid _token and never re-authenticates,
+        // so role changes wouldn't show until that token expired. /auth/logout/ and /auth/login/
+        // are server-side FAB routes (not SPA routes), so they don't 404.
         const base = airflowBaseUrl.replace(/\/+$/, '');
-        this.url = pipelineId ? `${base}/dags/${pipelineId}` : `${base}/dags`;
+        const target = pipelineId ? `/dags/${pipelineId}` : '/dags';
+        this.url = `${base}/auth/logout/?next=${encodeURIComponent(target)}`;
       } else {
         // Airflow 2: force a re-login as the current user via the FAB logout->login redirect.
         const airflowLogoutUrl = `${airflowBaseUrl}/logout?redirect=${airflowBaseUrl}`;

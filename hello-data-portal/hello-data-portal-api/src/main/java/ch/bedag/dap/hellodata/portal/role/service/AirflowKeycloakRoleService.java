@@ -27,7 +27,6 @@
 package ch.bedag.dap.hellodata.portal.role.service;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
-import ch.bedag.dap.hellodata.portal.base.sse.SseService;
 import ch.bedag.dap.hellodata.portal.user.service.KeycloakService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -72,7 +71,6 @@ public class AirflowKeycloakRoleService {
 
     private final KeycloakService keycloakService;
     private final RoleService roleService;
-    private final SseService sseService;
 
     @Value("${hello-data.airflow3.role-sync-enabled:false}")
     private boolean roleSyncEnabled;
@@ -107,11 +105,6 @@ public class AirflowKeycloakRoleService {
 
             if (!toAdd.isEmpty() || !toRemove.isEmpty()) {
                 log.info("Reconciled Airflow Keycloak roles for {}: added {}, removed {}", user.getEmail(), toAdd, toRemove);
-                // Push a live signal so an open Airflow 3 orchestration iframe refreshes the token and
-                // reloads immediately, re-syncing the new roles instead of waiting for a token renewal.
-                if (user.getId() != null) {
-                    sseService.sendToUser(user.getId().toString(), SseService.EVENT_AIRFLOW_ROLES_CHANGED, "roles updated");
-                }
             }
         } catch (Exception e) {
             log.error("Could not reconcile Airflow Keycloak roles for {}", user.getEmail(), e);
