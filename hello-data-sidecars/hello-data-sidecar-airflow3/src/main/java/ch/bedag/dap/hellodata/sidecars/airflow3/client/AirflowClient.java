@@ -29,6 +29,9 @@ package ch.bedag.dap.hellodata.sidecars.airflow3.client;
 import ch.bedag.dap.hellodata.sidecars.airflow3.client.dag.AirflowDagRunsResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow3.client.dag.AirflowDagsResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow3.client.exception.UnexpectedResponseException;
+import ch.bedag.dap.hellodata.sidecars.airflow3.client.user.response.AirflowPermissionsResponse;
+import ch.bedag.dap.hellodata.sidecars.airflow3.client.user.response.AirflowRolesResponse;
+import ch.bedag.dap.hellodata.sidecars.airflow3.client.user.response.AirflowUsersResponse;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -110,6 +113,46 @@ public class AirflowClient implements Closeable {
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("dagRuns({}) response json \n{}", dagId, new String(bytes));
         return getObjectMapper().readValue(bytes, AirflowDagRunsResponse.class);
+    }
+
+    /**
+     * List all FAB users (GET /auth/fab/v1/users), following pagination. Read-only; used to publish
+     * the workspace's Users resource.
+     */
+    public AirflowUsersResponse users() throws URISyntaxException, IOException {
+        int offset = 0;
+        int limit = 100;
+        AirflowUsersResponse response = fetchUsersPage(offset, limit);
+        int total = response.getTotalEntries();
+        while (response.getUsers().size() < total) {
+            offset += limit;
+            AirflowUsersResponse page = fetchUsersPage(offset, limit);
+            if (page.getUsers().isEmpty()) {
+                break;
+            }
+            response.getUsers().addAll(page.getUsers());
+        }
+        return response;
+    }
+
+    private AirflowUsersResponse fetchUsersPage(int offset, int limit) throws URISyntaxException, IOException {
+        HttpUriRequest request = AirflowApiRequestBuilder.getUsersRequest(host, port, mintToken(), offset, limit);
+        ApiResponse resp = executeRequest(request);
+        return getObjectMapper().readValue(resp.getBody().getBytes(StandardCharsets.UTF_8), AirflowUsersResponse.class);
+    }
+
+    /** List all FAB roles with their (action, resource) permissions (GET /auth/fab/v1/roles). */
+    public AirflowRolesResponse roles() throws URISyntaxException, IOException {
+        HttpUriRequest request = AirflowApiRequestBuilder.getRolesRequest(host, port, mintToken());
+        ApiResponse resp = executeRequest(request);
+        return getObjectMapper().readValue(resp.getBody().getBytes(StandardCharsets.UTF_8), AirflowRolesResponse.class);
+    }
+
+    /** List all FAB permissions as (action, resource) pairs (GET /auth/fab/v1/permissions). */
+    public AirflowPermissionsResponse permissions() throws URISyntaxException, IOException {
+        HttpUriRequest request = AirflowApiRequestBuilder.getPermissionsRequest(host, port, mintToken());
+        ApiResponse resp = executeRequest(request);
+        return getObjectMapper().readValue(resp.getBody().getBytes(StandardCharsets.UTF_8), AirflowPermissionsResponse.class);
     }
 
     /**

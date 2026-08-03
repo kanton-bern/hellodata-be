@@ -49,5 +49,33 @@ SELECT 900000, 900000, r.id
 FROM ab_role r
 WHERE r.name = 'Viewer'
   AND NOT EXISTS (
-      SELECT 1 FROM ab_user_role WHERE user_id = 900000
+      SELECT 1 FROM ab_user_role WHERE user_id = 900000 AND role_id = r.id
+  );
+
+-- The sidecar also publishes the workspace's Users/Roles/Permissions by reading the FAB
+-- auth-manager API (GET /auth/fab/v1/{users,roles,permissions}). Those endpoints require
+-- `can read` on the FAB security resources, which the Viewer role does NOT have. Grant a
+-- dedicated read-only role (does NOT touch Viewer, so other viewers are unaffected).
+INSERT INTO ab_role (id, name)
+SELECT 900001, 'hd_sidecar_monitor'
+WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'hd_sidecar_monitor');
+
+-- Link can_read on Users / Roles / Permissions to the role (only pairs that exist; safe if absent).
+INSERT INTO ab_permission_view_role (id, permission_view_id, role_id)
+SELECT 900000 + row_number() OVER (ORDER BY pv.id), pv.id, r.id
+FROM ab_permission_view pv
+JOIN ab_permission p ON p.id = pv.permission_id AND p.name = 'can_read'
+JOIN ab_view_menu vm ON vm.id = pv.view_menu_id AND vm.name IN ('Users', 'Roles', 'Permissions')
+CROSS JOIN (SELECT id FROM ab_role WHERE name = 'hd_sidecar_monitor') r
+WHERE NOT EXISTS (
+    SELECT 1 FROM ab_permission_view_role x WHERE x.permission_view_id = pv.id AND x.role_id = r.id
+);
+
+-- Assign the read-only monitor role to the sidecar service user (in addition to Viewer).
+INSERT INTO ab_user_role (id, user_id, role_id)
+SELECT 900001, 900000, r.id
+FROM ab_role r
+WHERE r.name = 'hd_sidecar_monitor'
+  AND NOT EXISTS (
+      SELECT 1 FROM ab_user_role WHERE user_id = 900000 AND role_id = r.id
   );

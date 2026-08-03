@@ -58,6 +58,12 @@
                             placeholder="Left"
                             style="font-size: 0.9rem; font-weight: 400"
                             tooltipPosition="top">{{ pipeline.id | truncate: 20 }}</span>
+                      @if (pipeline.moduleType) {
+                        <span [pTooltip]="pipeline.moduleType === 'AIRFLOW3' ? 'Airflow 3' : 'Airflow 2'"
+                              tooltipPosition="top"
+                              style="margin-left: 0.4rem; font-size: 0.6rem; font-weight: 600; padding: 0.05rem 0.3rem; border-radius: 0.25rem; background:#eef2f7; color:#4b5563">
+                          {{ pipeline.moduleType === 'AIRFLOW3' ? 'AF3' : 'AF2' }}</span>
+                      }
                     </div>
                     <div class="col-span-3" style="font-size: 0.6rem; margin-top: 0.4rem">
                       @if (pipeline?.lastInstance?.startDate) {

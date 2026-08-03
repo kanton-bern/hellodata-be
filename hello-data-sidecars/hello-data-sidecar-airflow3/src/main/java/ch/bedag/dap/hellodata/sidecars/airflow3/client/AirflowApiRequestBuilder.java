@@ -50,9 +50,28 @@ public class AirflowApiRequestBuilder {
 
     private static final String DAGS_API_ENDPOINT = "/api/v2/dags";
     private static final String DAG_RUNS_API_ENDPOINT = DAGS_API_ENDPOINT + "/%s/dagRuns";
+    // Airflow 3 re-exposes the FAB user/role/permission API under the FAB auth-manager prefix
+    // (the core /api/v1/* endpoints were removed). Read-only GETs used by the monitoring sidecar.
+    private static final String USERS_API_ENDPOINT = "/auth/fab/v1/users";
+    private static final String ROLES_API_ENDPOINT = "/auth/fab/v1/roles";
+    private static final String PERMISSIONS_API_ENDPOINT = "/auth/fab/v1/permissions";
 
     public static HttpUriRequest getDagsRequest(String host, int port, String bearerToken) throws URISyntaxException {
         return get(buildUri(host, port, DAGS_API_ENDPOINT, Collections.emptyList()), bearerToken);
+    }
+
+    public static HttpUriRequest getUsersRequest(String host, int port, String bearerToken, int offset, int limit) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, USERS_API_ENDPOINT,
+                List.of(Pair.of("offset", Integer.toString(offset)), Pair.of("limit", Integer.toString(limit))));
+        return get(apiUri, bearerToken);
+    }
+
+    public static HttpUriRequest getRolesRequest(String host, int port, String bearerToken) throws URISyntaxException {
+        return get(buildUri(host, port, ROLES_API_ENDPOINT, Collections.emptyList()), bearerToken);
+    }
+
+    public static HttpUriRequest getPermissionsRequest(String host, int port, String bearerToken) throws URISyntaxException {
+        return get(buildUri(host, port, PERMISSIONS_API_ENDPOINT, Collections.emptyList()), bearerToken);
     }
 
     public static HttpUriRequest getDagRunsRequest(String host, int port, String bearerToken, String dagId, String orderBy, String limit)

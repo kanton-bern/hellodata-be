@@ -45,7 +45,7 @@ public class PipelineResource implements HdResource {
     @EqualsAndHashCode.Include
     private final String apiVersion = "v1"; // NOSONAR
     @EqualsAndHashCode.Include
-    private final ModuleType moduleType = ModuleType.AIRFLOW; // NOSONAR
+    private ModuleType moduleType = ModuleType.AIRFLOW; // NOSONAR - default; Airflow 3 sidecar sets AIRFLOW3
     @EqualsAndHashCode.Include
     private final String kind = ModuleResourceKind.HELLO_DATA_PIPELINES; // NOSONAR
     @EqualsAndHashCode.Include
@@ -59,6 +59,17 @@ public class PipelineResource implements HdResource {
     public PipelineResource(String instanceName, List<Pipeline> data) {
         this.instanceName = instanceName;
         this.data = new ArrayList<>(data);
+    }
+
+    /**
+     * @param instanceName instance name
+     * @param data         Dag Run information
+     * @param moduleType   the publishing module ({@link ModuleType#AIRFLOW} for Airflow 2,
+     *                     {@link ModuleType#AIRFLOW3} for Airflow 3) so pipelines can be told apart by source
+     */
+    public PipelineResource(String instanceName, List<Pipeline> data, ModuleType moduleType) {
+        this(instanceName, data);
+        this.moduleType = moduleType;
     }
 
     @Override

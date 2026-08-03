@@ -39,7 +39,9 @@ export interface Pipeline {
   id: string;
   description: string;
   lastInstance: PipelineInstance;
-  contextKey: string
+  contextKey: string;
+  // Source orchestrator: "AIRFLOW" (Airflow 2) or "AIRFLOW3".
+  moduleType?: string;
 }
 
 export interface StorageMonitoringResult {

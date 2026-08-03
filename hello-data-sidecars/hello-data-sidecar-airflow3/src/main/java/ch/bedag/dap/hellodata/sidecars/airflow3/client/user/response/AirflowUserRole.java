@@ -24,29 +24,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.orchestration.data;
+package ch.bedag.dap.hellodata.sidecars.airflow3.client.user.response;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.Pipeline;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineInstance;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
-public class PipelineDto {
-    private String id;
-    private String description;
-    private String contextKey;
-    // Which orchestrator this pipeline comes from: "AIRFLOW" (Airflow 2) or "AIRFLOW3".
-    private String moduleType;
-    private PipelineInstanceDto lastInstance;
-
-    public static PipelineDto fromPipeline(Pipeline pipeline, String contextKey, String moduleType) {
-        PipelineInstance pipelineLastInstance = pipeline.getLastInstance();
-        PipelineInstanceDto pipelineLastInstanceDto =
-                new PipelineInstanceDto(pipelineLastInstance.getState(), pipelineLastInstance.getStartDate(), pipelineLastInstance.getEndDate());
-        return new PipelineDto(pipeline.getId(), pipeline.getDescription(), contextKey, moduleType, pipelineLastInstanceDto);
-    }
+@NoArgsConstructor
+public class AirflowUserRole {
+    private String name;
 }

@@ -41,9 +41,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -81,26 +81,32 @@ public class OrchestrationService {
                     .map(UserContextRoleEntity::getContextKey)
                     .toList();
             log.debug("Found {} context keys for user {}", contextKeysFromContextRoles, userEntity.getEmail());
-            List<PipelineResource> pipelines =
-                    metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class);
+            // Pull pipelines from BOTH Airflow 2 (AIRFLOW) and Airflow 3 (AIRFLOW3) so the two can be
+            // told apart (each PipelineDto carries its source moduleType) instead of being merged.
+            List<PipelineResource> pipelines = new ArrayList<>();
+            pipelines.addAll(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class));
+            pipelines.addAll(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW3, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class));
             return filterByPath(pipelines, contextKeysFromContextRoles);
         }
         return Collections.emptyList();
     }
 
     private List<PipelineDto> filterByPath(List<PipelineResource> pipelines, List<String> contextKeysFromContextRoles) {
-        List<PipelineDto> result = pipelines.stream().flatMap((pipelineResource -> pipelineResource.getData().stream())).map(pipeline -> {
-            log.debug("Checking pipeline {}", pipeline);
-            String contextKeyForDag = contextKeysFromContextRoles.stream()
-                    .filter(contextKey -> pipeline.getFileLocation().toLowerCase().contains("/" + contextKey.toLowerCase() + "/"))
-                    .findFirst()
-                    .orElse(null);
-            log.debug("Found context key for dag {}", contextKeyForDag);
-            if (contextKeyForDag != null) {
-                return PipelineDto.fromPipeline(pipeline, contextKeyForDag);
+        List<PipelineDto> result = new ArrayList<>();
+        for (PipelineResource pipelineResource : pipelines) {
+            String moduleType = pipelineResource.getModuleType() == null ? null : pipelineResource.getModuleType().name();
+            for (var pipeline : pipelineResource.getData()) {
+                log.debug("Checking pipeline {}", pipeline);
+                String contextKeyForDag = contextKeysFromContextRoles.stream()
+                        .filter(contextKey -> pipeline.getFileLocation().toLowerCase().contains("/" + contextKey.toLowerCase() + "/"))
+                        .findFirst()
+                        .orElse(null);
+                log.debug("Found context key for dag {}", contextKeyForDag);
+                if (contextKeyForDag != null) {
+                    result.add(PipelineDto.fromPipeline(pipeline, contextKeyForDag, moduleType));
+                }
             }
-            return null;
-        }).filter(Objects::nonNull).toList();
+        }
         log.debug("Filtered pipelines {}", result);
         return result;
     }

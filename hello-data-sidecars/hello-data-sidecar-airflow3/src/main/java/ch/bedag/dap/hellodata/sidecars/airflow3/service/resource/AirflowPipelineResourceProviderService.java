@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.sidecars.airflow3.service.resource;
 
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.Pipeline;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineInstance;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineInstanceState;
@@ -90,7 +91,9 @@ public class AirflowPipelineResourceProviderService {
             pipelines.add(pipeline);
         }
 
-        PipelineResource pipelineResource = new PipelineResource(instanceName, pipelines);
+        // Tag as AIRFLOW3 so the portal can tell these apart from the Airflow 2 pipelines and the
+        // AIRFLOW3 workspace (which filters resources by the app's module type) picks them up.
+        PipelineResource pipelineResource = new PipelineResource(instanceName, pipelines, ModuleType.AIRFLOW3);
         natsSenderService.publishMessageToJetStream(PUBLISH_PIPELINE_RESOURCES, pipelineResource);
     }
 }

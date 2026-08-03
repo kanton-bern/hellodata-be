@@ -24,6 +24,7 @@ on:
           - hello-data-portal/hello-data-portal-ui
           # Sidecars
           - hello-data-sidecars/hello-data-sidecar-airflow
+          - hello-data-sidecars/hello-data-sidecar-airflow3
           - hello-data-sidecars/hello-data-sidecar-portal
           - hello-data-sidecars/hello-data-sidecar-superset
           - hello-data-sidecars/hello-data-sidecar-dbt-docs
@@ -33,6 +34,7 @@ on:
           # Subsystems
           - hello-data-subsystems/hello-data-superset
           - hello-data-subsystems/hello-data-airflow
+          - hello-data-subsystems/hello-data-airflow3
           - hello-data-subsystems/hello-data-cloudbeaver
           - hello-data-subsystems/hello-data-cloudbeaver-gateway
           - hello-data-subsystems/hello-data-dbt-docs
