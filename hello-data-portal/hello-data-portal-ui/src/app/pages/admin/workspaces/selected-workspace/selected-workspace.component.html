@@ -75,6 +75,7 @@
         <p-fieldset legend="{{ selectedResource.kind.replace('hellodata/', '') }}">
           <app-selected-workspace-pipelines
             [instanceName]="selectedResource.instanceName"
+            [moduleType]="selectedResource.moduleType"
             [pipelines]="selectedResource.data"/>
         </p-fieldset>
       }
