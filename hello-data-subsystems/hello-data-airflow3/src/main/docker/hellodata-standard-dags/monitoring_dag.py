@@ -1,14 +1,23 @@
+# Airflow 3 port of the HelloDATA monitoring DAG.
+#
+# Airflow 3 isolates task execution from the metadata DB (Task SDK) and removed `execution_date`,
+# so the original direct-ORM approach (airflow.settings.Session + DagModel/DagRun/TaskInstance/DagTag,
+# filtering on execution_date) no longer works from inside a task. This version reads the same facts
+# from the Airflow 3 REST API (/api/v2/dags, .../dagRuns, .../taskInstances), authenticating with a
+# short-lived HS512 JWT minted from AIRFLOW__API_AUTH__JWT_SECRET (sub = the technical service user,
+# aud = apache-airflow) — the exact token shape the read-only monitoring sidecar uses. Dates use
+# `logical_date`. The e-mail report is unchanged.
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-from airflow.operators.email import EmailOperator
-from airflow.models import DagModel, DagRun, TaskInstance, DagTag
-#from airflow.utils.dates import days_ago
-from airflow.settings import Session
+# AF3: core operators moved to the providers; email lives in the smtp provider.
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.providers.smtp.operators.smtp import EmailOperator
 import json
 import os
+import time
 import pendulum
+import requests
+import jwt as pyjwt
 from datetime import datetime
-from sqlalchemy import or_
 
 STATE_FILE = os.getenv('MONITORING_DAG_STATE_FILE', '/opt/airflow/dag_state_cache.json')
 NOTIFY_EMAIL = os.getenv('MONITORING_DAG_NOTIFY_EMAIL', 'moiraine@tarvalon.org,rand.althor@aielwaste.net').split(',')
@@ -17,6 +26,64 @@ AIRFLOW_LINK = os.getenv('MONITORING_DAG_AIRFLOW_LINK', 'your administrator has 
 THIS_DAG_ID = 'monitoring_dag'
 INSTANCE_NAME = os.getenv('MONITORING_DAG_INSTANCE_NAME', 'HelloDATA')
 THIS_DAG_RUNTIME_SCHEDULE = os.getenv('MONITORING_DAG_RUNTIME_SCHEDULE', '0 5 * * *')
+
+# --- Airflow 3 REST API access (replaces the removed direct-ORM/Session DB access) ---------------
+# In-cluster api-server base URL, e.g. http://<release>-api-server:8080 (set per deployment). Falls
+# back to the configured public base_url if the dedicated var is absent.
+API_URL = (os.getenv('MONITORING_DAG_API_URL')
+           or os.getenv('AIRFLOW__API__BASE_URL', 'http://localhost:8080')).rstrip('/')
+API_JWT_SECRET = os.getenv('AIRFLOW__API_AUTH__JWT_SECRET', '')
+API_USER_ID = os.getenv('MONITORING_DAG_API_USER_ID', '900000')
+API_AUDIENCE = 'apache-airflow'
+
+
+def _api_token():
+    """Mint a short-lived HS512 bearer token the api-server accepts (same shape as the sidecar)."""
+    now = int(time.time())
+    return pyjwt.encode(
+        {'sub': API_USER_ID, 'aud': API_AUDIENCE, 'iat': now, 'nbf': now, 'exp': now + 300},
+        API_JWT_SECRET,
+        algorithm='HS512',
+        headers={'kid': 'not-used'},
+    )
+
+
+def _api_get(path, params=None):
+    resp = requests.get(
+        f'{API_URL}{path}',
+        params=params,
+        headers={'Authorization': 'Bearer ' + _api_token()},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _list_dags():
+    """All DAGs with dag_id / is_paused / tags (paginated)."""
+    out, offset = [], 0
+    while True:
+        j = _api_get('/api/v2/dags', {'limit': 100, 'offset': offset})
+        batch = j.get('dags', [])
+        out.extend(batch)
+        offset += len(batch)
+        if not batch or offset >= j.get('total_entries', len(out)):
+            break
+    return out
+
+
+def _dag_runs(dag_id, limit=50):
+    j = _api_get(f'/api/v2/dags/{dag_id}/dagRuns', {'order_by': '-logical_date', 'limit': limit})
+    return j.get('dag_runs', [])
+
+
+def _task_instances(dag_id, dag_run_id):
+    j = _api_get(f'/api/v2/dags/{dag_id}/dagRuns/{dag_run_id}/taskInstances', {'limit': 100})
+    return j.get('task_instances', [])
+
+
+def _dt(value):
+    return pendulum.parse(value) if value else None
 
 
 def load_previous_state():
@@ -31,19 +98,14 @@ def save_current_state(state):
 
 # Detect changes in DAG states, new DAGs, deleted DAGs, and 'monitored'-Tag using a json file with the last state of the DAGs.
 def detect_changes(**context):
-    session = Session()
-    dags = session.query(DagModel).filter(DagModel.is_active==True).all()
-    current_state = {dag.dag_id: [dag.is_paused,'monitored' in dag.tags] for dag in dags}
+    dags = _list_dags()
+    current_state = {}
     for dag in dags:
-        for tag in dag.tags:
-            if tag.name == 'monitored':
-                current_state[dag.dag_id][1] = True
-            else:
-                current_state[dag.dag_id][1] = False
-    #session.close()
+        tag_names = [t.get('name') for t in (dag.get('tags') or [])]
+        current_state[dag['dag_id']] = [bool(dag.get('is_paused')), 'monitored' in tag_names]
 
     previous_state = load_previous_state()
-    
+
     # 1. Pause state changes
     state_changes = []
     for dag_id, values in current_state.items():
@@ -56,7 +118,7 @@ def detect_changes(**context):
     for dag_id, values in current_state.items():
         is_monitored = values[1]
         if dag_id in previous_state and previous_state[dag_id][1] != is_monitored:
-            tag_changes.append((dag_id, is_monitored))        
+            tag_changes.append((dag_id, is_monitored))
 
     # 3. New DAGs
     new_dags = [dag_id for dag_id in current_state if dag_id not in previous_state]
@@ -64,40 +126,32 @@ def detect_changes(**context):
     # 4. Deleted DAGs
     deleted_dags = [dag_id for dag_id in previous_state if dag_id not in current_state]
 
-    # 5. Last run info per DAG
+    # 5. Last run info per DAG (runs that ended since this DAG's previous successful run)
     last_run_info = {}
     i = 0
-    last_check_time = session.query(DagRun).filter(DagRun.dag_id==THIS_DAG_ID,DagRun.state=='success').order_by(DagRun.execution_date.desc()).first()
+    my_runs = _dag_runs(THIS_DAG_ID, limit=20)
+    last_success = next((r for r in my_runs if r.get('state') == 'success'), None)
+    last_check_dt = _dt(last_success.get('logical_date')) if last_success else None
     for dag_id in current_state.keys():
-        last_run = []
-        if last_check_time:
-            last_run = (
-                session.query(DagRun)
-                .filter(DagRun.dag_id == dag_id, or_(DagRun.end_date > last_check_time.execution_date, DagRun.end_date.is_(None)))
-                .order_by(DagRun.execution_date.desc())
-                #.first()
-            ).all()
-
-        for run in last_run:
-
-            task_instance = (
-                session.query(TaskInstance)
-                .filter(TaskInstance.dag_id == run.dag_id)
-                .filter(TaskInstance.execution_date == run.execution_date)           
-            )
+        runs = _dag_runs(dag_id, limit=50) if last_check_dt else []
+        for run in runs:
+            end_dt = _dt(run.get('end_date'))
+            # keep runs that finished after the last check, or are still running (no end_date)
+            if last_check_dt is not None and end_dt is not None and end_dt <= last_check_dt:
+                continue
             retries_nr = 0
             id_list = []
-            if task_instance:
-                for task in task_instance:
-                    retries_nr += task.try_number-1
-                    if task.task_id not in id_list:
-                        id_list.append(task.task_id)
-            formatted_execution_date = pendulum.instance(run.execution_date).in_timezone('Europe/Zurich').strftime('%d.%m.%Y %H:%M') if run.execution_date else None
+            for task in _task_instances(dag_id, run['dag_run_id']):
+                retries_nr += (task.get('try_number') or 1) - 1
+                if task.get('task_id') not in id_list:
+                    id_list.append(task.get('task_id'))
+            ld = _dt(run.get('logical_date'))
+            formatted_execution_date = ld.in_timezone('Europe/Zurich').strftime('%d.%m.%Y %H:%M') if ld else None
             last_run_info[i] = {
                 'dag_id': dag_id,
-                'execution_date': str(formatted_execution_date) if run.execution_date else 'Never',
-                'state': run.state,
-                'number_tries': max(retries_nr - len(id_list),0)
+                'execution_date': str(formatted_execution_date) if ld else 'Never',
+                'state': run.get('state'),
+                'number_tries': max(retries_nr - len(id_list), 0)
             }
             i += 1
 
@@ -105,55 +159,39 @@ def detect_changes(**context):
     j = 0
     monitored_fail_detected = False
     soll_run_info = {}
-    for dag_id in current_state.keys():
-        soll_run = (
-            session.query(DagTag)
-            .filter(DagTag.dag_id == dag_id, DagTag.name == 'monitored')
-            .first()
-        )
+    for dag_id, values in current_state.items():
+        if not values[1]:  # not 'monitored'
+            continue
 
-        if soll_run:
+        runs = _dag_runs(dag_id, limit=1)
+        last_run = runs[0] if runs else None
 
-            last_run = (
-                session.query(DagRun)
-                .filter(DagRun.dag_id == soll_run.dag_id)#, DagRun.end_date > last_check_time.execution_date if last_check_time else True)
-                .order_by(DagRun.execution_date.desc())
-                .first()
-            )
+        if last_run:
+            retries_nr = 0
+            id_list = []
+            for task in _task_instances(dag_id, last_run['dag_run_id']):
+                retries_nr += (task.get('try_number') or 1) - 1
+                if task.get('task_id') not in id_list:
+                    id_list.append(task.get('task_id'))
+            ld = _dt(last_run.get('logical_date'))
+            end_dt = _dt(last_run.get('end_date'))
+            formatted_execution_date = ld.in_timezone('Europe/Zurich').strftime('%d.%m.%Y %H:%M') if ld else None
+            ran_after_last_check = end_dt > last_check_dt if (last_check_dt and end_dt) else True
+            soll_run_info[j] = {
+                'dag_id': dag_id,
+                'execution_date': str(formatted_execution_date) if ld else 'Never',
+                'state': last_run.get('state'),
+                'number_tries': max(retries_nr - len(id_list), 0),
+                'run_after_last_check': ran_after_last_check
+            }
 
-            if last_run:
-                task_instance = (
-                    session.query(TaskInstance)
-                    .filter(TaskInstance.dag_id == last_run.dag_id)
-                    .filter(TaskInstance.execution_date == last_run.execution_date)            
-                )
-                retries_nr = 0
-                id_list = []
-                if task_instance:
-                    for task in task_instance:
-                        retries_nr += task.try_number-1
-                        if task.task_id not in id_list:
-                            id_list.append(task.task_id)
-                formatted_execution_date = pendulum.instance(last_run.execution_date).in_timezone('Europe/Zurich').strftime('%d.%m.%Y %H:%M') if last_run.execution_date else None
-                soll_run_info[j] = {
-                    'dag_id': last_run.dag_id,
-                    'execution_date': str(formatted_execution_date) if last_run.execution_date else 'Never',
-                    'state': last_run.state,
-                    'number_tries': max(retries_nr - len(id_list),0),
-                    'run_after_last_check': last_run.end_date > last_check_time.execution_date if (last_check_time and last_run.end_date) else True
-                }
-
-                if last_run.state != 'success':
-                    monitored_fail_detected = True
-                if not last_run.end_date:
-                    monitored_fail_detected = True    
-                elif last_run.end_date < last_check_time.execution_date if last_check_time else True:
-                    monitored_fail_detected = True
-                j += 1
-
-    
-    
-    session.close()
+            if last_run.get('state') != 'success':
+                monitored_fail_detected = True
+            if not end_dt:
+                monitored_fail_detected = True
+            elif last_check_dt and end_dt < last_check_dt:
+                monitored_fail_detected = True
+            j += 1
 
     # Push results to XCom
     context['ti'].xcom_push(key='dag_state_changes', value=state_changes)
@@ -182,10 +220,10 @@ def notify_if_any_changes(**context):
     msg_lines = []
     msg_lines.append("<b>Hi!</b>")
 
-# Table with the last run info of monitored DAGs    
+# Table with the last run info of monitored DAGs
     msg_lines.append("<br><br><h2><u>Monitored DAGs</u></h2>")
 
-    if not soll_run_info:  
+    if not soll_run_info:
         msg_lines.append("You have no monitored DAGs.")
     else:
         success_dags = []
@@ -199,11 +237,11 @@ def notify_if_any_changes(**context):
             elif info['state'] == 'failed' and info['run_after_last_check']:
                 failed_dags.append(info)
             elif info['state'] == 'running':
-                running_dags.append(info)    
+                running_dags.append(info)
             elif info['state'] == 'queued':
-                queued_dags.append(info)    
+                queued_dags.append(info)
             else:
-                other_dags.append(info)    
+                other_dags.append(info)
 
 
         msg_lines.append("<table width='80%' border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse;'>" \
@@ -220,7 +258,7 @@ def notify_if_any_changes(**context):
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['execution_date']}</td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['number_tries']}</td>" \
             "</tr>")
-        for info in other_dags:    
+        for info in other_dags:
             msg_lines.append("<tr>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'><a href={AIRFLOW_LINK}dags/{info['dag_id']}/grid>{info['dag_id']}</a></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444; color: darkorange;'>did not run since last check</td>" \
@@ -233,25 +271,25 @@ def notify_if_any_changes(**context):
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444; color: brown;'><b>{info['state']}</b></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['execution_date']}</td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['number_tries']}</td>" \
-            "</tr>") 
+            "</tr>")
         for info in running_dags:
             msg_lines.append("<tr>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'><a href={AIRFLOW_LINK}dags/{info['dag_id']}/grid>{info['dag_id']}</a></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444; color: lightgreen;'><b>{info['state']}</b></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['execution_date']}</td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['number_tries']}</td>" \
-            "</tr>") 
+            "</tr>")
         for info in success_dags:
             msg_lines.append("<tr>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'><a href={AIRFLOW_LINK}dags/{info['dag_id']}/grid>{info['dag_id']}</a></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444; color: green;'><b>{info['state']}</b></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['execution_date']}</td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['number_tries']}</td>" \
-            "</tr>")          
+            "</tr>")
         msg_lines.append("</table>")
 
 
-# Shows all the changes in the DAGs, like new DAGs, deleted DAGs, state changes and tag changes. 
+# Shows all the changes in the DAGs, like new DAGs, deleted DAGs, state changes and tag changes.
     msg_lines.append("<br><br><h2><u>Changes to DAGs</u></h2>")
 
     # Create lists for each type of change
@@ -259,7 +297,7 @@ def notify_if_any_changes(**context):
     if not state_changes:
         msg_lines.append("<br>There are no changes in pause/unpause state.<br>")
     else:
-        msg_lines.append("<br><span style='color: darkorange;'>The following DAGs have changed their pause/unpause state:</span>")    
+        msg_lines.append("<br><span style='color: darkorange;'>The following DAGs have changed their pause/unpause state:</span>")
     if state_changes:
         msg_lines.append("<ul>")
         for dag_id, is_paused in state_changes:
@@ -288,31 +326,31 @@ def notify_if_any_changes(**context):
 
     msg_lines.append("<br><b>Newly monitored:</b>")
     if not tag_changes:
-        msg_lines.append("<br>There are no changes in the 'monitored'-tag.<br>") 
+        msg_lines.append("<br>There are no changes in the 'monitored'-tag.<br>")
     if tag_changes:
         if all(not info[1] for info in tag_changes):
             msg_lines.append("<br>There are no changes in the 'monitored'-tag.<br>")
-        else:    
+        else:
             msg_lines.append("<br><span style='color: darkorange;'>The following DAGs are now monitored:</span>")
             msg_lines.append("<ul>")
             for info in tag_changes:
                 if info[1]:  # If the tag is now 'monitored'
                     msg_lines.append(f"<br>DAG <b>{info[0]}</b> is now monitored.")
             msg_lines.append("</ul>")
-        
+
     msg_lines.append("<br><b>Newly unmonitored:</b>")
     if not tag_changes:
-        msg_lines.append("<br>There are no changes in the 'monitored'-tag.<br>")  
-    if tag_changes:   
+        msg_lines.append("<br>There are no changes in the 'monitored'-tag.<br>")
+    if tag_changes:
         if all(info[1] for info in tag_changes):
             msg_lines.append("<br>There are no changes in the 'monitored'-tag.<br>")
         else:
             msg_lines.append("<br><span style='color: darkorange;'>The following DAGs are no longer monitored:</span>")
-            msg_lines.append("<ul>")       
+            msg_lines.append("<ul>")
             for info in tag_changes:
                 if not info[1]:
-                    msg_lines.append(f"<br>DAG <b>{info[0]}</b> is no longer monitored.") 
-            msg_lines.append("</ul>")           
+                    msg_lines.append(f"<br>DAG <b>{info[0]}</b> is no longer monitored.")
+            msg_lines.append("</ul>")
 
 
 # Table with the last run info of all DAGs
@@ -336,7 +374,7 @@ def notify_if_any_changes(**context):
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['execution_date']}</td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['number_tries']}</td>" \
             "</tr>")
-        elif info['state'] == 'failed':    
+        elif info['state'] == 'failed':
             msg_lines.append("<tr>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'><a href={AIRFLOW_LINK}dags/{info['dag_id']}/grid>{info['dag_id']}</a></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444; color: red;'><b>{info['state']}</b></td>" \
@@ -349,14 +387,14 @@ def notify_if_any_changes(**context):
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444; color: brown;'><b>{info['state']}</b></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['execution_date']}</td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['number_tries']}</td>" \
-            "</tr>") 
+            "</tr>")
         elif info['state'] == 'running':
             msg_lines.append("<tr>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'><a href={AIRFLOW_LINK}dags/{info['dag_id']}/grid>{info['dag_id']}</a></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444; color: lightgreen;'><b>{info['state']}</b></td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['execution_date']}</td>" \
             f"<td style='text-align: center; vertical-align: middle; border: 1px solid #444;'>{info['number_tries']}</td>" \
-            "</tr>")       
+            "</tr>")
     msg_lines.append("</table>")
 
 # Information Text about this DAG and the Controling in general
@@ -388,25 +426,22 @@ def notify_if_any_changes(**context):
 
 with DAG(
     THIS_DAG_ID,
-    schedule_interval=THIS_DAG_RUNTIME_SCHEDULE,
+    # Airflow 3: `schedule_interval` was removed — renamed to `schedule`.
+    schedule=THIS_DAG_RUNTIME_SCHEDULE,
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=['monitoring', 'HelloDATA_standard'],
 ) as dag:
 
+    # Airflow 3: `provide_context` was removed — the context is always passed to the callable.
     check_dag_states = PythonOperator(
         task_id='check_dag_states',
         python_callable=detect_changes,
-        provide_context=True,
     )
 
     notify = PythonOperator(
         task_id='notify_if_changes',
         python_callable=notify_if_any_changes,
-        provide_context=True,
     )
 
     check_dag_states >> notify
-
-
-
