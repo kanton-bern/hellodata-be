@@ -25,30 +25,19 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Pipe, PipeTransform, inject } from '@angular/core';
-import {DomSanitizer, SafeHtml, SafeResourceUrl, SafeScript, SafeStyle, SafeUrl} from '@angular/platform-browser';
-import {sanitizeRichText} from '../utils/sanitize-html';
+import DOMPurify from 'dompurify';
 
-@Pipe({ name: 'safe' })
-export class SafePipe implements PipeTransform {
-  private sanitizer = inject(DomSanitizer);
-
-
-  public transform(value: string, type: string): SafeHtml | SafeStyle | SafeScript | SafeUrl | SafeResourceUrl {
-    switch (type) {
-      case 'html':
-        return this.sanitizer.bypassSecurityTrustHtml(sanitizeRichText(value));
-      case 'style':
-        return this.sanitizer.bypassSecurityTrustStyle(value);
-      case 'script':
-        return this.sanitizer.bypassSecurityTrustScript(value);
-      case 'url':
-        return this.sanitizer.bypassSecurityTrustUrl(value);
-      case 'resourceUrl':
-        return this.sanitizer.bypassSecurityTrustResourceUrl(value);
-      default:
-        throw new Error(`Invalid safe type specified: ${type}`);
-    }
-  }
-
+/**
+ * Sanitizes rich-text HTML (e.g. Quill/p-editor output for FAQ and announcement
+ * messages) before it is rendered as trusted markup — either via
+ * DomSanitizer.bypassSecurityTrustHtml / [innerHTML], or fed back into a
+ * read-only Quill editor.
+ *
+ * This neutralizes stored XSS payloads (scripts, event-handler attributes,
+ * javascript: URLs, ...) while keeping the safe formatting tags the editor
+ * produces. It is the app-side remediation for GHSA-v3m3-f69x-jf25 (Quill XSS
+ * via HTML export), which has no upstream patched release.
+ */
+export function sanitizeRichText(html: string): string {
+  return DOMPurify.sanitize(html ?? '', { USE_PROFILES: { html: true } });
 }

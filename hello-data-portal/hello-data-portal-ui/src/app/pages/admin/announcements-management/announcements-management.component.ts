@@ -53,6 +53,7 @@ import {DeleteAnnouncementPopupComponent} from './delete-announcement-popup/dele
 import {TranslocoPipe} from '@jsverse/transloco';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {ICON_REGISTRY} from '../../../shared/icons';
+import {sanitizeRichText} from '../../../shared/utils/sanitize-html';
 
 @Component({
   selector: 'app-announcements-management',
@@ -102,7 +103,7 @@ export class AnnouncementsManagementComponent extends BaseComponent {
 
   getMessage(announcement: Announcement, selectedLanguage: any): SafeHtml {
     const message = this.findAnnouncementMessage(announcement, selectedLanguage.code) || '';
-    return this.sanitizer.bypassSecurityTrustHtml(message);
+    return this.sanitizer.bypassSecurityTrustHtml(sanitizeRichText(message));
   }
 
   private findAnnouncementMessage(announcement: Announcement, code: string | null | undefined): string | undefined {
@@ -121,7 +122,7 @@ export class AnnouncementsManagementComponent extends BaseComponent {
     return Object.entries(announcement.messages).map(([locale, message]) => ({
       locale,
       displayLocale: locale.split('_')[0].toUpperCase(),
-      message: this.sanitizer.bypassSecurityTrustHtml(message || '')
+      message: this.sanitizer.bypassSecurityTrustHtml(sanitizeRichText(message || ''))
     }));
   }
 }

@@ -16,6 +16,7 @@ import {TranslocoPipe} from "@jsverse/transloco";
 import {Checkbox} from "primeng/checkbox";
 import {DynamicDialogRef} from "primeng/dynamicdialog";
 import {ICON_REGISTRY} from '../../../icons';
+import {sanitizeRichText} from '../../../utils/sanitize-html';
 
 @Component({
   template: `
@@ -84,9 +85,9 @@ export class PublishedAnnouncementsPopupComponent implements OnDestroy {
     if (!message || message.trim() === '') {
       const fallback = this.findMessage(announcement, defaultLanguage);
       const defaultDisplay = defaultLanguage ? defaultLanguage.slice(0, 2)?.toUpperCase() : '??';
-      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultDisplay}) + '\n' + (fallback ?? '');
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultDisplay}) + '\n' + sanitizeRichText(fallback ?? '');
     }
-    return message;
+    return sanitizeRichText(message);
   }
 
   private findMessage(announcement: Announcement, code: string | null | undefined): string | undefined {

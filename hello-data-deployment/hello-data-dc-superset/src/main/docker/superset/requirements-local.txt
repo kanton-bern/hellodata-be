@@ -5,5 +5,5 @@ authlib==1.6.12
 psycopg2-binary==2.9.11
 redis==7.1.0
 jmespath==1.0.1
-pip==26.1
+pip==26.1.2
 flask-talisman==1.1.0

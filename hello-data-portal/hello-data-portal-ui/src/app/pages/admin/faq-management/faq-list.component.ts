@@ -49,6 +49,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {TranslateService} from "../../../shared/services/translate.service";
 import {ICON_REGISTRY} from '../../../shared/icons';
+import {sanitizeRichText} from '../../../shared/utils/sanitize-html';
 
 @Component({
   selector: 'app-faq-list',
@@ -139,7 +140,7 @@ export class FaqListComponent extends BaseComponent implements OnInit {
       locale,
       displayLocale: locale.split('_')[0].toUpperCase(),
       title: msg.title || '',
-      message: this.sanitizer.bypassSecurityTrustHtml(msg.message || '')
+      message: this.sanitizer.bypassSecurityTrustHtml(sanitizeRichText(msg.message || ''))
     }));
   }
 }
