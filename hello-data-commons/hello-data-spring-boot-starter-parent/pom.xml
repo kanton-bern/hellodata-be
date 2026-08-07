@@ -28,7 +28,8 @@
         <httpclient5.version>5.6.3</httpclient5.version>
         <httpmime.version>4.5.14</httpmime.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
-        <keycloak.version>26.0.12</keycloak.version>
+        <!-- Hold at 26.0.9: keycloak-admin-client 26.0.10-26.0.12 fail user creation (400) against the Keycloak 26.4 server; no 26.1+ admin-client release exists. See renovate.json hold rule. -->
+        <keycloak.version>26.0.9</keycloak.version>
         <lombok-version>1.18.46</lombok-version>
         <main.class>empty_in_parent</main.class>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
