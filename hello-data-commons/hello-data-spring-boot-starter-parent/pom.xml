@@ -20,14 +20,15 @@
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <commons-csv.version>1.14.1</commons-csv.version>
         <commons-io.version>2.22.0</commons-io.version>
-        <commons-validator.version>1.10.1</commons-validator.version>
+        <commons-validator.version>1.11.0</commons-validator.version>
         <docker-maven-plugin.version>0.48.1</docker-maven-plugin.version>
         <docker.file>Dockerfile</docker.file>
         <docker.namespace>bedag</docker.namespace>
         <git-commit-id-maven-plugin.version>9.2.0</git-commit-id-maven-plugin.version>
-        <httpclient5.version>5.6.1</httpclient5.version>
+        <httpclient5.version>5.6.3</httpclient5.version>
         <httpmime.version>4.5.14</httpmime.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
+        <!-- Hold at 26.0.9: keycloak-admin-client 26.0.10-26.0.12 fail user creation (400) against the Keycloak 26.4 server; no 26.1+ admin-client release exists. See renovate.json hold rule. -->
         <keycloak.version>26.0.9</keycloak.version>
         <lombok-version>1.18.46</lombok-version>
         <main.class>empty_in_parent</main.class>
@@ -35,25 +36,25 @@
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <modelmapper.version>3.2.6</modelmapper.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
-        <rest-assured.version>6.0.0</rest-assured.version>
+        <rest-assured.version>6.0.1</rest-assured.version>
         <!-- Boot 4.1.x is supported by Spring Cloud 2025.1.2+ (Oakwood); keep Boot and Cloud versions in lockstep per the compatibility matrix -->
         <spring-boot.version>4.1.0</spring-boot.version>
         <!-- CVE-2026-42584 / CVE-2026-56816 (GHSA-hpcc-26xq-25fv) / CVE-2026-59901 (GHSA-558v-64gr-wgg4): remove once Spring Boot ships Netty >= 4.2.16.Final -->
-        <netty.version>4.2.16.Final</netty.version>
+        <netty.version>4.2.17.Final</netty.version>
         <!-- CVE-2026-41284 / BDSA-2026-10253: remove once Spring Boot ships Tomcat >= 11.0.22 -->
-        <tomcat.version>11.0.23</tomcat.version>
+        <tomcat.version>11.0.24</tomcat.version>
         <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
-        <bouncycastle.version>1.84</bouncycastle.version>
+        <bouncycastle.version>1.85.2</bouncycastle.version>
         <!-- CVE-2026-42198 / BDSA-2026-8637 / CVE-2026-54291 (GHSA-j92g-9f8w-j867): remove once Spring Boot ships postgresql >= 42.7.12 -->
-        <postgresql.version>42.7.12</postgresql.version>
+        <postgresql.version>42.7.13</postgresql.version>
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.0/.1 target Boot 4.0.x; 2025.1.2+ adds Boot 4.1.x support -->
         <spring-cloud.version>2025.1.2</spring-cloud.version>
         <spring-ws-test.version>5.0.2</spring-ws-test.version>
-        <springdoc.version>3.0.3</springdoc.version>
-        <testcontainers-keycloak.version>4.2.1</testcontainers-keycloak.version>
+        <springdoc.version>3.1.0</springdoc.version>
+        <testcontainers-keycloak.version>4.3.1</testcontainers-keycloak.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <docker-java.version>3.7.0</docker-java.version>
-        <jnats.version>2.25.3</jnats.version>
+        <jnats.version>2.26.1</jnats.version>
         <!-- CVE-2026-71497 (GHSA-pmhh-3w7g-xqp8) -->
         <jsoup.version>1.23.1</jsoup.version>
         <nats-spring.version>0.6.2+3.5</nats-spring.version>

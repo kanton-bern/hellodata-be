@@ -54,6 +54,16 @@
       "enabled": false
     },
     {
+      "description": "Hold keycloak-admin-client at 26.0.9: 26.0.10-26.0.12 break default-admin creation (400 on users.create) against the Keycloak 26.4 server, and no 26.1+ admin-client release exists to realign the client",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchPackageNames": [
+        "org.keycloak:keycloak-admin-client"
+      ],
+      "allowedVersions": "<=26.0.9"
+    },
+    {
       "description": "Pin spring-boot to 4.1.x (supported by Spring Cloud 2025.1.2+); raise once a Spring Cloud train targets Boot 4.2.x",
       "matchManagers": [
         "maven"
