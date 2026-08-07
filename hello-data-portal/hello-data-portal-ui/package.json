@@ -101,7 +101,7 @@
     "rollup": "^4.59.0",
     "serialize-javascript": "^7.0.3",
     "immutable": "^5.1.5",
-    "@hono/node-server": "^1.19.10",
+    "@hono/node-server": "^2.0.0",
     "express-rate-limit": "^8.2.2",
     "undici": "^7.24.0",
     "router/path-to-regexp": "^8.4.0",
