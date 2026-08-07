@@ -54,17 +54,17 @@
       "enabled": false
     },
     {
-      "description": "Pin spring-boot to 4.0.x until a Spring Cloud train targets Boot 4.1.x",
+      "description": "Pin spring-boot to 4.1.x (supported by Spring Cloud 2025.1.2+); raise once a Spring Cloud train targets Boot 4.2.x",
       "matchManagers": [
         "maven"
       ],
       "matchPackageNames": [
         "org.springframework.boot:spring-boot-dependencies"
       ],
-      "allowedVersions": "<4.1.0"
+      "allowedVersions": "<4.2.0"
     },
     {
-      "description": "Keep spring-cloud on Oakwood (2025.1.x) which targets Spring Boot 4.0.x",
+      "description": "Keep spring-cloud on Oakwood (2025.1.x), which supports Spring Boot 4.0.x-4.1.x; raise once moving to the next train",
       "matchManagers": [
         "maven"
       ],
