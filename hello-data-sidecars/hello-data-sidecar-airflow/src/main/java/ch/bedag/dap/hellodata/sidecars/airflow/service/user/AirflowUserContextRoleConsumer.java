@@ -74,12 +74,9 @@ public class AirflowUserContextRoleConsumer {
             List<UserContextRoleUpdate.ContextRole> dataDomainContextRoles =
                     userContextRoleUpdate.getContextRoles().stream().filter(contextRole -> contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN).toList();
             AirflowUserResponse airflowUser = getAirflowUser(userContextRoleUpdate, airflowClient);
+            ensureAdminRoleReflectsCurrentState(userContextRoleUpdate, allAirflowRoles, airflowUser);
             if (!dataDomainContextRoles.isEmpty()) {
                 allAirflowRoles = createContextRolesIfNotExist(dataDomainContextRoles, allAirflowRoles, airflowClient);
-                if (airflowUser.getRoles() == null) {
-                    airflowUser.setRoles(new ArrayList<>());
-                }
-                addOrRemoveAdminRole(userContextRoleUpdate, allAirflowRoles, airflowUser);
                 updateBusinessContextRoleForUser(airflowUser, dataDomainContextRoles, allAirflowRoles, airflowClient, userContextRoleUpdate);
             } else {
                 removeAllDataDomainRolesFromUser(airflowUser);
@@ -97,6 +94,16 @@ public class AirflowUserContextRoleConsumer {
         } else {
             removeRoleFromUser(airflowUser, ADMIN_ROLE_NAME, allAirflowRoles);
         }
+    }
+
+    private void ensureAdminRoleReflectsCurrentState(UserContextRoleUpdate userContextRoleUpdate, List<AirflowRole> allAirflowRoles, AirflowUserResponse airflowUser) {
+        if (airflowUser == null) {
+            return;
+        }
+        if (airflowUser.getRoles() == null) {
+            airflowUser.setRoles(new ArrayList<>());
+        }
+        addOrRemoveAdminRole(userContextRoleUpdate, allAirflowRoles, airflowUser);
     }
 
     private List<AirflowRole> createContextRolesIfNotExist(List<UserContextRoleUpdate.ContextRole> dataDomainContextRoles, List<AirflowRole> roles,
