@@ -153,12 +153,13 @@
                             <imagePullPolicy>Always</imagePullPolicy>
                             <images>
                                 <image>
-                                    <!-- TEMP: publish into the existing hello-data-airflow repo (the dedicated
-                                         hello-data-airflow3 repo is not provisioned yet). The Airflow 3 build
-                                         overwrites this repo under its own branch/version tag; Airflow 2
-                                         deployments pin an older tag. Point back to hello-data-airflow3 once
-                                         the repo exists. -->
-                                    <name>${docker.namespace}/hello-data-airflow:${docker.tag.name}</name>
+                                    <!-- TEMP: Airflow 2 and Airflow 3 share the existing hello-data-airflow repo
+                                         (the dedicated hello-data-airflow3 repo is not provisioned yet). To let
+                                         BOTH be built from the same branch/pipeline without the tag colliding,
+                                         the Airflow 3 image carries an `airflow3-` tag prefix (e.g. airflow3-latest
+                                         on develop) while Airflow 2 keeps the bare ${docker.tag.name}. Drop the
+                                         prefix (or point back to hello-data-airflow3) once the repo exists. -->
+                                    <name>${docker.namespace}/hello-data-airflow:airflow3-${docker.tag.name}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/main/docker</contextDir>
                                         <assembly>
