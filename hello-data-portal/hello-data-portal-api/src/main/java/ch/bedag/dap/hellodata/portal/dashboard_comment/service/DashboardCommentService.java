@@ -369,18 +369,39 @@ public class DashboardCommentService {
     }
 
     /**
-     * Create a copy of the comment showing the last published version, or null if none exists.
+     * Create a redacted copy of the comment showing the last published version, or null if none exists.
+     * <p>
+     * Reaching this method already means the caller is not entitled to the comment's current,
+     * unpublished state (see {@link #handleDraftVisibility} / {@link #handleReviewOrDeclinedVisibility}),
+     * so the history is filtered as well: rewinding {@code activeVersion} alone would still ship every
+     * unpublished {@code text}, {@code editedBy} and {@code declineReason} to the client.
      */
     private DashboardCommentDto showLastPublishedVersion(DashboardCommentDto comment) {
         DashboardCommentVersionDto lastPublishedVersion = findLastPublishedVersion(comment);
-        if (lastPublishedVersion != null) {
-            return comment.toBuilder()
-                    .activeVersion(lastPublishedVersion.getVersion())
-                    .pointerUrl(lastPublishedVersion.getPointerUrl())
-                    .tags(lastPublishedVersion.getTags() != null ? lastPublishedVersion.getTags() : Collections.emptyList())
-                    .build();
+        if (lastPublishedVersion == null) {
+            return null;
         }
-        return null;
+        return comment.toBuilder()
+                .activeVersion(lastPublishedVersion.getVersion())
+                .pointerUrl(lastPublishedVersion.getPointerUrl())
+                .tags(lastPublishedVersion.getTags() != null ? lastPublishedVersion.getTags() : Collections.emptyList())
+                .history(publishedHistoryUpToVersion(comment.getHistory(), lastPublishedVersion.getVersion()))
+                .build();
+    }
+
+    /**
+     * The versions a caller may see when they are not entitled to the comment's current state: the
+     * published ones, up to and including the version they are being steered at.
+     */
+    private List<DashboardCommentVersionDto> publishedHistoryUpToVersion(List<DashboardCommentVersionDto> history,
+                                                                         int lastPublishedVersion) {
+        if (history == null) {
+            return Collections.emptyList();
+        }
+        return history.stream()
+                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
+                .filter(v -> v.getVersion() <= lastPublishedVersion)
+                .toList();
     }
 
     /**
@@ -1219,6 +1240,11 @@ public class DashboardCommentService {
                 (userFullName != null && userFullName.equals(activeVersion.getEditedBy()));
     }
 
+    /**
+     * Domain-view counterpart of {@link #showLastPublishedVersion}. Mutating the DTO in place is safe
+     * here: {@link #toDomainDashboardCommentDto} builds a fresh instance, over a fresh history list,
+     * per request.
+     */
     private DomainDashboardCommentDto fallbackToLastPublishedVersion(DomainDashboardCommentDto comment) {
         DashboardCommentVersionDto lastPublished = findLastPublishedVersionInDomainDashboardComment(comment);
         if (lastPublished == null) {
@@ -1227,6 +1253,7 @@ public class DashboardCommentService {
         comment.setActiveVersion(lastPublished.getVersion());
         comment.setPointerUrl(lastPublished.getPointerUrl());
         comment.setTags(lastPublished.getTags() != null ? lastPublished.getTags() : Collections.emptyList());
+        comment.setHistory(publishedHistoryUpToVersion(comment.getHistory(), lastPublished.getVersion()));
         return comment;
     }
 
