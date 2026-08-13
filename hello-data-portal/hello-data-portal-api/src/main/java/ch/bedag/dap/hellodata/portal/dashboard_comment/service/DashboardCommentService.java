@@ -342,9 +342,17 @@ public class DashboardCommentService {
             return handleDeletedVisibility(comment, userEmail, hasWrite, hasReview, includeDeleted);
         }
 
-        // Published comments are visible to anyone with read permission
+        // Published comments are visible to anyone with read permission. The active version itself is
+        // safe, but history can still hold intermediate DRAFT/DECLINED versions that publishComment and
+        // restoreVersion intentionally keep around; a caller not entitled to the comment's unpublished
+        // state must not receive their text / declineReason (same leak fixed on the fallback paths).
         if (activeVersion.getStatus() == DashboardCommentStatus.PUBLISHED) {
-            return comment;
+            if (mayViewUnpublishedHistory(comment, userEmail, hasWrite, hasReview)) {
+                return comment;
+            }
+            return comment.toBuilder()
+                    .history(publishedHistory(comment.getHistory()))
+                    .build();
         }
 
         // Handle other statuses based on permissions
@@ -354,6 +362,15 @@ public class DashboardCommentService {
             case DRAFT -> handleDraftVisibility(comment, activeVersion, userEmail, userFullName, hasWrite);
             default -> null;
         };
+    }
+
+    /**
+     * Whether the caller may see the unpublished (DRAFT/DECLINED) versions still kept in a comment's
+     * history: reviewers may, and a writer may for their own comment. Mirrors the entitlement already
+     * enforced for the active version in {@link #handleReviewOrDeclinedVisibility}.
+     */
+    private boolean mayViewUnpublishedHistory(DashboardCommentDto comment, String userEmail, boolean hasWrite, boolean hasReview) {
+        return hasReview || (hasWrite && isOwnComment(comment, userEmail));
     }
 
     private boolean isOwnComment(DashboardCommentDto comment, String userEmail) {
@@ -401,6 +418,20 @@ public class DashboardCommentService {
         return history.stream()
                 .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
                 .filter(v -> v.getVersion() <= lastPublishedVersion)
+                .toList();
+    }
+
+    /**
+     * All published versions of a comment, in their original order. Used when the active version is
+     * already published but older unpublished versions must be stripped from history for a caller who
+     * is not entitled to them.
+     */
+    private List<DashboardCommentVersionDto> publishedHistory(List<DashboardCommentVersionDto> history) {
+        if (history == null) {
+            return Collections.emptyList();
+        }
+        return history.stream()
+                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
                 .toList();
     }
 
@@ -1204,8 +1235,13 @@ public class DashboardCommentService {
             return handleDeletedVisibility(comment, userEmail, hasWrite, hasReview, includeDeleted);
         }
 
-        // Published comments are visible to anyone with read permission
+        // Published comments are visible to anyone with read permission, but intermediate DRAFT/DECLINED
+        // versions kept in history must still be stripped for a caller not entitled to them (same reason
+        // as the single-comment view above).
         if (activeVersion.getStatus() == DashboardCommentStatus.PUBLISHED) {
+            if (!mayViewUnpublishedHistory(comment, userEmail, hasWrite, hasReview)) {
+                comment.setHistory(publishedHistory(comment.getHistory()));
+            }
             return comment;
         }
 

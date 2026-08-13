@@ -324,4 +324,95 @@ class DashboardCommentUnpublishedTextLeakTest {
                 .isEqualTo(2);
         assertThat(textsInHistory(result.get(0))).containsExactly(PUBLISHED_TEXT, SECRET_DRAFT_TEXT);
     }
+
+    /**
+     * A comment whose active version is PUBLISHED but whose history still carries an earlier DECLINED
+     * version - exactly what {@code publishComment} (publishing a declined comment) and the
+     * decline-then-re-edit-then-publish flow leave behind. The active-version rewind never runs here (the
+     * active version is already published), so the redaction must instead prune the DECLINED entry from
+     * history. Otherwise its secret text and reviewer decline reason ship to a read-only caller.
+     */
+    private DashboardCommentEntity publishedWithDeclinedInHistory() {
+        DashboardCommentEntity comment = DashboardCommentEntity.builder()
+                .id(UUID.randomUUID().toString())
+                .dashboardId(DASHBOARD_ID)
+                .contextKey(CONTEXT_KEY)
+                .author(AUTHOR_NAME)
+                .authorEmail(AUTHOR_EMAIL)
+                .createdDate(1_700_000_000_000L)
+                .activeVersion(3)
+                .hasActiveDraft(false)
+                .build();
+        comment.addVersion(version(1, DashboardCommentStatus.PUBLISHED, PUBLISHED_TEXT, AUTHOR_NAME, null));
+        comment.addVersion(version(2, DashboardCommentStatus.DECLINED, SECRET_DRAFT_TEXT, AUTHOR_NAME, SECRET_DECLINE_REASON));
+        comment.addVersion(version(3, DashboardCommentStatus.PUBLISHED, "The finally approved wording.", AUTHOR_NAME, null));
+        return comment;
+    }
+
+    @Test
+    void readOnlyUserMustNotReceiveDeclinedHistoryWhenActiveVersionIsPublished() {
+        stubStore(publishedWithDeclinedInHistory());
+
+        List<DashboardCommentDto> result;
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            stubCaller(securityUtils, READER_EMAIL, READER_NAME, false, false);
+            result = commentService.getComments(CONTEXT_KEY, DASHBOARD_ID, false);
+        }
+
+        assertThat(result).hasSize(1);
+        DashboardCommentDto dto = result.get(0);
+
+        // The active version is (and stays) the published one -- nothing to rewind.
+        assertThat(dto.getActiveVersion()).isEqualTo(3);
+
+        // Only the two published versions may reach the reader; the declined one is dropped entirely.
+        assertThat(textsInHistory(dto))
+                .as("a read-only caller must not receive the text of a declined version kept in history")
+                .containsExactly(PUBLISHED_TEXT, "The finally approved wording.");
+        assertThat(dto.getHistory())
+                .as("a read-only caller must not receive the reviewer's decline reason")
+                .noneMatch(v -> SECRET_DECLINE_REASON.equals(v.getDeclineReason()));
+    }
+
+    /**
+     * Control for the case above: a reviewer is entitled to the declined history and still receives it in
+     * full, active pointer untouched. Confirms the redaction keys on permission, not on presence.
+     */
+    @Test
+    void reviewerStillReceivesDeclinedHistoryWhenActiveVersionIsPublished() {
+        stubStore(publishedWithDeclinedInHistory());
+
+        List<DashboardCommentDto> result;
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            stubCaller(securityUtils, "reviewer@example.org", "Rita Reviewer", true, true);
+            result = commentService.getComments(CONTEXT_KEY, DASHBOARD_ID, false);
+        }
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getActiveVersion()).isEqualTo(3);
+        assertThat(textsInHistory(result.get(0)))
+                .as("a reviewer keeps the full history, declined version included")
+                .contains(SECRET_DRAFT_TEXT);
+    }
+
+    /**
+     * Same leak, same shape, through the domain-wide view.
+     */
+    @Test
+    void readOnlyUserMustNotReceiveDeclinedHistoryInTheDomainViewWhenActiveVersionIsPublished() {
+        when(commentRepository.findByContextKeyOrderByCreatedDateAsc(CONTEXT_KEY))
+                .thenReturn(List.of(publishedWithDeclinedInHistory()));
+
+        List<DomainDashboardCommentDto> result;
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            stubCaller(securityUtils, READER_EMAIL, READER_NAME, false, false);
+            result = commentService.getCommentsForDomain(CONTEXT_KEY, false);
+        }
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getActiveVersion()).isEqualTo(3);
+        assertThat(textsInHistory(result.get(0)))
+                .as("the domain view must not carry the text of a declined version kept in history")
+                .containsExactly(PUBLISHED_TEXT, "The finally approved wording.");
+    }
 }
