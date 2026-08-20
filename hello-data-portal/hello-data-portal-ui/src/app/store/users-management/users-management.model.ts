@@ -167,6 +167,7 @@ export interface BulkDomainAssignment {
   roleName: string;
   dashboards: BulkDashboardInfo[];
   dashboardGroupIds: string[];
+  commentPermissions: CommentPermissions;
 }
 
 export interface BulkDashboardInfo {

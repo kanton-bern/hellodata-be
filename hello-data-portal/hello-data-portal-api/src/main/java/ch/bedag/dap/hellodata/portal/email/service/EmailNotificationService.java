@@ -168,7 +168,7 @@ public class EmailNotificationService {
         emailTemplateData.getTemplateModel().put(FAILED_COUNT_PARAM, result.getFailedCount());
 
         List<String> domainAssignmentDescriptions = request.getDomainAssignments().stream()
-                .map(a -> a.getContextKey() + " \u2192 " + a.getRoleName())
+                .map(a -> a.getContextKey() + " \u2192 " + a.getRoleName() + describeCommentPermissions(a.getCommentPermissions()))
                 .toList();
         emailTemplateData.getTemplateModel().put(DOMAIN_ASSIGNMENTS_PARAM, domainAssignmentDescriptions);
         emailTemplateData.getTemplateModel().put(UPDATED_USERS_PARAM, result.getUpdatedUsers());
@@ -178,6 +178,23 @@ public class EmailNotificationService {
         emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
         emailTemplateData.getReceivers().addAll(adminEmails);
         emailSendService.sendMultiLangEmailFromTemplate(emailTemplateData);
+    }
+
+    private String describeCommentPermissions(BulkAssignmentRequestDto.CommentPermissions permissions) {
+        if (permissions == null) {
+            return "";
+        }
+        List<String> granted = new ArrayList<>();
+        if (permissions.isReadComments()) {
+            granted.add("read");
+        }
+        if (permissions.isWriteComments()) {
+            granted.add("write");
+        }
+        if (permissions.isReviewComments()) {
+            granted.add("review");
+        }
+        return " (comments: " + (granted.isEmpty() ? "none" : String.join(", ", granted)) + ")";
     }
 
     private void fillCommonParamsAndSend(String editedUserFirstName, String createdUserEmail, EmailTemplateData emailTemplateData, Locale locale) {

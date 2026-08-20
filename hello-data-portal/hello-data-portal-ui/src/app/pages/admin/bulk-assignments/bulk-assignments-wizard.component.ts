@@ -54,7 +54,9 @@ import {
   BulkUserDetail,
   BUSINESS_DOMAIN_ADMIN_ROLE,
   BUSINESS_DOMAIN_CONTEXT_TYPE,
+  CommentPermissions,
   DashboardGroupMembership,
+  DATA_DOMAIN_ADMIN_ROLE,
   DATA_DOMAIN_CONTEXT_TYPE,
   HELLODATA_ADMIN_ROLE,
   NONE_ROLE,
@@ -92,6 +94,7 @@ interface DomainAssignmentConfig {
   roleName: string;
   dashboards: Map<number, BulkDashboardInfo>;
   dashboardGroupIds: Set<string>;
+  commentPermissions: CommentPermissions;
 }
 
 interface RoleOption {
@@ -105,6 +108,7 @@ interface DomainSummaryItem {
   roleName: string;
   dashboardNames: string[];
   groupNames: string[];
+  commentPermissionNames: string[];
 }
 
 interface UserContextRoleInfo {
@@ -383,11 +387,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     if (checked) {
       this.selectedDomainKeys.add(domainKey);
       if (!this.domainAssignments.has(domainKey)) {
-        this.domainAssignments.set(domainKey, {
-          roleName: NONE_ROLE,
-          dashboards: new Map(),
-          dashboardGroupIds: new Set(),
-        });
+        this.domainAssignments.set(domainKey, this.createDomainAssignmentConfig());
       }
     } else {
       this.selectedDomainKeys.delete(domainKey);
@@ -407,11 +407,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       this.allDataDomains.forEach(d => {
         this.selectedDomainKeys.add(d.key);
         if (!this.domainAssignments.has(d.key)) {
-          this.domainAssignments.set(d.key, {
-            roleName: NONE_ROLE,
-            dashboards: new Map(),
-            dashboardGroupIds: new Set(),
-          });
+          this.domainAssignments.set(d.key, this.createDomainAssignmentConfig());
         }
       });
     } else {
@@ -433,11 +429,97 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
         assignment.dashboards.clear();
         assignment.dashboardGroupIds.clear();
       }
+      // Mirror the per-user edit page: Data Domain Admins get everything, every other role starts from scratch
+      assignment.commentPermissions = this.defaultCommentPermissions(roleName);
     }
   }
 
   getRoleForDomain(domainKey: string): string {
     return this.domainAssignments.get(domainKey)?.roleName || NONE_ROLE;
+  }
+
+  // Step 3 - Dashboard comment permissions
+  getCommentPermissions(domainKey: string): CommentPermissions {
+    return this.domainAssignments.get(domainKey)?.commentPermissions
+      ?? this.defaultCommentPermissions(this.getRoleForDomain(domainKey));
+  }
+
+  isCommentPermissionChecked(domainKey: string, permission: keyof CommentPermissions): boolean {
+    return this.getCommentPermissions(domainKey)[permission];
+  }
+
+  onCommentPermissionChange(domainKey: string, permission: keyof CommentPermissions, value: boolean): void {
+    const assignment = this.domainAssignments.get(domainKey);
+    if (!assignment) {
+      return;
+    }
+    const permissions = {...assignment.commentPermissions};
+    permissions[permission] = value;
+
+    // Cascade: reviewComments checked → also set writeComments and readComments
+    if (value && permission === 'reviewComments') {
+      permissions.writeComments = true;
+      permissions.readComments = true;
+    }
+    // Cascade: writeComments checked → also set readComments
+    if (value && permission === 'writeComments') {
+      permissions.readComments = true;
+    }
+    // Cascade: readComments unchecked → also unset writeComments and reviewComments
+    if (!value && permission === 'readComments') {
+      permissions.writeComments = false;
+      permissions.reviewComments = false;
+    }
+    // Cascade: writeComments unchecked → also unset reviewComments
+    if (!value && permission === 'writeComments') {
+      permissions.reviewComments = false;
+    }
+
+    assignment.commentPermissions = permissions;
+  }
+
+  isCommentPermissionDisabled(domainKey: string, permission: keyof CommentPermissions): boolean {
+    const roleName = this.getRoleForDomain(domainKey);
+    // NONE grants no access at all, Data Domain Admins always have full access - both are not editable
+    if (roleName === NONE_ROLE || roleName === DATA_DOMAIN_ADMIN_ROLE) {
+      return true;
+    }
+    const permissions = this.getCommentPermissions(domainKey);
+    if (permission === 'readComments') {
+      return permissions.writeComments;
+    }
+    if (permission === 'writeComments') {
+      return permissions.reviewComments;
+    }
+    return false;
+  }
+
+  private createDomainAssignmentConfig(): DomainAssignmentConfig {
+    return {
+      roleName: NONE_ROLE,
+      dashboards: new Map(),
+      dashboardGroupIds: new Set(),
+      commentPermissions: this.defaultCommentPermissions(NONE_ROLE),
+    };
+  }
+
+  private defaultCommentPermissions(roleName: string): CommentPermissions {
+    const fullAccess = roleName === DATA_DOMAIN_ADMIN_ROLE;
+    return {readComments: fullAccess, writeComments: fullAccess, reviewComments: fullAccess};
+  }
+
+  private getCommentPermissionNames(permissions: CommentPermissions): string[] {
+    const names: string[] = [];
+    if (permissions.readComments) {
+      names.push('@Read');
+    }
+    if (permissions.writeComments) {
+      names.push('@Write');
+    }
+    if (permissions.reviewComments) {
+      names.push('@Review');
+    }
+    return names;
   }
 
   showDashboardSelection(roleName: string): boolean {
@@ -564,6 +646,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
         roleName: assignment?.roleName || NONE_ROLE,
         dashboardNames,
         groupNames,
+        commentPermissionNames: this.getCommentPermissionNames(this.getCommentPermissions(key)),
       });
     }
     return items;
@@ -721,6 +804,13 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
         text: `${t('@Role assignment')}: ${this.formatRoleName(domain.roleName)}`,
         margin: [6, 0, 0, 4]
       } as Content);
+      const commentPermissions = domain.commentPermissionNames.length > 0
+        ? domain.commentPermissionNames.map(name => t(name)).join(', ')
+        : t('@None');
+      content.push({
+        text: `${t('@Dashboard comment permissions')}: ${commentPermissions}`,
+        margin: [6, 0, 0, 4]
+      } as Content);
       this.pdfAddBulletList(content, `${t('@Dashboard groups')} (${domain.groupNames.length}):`, domain.groupNames);
       this.pdfAddBulletList(content, `${t('@Dashboards')} (${domain.dashboardNames.length}):`, domain.dashboardNames);
     }
@@ -759,6 +849,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
           roleName: config.roleName,
           dashboards: Array.from(config.dashboards.values()),
           dashboardGroupIds: Array.from(config.dashboardGroupIds),
+          commentPermissions: {...config.commentPermissions},
         });
       }
     }
