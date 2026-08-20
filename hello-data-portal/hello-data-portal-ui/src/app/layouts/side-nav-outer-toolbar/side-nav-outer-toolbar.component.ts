@@ -124,14 +124,12 @@ export class SideNavOuterToolbarComponent {
 
   /**
    * Handles click on a first-level navigation item.
+   * Never closes an already open drawer: hovering the icon opens the drawer, so a
+   * subsequent click on the same icon would otherwise close it right away.
    */
   onFirstLevelClick(item: MenuItem): void {
     if (item.items && item.items.length > 0) {
-      if (this.activeDrawerItem === item && this.drawerOpen) {
-        this.closeDrawer();
-      } else {
-        this.openDrawerFor(item);
-      }
+      this.openDrawerFor(item);
     } else {
       this.navigateToItem(item);
     }
