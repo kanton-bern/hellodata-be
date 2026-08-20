@@ -172,6 +172,39 @@
                               appendTo="body"
                               [placeholder]="'@Select role' | transloco"/>
                   </div>
+                  <div class="comment-permissions-selection">
+                    <span class="comment-permissions-label">{{ '@Dashboard comment permissions' | transloco }}:</span>
+                    <div class="checkbox-item"
+                         [class.hd-disabled-field]="isCommentPermissionDisabled(domainKey, 'readComments')">
+                      <p-checkbox
+                        [inputId]="'readComments-' + domainKey"
+                        [binary]="true"
+                        [ngModel]="isCommentPermissionChecked(domainKey, 'readComments')"
+                        [disabled]="isCommentPermissionDisabled(domainKey, 'readComments')"
+                        (onChange)="onCommentPermissionChange(domainKey, 'readComments', $event.checked)"/>
+                      <label [for]="'readComments-' + domainKey">{{ '@Read' | transloco }}</label>
+                    </div>
+                    <div class="checkbox-item"
+                         [class.hd-disabled-field]="isCommentPermissionDisabled(domainKey, 'writeComments')">
+                      <p-checkbox
+                        [inputId]="'writeComments-' + domainKey"
+                        [binary]="true"
+                        [ngModel]="isCommentPermissionChecked(domainKey, 'writeComments')"
+                        [disabled]="isCommentPermissionDisabled(domainKey, 'writeComments')"
+                        (onChange)="onCommentPermissionChange(domainKey, 'writeComments', $event.checked)"/>
+                      <label [for]="'writeComments-' + domainKey">{{ '@Write' | transloco }}</label>
+                    </div>
+                    <div class="checkbox-item"
+                         [class.hd-disabled-field]="isCommentPermissionDisabled(domainKey, 'reviewComments')">
+                      <p-checkbox
+                        [inputId]="'reviewComments-' + domainKey"
+                        [binary]="true"
+                        [ngModel]="isCommentPermissionChecked(domainKey, 'reviewComments')"
+                        [disabled]="isCommentPermissionDisabled(domainKey, 'reviewComments')"
+                        (onChange)="onCommentPermissionChange(domainKey, 'reviewComments', $event.checked)"/>
+                      <label [for]="'reviewComments-' + domainKey">{{ '@Review' | transloco }}</label>
+                    </div>
+                  </div>
                   @if (showDashboardSelection(getRoleForDomain(domainKey))) {
                     <div class="dashboard-group-selection">
                       <div class="select-all-row">
@@ -429,6 +462,21 @@
     <div class="summary-flow-item role-block">
       <div class="flow-title"><i [ngClass]="icons.CONTENT_PERMISSIONS.class"></i> {{ '@Role assignment' | transloco }}:
         <p-tag [value]="formatRoleName(item.roleName)"/>
+      </div>
+    </div>
+    <div class="summary-flow-arrow small-arrow"><i [ngClass]="icons.ACTION_SCROLL_DOWN.class"></i></div>
+
+    <!-- Dashboard comment permissions -->
+    <div class="summary-flow-item role-block">
+      <div class="flow-title"><i [ngClass]="icons.CONTENT_PERMISSIONS.class"></i>
+        {{ '@Dashboard comment permissions' | transloco }}:
+        @if (item.commentPermissionNames.length > 0) {
+          @for (name of item.commentPermissionNames; track name) {
+            <p-tag [value]="name | transloco"/>
+          }
+        } @else {
+          <span class="flow-empty">{{ '@None' | transloco }}</span>
+        }
       </div>
     </div>
     @if (item.roleName === 'DATA_DOMAIN_VIEWER' || item.roleName === 'DATA_DOMAIN_BUSINESS_SPECIALIST') {

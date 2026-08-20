@@ -2,9 +2,10 @@
 
 ## Overview
 
-The **Bulk Assignments** feature allows administrators to assign data domain roles, dashboards, and dashboard groups to
-multiple users at once. Instead of editing each user individually through the user management page, administrators can
-use a guided wizard to apply role and resource assignments in bulk across one or more data domains.
+The **Bulk Assignments** feature allows administrators to assign data domain roles, dashboard comment permissions,
+dashboards, and dashboard groups to multiple users at once. Instead of editing each user individually through the user
+management page, administrators can use a guided wizard to apply role and resource assignments in bulk across one or more
+data domains.
 
 !!! info "Required permissions"
 Only users with the **USER_MANAGEMENT** permission (typically HELLODATA_ADMIN or BUSINESS_DOMAIN_ADMIN) can access and
@@ -61,6 +62,22 @@ Choose one of the available data domain roles:
 
 For a detailed description of each role's permissions, see [Roles & Authorization](role-authorization-concept.md).
 
+#### Dashboard Comment Permissions
+
+For each data domain you can grant the dashboard comment permissions **Read**, **Write** and **Review**. They behave
+exactly like the ones on the single user edit page:
+
+- **Read** allows reading published comments.
+- **Write** implies **Read** and allows writing comments.
+- **Review** implies **Write** and **Read** and allows reviewing (publishing/declining) comments.
+
+The checkboxes are pre-set from the selected role and are not editable in two cases:
+
+- `DATA_DOMAIN_ADMIN` always has all three permissions.
+- `NONE` never has any permission.
+
+Every other role starts without any comment permission, so they have to be granted explicitly.
+
 #### Dashboard & Dashboard Group Selection
 
 When the selected role is **DATA_DOMAIN_VIEWER** or **DATA_DOMAIN_BUSINESS_SPECIALIST**, additional options appear:
@@ -85,6 +102,7 @@ The summary step presents a carousel view of all planned assignments, one data d
 2. Navigate through each data domain using the left/right arrows to review:
     - The **data domain** name
     - The **role** being assigned
+    - The **dashboard comment permissions** being granted
     - The **dashboards** and **dashboard groups** (if applicable)
 3. A **progress bar** tracks how many domains you have reviewed.
 4. The **Apply** button becomes enabled only after all domains have been reviewed.
@@ -126,12 +144,20 @@ For each user and each selected data domain:
 - Dashboard group membership is validated server-side: only users with `DATA_DOMAIN_VIEWER` or
   `DATA_DOMAIN_BUSINESS_SPECIALIST` roles can be added to dashboard groups.
 
+### Dashboard Comment Permission Logic
+
+- Comment permissions **replace** the existing permissions in the selected data domains.
+- Comment permissions in **unselected data domains** are preserved — they are not changed.
+- The server re-applies the implications (review → write → read) and enforces full access for `DATA_DOMAIN_ADMIN` and no
+  access for `NONE`, regardless of what the request contains.
+
 ### Skip Detection
 
 Users are automatically **skipped** (not updated) when:
 
 - Their current role in every selected domain already matches the requested role, **and**
-- Their dashboard group memberships already match the requested configuration.
+- Their dashboard group memberships already match the requested configuration, **and**
+- Their dashboard comment permissions already match the requested configuration.
 
 This avoids unnecessary updates and reduces processing time.
 

@@ -199,6 +199,24 @@
   }
 }
 
+.comment-permissions-selection {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  .comment-permissions-label {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  label {
+    white-space: nowrap;
+    word-break: normal;
+  }
+}
+
 .dashboard-selection,
 .dashboard-group-selection {
   margin-top: 1rem;

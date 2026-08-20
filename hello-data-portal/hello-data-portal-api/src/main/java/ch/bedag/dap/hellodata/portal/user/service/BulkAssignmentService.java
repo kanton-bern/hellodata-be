@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
@@ -55,6 +56,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -66,8 +68,9 @@ import java.util.stream.Collectors;
 public class BulkAssignmentService {
 
     /**
-     * Default comment permissions (read, write, review) per data domain role. Only Data Domain Admins get comment
-     * access by default, every other role starts without any permission and has to be granted them explicitly.
+     * Default comment permissions (read, write, review) per data domain role, used when the bulk assignment does not
+     * carry explicit permissions. Only Data Domain Admins get comment access by default, every other role starts
+     * without any permission and has to be granted them explicitly.
      */
     private static final Map<HdRoleName, boolean[]> ROLE_COMMENT_PERMISSIONS = Map.of(
             HdRoleName.DATA_DOMAIN_ADMIN, new boolean[]{true, true, true}
@@ -81,6 +84,7 @@ public class BulkAssignmentService {
     private final DashboardGroupService dashboardGroupService;
     private final UserSelectedDashboardService userSelectedDashboardService;
     private final EmailNotificationService emailNotificationService;
+    private final DashboardCommentPermissionService dashboardCommentPermissionService;
 
     @Transactional
     public BulkAssignmentResultDto executeBulkAssignment(BulkAssignmentRequestDto request) {
@@ -123,8 +127,9 @@ public class BulkAssignmentService {
             List<UserContextRoleDto> existingRoles = userService.getContextRolesForUser(userId);
             Map<String, List<String>> existingGroupIds = loadExistingDashboardGroupIds(userId, contextsByKey.keySet());
             Map<String, Set<Integer>> existingDashboardIds = loadExistingDashboardIds(userId, contextsByKey.keySet());
+            Map<String, DashboardCommentPermissionDto> existingCommentPermissions = loadExistingCommentPermissions(userId);
 
-            if (isAlreadyUpToDate(existingRoles, assignmentsByKey, existingGroupIds, existingDashboardIds)) {
+            if (isAlreadyUpToDate(existingRoles, assignmentsByKey, existingGroupIds, existingDashboardIds, existingCommentPermissions)) {
                 log.debug("Skipping user {} — assignments already match", userId);
                 result.addSkipped(email, firstName, lastName, "Assignments already match");
                 return;
@@ -144,7 +149,8 @@ public class BulkAssignmentService {
     private boolean isAlreadyUpToDate(List<UserContextRoleDto> existingRoles,
                                       Map<String, BulkAssignmentRequestDto.DomainAssignment> assignmentsByKey,
                                       Map<String, List<String>> existingGroupIds,
-                                      Map<String, Set<Integer>> existingDashboardIds) {
+                                      Map<String, Set<Integer>> existingDashboardIds,
+                                      Map<String, DashboardCommentPermissionDto> existingCommentPermissions) {
         for (var entry : assignmentsByKey.entrySet()) {
             String contextKey = entry.getKey();
             BulkAssignmentRequestDto.DomainAssignment assignment = entry.getValue();
@@ -178,8 +184,24 @@ public class BulkAssignmentService {
             if (!existingDashboards.equals(requestedDashboards)) {
                 return false;
             }
+
+            // Check dashboard comment permission match
+            DashboardCommentPermissionDto requestedPermission = buildCommentPermission(contextKey, assignment.getRoleName(), assignment.getCommentPermissions());
+            DashboardCommentPermissionDto existingPermission = existingCommentPermissions.get(contextKey);
+            if (!matchesCommentPermission(existingPermission, requestedPermission)) {
+                return false;
+            }
         }
         return true;
+    }
+
+    private boolean matchesCommentPermission(DashboardCommentPermissionDto existing, DashboardCommentPermissionDto requested) {
+        boolean existingRead = existing != null && existing.isReadComments();
+        boolean existingWrite = existing != null && existing.isWriteComments();
+        boolean existingReview = existing != null && existing.isReviewComments();
+        return existingRead == requested.isReadComments()
+                && existingWrite == requested.isWriteComments()
+                && existingReview == requested.isReviewComments();
     }
 
     UpdateContextRolesForUserDto buildUpdateDto(
@@ -221,13 +243,13 @@ public class BulkAssignmentService {
                 selectedDashboards.putIfAbsent(contextKey, List.of());
                 selectedGroupIds.put(contextKey, assignment.getDashboardGroupIds() != null
                         ? assignment.getDashboardGroupIds() : List.of());
-                commentPermissions.add(buildCommentPermission(contextKey, role));
+                commentPermissions.add(buildCommentPermission(contextKey, role.getName(), assignment.getCommentPermissions()));
             } else {
-                // This domain is NOT in the bulk assignment — preserve existing state
+                // This domain is NOT in the bulk assignment — preserve existing state, including comment permissions,
+                // which stay untouched because they are not part of the update payload
                 RoleDto existingRole = findExistingDataDomainRole(existingRoles, contextKey, allRoles);
                 roleDto.setRole(existingRole);
                 selectedGroupIds.put(contextKey, existingGroupIds.getOrDefault(contextKey, List.of()));
-                commentPermissions.add(buildCommentPermission(contextKey, existingRole));
             }
 
             dataDomainRoles.add(roleDto);
@@ -292,20 +314,59 @@ public class BulkAssignmentService {
         }
     }
 
-    private DashboardCommentPermissionDto buildCommentPermission(String contextKey, RoleDto role) {
+    /**
+     * Builds the comment permissions to apply for one data domain. Data Domain Admins always keep full access and the
+     * NONE role never has any, everything in between takes the explicitly requested permissions, falling back to the
+     * role defaults when the request does not carry any.
+     */
+    private DashboardCommentPermissionDto buildCommentPermission(String contextKey, String roleNameValue,
+                                                                 BulkAssignmentRequestDto.CommentPermissions requested) {
         DashboardCommentPermissionDto perm = new DashboardCommentPermissionDto();
         perm.setContextKey(contextKey);
-        HdRoleName roleName;
-        try {
-            roleName = HdRoleName.valueOf(role.getName());
-        } catch (IllegalArgumentException e) {
-            roleName = HdRoleName.NONE;
+        HdRoleName roleName = HdRoleName.NONE;
+        if (roleNameValue != null) {
+            try {
+                roleName = HdRoleName.valueOf(roleNameValue.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                log.warn("Unknown role '{}' in context '{}', falling back to no comment permissions", roleNameValue, contextKey);
+            }
         }
-        boolean[] perms = ROLE_COMMENT_PERMISSIONS.getOrDefault(roleName, NO_COMMENT_PERMISSIONS);
-        perm.setReadComments(perms[0]);
-        perm.setWriteComments(perms[1]);
-        perm.setReviewComments(perms[2]);
+
+        if (requested == null || HdRoleName.DATA_DOMAIN_ADMIN.equals(roleName) || HdRoleName.NONE.equals(roleName)) {
+            boolean[] perms = ROLE_COMMENT_PERMISSIONS.getOrDefault(roleName, NO_COMMENT_PERMISSIONS);
+            perm.setReadComments(perms[0]);
+            perm.setWriteComments(perms[1]);
+            perm.setReviewComments(perms[2]);
+        } else {
+            perm.setReadComments(requested.isReadComments());
+            perm.setWriteComments(requested.isWriteComments());
+            perm.setReviewComments(requested.isReviewComments());
+        }
+        normalizeCommentPermission(perm);
         return perm;
+    }
+
+    /**
+     * Applies the same implications as the user management: review implies write, write implies read, and no read
+     * clears everything. Keeps the comparison against the persisted (already normalized) permissions consistent.
+     */
+    private void normalizeCommentPermission(DashboardCommentPermissionDto perm) {
+        if (perm.isReviewComments()) {
+            perm.setWriteComments(true);
+            perm.setReadComments(true);
+        }
+        if (perm.isWriteComments()) {
+            perm.setReadComments(true);
+        }
+        if (!perm.isReadComments()) {
+            perm.setWriteComments(false);
+            perm.setReviewComments(false);
+        }
+    }
+
+    private Map<String, DashboardCommentPermissionDto> loadExistingCommentPermissions(UUID userId) {
+        return dashboardCommentPermissionService.getPermissions(userId).stream()
+                .collect(Collectors.toMap(DashboardCommentPermissionDto::getContextKey, p -> p, (a, b) -> a));
     }
 
     private void sendAuditNotification(BulkAssignmentRequestDto request, BulkAssignmentResultDto result) {

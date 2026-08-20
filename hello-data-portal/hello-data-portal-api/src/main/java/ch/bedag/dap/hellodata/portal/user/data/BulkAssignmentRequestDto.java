@@ -52,6 +52,10 @@ public class BulkAssignmentRequestDto {
         private String roleName;
         private List<DashboardInfo> dashboards;
         private List<String> dashboardGroupIds;
+        /**
+         * Dashboard comment permissions to apply in this data domain. When omitted, the role defaults are used.
+         */
+        private CommentPermissions commentPermissions;
     }
 
     @Data
@@ -60,5 +64,13 @@ public class BulkAssignmentRequestDto {
         private int id;
         private String title;
         private String instanceName;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class CommentPermissions {
+        private boolean readComments;
+        private boolean writeComments;
+        private boolean reviewComments;
     }
 }
