@@ -65,13 +65,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BulkAssignmentService {
 
+    /**
+     * Default comment permissions (read, write, review) per data domain role. Only Data Domain Admins get comment
+     * access by default, every other role starts without any permission and has to be granted them explicitly.
+     */
     private static final Map<HdRoleName, boolean[]> ROLE_COMMENT_PERMISSIONS = Map.of(
-            HdRoleName.DATA_DOMAIN_ADMIN, new boolean[]{true, true, true},
-            HdRoleName.DATA_DOMAIN_EDITOR, new boolean[]{true, false, false},
-            HdRoleName.DATA_DOMAIN_VIEWER, new boolean[]{true, false, false},
-            HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST, new boolean[]{true, false, false},
-            HdRoleName.NONE, new boolean[]{false, false, false}
+            HdRoleName.DATA_DOMAIN_ADMIN, new boolean[]{true, true, true}
     );
+
+    private static final boolean[] NO_COMMENT_PERMISSIONS = {false, false, false};
 
     private final UserService userService;
     private final RoleService roleService;
@@ -299,7 +301,7 @@ public class BulkAssignmentService {
         } catch (IllegalArgumentException e) {
             roleName = HdRoleName.NONE;
         }
-        boolean[] perms = ROLE_COMMENT_PERMISSIONS.getOrDefault(roleName, new boolean[]{false, false, false});
+        boolean[] perms = ROLE_COMMENT_PERMISSIONS.getOrDefault(roleName, NO_COMMENT_PERMISSIONS);
         perm.setReadComments(perms[0]);
         perm.setWriteComments(perms[1]);
         perm.setReviewComments(perms[2]);

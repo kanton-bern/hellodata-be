@@ -111,9 +111,9 @@ public class AutoProvisionService {
         // on the very first request (portal sidecar will reconcile these later via NATS)
         assignPortalRolesForViewer(userEntity);
 
-        // Assign default comment permissions (readComments=true) for all data domains
-        // so the auto-provisioned viewer can read comments immediately
-        assignDefaultCommentPermissionsForViewer(userEntity);
+        // Create comment permission records without any permission for all data domains -
+        // comment access has to be granted explicitly in the user management
+        createEmptyCommentPermissions(userEntity);
 
         // Assign all published dashboards and build sync payload
         Map<String, List<DashboardForUserDto>> dashboardsPerContext = assignAllPublishedDashboards(userEntity.getId());
@@ -197,7 +197,7 @@ public class AutoProvisionService {
         log.info("Assigned DATA_DOMAIN_VIEWER portal role for {} data domains for user {}", allDataDomains.size(), userEntity.getEmail());
     }
 
-    private void assignDefaultCommentPermissionsForViewer(UserEntity userEntity) {
+    private void createEmptyCommentPermissions(UserEntity userEntity) {
         List<HdContextEntity> allDataDomains = hdContextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         int createdCount = 0;
         for (HdContextEntity dataDomain : allDataDomains) {
@@ -208,13 +208,13 @@ public class AutoProvisionService {
                 permission.setId(UUID.randomUUID());
                 permission.setUserId(userEntity.getId());
                 permission.setContextKey(dataDomain.getContextKey());
-                permission.setReadComments(true);
+                permission.setReadComments(false);
                 permission.setWriteComments(false);
                 permission.setReviewComments(false);
                 dashboardCommentPermissionRepository.saveAndFlush(permission);
                 createdCount++;
             }
         }
-        log.info("Assigned default comment permissions (readComments) for {} data domains for user {}", createdCount, userEntity.getEmail());
+        log.info("Created empty default comment permissions for {} data domains for user {}", createdCount, userEntity.getEmail());
     }
 }

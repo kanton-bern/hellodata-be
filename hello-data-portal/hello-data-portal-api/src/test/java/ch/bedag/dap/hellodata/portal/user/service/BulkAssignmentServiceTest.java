@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -196,6 +197,32 @@ class BulkAssignmentServiceTest {
         assertTrue(domainAPerm.isReadComments());
         assertTrue(domainAPerm.isWriteComments());
         assertTrue(domainAPerm.isReviewComments());
+    }
+
+    @Test
+    void testNoCommentPermissionsForNonAdminRoles() {
+        // NONE is left out on purpose - assigning NONE on top of NONE is skipped as already up to date
+        for (String roleName : List.of("DATA_DOMAIN_VIEWER", "DATA_DOMAIN_EDITOR", "DATA_DOMAIN_BUSINESS_SPECIALIST")) {
+            UUID userId = UUID.randomUUID();
+            mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "NONE"));
+
+            BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+            request.setUserIds(List.of(userId));
+            request.setDomainAssignments(List.of(
+                    createAssignment("domain_a", roleName, List.of(), List.of())
+            ));
+
+            bulkAssignmentService.executeBulkAssignment(request);
+
+            ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
+            verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+
+            var perms = captor.getValue().getCommentPermissions();
+            var domainAPerm = perms.stream().filter(p -> "domain_a".equals(p.getContextKey())).findFirst().orElseThrow();
+            assertFalse(domainAPerm.isReadComments(), roleName + " must not get read comments by default");
+            assertFalse(domainAPerm.isWriteComments(), roleName + " must not get write comments by default");
+            assertFalse(domainAPerm.isReviewComments(), roleName + " must not get review comments by default");
+        }
     }
 
     @Test

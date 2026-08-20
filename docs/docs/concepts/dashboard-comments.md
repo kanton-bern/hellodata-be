@@ -174,16 +174,17 @@ The table below shows what each permission level allows:
 When users are synchronized or new domains are created, default permissions are automatically assigned based on portal
 roles:
 
-| Portal Role               | Default Comment Permissions | Scope                  |
-|---------------------------|-----------------------------|------------------------|
-| **HELLODATA_ADMIN**       | READ + WRITE + REVIEW       | All data domains       |
-| **BUSINESS_DOMAIN_ADMIN** | READ + WRITE + REVIEW       | All data domains       |
-| **DATA_DOMAIN_ADMIN**     | READ + WRITE + REVIEW       | Specific data domain   |
-| **Regular Users**         | READ only                   | All accessible domains |
-| **NONE role**             | No access                   | Specific data domain   |
+| Portal Role               | Default Comment Permissions | Scope                |
+|---------------------------|-----------------------------|----------------------|
+| **HELLODATA_ADMIN**       | READ + WRITE + REVIEW       | All data domains     |
+| **BUSINESS_DOMAIN_ADMIN** | READ + WRITE + REVIEW       | All data domains     |
+| **DATA_DOMAIN_ADMIN**     | READ + WRITE + REVIEW       | Specific data domain |
+| **Regular Users**         | No access                   | Specific data domain |
+| **NONE role**             | No access                   | Specific data domain |
 
-> **Important:** These are default assignments. Administrators can manually adjust individual user permissions through
-> the User Management UI or database to grant custom access levels.
+> **Important:** Only administrator roles get comment access automatically. Every other role - including
+> `DATA_DOMAIN_EDITOR`, `DATA_DOMAIN_VIEWER` and `DATA_DOMAIN_BUSINESS_SPECIALIST` - starts without any comment
+> permission; access has to be granted explicitly per user and data domain through the User Management UI.
 
 ### Permission Validation
 
@@ -578,19 +579,19 @@ The `dashboard_comment_permission` table provides fine-grained control over comm
 
 ### Automatic Permission Initialization
 
-#### Initial Setup via Liquibase Migration
+#### Initial Setup
 
-When the system is first deployed or upgraded, a Liquibase migration (`55_initialize_dashboard_comment_permissions.sql`)
-automatically creates default permissions for all existing users:
-
-**Migration Logic:**
+The `dashboard_comment_permission` table is created empty by Liquibase
+(`54_create_dashboard_comment_permission_table.xml`). Rows are created by the application during user synchronization
+(see below), never by a seeding migration:
 
 1. **Admins (HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN)** → Full access (READ + WRITE + REVIEW) in all domains
 2. **Data Domain Admins (DATA_DOMAIN_ADMIN)** → Full access (READ + WRITE + REVIEW) in their specific domain
-3. **Regular users** → Read-only access (READ) in all domains
+3. **All other roles** → No access; permissions have to be granted explicitly per user and data domain
 
-The migration uses SQL JOINs with `user_portal_role` and `user_context_role` tables to determine user roles and is *
-*idempotent** - running it multiple times will not create duplicates.
+Earlier versions granted READ to every user with a non-NONE role. A one-off migration
+(`67_revoke_default_read_comments.xml`) revokes that read flag from all non-admin users on upgrade. Rows where WRITE or
+REVIEW was granted explicitly are left untouched.
 
 #### User Synchronization (syncAllUsers)
 
