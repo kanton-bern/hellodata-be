@@ -175,10 +175,10 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
       // Check if permissions are loaded (not empty object)
       const hasPermissionsLoaded = Object.keys(commentPermissions).length > 0;
 
-      // Redirect only if permissions are loaded AND user doesn't have readComments permission
+      // Redirect only if permissions are loaded AND user doesn't have reviewComments permission
       if (hasPermissionsLoaded) {
         const perms = commentPermissions[contextKey!];
-        if (!perms?.readComments) {
+        if (!perms?.reviewComments) {
           this.router.navigate(['/my-dashboards']);
           return;
         }

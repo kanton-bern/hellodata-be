@@ -332,7 +332,8 @@ export class MenuService {
 
   private addLinkToDomainComments(dashboardEntries: any[], contextName: string, contextKey: string, commentPermissions: Record<string, CommentPermissions>) {
     const perms = commentPermissions[contextKey];
-    if (!perms?.readComments) {
+    // The domain-wide comments overview is a review tool - only reviewers may see it
+    if (!perms?.reviewComments) {
       return;
     }
     dashboardEntries.push({
