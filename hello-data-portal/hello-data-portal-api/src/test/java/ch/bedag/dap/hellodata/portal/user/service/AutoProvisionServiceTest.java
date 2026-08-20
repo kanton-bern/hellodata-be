@@ -237,7 +237,8 @@ class AutoProvisionServiceTest {
         DashboardCommentPermissionEntity savedPermission = commentPermCaptor.getValue();
         assertEquals(user.getId(), savedPermission.getUserId());
         assertEquals("dd-key-1", savedPermission.getContextKey());
-        assertTrue(savedPermission.isReadComments());
+        // auto-provisioned viewers must not get any comment permission by default
+        assertFalse(savedPermission.isReadComments());
         assertFalse(savedPermission.isWriteComments());
         assertFalse(savedPermission.isReviewComments());
     }

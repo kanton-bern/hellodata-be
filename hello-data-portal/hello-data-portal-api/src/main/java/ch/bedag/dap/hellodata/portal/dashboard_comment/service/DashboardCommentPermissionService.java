@@ -86,8 +86,8 @@ public class DashboardCommentPermissionService {
      * Synchronizes default comment permissions for a user across all data domains.
      * Portal admins (HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN) get full access (READ+WRITE+REVIEW) in all domains.
      * Data Domain Admins (DATA_DOMAIN_ADMIN) get full access in their specific domain.
-     * Other users with any non-NONE role in a domain get read-only access (READ) in that domain.
-     * Users with NONE role get no access.
+     * Every other role, including DATA_DOMAIN_EDITOR, DATA_DOMAIN_VIEWER and DATA_DOMAIN_BUSINESS_SPECIALIST,
+     * gets no comment access by default - it has to be granted explicitly in the user management.
      * Only creates permissions for contexts where they don't already exist.
      *
      * @param user the user entity to sync permissions for
@@ -133,13 +133,8 @@ public class DashboardCommentPermissionService {
                         permission.setReadComments(true);
                         permission.setWriteComments(true);
                         permission.setReviewComments(true);
-                    } else if (!HdRoleName.NONE.equals(contextRoleName)) {
-                        // Other non-NONE roles get read-only access
-                        permission.setReadComments(true);
-                        permission.setWriteComments(false);
-                        permission.setReviewComments(false);
                     } else {
-                        // NONE role gets no access
+                        // Every other role gets no access by default, it has to be granted explicitly
                         permission.setReadComments(false);
                         permission.setWriteComments(false);
                         permission.setReviewComments(false);

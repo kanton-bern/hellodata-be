@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="67.1-revoke-default-read-comments" author="hellodata">
+        <comment>
+            Comment permissions used to be granted by default (READ) to every user with a non-NONE role in a data
+            domain. Since only administrators get comment access by default now, revoke the read flag from all
+            non-admin users. Only rows that carry read access alone are touched - a user who was explicitly granted
+            write or review access keeps their permissions, and admins (HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN
+            portal-wide, DATA_DOMAIN_ADMIN per data domain) are left untouched.
+        </comment>
+        <update tableName="dashboard_comment_permission">
+            <column name="read_comments" valueBoolean="false"/>
+            <where>
+                read_comments = true
+                AND write_comments = false
+                AND review_comments = false
+                AND NOT EXISTS (
+                SELECT 1
+                FROM user_portal_role upr
+                JOIN portal_role pr ON pr.id = upr.portal_role_id
+                WHERE upr.user_id = dashboard_comment_permission.user_id
+                AND pr.name IN ('HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN')
+                )
+                AND NOT EXISTS (
+                SELECT 1
+                FROM user_context_role ucr
+                JOIN role r ON r.id = ucr.role_id
+                WHERE ucr.user_id = dashboard_comment_permission.user_id
+                AND ucr.context_key = dashboard_comment_permission.context_key
+                AND r.name = 'DATA_DOMAIN_ADMIN'
+                )
+            </where>
+        </update>
+        <!-- No rollback: a revoked read flag cannot be told apart from one that was never granted. -->
+        <rollback/>
+    </changeSet>
+
+</databaseChangeLog>
