@@ -80,6 +80,12 @@ export class AppEffects {
       ofType(showError),
       tap(action => {
         console.error(action.error);
+        // Suppress the toast for 401 (Unauthorized) responses: these are session-expiry
+        // errors where the token interceptor already clears auth and redirects the user to
+        // re-login, so a "failure response" toast is just confusing noise.
+        if (action.error?.status === 401) {
+          return;
+        }
         const errorMessage = this.extractErrorMessage(action.error);
         this._notificationService.error(errorMessage);
         this._tracker.trackEvent("Error", errorMessage);
