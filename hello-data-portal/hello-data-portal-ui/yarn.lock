@@ -12840,7 +12840,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^4.59.0":
+"rollup@npm:4.62.4":
   version: 4.62.4
   resolution: "rollup@npm:4.62.4"
   dependencies:
