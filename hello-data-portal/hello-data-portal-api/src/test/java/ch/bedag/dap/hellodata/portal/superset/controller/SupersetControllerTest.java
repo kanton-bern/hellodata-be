@@ -30,6 +30,8 @@ import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PaletteClient;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfExportService;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardAccessService;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
@@ -56,6 +58,10 @@ class SupersetControllerTest extends HDControllerTest {
     private QueryService queryService;
     @MockitoBean
     private DashboardAccessService dashboardAccessService;
+    @MockitoBean
+    private PdfExportService pdfExportService;
+    @MockitoBean
+    private PaletteClient paletteClient;
 
     @Test
     void fetchMyDashboards() throws Exception {
