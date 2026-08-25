@@ -49,7 +49,7 @@
         </select>
       </label>
       <button class="primary" type="button"
-              [disabled]="selectedDashboard() == null || cells().length === 0 || exporting()"
+              [disabled]="selectedDashboard() === null || cells().length === 0 || exporting()"
               (click)="export()">
         {{ exporting() ? 'Exporting...' : 'Export PDF' }}
       </button>
