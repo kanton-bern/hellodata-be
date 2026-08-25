@@ -285,6 +285,12 @@ export class MenuService {
       routerLink: 'external-dashboards',
       requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT']
     });
+    myDashboards.push({
+      id: 'pdfBuilder',
+      label: '@PDF export',
+      routerLink: 'pdf-builder',
+      requiredPermissions: ['DASHBOARDS']
+    });
     return myDashboards;
   }
 

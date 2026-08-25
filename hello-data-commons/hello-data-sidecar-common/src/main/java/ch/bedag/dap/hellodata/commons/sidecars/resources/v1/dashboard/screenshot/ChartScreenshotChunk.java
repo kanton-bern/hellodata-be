@@ -24,27 +24,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.events;
+package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.screenshot;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 /**
- * Subjects for request/reply NATS pattern
+ * Superset sidecar -&gt; portal, streamed to the request's reply-inbox. One PNG may span
+ * several chunks (grouped by {@code specId}); {@code lastChunk} closes a chart,
+ * {@code lastMessage} closes the whole stream. {@code error != null} marks a chart that
+ * failed to render (or, on the final marker, an overall failure).
  */
-@Getter
-public enum RequestReplySubject {
-    UPDATE_DASHBOARD_ROLES_FOR_USER("-update_dashboard_roles_for_user"),
-    UPLOAD_DASHBOARDS_FILE("-upload_dashboards_file"),
-    NATS_CONNECTION_HEALTH_CHECK("nats_connection_health_check"),
-    GET_QUERY_LIST("-get_query_list"),
-    GET_DASHBOARD_ACCESS_LIST("-get_logs_list"),
-    VALIDATE_DASHBOARD_POINTERS("-validate_dashboard_pointers"),
-    EXPORT_DASHBOARD_SCREENSHOTS("-export_dashboard_screenshots"),
-    GET_DASHBOARD_PALETTE("-get_dashboard_palette"),
-    ;
-    private final String subject;
-
-    RequestReplySubject(String subject) {
-        this.subject = subject;
-    }
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ChartScreenshotChunk implements Serializable {
+    private String specId;
+    private long chartId;
+    private byte[] content;
+    private int chunkNumber;
+    private boolean lastChunk;
+    private boolean lastMessage;
+    private String error;
 }

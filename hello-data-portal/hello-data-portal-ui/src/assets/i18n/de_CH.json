@@ -200,6 +200,7 @@
   "@External dashboard deleted": "Externer Dashboard Link {{title}} gelöscht",
   "@External dashboard updated": "Externer Dashboard Link {{title}} aktualisiert",
   "@External dashboards": "Externe Dashboards",
+  "@PDF export": "PDF-Export",
   "@Failed to export comments": "Kommentare konnten nicht exportiert werden",
   "@Failed to import comments": "Kommentare konnten nicht importiert werden",
   "@Faq": "FAQ",

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<!--/*
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Shared Canton-of-Bern corporate-design styles and page header, reused by the
+  full-dashboard and custom-layout PDF templates.
+  NOTE: openhtmltopdf renders CSS 2.1 only -- use tables/floats, not flexbox/grid.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head>
+    <style th:fragment="styles">
+        @page {
+            size: @@PAGE_SIZE@@;
+            margin: @@PAGE_MARGIN@@;
+            @bottom-left {
+                content: "@@FOOTER_TITLE@@";
+                font-family: "Roboto", sans-serif;
+                font-size: 8pt;
+                color: #999999;
+            }
+            @bottom-center {
+                content: "Seite " counter(page) " / " counter(pages);
+                font-family: "Roboto", sans-serif;
+                font-size: 8pt;
+                color: #999999;
+            }
+            @bottom-right {
+                content: "@@FOOTER_DATE@@";
+                font-family: "Roboto", sans-serif;
+                font-size: 8pt;
+                color: #999999;
+            }
+        }
+        body {
+            font-family: "Roboto", Arial, sans-serif;
+            color: #0a0a0a;
+            font-size: 10pt;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+        .header {
+            width: 100%;
+            border-collapse: collapse;
+            border-bottom: 1px solid #dedede;
+            margin-bottom: 16px;
+        }
+        .header .logo-cell {
+            width: 120px;
+            padding: 0 0 10px 0;
+            vertical-align: bottom;
+        }
+        .header .logo-cell img {
+            width: 110px;
+        }
+        .header .caption-cell {
+            padding: 0 0 12px 14px;
+            vertical-align: bottom;
+            text-align: right;
+        }
+        .header .caption {
+            font-size: 13pt;
+            font-weight: 500;
+            color: #0a0a0a;
+        }
+        .header .meta {
+            font-size: 8pt;
+            color: #999999;
+        }
+        h1.title {
+            font-size: 28pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.15;
+            letter-spacing: 0.2px;
+            word-spacing: 0.5px;
+            margin: 6px 0 16px 0;
+        }
+        .summary {
+            background-color: #faf1e3;
+            border: 1px solid #dedede;
+            padding: 8px 10px;
+            font-size: 9pt;
+            color: #0a0a0a;
+            margin-bottom: 18px;
+        }
+        .chart {
+            margin-bottom: 8px;
+            page-break-inside: avoid;
+        }
+        h2.tab-title {
+            font-size: 20pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.2;
+            letter-spacing: 0.2px;
+            margin: 20pt 0 10pt 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #dedede;
+        }
+        h3.chart-name {
+            font-size: 12pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.2;
+            letter-spacing: 0.2px;
+            margin: 0 0 8px 0;
+        }
+        .chart .chart-image {
+            border: 1px solid #dedede;
+            padding: 6px;
+            background-color: #ffffff;
+        }
+        .chart .chart-image img {
+            width: 100%;
+        }
+        hr.chart-sep {
+            border: none;
+            height: 1px;
+            background-color: #dedede;
+            width: 100%;
+            margin: 18pt 0 18pt 0;
+        }
+        .markdown {
+            margin: 6pt 0 14pt 0;
+            page-break-inside: avoid;
+        }
+        .markdown h1 {
+            font-size: 18pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.2;
+            margin: 0 0 8px 0;
+        }
+        .markdown h2 {
+            font-size: 15pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.2;
+            margin: 0 0 6px 0;
+        }
+        .markdown h3 {
+            font-size: 12pt;
+            font-weight: 500;
+            color: #0a0a0a;
+            margin: 0 0 6px 0;
+        }
+        .markdown p {
+            margin: 0 0 6px 0;
+        }
+        .markdown ul, .markdown ol {
+            margin: 0 0 6px 18px;
+            padding: 0;
+        }
+        .markdown a {
+            color: #0a0a0a;
+        }
+        /* Custom-layout grid: each page is one fixed 4-column table. */
+        .cover-page {
+            page-break-after: always;
+        }
+        .pdf-page.page-break {
+            page-break-before: always;
+        }
+        table.grid-page {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            page-break-inside: avoid;
+        }
+        table.grid-page td.grid-cell {
+            vertical-align: top;
+            height: @@CELL_HEIGHT@@;
+            padding: 0 6px 10pt 6px;
+        }
+        table.grid-page td.grid-cell:first-child {
+            padding-left: 0;
+        }
+        table.grid-page td.grid-cell:last-child {
+            padding-right: 0;
+        }
+    </style>
+</head>
+<body>
+    <table class="header" th:fragment="header">
+        <tr>
+            <td class="logo-cell">
+                <img th:src="${logoDataUri}" alt="Kanton Bern" />
+            </td>
+            <td class="caption-cell">
+                <div class="caption" th:text="${orgName}">Kanton Bern</div>
+                <div class="meta" th:text="${reportCaption}">HelloDATA Dashboard Export</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- One leaf cell: a chart image or a rendered markdown block. -->
+    <th:block th:fragment="item(it)" th:switch="${it.type()}">
+        <div th:case="'chart'" class="chart">
+            <h3 class="chart-name" th:text="${it.name()}">Chart name</h3>
+            <div class="chart-image">
+                <img th:src="${it.dataUri()}" alt="chart" />
+            </div>
+        </div>
+        <div th:case="'markdown'" class="summary markdown" th:utext="${it.html()}">Markdown</div>
+    </th:block>
+
+    <!-- One page: a fixed 4-column grid table. Each cell carries its chart's colspan/rowspan;
+         empty spacer cells preserve the gaps the user left in the builder. -->
+    <table class="grid-page" th:fragment="gridPage(page)">
+        <colgroup>
+            <col style="width:25%" />
+            <col style="width:25%" />
+            <col style="width:25%" />
+            <col style="width:25%" />
+        </colgroup>
+        <tr th:each="row : ${page.rows()}">
+            <td class="grid-cell" th:each="cell : ${row.cells()}"
+                th:colspan="${cell.colspan()}" th:rowspan="${cell.rowspan()}">
+                <th:block th:if="${cell.item()} != null">
+                    <th:block th:replace="~{fragments/pdf :: item(${cell.item()})}"></th:block>
+                </th:block>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

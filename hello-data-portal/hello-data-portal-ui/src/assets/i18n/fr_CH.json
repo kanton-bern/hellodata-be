@@ -203,6 +203,7 @@
   "@External dashboard deleted": "Lien vers le tableau de bord externe {{title}} supprimé",
   "@External dashboard updated": "Lien vers le tableau de bord externe {{title}} mis à jour",
   "@External dashboards": "Tableaux de bord externes",
+  "@PDF export": "Export PDF",
   "@Failed to export comments": "Échec de l'exportation des commentaires",
   "@Failed to import comments": "Échec de l'importation des commentaires",
   "@Faq": "FAQ",

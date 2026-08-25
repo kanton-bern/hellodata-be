@@ -1,0 +1,232 @@
+:host {
+  display: block;
+  height: calc(100vh - 120px);
+  font-family: system-ui, sans-serif;
+}
+
+.app {
+  display: flex;
+  height: 100%;
+}
+
+.palette {
+  width: 280px;
+  flex: 0 0 280px;
+  padding: 16px;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.palette h2 {
+  font-size: 18px;
+  margin: 0 0 16px;
+}
+
+.palette h3 {
+  font-size: 14px;
+  margin: 20px 0 6px;
+}
+
+.hint,
+.empty {
+  color: #888;
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.field select {
+  padding: 6px;
+}
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.palette-item {
+  padding: 8px 10px;
+  margin: 4px 0;
+  background: #f3f3f3;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: grab;
+  font-size: 13px;
+}
+
+.palette-item.block {
+  background: #eef4ea;
+}
+
+.actions {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+button {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button.primary {
+  background: #d52b1e;
+  color: #fff;
+  border-color: #d52b1e;
+}
+
+button.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: #fff;
+}
+
+.canvas {
+  flex: 1;
+  padding: 16px;
+  overflow: auto;
+  background: #fafafa;
+}
+
+gridster {
+  background: #f0f0f0;
+  position: relative;
+}
+
+.page-divider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 2px dashed rgba(192, 57, 43, 0.6);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.cell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.cell-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px;
+  background: #f3f3f3;
+  border-bottom: 1px solid #eee;
+  font-size: 11px;
+  color: #666;
+}
+
+.cell-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.edit,
+.del {
+  border: none;
+  background: transparent;
+  line-height: 1;
+  padding: 0 4px;
+  color: #999;
+}
+
+.edit {
+  font-size: 13px;
+}
+
+.del {
+  font-size: 16px;
+}
+
+.edit:hover,
+.del:hover {
+  color: #d52b1e;
+}
+
+.cell-body {
+  flex: 1;
+  padding: 8px;
+  overflow: auto;
+  font-size: 13px;
+}
+
+.cell-body .chart-icon {
+  width: 48px;
+  height: 48px;
+  color: #bbb;
+  margin: auto;
+  display: block;
+}
+
+.cell-body.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editor-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.editor-backdrop.open {
+  display: flex;
+}
+
+.editor-dialog {
+  background: #fff;
+  margin-top: 6vh;
+  width: min(760px, 92vw);
+  padding: 16px;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+.editor-dialog h3 {
+  margin: 0 0 12px;
+}
+
+.editor-dialog textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 8px;
+}
+
+.editor-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

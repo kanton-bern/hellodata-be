@@ -24,27 +24,18 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.events;
+package ch.bedag.dap.hellodata.portal.superset.pdfexport;
 
-import lombok.Getter;
+import java.util.List;
 
-/**
- * Subjects for request/reply NATS pattern
- */
-@Getter
-public enum RequestReplySubject {
-    UPDATE_DASHBOARD_ROLES_FOR_USER("-update_dashboard_roles_for_user"),
-    UPLOAD_DASHBOARDS_FILE("-upload_dashboards_file"),
-    NATS_CONNECTION_HEALTH_CHECK("nats_connection_health_check"),
-    GET_QUERY_LIST("-get_query_list"),
-    GET_DASHBOARD_ACCESS_LIST("-get_logs_list"),
-    VALIDATE_DASHBOARD_POINTERS("-validate_dashboard_pointers"),
-    EXPORT_DASHBOARD_SCREENSHOTS("-export_dashboard_screenshots"),
-    GET_DASHBOARD_PALETTE("-get_dashboard_palette"),
-    ;
-    private final String subject;
+/** Payload posted by the Angular layout builder: a dashboard plus positioned grid cells.
+ *  {@code instanceName} + {@code dashboardId} drive the authZ gate and NATS routing. */
+public record PdfLayoutRequest(String instanceName, long dashboardId, String title, String template, List<Item> items) {
 
-    RequestReplySubject(String subject) {
-        this.subject = subject;
+    /** One grid cell: a chart reference or markdown text, with its gridster position/size. */
+    public record Item(String type, Long chartId, String markdown, int x, int y, int cols, int rows, String name) {
+        public boolean isChart() {
+            return "chart".equals(type) && chartId != null;
+        }
     }
 }

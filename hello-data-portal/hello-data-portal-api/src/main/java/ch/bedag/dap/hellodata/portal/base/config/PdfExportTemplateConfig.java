@@ -24,27 +24,35 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.events;
+package ch.bedag.dap.hellodata.portal.base.config;
 
-import lombok.Getter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+
+import java.nio.charset.StandardCharsets;
 
 /**
- * Subjects for request/reply NATS pattern
+ * Standalone Thymeleaf engine for the Superset PDF export. Kept separate from the email
+ * {@code SpringTemplateEngine} so the two template roots never collide and openhtmltopdf gets
+ * well-formed XHTML. Injected via {@code @Qualifier("pdfTemplateEngine")}.
  */
-@Getter
-public enum RequestReplySubject {
-    UPDATE_DASHBOARD_ROLES_FOR_USER("-update_dashboard_roles_for_user"),
-    UPLOAD_DASHBOARDS_FILE("-upload_dashboards_file"),
-    NATS_CONNECTION_HEALTH_CHECK("nats_connection_health_check"),
-    GET_QUERY_LIST("-get_query_list"),
-    GET_DASHBOARD_ACCESS_LIST("-get_logs_list"),
-    VALIDATE_DASHBOARD_POINTERS("-validate_dashboard_pointers"),
-    EXPORT_DASHBOARD_SCREENSHOTS("-export_dashboard_screenshots"),
-    GET_DASHBOARD_PALETTE("-get_dashboard_palette"),
-    ;
-    private final String subject;
+@Configuration
+public class PdfExportTemplateConfig {
 
-    RequestReplySubject(String subject) {
-        this.subject = subject;
+    @Bean
+    public TemplateEngine pdfTemplateEngine() {
+        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+        resolver.setPrefix("pdfexport/templates/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode(TemplateMode.HTML);
+        resolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        resolver.setCacheable(true);
+
+        TemplateEngine engine = new TemplateEngine();
+        engine.setTemplateResolver(resolver);
+        return engine;
     }
 }

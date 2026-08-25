@@ -24,27 +24,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.events;
+package ch.bedag.dap.hellodata.portal.superset.pdfexport;
 
-import lombok.Getter;
+import java.util.List;
 
 /**
- * Subjects for request/reply NATS pattern
+ * View model for the custom-layout template: a title plus one grid per page. Each page is a
+ * fixed 4-column grid rendered as one HTML table, so the PDF reproduces the builder's exact
+ * cell positions -- side-by-side, stacked, and any empty gap cells -- and breaks every page.
  */
-@Getter
-public enum RequestReplySubject {
-    UPDATE_DASHBOARD_ROLES_FOR_USER("-update_dashboard_roles_for_user"),
-    UPLOAD_DASHBOARDS_FILE("-upload_dashboards_file"),
-    NATS_CONNECTION_HEALTH_CHECK("nats_connection_health_check"),
-    GET_QUERY_LIST("-get_query_list"),
-    GET_DASHBOARD_ACCESS_LIST("-get_logs_list"),
-    VALIDATE_DASHBOARD_POINTERS("-validate_dashboard_pointers"),
-    EXPORT_DASHBOARD_SCREENSHOTS("-export_dashboard_screenshots"),
-    GET_DASHBOARD_PALETTE("-get_dashboard_palette"),
-    ;
-    private final String subject;
+public record CustomLayout(String title, List<GridPage> pages) {
 
-    RequestReplySubject(String subject) {
-        this.subject = subject;
+    /** One page: rows of a fixed 4-column grid. */
+    public record GridPage(List<GridRow> rows) {
+    }
+
+    /** One grid row: the cells that start in this row, left to right. Cells covered by a
+     *  {@code rowspan}/{@code colspan} from an earlier cell are omitted (as in HTML tables). */
+    public record GridRow(List<GridCell> cells) {
+    }
+
+    /** One table cell. {@code item == null} is an empty spacer that preserves a gap.
+     *  {@code colspan}/{@code rowspan} carry the chart's cell span. */
+    public record GridCell(DashboardExport.Item item, int colspan, int rowspan) {
     }
 }

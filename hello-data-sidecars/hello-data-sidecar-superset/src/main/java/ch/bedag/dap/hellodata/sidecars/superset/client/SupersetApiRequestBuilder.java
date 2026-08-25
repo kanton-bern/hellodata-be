@@ -81,6 +81,8 @@ public class SupersetApiRequestBuilder {
     private static final String IMPORT_CHART_API_ENDPOINT = "/api/v1/chart/import/";
     private static final String LIST_DATABASE_API_ENDPOINT = "/api/v1/database/";
     private static final String DATABASE_API_ENDPOINT = "/api/v1/database/%d";
+    private static final String CHART_CACHE_SCREENSHOT_API_ENDPOINT = "/api/v1/chart/%d/cache_screenshot/";
+    private static final String CHART_SCREENSHOT_API_ENDPOINT = "/api/v1/chart/%d/screenshot/%s/";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
     private static final String DELETE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
 
@@ -248,6 +250,28 @@ public class SupersetApiRequestBuilder {
                 .setUri(apiUri) //
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
                 .setHeader(HttpHeaders.ACCEPT, ContentType.TEXT_PLAIN.getMimeType()) //
+                .build();
+    }
+
+    /** Triggers async screenshot generation for a chart; the JSON response carries a {@code cache_key}. */
+    public static HttpUriRequest getChartCacheScreenshotRequest(String host, int port, String authToken, int chartId, int width, int height) throws URISyntaxException {
+        String size = "!(" + width + "," + height + ")";
+        String rison = "(window_size:" + size + ",thumb_size:" + size + ")";
+        URI apiUri = buildUri(host, port, String.format(CHART_CACHE_SCREENSHOT_API_ENDPOINT, chartId), List.of(Pair.of("q", rison)));
+        return RequestBuilder.get() //
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
+    }
+
+    /** Fetches the rendered PNG for a cache_key: HTTP 200 = PNG ready, 202 = still generating. */
+    public static HttpUriRequest getChartScreenshotRequest(String host, int port, String authToken, int chartId, String cacheKey) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, String.format(CHART_SCREENSHOT_API_ENDPOINT, chartId, cacheKey), null);
+        return RequestBuilder.get() //
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.IMAGE_PNG.getMimeType()) //
                 .build();
     }
 

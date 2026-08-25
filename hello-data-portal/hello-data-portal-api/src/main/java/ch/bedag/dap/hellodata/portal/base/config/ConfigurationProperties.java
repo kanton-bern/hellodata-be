@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.base.config;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfBrandingProperties;
 import ch.bedag.dap.hellodata.portal.user.conf.DefaultAdminProperties;
 import ch.bedag.dap.hellodata.portal.user.conf.ExampleUsersProperties;
 import ch.bedag.dap.hellodata.portal.user.service.ldap.LdapConfigProperties;
@@ -34,6 +35,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties({ HelloDataContextConfig.class, DefaultAdminProperties.class, SystemProperties.class, LdapConfigProperties.class, ExampleUsersProperties.class })
+@EnableConfigurationProperties({ HelloDataContextConfig.class, DefaultAdminProperties.class, SystemProperties.class, LdapConfigProperties.class, ExampleUsersProperties.class,
+        PdfBrandingProperties.class })
 public class ConfigurationProperties {
 }

@@ -24,27 +24,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.events;
+package ch.bedag.dap.hellodata.portal.superset.pdfexport;
 
-import lombok.Getter;
+import java.util.Base64;
+import java.util.List;
 
-/**
- * Subjects for request/reply NATS pattern
- */
-@Getter
-public enum RequestReplySubject {
-    UPDATE_DASHBOARD_ROLES_FOR_USER("-update_dashboard_roles_for_user"),
-    UPLOAD_DASHBOARDS_FILE("-upload_dashboards_file"),
-    NATS_CONNECTION_HEALTH_CHECK("nats_connection_health_check"),
-    GET_QUERY_LIST("-get_query_list"),
-    GET_DASHBOARD_ACCESS_LIST("-get_logs_list"),
-    VALIDATE_DASHBOARD_POINTERS("-validate_dashboard_pointers"),
-    EXPORT_DASHBOARD_SCREENSHOTS("-export_dashboard_screenshots"),
-    GET_DASHBOARD_PALETTE("-get_dashboard_palette"),
-    ;
-    private final String subject;
+/** View model handed to the corporate-design Thymeleaf PDF template. */
+public record DashboardExport(String title, List<Section> sections) {
 
-    RequestReplySubject(String subject) {
-        this.subject = subject;
+    /** A group of items under one tab (blank title = no heading / no-tab dashboard). */
+    public record Section(String title, List<Item> items) {
+    }
+
+    /** One cell in a section: a chart image or a rendered markdown block. */
+    public sealed interface Item permits Chart, Markdown {
+        String type();
+    }
+
+    public record Chart(String name, byte[] png) implements Item {
+        @Override
+        public String type() {
+            return "chart";
+        }
+
+        /** Base64 data URI so the image embeds directly in the HTML. */
+        public String dataUri() {
+            return "data:image/png;base64," + Base64.getEncoder().encodeToString(png);
+        }
+    }
+
+    /** A dashboard markdown/text cell, already converted to HTML. */
+    public record Markdown(String html) implements Item {
+        @Override
+        public String type() {
+            return "markdown";
+        }
     }
 }

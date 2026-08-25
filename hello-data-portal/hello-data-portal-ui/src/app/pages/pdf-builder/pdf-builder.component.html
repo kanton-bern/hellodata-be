@@ -1,0 +1,102 @@
+<div class="app">
+  <aside class="palette">
+    <h2>PDF Layout Builder</h2>
+
+    <label class="field">
+      <span>Dashboard</span>
+      <select [ngModel]="selectedDashboard()" (ngModelChange)="onDashboardChange($event)">
+        <option [ngValue]="null" disabled>Choose a dashboard...</option>
+        @for (d of dashboards(); track d.instanceName + '_' + d.id) {
+          <option [ngValue]="d">{{ d.dashboardTitle }}</option>
+        }
+      </select>
+    </label>
+
+    <h3>Charts</h3>
+    <p class="hint">Drag a chart onto the grid.</p>
+    <ul class="items">
+      @for (c of charts(); track c.id) {
+        <li class="palette-item" draggable="true"
+            (dragstart)="onDragStart({ type: 'chart', chartId: c.id, name: c.name })">
+          {{ c.name }}
+        </li>
+      } @empty {
+        <li class="empty">No charts loaded.</li>
+      }
+    </ul>
+
+    <h3>Blocks</h3>
+    <p class="hint">Existing text blocks — drag onto the grid.</p>
+    <ul class="items">
+      @for (code of markdownBlocks(); track $index) {
+        <li class="palette-item block" draggable="true" [title]="code"
+            (dragstart)="onDragStart({ type: 'markdown', markdown: code, readonly: true })">
+          {{ mdLabel(code) }}
+        </li>
+      } @empty {
+        <li class="empty">No text blocks on this dashboard.</li>
+      }
+    </ul>
+    <button class="secondary" type="button" (click)="addMarkdown()">+ Add markdown</button>
+
+    <div class="actions">
+      <label class="field">
+        <span>Template</span>
+        <select [ngModel]="selectedTemplate()" (ngModelChange)="onTemplateChange($event)">
+          @for (t of templates(); track t.id) {
+            <option [ngValue]="t.id">{{ t.name }}</option>
+          }
+        </select>
+      </label>
+      <button class="primary" type="button"
+              [disabled]="selectedDashboard() == null || cells().length === 0 || exporting()"
+              (click)="export()">
+        {{ exporting() ? 'Exporting...' : 'Export PDF' }}
+      </button>
+      <button class="secondary" type="button" (click)="clear()">Clear</button>
+    </div>
+  </aside>
+
+  <main class="canvas">
+    <gridster [options]="options">
+      @for (top of pageDividers(); track top) {
+        <div class="page-divider" [style.top.px]="top"></div>
+      }
+      @for (cell of cells(); track cell) {
+        <gridster-item [item]="cell" (itemChange)="onCellChange()">
+          <div class="cell">
+            <div class="cell-head">
+              <span class="cell-type">{{ cell.type === 'chart' ? cell.name : 'markdown' }}</span>
+              <span class="cell-actions">
+                @if (cell.type === 'markdown' && !cell.readonly) {
+                  <button class="edit" type="button" title="Edit" (click)="editCell(cell)">✎</button>
+                }
+                <button class="del" type="button" (click)="removeCell(cell)">×</button>
+              </span>
+            </div>
+            <div class="cell-body" [class.center]="cell.type === 'chart'">
+              @if (cell.type === 'chart') {
+                <svg class="chart-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M3 3h2v18H3V3zm4 10h3v8H7v-8zm5-6h3v14h-3V7zm5 3h3v11h-3V10z"/>
+                </svg>
+              } @else {
+                <em>{{ cell.markdown || '(empty markdown)' }}</em>
+              }
+            </div>
+          </div>
+        </gridster-item>
+      }
+    </gridster>
+  </main>
+</div>
+
+<div class="editor-backdrop" [class.open]="editorOpen()">
+  <div class="editor-dialog">
+    <h3>Markdown block</h3>
+    <textarea rows="12" [ngModel]="editingText()" (ngModelChange)="editingText.set($event)"></textarea>
+    <div class="editor-actions">
+      <button class="secondary" type="button" (click)="closeEditor()">Cancel</button>
+      <button class="primary" type="button" (click)="saveEditor()">Save</button>
+    </div>
+  </div>
+</div>

@@ -509,6 +509,55 @@ public class SupersetClient implements Closeable {
     }
 
     /**
+     * Triggers async screenshot generation for a chart and returns Superset's {@code cache_key}.
+     *
+     * @param chartId the chart to screenshot
+     * @param width   capture/output width in pixels
+     * @param height  capture/output height in pixels
+     * @return the cache_key used to poll the rendered PNG
+     */
+    public String triggerChartScreenshot(int chartId, int width, int height) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getChartCacheScreenshotRequest(host, port, authToken, chartId, width, height);
+        ApiResponse resp = executeRequest(request);
+        JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
+        if (obj == null || !obj.has("cache_key") || obj.get("cache_key").isJsonNull()) {
+            throw new IllegalStateException("cache_screenshot returned no cache_key for chart " + chartId + " (is the THUMBNAILS feature enabled in Superset?)");
+        }
+        return obj.get("cache_key").getAsString();
+    }
+
+    /**
+     * Single poll for a chart screenshot: PNG bytes when ready (HTTP 200), empty while Superset is
+     * still generating it (HTTP 202). The caller keeps polling until present or a timeout elapses.
+     */
+    public Optional<byte[]> fetchChartScreenshot(int chartId, String cacheKey) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getChartScreenshotRequest(host, port, authToken, chartId, cacheKey);
+        return client.execute(request, response -> {
+            int code = response.getStatusLine().getStatusCode();
+            if (code == 200) {
+                return Optional.of(EntityUtils.toByteArray(response.getEntity()));
+            }
+            if (code == 202) {
+                EntityUtils.consumeQuietly(response.getEntity());
+                return Optional.<byte[]>empty();
+            }
+            throw new UnexpectedResponseException("chart screenshot", code, EntityUtils.toString(response.getEntity()));
+        });
+    }
+
+    /** Raw {@code position_json} (layout tree) of a dashboard, or {@code ""} if absent. */
+    public String getDashboardPositionJson(int dashboardId) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getDashboardRequest(dashboardId, host, port, authToken);
+        ApiResponse resp = executeRequest(request);
+        JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
+        JsonObject result = obj != null && obj.has("result") && obj.get("result").isJsonObject() ? obj.getAsJsonObject("result") : null;
+        if (result != null && result.has("position_json") && !result.get("position_json").isJsonNull()) {
+            return result.get("position_json").getAsString();
+        }
+        return "";
+    }
+
+    /**
      * Imports a dashboard from a file.
      *
      * @param dashboardFile the file containing the dashboard definition to import

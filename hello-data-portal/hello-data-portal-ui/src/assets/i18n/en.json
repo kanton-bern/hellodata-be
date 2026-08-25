@@ -203,6 +203,7 @@
   "@External dashboard deleted": "External dashboard {{title}} deleted",
   "@External dashboard updated": "External dashboard {{title}} updated",
   "@External dashboards": "External dashboards",
+  "@PDF export": "PDF export",
   "@Failed to export comments": "Failed to export comments",
   "@Failed to import comments": "Failed to import comments",
   "@Faq": "FAQ",

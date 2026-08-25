@@ -42,6 +42,14 @@ const routes: Routes = [
     canActivate: [AutoLoginPartialRoutesGuard]
   },
   {
+    path: 'pdf-builder',
+    loadComponent: () => import('./pages/pdf-builder/pdf-builder.component').then(m => m.PdfBuilderComponent),
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARDS'],
+    },
+  },
+  {
     path: naviElements.profile.path,
     loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [AutoLoginPartialRoutesGuard],
