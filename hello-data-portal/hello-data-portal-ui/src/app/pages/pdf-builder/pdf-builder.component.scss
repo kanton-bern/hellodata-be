@@ -42,10 +42,6 @@
   font-size: 13px;
 }
 
-.field select {
-  padding: 6px;
-}
-
 .items {
   list-style: none;
   margin: 0;
@@ -71,29 +67,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-button {
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-button.primary {
-  background: #d52b1e;
-  color: #fff;
-  border-color: #d52b1e;
-}
-
-button.primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-button.secondary {
-  background: #fff;
 }
 
 .canvas {
@@ -143,28 +116,6 @@ gridster {
   display: flex;
   align-items: center;
   gap: 2px;
-}
-
-.edit,
-.del {
-  border: none;
-  background: transparent;
-  line-height: 1;
-  padding: 0 4px;
-  color: #999;
-}
-
-.edit {
-  font-size: 13px;
-}
-
-.del {
-  font-size: 16px;
-}
-
-.edit:hover,
-.del:hover {
-  color: #d52b1e;
 }
 
 .cell-body {

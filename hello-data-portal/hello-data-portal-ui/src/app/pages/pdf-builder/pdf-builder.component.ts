@@ -27,7 +27,12 @@
 
 import {Component, OnInit, computed, inject, signal} from "@angular/core";
 import {FormsModule} from "@angular/forms";
+import {Select} from "primeng/select";
+import {Button} from "primeng/button";
+import {Ripple} from "primeng/ripple";
+import {TranslocoPipe} from "@jsverse/transloco";
 import {DisplayGrid, Gridster, GridsterConfig, GridsterItem, GridsterItemConfig, GridType} from "angular-gridster2";
+import {ICON_REGISTRY} from "../../shared/icons";
 import {MyDashboardsService} from "../../store/my-dashboards/my-dashboards.service";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {PdfExportService} from "../../store/pdf-export/pdf-export.service";
@@ -58,11 +63,13 @@ const ROW_PITCH = ROW_HEIGHT + GRID_MARGIN;
 @Component({
   selector: 'app-pdf-builder',
   standalone: true,
-  imports: [FormsModule, Gridster, GridsterItem],
+  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, TranslocoPipe],
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
 export class PdfBuilderComponent implements OnInit {
+  protected readonly icons = ICON_REGISTRY;
+
   private myDashboards = inject(MyDashboardsService);
   private pdfExport = inject(PdfExportService);
 

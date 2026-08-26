@@ -1,19 +1,21 @@
 <div class="app">
   <aside class="palette">
-    <h2>PDF Layout Builder</h2>
+    <h2>{{ '@PDF export' | transloco }}</h2>
 
     <label class="field">
-      <span>Dashboard</span>
-      <select [ngModel]="selectedDashboard()" (ngModelChange)="onDashboardChange($event)">
-        <option [ngValue]="null" disabled>Choose a dashboard...</option>
-        @for (d of dashboards(); track d.instanceName + '_' + d.id) {
-          <option [ngValue]="d">{{ d.dashboardTitle }}</option>
-        }
-      </select>
+      <span>{{ '@Dashboard' | transloco }}</span>
+      <p-select
+        [options]="dashboards()"
+        [ngModel]="selectedDashboard()"
+        (ngModelChange)="onDashboardChange($event)"
+        optionLabel="dashboardTitle"
+        [placeholder]="'@Choose a dashboard' | transloco"
+        appendTo="body"
+        styleClass="w-full"/>
     </label>
 
-    <h3>Charts</h3>
-    <p class="hint">Drag a chart onto the grid.</p>
+    <h3>{{ '@Charts' | transloco }}</h3>
+    <p class="hint">{{ '@Drag a chart onto the grid' | transloco }}</p>
     <ul class="items">
       @for (c of charts(); track c.id) {
         <li class="palette-item" draggable="true"
@@ -21,12 +23,12 @@
           {{ c.name }}
         </li>
       } @empty {
-        <li class="empty">No charts loaded.</li>
+        <li class="empty">{{ '@No charts loaded' | transloco }}</li>
       }
     </ul>
 
-    <h3>Blocks</h3>
-    <p class="hint">Existing text blocks — drag onto the grid.</p>
+    <h3>{{ '@Blocks' | transloco }}</h3>
+    <p class="hint">{{ '@Existing text blocks drag onto the grid' | transloco }}</p>
     <ul class="items">
       @for (code of markdownBlocks(); track $index) {
         <li class="palette-item block" draggable="true" [title]="code"
@@ -34,26 +36,33 @@
           {{ mdLabel(code) }}
         </li>
       } @empty {
-        <li class="empty">No text blocks on this dashboard.</li>
+        <li class="empty">{{ '@No text blocks on this dashboard' | transloco }}</li>
       }
     </ul>
-    <button class="secondary" type="button" (click)="addMarkdown()">+ Add markdown</button>
+    <p-button (click)="addMarkdown()" (keydown.enter)="addMarkdown()"
+              [icon]="icons.ACTION_ADD.class" [label]="'@Add markdown' | transloco"
+              severity="secondary" styleClass="w-full mt-2" pRipple/>
 
     <div class="actions">
       <label class="field">
-        <span>Template</span>
-        <select [ngModel]="selectedTemplate()" (ngModelChange)="onTemplateChange($event)">
-          @for (t of templates(); track t.id) {
-            <option [ngValue]="t.id">{{ t.name }}</option>
-          }
-        </select>
+        <span>{{ '@Template' | transloco }}</span>
+        <p-select
+          [options]="templates()"
+          [ngModel]="selectedTemplate()"
+          (ngModelChange)="onTemplateChange($event)"
+          optionLabel="name"
+          optionValue="id"
+          appendTo="body"
+          styleClass="w-full"/>
       </label>
-      <button class="primary" type="button"
-              [disabled]="selectedDashboard() === null || cells().length === 0 || exporting()"
-              (click)="export()">
-        {{ exporting() ? 'Exporting...' : 'Export PDF' }}
-      </button>
-      <button class="secondary" type="button" (click)="clear()">Clear</button>
+      <p-button (click)="export()" (keydown.enter)="export()"
+                [disabled]="selectedDashboard() === null || cells().length === 0 || exporting()"
+                [icon]="icons.ACTION_FILE_EXPORT.class"
+                [label]="(exporting() ? '@Exporting' : '@Export PDF') | transloco"
+                styleClass="w-full" pRipple/>
+      <p-button (click)="clear()" (keydown.enter)="clear()"
+                [icon]="icons.ACTION_FILTER_CLEAR.class" [label]="'@Clear' | transloco"
+                severity="secondary" styleClass="w-full" pRipple/>
     </div>
   </aside>
 
@@ -66,12 +75,16 @@
         <gridster-item [item]="cell" (itemChange)="onCellChange()">
           <div class="cell">
             <div class="cell-head">
-              <span class="cell-type">{{ cell.type === 'chart' ? cell.name : 'markdown' }}</span>
+              <span class="cell-type">{{ cell.type === 'chart' ? cell.name : ('@Markdown' | transloco) }}</span>
               <span class="cell-actions">
                 @if (cell.type === 'markdown' && !cell.readonly) {
-                  <button class="edit" type="button" title="Edit" (click)="editCell(cell)">✎</button>
+                  <p-button (click)="editCell(cell)" [icon]="icons.ACTION_EDIT.class"
+                            [text]="true" [rounded]="true" size="small" severity="secondary"
+                            [ariaLabel]="'@Edit' | transloco"/>
                 }
-                <button class="del" type="button" (click)="removeCell(cell)">×</button>
+                <p-button (click)="removeCell(cell)" [icon]="icons.ACTION_DELETE.class"
+                          [text]="true" [rounded]="true" size="small" severity="danger"
+                          [ariaLabel]="'@Delete' | transloco"/>
               </span>
             </div>
             <div class="cell-body" [class.center]="cell.type === 'chart'">
@@ -80,7 +93,7 @@
                   <path d="M3 3h2v18H3V3zm4 10h3v8H7v-8zm5-6h3v14h-3V7zm5 3h3v11h-3V10z"/>
                 </svg>
               } @else {
-                <em>{{ cell.markdown || '(empty markdown)' }}</em>
+                <em>{{ cell.markdown || ('@empty markdown' | transloco) }}</em>
               }
             </div>
           </div>
@@ -92,11 +105,14 @@
 
 <div class="editor-backdrop" [class.open]="editorOpen()">
   <div class="editor-dialog">
-    <h3>Markdown block</h3>
+    <h3>{{ '@Markdown block' | transloco }}</h3>
     <textarea rows="12" [ngModel]="editingText()" (ngModelChange)="editingText.set($event)"></textarea>
     <div class="editor-actions">
-      <button class="secondary" type="button" (click)="closeEditor()">Cancel</button>
-      <button class="primary" type="button" (click)="saveEditor()">Save</button>
+      <p-button (click)="closeEditor()" (keydown.enter)="closeEditor()"
+                [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"
+                severity="secondary" pRipple/>
+      <p-button (click)="saveEditor()" (keydown.enter)="saveEditor()"
+                [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco" pRipple/>
     </div>
   </div>
 </div>
