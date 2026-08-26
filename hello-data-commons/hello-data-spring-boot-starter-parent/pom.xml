@@ -56,7 +56,7 @@
         <docker-java.version>3.7.0</docker-java.version>
         <jnats.version>2.26.2</jnats.version>
         <!-- CVE-2026-71497 (GHSA-pmhh-3w7g-xqp8) -->
-        <jsoup.version>1.23.1</jsoup.version>
+        <jsoup.version>1.23.2</jsoup.version>
         <nats-spring.version>0.6.2+3.5</nats-spring.version>
         <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
         <thymeleaf-layout-dialect.version>4.0.1</thymeleaf-layout-dialect.version>
