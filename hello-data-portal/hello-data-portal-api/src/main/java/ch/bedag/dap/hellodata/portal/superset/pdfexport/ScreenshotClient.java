@@ -36,7 +36,9 @@ import io.nats.client.Message;
 import io.nats.client.Subscription;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
@@ -51,6 +53,13 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ScreenshotClient {
+
+    /** Actionable hint shown when Superset rejects the screenshot request outright (HTTP 404),
+     *  which in practice means the THUMBNAILS feature (and a Superset worker to render them) is
+     *  not enabled on that instance. */
+    private static final String SCREENSHOTS_UNAVAILABLE =
+            "Chart screenshots are unavailable for Superset instance '%s'. Enable the THUMBNAILS feature flag "
+                    + "and a Superset worker to render screenshots, then retry the PDF export.";
 
     private final Connection connection;
     private final ObjectMapper objectMapper;
@@ -75,12 +84,13 @@ public class ScreenshotClient {
                 Duration wait = Duration.ofNanos(Math.max(0, deadline - System.nanoTime()));
                 Message msg = sub.nextMessage(wait);
                 if (msg == null) {
-                    throw new IllegalStateException("Timed out waiting for chart screenshots from " + instanceName);
+                    throw new ResponseStatusException(HttpStatus.GATEWAY_TIMEOUT,
+                            "Timed out waiting for chart screenshots from Superset instance '" + instanceName + "'.");
                 }
                 ChartScreenshotChunk chunk = objectMapper.readValue(msg.getData(), ChartScreenshotChunk.class);
                 if (chunk.isLastMessage()) { // stream complete
                     if (chunk.getError() != null) {
-                        throw new IllegalStateException("Screenshot render failed: " + chunk.getError());
+                        throw renderFailure(instanceName, Map.of("*", chunk.getError()));
                     }
                     break;
                 }
@@ -91,18 +101,21 @@ public class ScreenshotClient {
                 buffers.computeIfAbsent(chunk.getSpecId(), k -> new ByteArrayOutputStream()).writeBytes(chunk.getContent());
             }
             if (!errors.isEmpty()) {
-                throw new IllegalStateException("Charts failed to render: " + errors);
+                throw renderFailure(instanceName, errors);
             }
             Map<String, byte[]> result = new LinkedHashMap<>();
             buffers.forEach((specId, buf) -> result.put(specId, buf.toByteArray()));
             return result;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while awaiting chart screenshots", e);
-        } catch (IllegalStateException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "Interrupted while awaiting chart screenshots from Superset instance '" + instanceName + "'.");
+        } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) { //NOSONAR - serialization / NATS failures surface as 502 upstream
-            throw new IllegalStateException("Failed to fetch chart screenshots from " + instanceName, e);
+            log.error("Failed to fetch chart screenshots from {}", instanceName, e);
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "Failed to fetch chart screenshots from Superset instance '" + instanceName + "'.");
         } finally {
             try {
                 sub.unsubscribe();
@@ -110,5 +123,17 @@ public class ScreenshotClient {
                 log.debug("Failed to unsubscribe screenshot inbox", e);
             }
         }
+    }
+
+    /** Build a clean 502 for a render failure: log the raw per-chart errors for debugging, but return
+     *  a concise, actionable message. A 404 from Superset means the screenshot endpoint is gated off
+     *  (THUMBNAILS feature disabled), so surface that specific hint. */
+    private ResponseStatusException renderFailure(String instanceName, Map<String, String> errors) {
+        log.warn("Chart screenshots failed for Superset instance {}: {}", instanceName, errors);
+        boolean screenshotsDisabled = errors.values().stream().anyMatch(e -> e != null && e.contains("code=404"));
+        String detail = screenshotsDisabled
+                ? String.format(SCREENSHOTS_UNAVAILABLE, instanceName)
+                : "Some charts could not be rendered for Superset instance '" + instanceName + "'.";
+        return new ResponseStatusException(HttpStatus.BAD_GATEWAY, detail);
     }
 }
