@@ -285,12 +285,16 @@ export class MenuService {
       routerLink: 'external-dashboards',
       requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT']
     });
-    myDashboards.push({
-      id: 'pdfBuilder',
-      label: '@PDF export',
-      routerLink: 'pdf-builder',
-      requiredPermissions: ['DASHBOARDS']
-    });
+    // Only offer the PDF export builder when the user actually has at least one accessible
+    // dashboard; otherwise the builder's dashboard picker would be empty.
+    if (dashboards.length > 0) {
+      myDashboards.push({
+        id: 'pdfBuilder',
+        label: '@PDF export',
+        routerLink: 'pdf-builder',
+        requiredPermissions: ['DASHBOARDS']
+      });
+    }
     return myDashboards;
   }
 
