@@ -31,8 +31,10 @@ import {Select} from "primeng/select";
 import {Button} from "primeng/button";
 import {Ripple} from "primeng/ripple";
 import {TranslocoPipe} from "@jsverse/transloco";
+import {Store} from "@ngrx/store";
 import {DisplayGrid, Gridster, GridsterConfig, GridsterItem, GridsterItemConfig, GridType} from "angular-gridster2";
 import {ICON_REGISTRY} from "../../shared/icons";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {MyDashboardsService} from "../../store/my-dashboards/my-dashboards.service";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {PdfExportService} from "../../store/pdf-export/pdf-export.service";
@@ -72,6 +74,7 @@ export class PdfBuilderComponent implements OnInit {
 
   private myDashboards = inject(MyDashboardsService);
   private pdfExport = inject(PdfExportService);
+  private store = inject(Store);
 
   dashboards = signal<SupersetDashboardWithMetadata[]>([]);
   templates = signal<PdfTemplateRef[]>(PDF_TEMPLATES);
@@ -116,6 +119,7 @@ export class PdfBuilderComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.store.dispatch(createBreadcrumbs({breadcrumbs: [{label: '@PDF export'}]}));
     this.myDashboards.getMyDashboards().subscribe(d => this.dashboards.set(d));
     this.restore();
   }
