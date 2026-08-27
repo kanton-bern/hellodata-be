@@ -1,0 +1,39 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet author="hellodata" id="66-1">
+        <comment>
+            De-duplicate resource rows before adding the unique constraint. Concurrent NATS consumers
+            (find-then-insert with no DB uniqueness) could create several rows for the same
+            (api_version, module_type, kind, instance_name); keep the most recently modified one.
+        </comment>
+        <sql>
+            DELETE FROM resource a
+            USING resource b
+            WHERE a.api_version = b.api_version
+              AND a.module_type = b.module_type
+              AND a.kind = b.kind
+              AND a.instance_name = b.instance_name
+              AND (
+                    COALESCE(a.modified_date, a.created_date) &lt; COALESCE(b.modified_date, b.created_date)
+                    OR (
+                        COALESCE(a.modified_date, a.created_date) = COALESCE(b.modified_date, b.created_date)
+                        AND a.id &lt; b.id
+                    )
+              );
+        </sql>
+    </changeSet>
+
+    <changeSet author="hellodata" id="66-2">
+        <comment>
+            Enforce uniqueness of a published resource identity so concurrent consumers can no longer
+            create duplicates (the loser of a race fails on the constraint and the message is redelivered).
+        </comment>
+        <addUniqueConstraint tableName="resource"
+                             columnNames="api_version, module_type, kind, instance_name"
+                             constraintName="uq_resource_api_module_kind_instance"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -41,6 +41,8 @@ import java.util.UUID;
 public interface ResourceRepository extends JpaRepository<MetaInfoResourceEntity, UUID> {
     Optional<MetaInfoResourceEntity> findByApiVersionAndModuleTypeAndKindAndInstanceName(String apiVersion, ModuleType moduleType, String kind, String instanceName);
 
+    List<MetaInfoResourceEntity> findAllByApiVersionAndModuleTypeAndKindAndInstanceName(String apiVersion, ModuleType moduleType, String kind, String instanceName);
+
     List<MetaInfoResourceEntity> findAllByModuleType(ModuleType moduleType);
 
     List<MetaInfoResourceEntity> findAllByModuleTypeAndKind(ModuleType moduleType, String kind);

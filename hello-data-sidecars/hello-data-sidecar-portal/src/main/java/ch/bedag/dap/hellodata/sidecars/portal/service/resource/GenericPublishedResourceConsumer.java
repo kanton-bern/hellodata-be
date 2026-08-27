@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
@@ -55,12 +56,21 @@ public class GenericPublishedResourceConsumer {
     public MetaInfoResourceEntity persistResource(HdResource hdResource) {
         log.debug("Persisting resource api version: {}, module type: {}, kind: {}, instance name: {}", hdResource.getApiVersion(), hdResource.getModuleType(), hdResource.getKind(),
                 hdResource.getInstanceName());
-        Optional<MetaInfoResourceEntity> found =
-                resourceRepository.findByApiVersionAndModuleTypeAndKindAndInstanceName(hdResource.getApiVersion(), hdResource.getModuleType(), hdResource.getKind(),
+        // Use the list-returning finder (not the single-result Optional one) so that pre-existing
+        // duplicate rows - created by concurrent consumers racing the find-then-insert below before
+        // the DB unique constraint existed - don't blow up with NonUniqueResultException. Any extras
+        // are healed here; new duplicates are prevented by the uq_resource_* constraint (changeset 66).
+        List<MetaInfoResourceEntity> found =
+                resourceRepository.findAllByApiVersionAndModuleTypeAndKindAndInstanceName(hdResource.getApiVersion(), hdResource.getModuleType(), hdResource.getKind(),
                         hdResource.getInstanceName());
         MetaInfoResourceEntity resource;
-        if (found.isPresent()) {
-            resource = found.get();
+        if (!found.isEmpty()) {
+            resource = found.get(0);
+            if (found.size() > 1) {
+                log.warn("Found {} duplicate resource rows for api version: {}, module type: {}, kind: {}, instance name: {}; keeping one and removing {} extra(s)",
+                        found.size(), hdResource.getApiVersion(), hdResource.getModuleType(), hdResource.getKind(), hdResource.getInstanceName(), found.size() - 1);
+                resourceRepository.deleteAll(found.subList(1, found.size()));
+            }
             resource.setMetainfo(hdResource);
             resource.setModifiedDate(LocalDateTime.now());
         } else {

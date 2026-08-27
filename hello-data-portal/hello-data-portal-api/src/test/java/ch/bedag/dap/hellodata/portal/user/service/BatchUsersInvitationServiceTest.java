@@ -413,7 +413,7 @@ class BatchUsersInvitationServiceTest {
     }
 
     @Test
-    void buildDefaultCommentPermissions_forDataDomainViewer_shouldGrantReadOnlyAccess() throws Exception {
+    void buildDefaultCommentPermissions_forDataDomainViewer_shouldGrantNoAccess() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
                 new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
@@ -450,13 +450,13 @@ class BatchUsersInvitationServiceTest {
         assertEquals(1, result.size());
         DashboardCommentPermissionDto perm = result.get(0);
         assertEquals("dd1", perm.getContextKey());
-        assertTrue(perm.isReadComments(), "DATA_DOMAIN_VIEWER should have read access");
+        assertFalse(perm.isReadComments(), "DATA_DOMAIN_VIEWER should NOT have read access by default");
         assertFalse(perm.isWriteComments(), "DATA_DOMAIN_VIEWER should NOT have write access");
         assertFalse(perm.isReviewComments(), "DATA_DOMAIN_VIEWER should NOT have review access");
     }
 
     @Test
-    void buildDefaultCommentPermissions_forDataDomainEditor_shouldGrantReadOnlyAccess() throws Exception {
+    void buildDefaultCommentPermissions_forDataDomainEditor_shouldGrantNoAccess() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
                 new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
@@ -493,7 +493,7 @@ class BatchUsersInvitationServiceTest {
         assertEquals(1, result.size());
         DashboardCommentPermissionDto perm = result.get(0);
         assertEquals("dd1", perm.getContextKey());
-        assertTrue(perm.isReadComments(), "DATA_DOMAIN_EDITOR should have read access");
+        assertFalse(perm.isReadComments(), "DATA_DOMAIN_EDITOR should NOT have read access by default");
         assertFalse(perm.isWriteComments(), "DATA_DOMAIN_EDITOR should NOT have write access");
         assertFalse(perm.isReviewComments(), "DATA_DOMAIN_EDITOR should NOT have review access");
     }
@@ -580,7 +580,7 @@ class BatchUsersInvitationServiceTest {
     }
 
     @Test
-    void buildDefaultCommentPermissions_forBusinessSpecialist_shouldGrantReadOnlyAccess() throws Exception {
+    void buildDefaultCommentPermissions_forBusinessSpecialist_shouldGrantNoAccess() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
                 new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
@@ -617,7 +617,7 @@ class BatchUsersInvitationServiceTest {
         assertEquals(1, result.size());
         DashboardCommentPermissionDto perm = result.get(0);
         assertEquals("dd1", perm.getContextKey());
-        assertTrue(perm.isReadComments(), "DATA_DOMAIN_BUSINESS_SPECIALIST should have read access");
+        assertFalse(perm.isReadComments(), "DATA_DOMAIN_BUSINESS_SPECIALIST should NOT have read access by default");
         assertFalse(perm.isWriteComments(), "DATA_DOMAIN_BUSINESS_SPECIALIST should NOT have write access");
         assertFalse(perm.isReviewComments(), "DATA_DOMAIN_BUSINESS_SPECIALIST should NOT have review access");
     }
@@ -893,9 +893,9 @@ class BatchUsersInvitationServiceTest {
         // HELLODATA_ADMIN         -> read=true,  write=true,  review=true
         // BUSINESS_DOMAIN_ADMIN   -> read=true,  write=true,  review=true
         // DATA_DOMAIN_ADMIN       -> read=true,  write=true,  review=true
-        // DATA_DOMAIN_EDITOR      -> read=true,  write=false, review=false
-        // DATA_DOMAIN_VIEWER      -> read=true,  write=false, review=false
-        // DATA_DOMAIN_BUSINESS_SPECIALIST -> read=true, write=false, review=false
+        // DATA_DOMAIN_EDITOR      -> read=false, write=false, review=false
+        // DATA_DOMAIN_VIEWER      -> read=false, write=false, review=false
+        // DATA_DOMAIN_BUSINESS_SPECIALIST -> read=false, write=false, review=false
         // NONE                    -> read=false, write=false, review=false
 
         BatchUsersInvitationService service = new BatchUsersInvitationService(
@@ -916,9 +916,9 @@ class BatchUsersInvitationServiceTest {
                 {"HELLODATA_ADMIN", "DATA_DOMAIN_ADMIN", true, true, true},
                 {"BUSINESS_DOMAIN_ADMIN", "DATA_DOMAIN_ADMIN", true, true, true},
                 {"NONE", "DATA_DOMAIN_ADMIN", true, true, true},
-                {"NONE", "DATA_DOMAIN_EDITOR", true, false, false},
-                {"NONE", "DATA_DOMAIN_VIEWER", true, false, false},
-                {"NONE", "DATA_DOMAIN_BUSINESS_SPECIALIST", true, false, false},
+                {"NONE", "DATA_DOMAIN_EDITOR", false, false, false},
+                {"NONE", "DATA_DOMAIN_VIEWER", false, false, false},
+                {"NONE", "DATA_DOMAIN_BUSINESS_SPECIALIST", false, false, false},
                 {"NONE", "NONE", false, false, false},
         };
 

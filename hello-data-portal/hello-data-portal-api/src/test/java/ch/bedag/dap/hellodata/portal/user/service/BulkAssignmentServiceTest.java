@@ -2,6 +2,8 @@ package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
@@ -28,6 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,6 +56,8 @@ class BulkAssignmentServiceTest {
     private UserSelectedDashboardService userSelectedDashboardService;
     @Mock
     private EmailNotificationService emailNotificationService;
+    @Mock
+    private DashboardCommentPermissionService dashboardCommentPermissionService;
     @InjectMocks
     private BulkAssignmentService bulkAssignmentService;
 
@@ -71,6 +76,7 @@ class BulkAssignmentServiceTest {
         when(dashboardGroupService.getDashboardGroupMembership(any(UUID.class), anyString())).thenReturn(List.of());
         when(userSelectedDashboardService.getSelectedDashboardIds(any(UUID.class), anyString())).thenReturn(Set.of());
         when(dashboardGroupRepository.existsById(any(UUID.class))).thenReturn(true);
+        when(dashboardCommentPermissionService.getPermissions(any(UUID.class))).thenReturn(List.of());
 
         UserDto mockUser = new UserDto();
         mockUser.setEmail("test@example.com");
@@ -199,6 +205,181 @@ class BulkAssignmentServiceTest {
     }
 
     @Test
+    void testNoCommentPermissionsForNonAdminRoles() {
+        // NONE is left out on purpose - assigning NONE on top of NONE is skipped as already up to date
+        for (String roleName : List.of("DATA_DOMAIN_VIEWER", "DATA_DOMAIN_EDITOR", "DATA_DOMAIN_BUSINESS_SPECIALIST")) {
+            UUID userId = UUID.randomUUID();
+            mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "NONE"));
+
+            BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+            request.setUserIds(List.of(userId));
+            request.setDomainAssignments(List.of(
+                    createAssignment("domain_a", roleName, List.of(), List.of())
+            ));
+
+            bulkAssignmentService.executeBulkAssignment(request);
+
+            ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
+            verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+
+            var perms = captor.getValue().getCommentPermissions();
+            var domainAPerm = perms.stream().filter(p -> "domain_a".equals(p.getContextKey())).findFirst().orElseThrow();
+            assertFalse(domainAPerm.isReadComments(), roleName + " must not get read comments by default");
+            assertFalse(domainAPerm.isWriteComments(), roleName + " must not get write comments by default");
+            assertFalse(domainAPerm.isReviewComments(), roleName + " must not get review comments by default");
+        }
+    }
+
+    @Test
+    void testExplicitCommentPermissionsAppliedForNonAdminRole() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "NONE"));
+
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_VIEWER", List.of(), List.of());
+        assignment.setCommentPermissions(createCommentPermissions(true, true, false));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        bulkAssignmentService.executeBulkAssignment(request);
+
+        DashboardCommentPermissionDto perm = captureCommentPermission(userId, "domain_a");
+        assertTrue(perm.isReadComments());
+        assertTrue(perm.isWriteComments());
+        assertFalse(perm.isReviewComments());
+    }
+
+    @Test
+    void testExplicitCommentPermissionsAreNormalized() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "NONE"));
+
+        // Review alone must imply write and read
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_EDITOR", List.of(), List.of());
+        assignment.setCommentPermissions(createCommentPermissions(false, false, true));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        bulkAssignmentService.executeBulkAssignment(request);
+
+        DashboardCommentPermissionDto perm = captureCommentPermission(userId, "domain_a");
+        assertTrue(perm.isReadComments());
+        assertTrue(perm.isWriteComments());
+        assertTrue(perm.isReviewComments());
+    }
+
+    @Test
+    void testDataDomainAdminAlwaysKeepsFullCommentAccess() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "NONE"));
+
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_ADMIN", List.of(), List.of());
+        assignment.setCommentPermissions(createCommentPermissions(false, false, false));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        bulkAssignmentService.executeBulkAssignment(request);
+
+        DashboardCommentPermissionDto perm = captureCommentPermission(userId, "domain_a");
+        assertTrue(perm.isReadComments());
+        assertTrue(perm.isWriteComments());
+        assertTrue(perm.isReviewComments());
+    }
+
+    @Test
+    void testNoneRoleNeverGetsCommentPermissions() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "DATA_DOMAIN_VIEWER", "domain_b", "NONE"));
+
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "NONE", List.of(), List.of());
+        assignment.setCommentPermissions(createCommentPermissions(true, true, true));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        bulkAssignmentService.executeBulkAssignment(request);
+
+        DashboardCommentPermissionDto perm = captureCommentPermission(userId, "domain_a");
+        assertFalse(perm.isReadComments());
+        assertFalse(perm.isWriteComments());
+        assertFalse(perm.isReviewComments());
+    }
+
+    @Test
+    void testCommentPermissionsOfUnselectedDomainsAreLeftUntouched() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "DATA_DOMAIN_EDITOR"));
+        when(dashboardCommentPermissionService.getPermissions(userId))
+                .thenReturn(List.of(createPermissionDto("domain_b", true, true, true)));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(
+                createAssignment("domain_a", "DATA_DOMAIN_VIEWER", List.of(), List.of())
+        ));
+
+        bulkAssignmentService.executeBulkAssignment(request);
+
+        ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+
+        List<DashboardCommentPermissionDto> perms = captor.getValue().getCommentPermissions();
+        assertEquals(1, perms.size());
+        assertEquals("domain_a", perms.get(0).getContextKey());
+    }
+
+    @Test
+    void testUserNotSkippedWhenOnlyCommentPermissionsDiffer() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "DATA_DOMAIN_VIEWER", "domain_b", "NONE"));
+
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_VIEWER", List.of(), List.of());
+        assignment.setCommentPermissions(createCommentPermissions(true, false, false));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        BulkAssignmentResultDto result = bulkAssignmentService.executeBulkAssignment(request);
+
+        assertEquals(1, result.getUpdatedCount());
+        assertEquals(0, result.getSkippedCount());
+    }
+
+    @Test
+    void testUserSkippedWhenCommentPermissionsAlreadyMatch() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "DATA_DOMAIN_VIEWER", "domain_b", "NONE"));
+        when(dashboardCommentPermissionService.getPermissions(userId))
+                .thenReturn(List.of(createPermissionDto("domain_a", true, true, false)));
+
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_VIEWER", List.of(), List.of());
+        assignment.setCommentPermissions(createCommentPermissions(true, true, false));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        BulkAssignmentResultDto result = bulkAssignmentService.executeBulkAssignment(request);
+
+        assertEquals(0, result.getUpdatedCount());
+        assertEquals(1, result.getSkippedCount());
+        verify(userService, never()).updateContextRolesForUser(any(), any(), anyBoolean());
+    }
+
+    @Test
     void testFailedUserDoesNotBlockOthers() {
         UUID user1 = UUID.randomUUID();
         UUID user2 = UUID.randomUUID();
@@ -281,6 +462,32 @@ class BulkAssignmentServiceTest {
     }
 
     // --- Helpers ---
+
+    private DashboardCommentPermissionDto captureCommentPermission(UUID userId, String contextKey) {
+        ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        return captor.getValue().getCommentPermissions().stream()
+                .filter(p -> contextKey.equals(p.getContextKey()))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private BulkAssignmentRequestDto.CommentPermissions createCommentPermissions(boolean read, boolean write, boolean review) {
+        BulkAssignmentRequestDto.CommentPermissions permissions = new BulkAssignmentRequestDto.CommentPermissions();
+        permissions.setReadComments(read);
+        permissions.setWriteComments(write);
+        permissions.setReviewComments(review);
+        return permissions;
+    }
+
+    private DashboardCommentPermissionDto createPermissionDto(String contextKey, boolean read, boolean write, boolean review) {
+        DashboardCommentPermissionDto dto = new DashboardCommentPermissionDto();
+        dto.setContextKey(contextKey);
+        dto.setReadComments(read);
+        dto.setWriteComments(write);
+        dto.setReviewComments(review);
+        return dto;
+    }
 
     private void mockExistingRoles(UUID userId, Map<String, String> contextKeyToRole) {
         List<UserContextRoleDto> roles = new ArrayList<>();

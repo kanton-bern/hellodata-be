@@ -156,3 +156,7 @@ databaseChangeLog:
       file: db/changelog/changelogs/64_create_app_migration_table.xml
   - include:
       file: db/changelog/changelogs/65_add_pointer_active_to_comment_version.xml
+  - include:
+      file: db/changelog/changelogs/66_add_resource_unique_constraint.xml
+  - include:
+      file: db/changelog/changelogs/67_revoke_default_read_comments.xml

@@ -332,7 +332,8 @@ export class MenuService {
 
   private addLinkToDomainComments(dashboardEntries: any[], contextName: string, contextKey: string, commentPermissions: Record<string, CommentPermissions>) {
     const perms = commentPermissions[contextKey];
-    if (!perms?.readComments) {
+    // The domain-wide comments overview is a review tool - only reviewers may see it
+    if (!perms?.reviewComments) {
       return;
     }
     dashboardEntries.push({
@@ -388,7 +389,7 @@ export class MenuService {
     );
     for (const [dataDomainContextName, lineageDocsInDomain] of sortedByKey) {
       const lineageDocsMenuEntries = this.getLineageDocsSubMenuItemsForDataDomain(lineageDocsInDomain);
-      subMenuEntry.push({id: 'lineageDocsEntries', label: dataDomainContextName, items: lineageDocsMenuEntries});
+      subMenuEntry.push({id: `lineageDocsEntries-${dataDomainContextName}`, label: dataDomainContextName, items: lineageDocsMenuEntries});
     }
     return subMenuEntry;
   }

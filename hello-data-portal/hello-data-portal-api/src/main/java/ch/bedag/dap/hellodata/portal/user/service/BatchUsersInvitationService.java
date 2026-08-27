@@ -352,9 +352,8 @@ public class BatchUsersInvitationService {
      * Builds default dashboard comment permissions based on user's roles.
      * - HELLODATA_ADMIN and BUSINESS_DOMAIN_ADMIN: full access (read, write, review) in all data domains
      * - DATA_DOMAIN_ADMIN: full access in their assigned data domains
-     * - DATA_DOMAIN_EDITOR: read and write access in their assigned data domains
-     * - DATA_DOMAIN_VIEWER and DATA_DOMAIN_BUSINESS_SPECIALIST: read-only access in their assigned data domains
-     * - NONE: no access
+     * - every other role (DATA_DOMAIN_EDITOR, DATA_DOMAIN_VIEWER, DATA_DOMAIN_BUSINESS_SPECIALIST, NONE): no access,
+     * comment permissions have to be granted explicitly in the user management
      */
     private List<DashboardCommentPermissionDto> buildDefaultCommentPermissions(BatchUpdateContextRolesForUserDto user, ContextsDto availableContexts) {
         String businessRoleName = user.getBusinessDomainRole().getName();
@@ -387,10 +386,7 @@ public class BatchUsersInvitationService {
     }
 
     private static final Map<String, boolean[]> ROLE_TO_COMMENT_PERMISSIONS = Map.of(
-            HdRoleName.DATA_DOMAIN_ADMIN.name(), new boolean[]{true, true, true},
-            HdRoleName.DATA_DOMAIN_EDITOR.name(), new boolean[]{true, false, false},
-            HdRoleName.DATA_DOMAIN_VIEWER.name(), new boolean[]{true, false, false},
-            HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name(), new boolean[]{true, false, false}
+            HdRoleName.DATA_DOMAIN_ADMIN.name(), new boolean[]{true, true, true}
     );
 
     private static final boolean[] NO_PERMISSIONS = {false, false, false};

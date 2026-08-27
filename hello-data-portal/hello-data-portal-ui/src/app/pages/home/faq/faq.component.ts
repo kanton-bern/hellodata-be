@@ -41,6 +41,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {ICON_REGISTRY} from '../../../shared/icons';
+import {sanitizeRichText} from '../../../shared/utils/sanitize-html';
 
 @Component({
   selector: 'app-faq',
@@ -83,9 +84,9 @@ export class FaqComponent implements OnInit {
     const message = this.findMessage(faq, selectedLanguage)?.message;
     if (!message) {
       const fallback = '<p>' + this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '</p>' + (this.findMessage(faq, defaultLanguage)?.message || '');
-      return this.sanitizer.bypassSecurityTrustHtml(fallback);
+      return this.sanitizer.bypassSecurityTrustHtml(sanitizeRichText(fallback));
     }
-    return this.sanitizer.bypassSecurityTrustHtml(message);
+    return this.sanitizer.bypassSecurityTrustHtml(sanitizeRichText(message));
   }
 
   /**
