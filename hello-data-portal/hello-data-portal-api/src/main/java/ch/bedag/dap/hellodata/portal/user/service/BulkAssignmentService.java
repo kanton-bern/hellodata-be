@@ -315,9 +315,9 @@ public class BulkAssignmentService {
     }
 
     /**
-     * Builds the comment permissions to apply for one data domain. Data Domain Admins always keep full access and the
-     * NONE role never has any, everything in between takes the explicitly requested permissions, falling back to the
-     * role defaults when the request does not carry any.
+     * Builds the comment permissions to apply for one data domain. The NONE role never has any, everything else takes
+     * the explicitly requested permissions (including Data Domain Admins, mirroring the single-user assignment page),
+     * falling back to the role defaults when the request does not carry any.
      */
     private DashboardCommentPermissionDto buildCommentPermission(String contextKey, String roleNameValue,
                                                                  BulkAssignmentRequestDto.CommentPermissions requested) {
@@ -332,7 +332,7 @@ public class BulkAssignmentService {
             }
         }
 
-        if (requested == null || HdRoleName.DATA_DOMAIN_ADMIN.equals(roleName) || HdRoleName.NONE.equals(roleName)) {
+        if (requested == null || HdRoleName.NONE.equals(roleName)) {
             boolean[] perms = ROLE_COMMENT_PERMISSIONS.getOrDefault(roleName, NO_COMMENT_PERMISSIONS);
             perm.setReadComments(perms[0]);
             perm.setWriteComments(perms[1]);
