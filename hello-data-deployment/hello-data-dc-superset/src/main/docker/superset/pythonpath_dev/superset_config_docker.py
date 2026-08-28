@@ -51,7 +51,10 @@ WTF_CSRF_ENABLED = False
 FEATURE_FLAGS = {
     'DASHBOARD_RBAC': True,
     'ENABLE_JAVASCRIPT_CONTROLS': True,
-    'EMBEDDED_SUPERSET': True
+    'EMBEDDED_SUPERSET': True,
+    # HELLODATA-4067: enable chart screenshots (cache_screenshot REST API) for the portal PDF export.
+    'THUMBNAILS': True,
+    'THUMBNAILS_SQLA_LISTENERS': True,
 }
 
 import jwt
@@ -71,8 +74,13 @@ from flask_appbuilder.views import expose
 from flask_login import login_user, logout_user
 from random import SystemRandom
 from superset.security import SupersetSecurityManager
+from superset.tasks.types import ExecutorType
 from typing import Optional
 from werkzeug.wrappers import Response as WerkzeugResponse
+
+# HELLODATA-4067: render chart screenshots as the requesting user so their row-level-security (RLS)
+# filters apply; fall back to the selenium/thumbnail user for system renders.
+THUMBNAIL_EXECUTE_AS = [ExecutorType.CURRENT_USER, ExecutorType.SELENIUM]
 
 log = logging.getLogger(__name__)
 logging.getLogger(__name__).setLevel(logging.DEBUG)
@@ -305,3 +313,43 @@ TALISMAN_CONFIG = {
     "force_https": False,
     "force_https_permanent": False,
 }
+
+
+# --- HELLODATA-4067: per-user screenshot impersonation -----------------------------------------
+# Admin-only endpoint that mints a short-lived Superset access token for a given user, so the
+# portal PDF export can render chart screenshots as that user (their row-level-security filters
+# apply). Paired with THUMBNAIL_EXECUTE_AS = [CURRENT_USER, SELENIUM] above.
+from flask import Blueprint, current_app, jsonify
+from flask_jwt_extended import create_access_token, current_user, verify_jwt_in_request
+
+hd_impersonation_bp = Blueprint("hd_impersonation", __name__)
+
+
+@hd_impersonation_bp.route("/api/v1/hd_impersonation/token", methods=["POST"])
+def hd_impersonation_token():
+    # Requires a valid Superset JWT (the sidecar's admin/technical account).
+    verify_jwt_in_request()
+    caller = current_user
+    if caller is None or not any(getattr(r, "name", None) == "Admin" for r in (getattr(caller, "roles", None) or [])):
+        return jsonify(message="forbidden"), 403
+    email = (request.get_json(silent=True) or {}).get("email")
+    if not email:
+        return jsonify(message="email is required"), 400
+    target = current_app.appbuilder.sm.find_user(email=email)
+    if target is None:
+        return jsonify(message="user not found"), 404
+    # Pass the user object so Superset's JWT identity loader stores its id (same as /security/login).
+    access_token = create_access_token(identity=target, fresh=False)
+    return jsonify(access_token=access_token), 200
+
+
+def _register_hd_impersonation(app):
+    app.register_blueprint(hd_impersonation_bp)
+    try:
+        app.extensions["csrf"].exempt(hd_impersonation_bp)
+    except Exception:  # noqa: BLE001 - CSRF may be disabled; exemption is then unnecessary
+        pass
+
+
+FLASK_APP_MUTATOR = _register_hd_impersonation
+# -----------------------------------------------------------------------------------------------

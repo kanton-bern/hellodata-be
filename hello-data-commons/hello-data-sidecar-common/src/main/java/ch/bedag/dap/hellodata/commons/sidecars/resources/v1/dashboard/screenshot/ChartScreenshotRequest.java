@@ -46,6 +46,10 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChartScreenshotRequest implements Serializable {
     private List<ChartSpec> charts;
+    /** Email of the portal user to render the screenshots as, so Superset applies that user's
+     *  row-level-security (RLS) filters. When null/blank the sidecar renders as its admin/technical
+     *  account (the thumbnail selenium user) — no per-user RLS. */
+    private String userEmail;
 
     @Data
     @AllArgsConstructor

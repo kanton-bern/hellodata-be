@@ -64,8 +64,10 @@ public class ScreenshotClient {
     private final Connection connection;
     private final ObjectMapper objectMapper;
 
-    /** @return specId -&gt; full PNG bytes, once every chart in the request has been received. */
-    public Map<String, byte[]> fetchScreenshots(String instanceName, List<ChartScreenshotRequest.ChartSpec> specs, Duration timeout) {
+    /** Fetch screenshots rendered as {@code userEmail} (so the user's RLS applies); pass a blank
+     *  email to render as the sidecar's admin account.
+     *  @return specId -&gt; full PNG bytes, once every chart in the request has been received. */
+    public Map<String, byte[]> fetchScreenshots(String instanceName, String userEmail, List<ChartScreenshotRequest.ChartSpec> specs, Duration timeout) {
         if (specs.isEmpty()) {
             return Map.of();
         }
@@ -73,7 +75,7 @@ public class ScreenshotClient {
         String inbox = connection.createInbox();
         Subscription sub = connection.subscribe(inbox);
         try {
-            byte[] payload = objectMapper.writeValueAsBytes(new ChartScreenshotRequest(specs));
+            byte[] payload = objectMapper.writeValueAsBytes(new ChartScreenshotRequest(specs, userEmail));
             connection.publish(subject, inbox, payload); // reply-to = our inbox
 
             Map<String, ByteArrayOutputStream> buffers = new HashMap<>();

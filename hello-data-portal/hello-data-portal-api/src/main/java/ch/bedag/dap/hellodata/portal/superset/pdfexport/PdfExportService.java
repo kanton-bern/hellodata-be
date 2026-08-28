@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.superset.pdfexport;
 
+import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.screenshot.ChartScreenshotRequest.ChartSpec;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import lombok.RequiredArgsConstructor;
@@ -72,7 +73,9 @@ public class PdfExportService {
             specsById.putIfAbsent(specId, new ChartSpec(specId, item.chartId(), size[0], size[1]));
         }
 
-        Map<String, byte[]> pngs = screenshotClient.fetchScreenshots(request.instanceName(), new ArrayList<>(specsById.values()), SCREENSHOT_TIMEOUT);
+        // Render as the requesting user so Superset applies that user's row-level-security filters.
+        String userEmail = SecurityUtils.getCurrentUserEmail();
+        Map<String, byte[]> pngs = screenshotClient.fetchScreenshots(request.instanceName(), userEmail, new ArrayList<>(specsById.values()), SCREENSHOT_TIMEOUT);
 
         CustomLayout layout = LayoutGridPacker.buildCustomLayout(request, pngs);
         return pdfRenderer.renderCustom(layout, template);

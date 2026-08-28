@@ -76,13 +76,23 @@ public class ChartScreenshotRequestListener {
         log.debug("/*-/*- Listening for chart-screenshot requests on subject {}", subject);
         Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
             String replyTo = msg.getReplyTo();
-            try (SupersetClient client = supersetClientProvider.getSupersetClientInstance()) {
+            try (SupersetClient admin = supersetClientProvider.getSupersetClientInstance()) {
                 ChartScreenshotRequest request = objectMapper.readValue(msg.getData(), ChartScreenshotRequest.class);
                 List<ChartScreenshotRequest.ChartSpec> charts = request.getCharts() == null ? List.of() : request.getCharts();
-                for (ChartScreenshotRequest.ChartSpec spec : charts) {
-                    renderAndStream(client, spec, replyTo);
+                // Render as the requesting user (their RLS applies) when an email is supplied; otherwise
+                // render as the admin/technical account (the thumbnail selenium user).
+                String email = request.getUserEmail();
+                SupersetClient render = email == null || email.isBlank() ? admin : admin.asUser(email);
+                try {
+                    for (ChartScreenshotRequest.ChartSpec spec : charts) {
+                        renderAndStream(render, spec, replyTo);
+                    }
+                    publish(replyTo, finalMarker(null));
+                } finally {
+                    if (render != admin) {
+                        render.close();
+                    }
                 }
-                publish(replyTo, finalMarker(null));
                 msg.ack();
             } catch (Exception e) { //NOSONAR - any failure must still close the stream
                 log.error("Error rendering chart screenshots", e);

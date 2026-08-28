@@ -83,6 +83,7 @@ public class SupersetApiRequestBuilder {
     private static final String DATABASE_API_ENDPOINT = "/api/v1/database/%d";
     private static final String CHART_CACHE_SCREENSHOT_API_ENDPOINT = "/api/v1/chart/%d/cache_screenshot/";
     private static final String CHART_SCREENSHOT_API_ENDPOINT = "/api/v1/chart/%d/screenshot/%s/";
+    private static final String IMPERSONATION_TOKEN_API_ENDPOINT = "/api/v1/hd_impersonation/token";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
     private static final String DELETE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
 
@@ -272,6 +273,21 @@ public class SupersetApiRequestBuilder {
                 .setUri(apiUri) //
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
                 .setHeader(HttpHeaders.ACCEPT, ContentType.IMAGE_PNG.getMimeType()) //
+                .build();
+    }
+
+    /** Admin-only: mint a short-lived Superset access token for {@code email} via HdSecurityManager's
+     *  impersonation endpoint, so screenshots can be rendered as that user (their RLS applies). */
+    public static HttpUriRequest getImpersonationTokenRequest(String host, int port, String adminToken, String email) throws URISyntaxException {
+        URI apiUri = buildUri(host, port, IMPERSONATION_TOKEN_API_ENDPOINT, null);
+        JsonObject body = new JsonObject();
+        body.addProperty("email", email);
+        return RequestBuilder.post() //
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + adminToken) //
+                .setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .setEntity(new StringEntity(body.toString(), ContentType.APPLICATION_JSON)) //
                 .build();
     }
 

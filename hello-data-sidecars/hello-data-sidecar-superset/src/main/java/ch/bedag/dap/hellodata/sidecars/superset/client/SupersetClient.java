@@ -545,6 +545,23 @@ public class SupersetClient implements Closeable {
         });
     }
 
+    /** Mint a short-lived Superset access token for {@code email} via HdSecurityManager's admin-only
+     *  impersonation endpoint. This client must be authenticated as an admin/technical account. */
+    public String impersonationToken(String email) throws URISyntaxException, IOException {
+        ApiResponse resp = executeRequest(SupersetApiRequestBuilder.getImpersonationTokenRequest(host, port, authToken, email));
+        JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
+        if (obj == null || !obj.has("access_token") || obj.get("access_token").isJsonNull()) {
+            throw new IllegalStateException("Impersonation endpoint returned no access_token for " + email);
+        }
+        return obj.get("access_token").getAsString();
+    }
+
+    /** A new client authenticated as {@code email} (renders with that user's RLS). Caller must close it.
+     *  This client must be an admin/technical account to mint the impersonation token. */
+    public SupersetClient asUser(String email) throws URISyntaxException, IOException {
+        return new SupersetClient(host, port, impersonationToken(email));
+    }
+
     /** Raw {@code position_json} (layout tree) of a dashboard, or {@code ""} if absent. */
     public String getDashboardPositionJson(int dashboardId) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getDashboardRequest(dashboardId, host, port, authToken);
