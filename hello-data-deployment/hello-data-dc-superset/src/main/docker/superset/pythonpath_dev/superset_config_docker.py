@@ -339,7 +339,7 @@ def hd_impersonation_token():
     if target is None:
         return jsonify(message="user not found"), 404
     # Pass the user object so Superset's JWT identity loader stores its id (same as /security/login).
-    access_token = create_access_token(identity=target, fresh=False)
+    access_token = create_access_token(identity=str(target.id), fresh=False)
     return jsonify(access_token=access_token), 200
 
 
