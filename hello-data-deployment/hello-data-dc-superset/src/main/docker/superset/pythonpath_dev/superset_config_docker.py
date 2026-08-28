@@ -80,7 +80,7 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 
 # HELLODATA-4067: render chart screenshots as the requesting user so their row-level-security (RLS)
 # filters apply; fall back to the selenium/thumbnail user for system renders.
-THUMBNAIL_EXECUTE_AS = [ExecutorType.CURRENT_USER, ExecutorType.SELENIUM]
+THUMBNAIL_EXECUTE_AS = [ExecutorType.CURRENT_USER, ExecutorType.FIXED_USER]
 
 log = logging.getLogger(__name__)
 logging.getLogger(__name__).setLevel(logging.DEBUG)
