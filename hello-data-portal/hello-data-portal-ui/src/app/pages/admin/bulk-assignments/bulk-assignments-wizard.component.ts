@@ -480,8 +480,8 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
 
   isCommentPermissionDisabled(domainKey: string, permission: keyof CommentPermissions): boolean {
     const roleName = this.getRoleForDomain(domainKey);
-    // NONE grants no access at all, Data Domain Admins always have full access - both are not editable
-    if (roleName === NONE_ROLE || roleName === DATA_DOMAIN_ADMIN_ROLE) {
+    // NONE grants no access at all - not editable
+    if (roleName === NONE_ROLE) {
       return true;
     }
     const permissions = this.getCommentPermissions(domainKey);
