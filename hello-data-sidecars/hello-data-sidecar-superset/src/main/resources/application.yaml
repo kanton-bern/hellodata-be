@@ -52,6 +52,10 @@ hello-data:
     dwh-password: postgres
     dwh-schema: dashboard_comments
     dwh-table: published
+    # Roles that get RW (SELECT/INSERT/UPDATE/DELETE) on the comment schema, on top of PUBLIC read.
+    # Leave empty to auto-derive the <db>_u_modeler role from a <db>_u_owner connecting user (dwh-rw-derive-modeler).
+    dwh-rw-roles: ${HELLO_DATA_DASHBOARD_COMMENTS_DWH_RW_ROLES:}
+    dwh-rw-derive-modeler: true
 
 spring:
   application:
