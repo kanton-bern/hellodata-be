@@ -171,6 +171,14 @@ export class PdfBuilderComponent implements OnInit {
   }
 
   onDashboardChange(dashboard: SupersetDashboardWithMetadata): void {
+    // Switching to a different dashboard must clear the canvas: its cells reference the previous
+    // dashboard's charts, but the export takes its title from the newly selected dashboard, so a
+    // stale chart would be exported under the wrong dashboard's name. Only clear on a real change —
+    // not when the restore flow re-selects the saved dashboard to reattach its saved cells.
+    const previous = this.selectedDashboard();
+    if (previous && (previous.instanceName !== dashboard.instanceName || previous.id !== dashboard.id)) {
+      this.cells.set([]);
+    }
     this.selectedDashboard.set(dashboard);
     this.pdfExport.getCharts(dashboard.instanceName, dashboard.id).subscribe(c => this.charts.set(c));
     this.pdfExport.getMarkdownBlocks(dashboard.instanceName, dashboard.id).subscribe(m => this.markdownBlocks.set(m));
