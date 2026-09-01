@@ -528,7 +528,9 @@ public class SupersetClient implements Closeable {
 
     /**
      * Single poll for a chart screenshot: PNG bytes when ready (HTTP 200), empty while Superset is
-     * still generating it (HTTP 202). The caller keeps polling until present or a timeout elapses.
+     * still generating it. Superset returns 404 (image not yet in the thumbnail cache) and/or 202
+     * while the async render is in progress, so both mean "not ready — keep polling"; the caller
+     * retries until present or a timeout elapses.
      */
     public Optional<byte[]> fetchChartScreenshot(int chartId, String cacheKey) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getChartScreenshotRequest(host, port, authToken, chartId, cacheKey);
@@ -537,7 +539,7 @@ public class SupersetClient implements Closeable {
             if (code == 200) {
                 return Optional.of(EntityUtils.toByteArray(response.getEntity()));
             }
-            if (code == 202) {
+            if (code == 202 || code == 404) {
                 EntityUtils.consumeQuietly(response.getEntity());
                 return Optional.<byte[]>empty();
             }
