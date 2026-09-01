@@ -30,6 +30,9 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "hello-data.dashboard-comments")
@@ -40,4 +43,15 @@ public class DwhCommentSyncProperties {
     private String dwhPassword;
     private String dwhSchema = "public";
     private String dwhTable = "dashboard_comment_published";
+    /**
+     * Additional database roles that should get read/write (SELECT, INSERT, UPDATE, DELETE) access on the
+     * comment schema, on top of the read-only grant given to PUBLIC. Typically the data domain MODELER role,
+     * so dbt/modeling can maintain the comment data. Comma-separated when set via environment variable.
+     */
+    private List<String> dwhRwRoles = new ArrayList<>();
+    /**
+     * When {@link #dwhRwRoles} is empty and the connecting user follows the {@code <db>_u_owner} naming
+     * convention, automatically derive and grant RW to the matching {@code <db>_u_modeler} role.
+     */
+    private boolean dwhRwDeriveModeler = true;
 }
