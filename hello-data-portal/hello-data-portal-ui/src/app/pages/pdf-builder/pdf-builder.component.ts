@@ -25,7 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit, computed, inject, signal} from "@angular/core";
+import {Component, DestroyRef, OnInit, computed, inject, signal} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
 import {Select} from "primeng/select";
 import {Button} from "primeng/button";
@@ -35,7 +36,8 @@ import {Store} from "@ngrx/store";
 import {DisplayGrid, Gridster, GridsterConfig, GridsterItem, GridsterItemConfig, GridType} from "angular-gridster2";
 import {ICON_REGISTRY} from "../../shared/icons";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {MyDashboardsService} from "../../store/my-dashboards/my-dashboards.service";
+import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
+import {selectMyDashboards} from "../../store/my-dashboards/my-dashboards.selector";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {PdfExportService} from "../../store/pdf-export/pdf-export.service";
 import {PDF_TEMPLATES, PdfChartRef, PdfLayoutItem, PdfLayoutRequest, PdfTemplateRef} from "../../store/pdf-export/pdf-export.model";
@@ -72,9 +74,12 @@ const ROW_PITCH = ROW_HEIGHT + GRID_MARGIN;
 export class PdfBuilderComponent implements OnInit {
   protected readonly icons = ICON_REGISTRY;
 
-  private myDashboards = inject(MyDashboardsService);
   private pdfExport = inject(PdfExportService);
   private store = inject(Store);
+  private destroyRef = inject(DestroyRef);
+
+  /** A dashboard to re-select from localStorage once it appears in the (data-domain-filtered) list. */
+  private pendingRestore: {instanceName: string; dashboardId: number} | null = null;
 
   dashboards = signal<SupersetDashboardWithMetadata[]>([]);
   templates = signal<PdfTemplateRef[]>(PDF_TEMPLATES);
@@ -120,8 +125,28 @@ export class PdfBuilderComponent implements OnInit {
 
   ngOnInit(): void {
     this.store.dispatch(createBreadcrumbs({breadcrumbs: [{label: '@PDF export'}]}));
-    this.myDashboards.getMyDashboards().subscribe(d => this.dashboards.set(d));
     this.restore();
+    this.store.dispatch(loadMyDashboards());
+    // Reactively track the dashboards of the currently selected data domain (selectMyDashboards
+    // returns all domains when "All Data Domains" is selected, otherwise only the chosen one).
+    this.store.select(selectMyDashboards).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(dashboards => {
+      this.dashboards.set(dashboards);
+      if (this.pendingRestore) {
+        const match = dashboards.find(d => d.instanceName === this.pendingRestore!.instanceName && d.id === this.pendingRestore!.dashboardId);
+        if (match) {
+          this.pendingRestore = null;
+          this.onDashboardChange(match);
+        }
+        return;
+      }
+      // If the data domain changed and the selected dashboard is no longer listed, reset the picker.
+      const current = this.selectedDashboard();
+      if (current && !dashboards.some(d => d.instanceName === current.instanceName && d.id === current.id)) {
+        this.selectedDashboard.set(null);
+        this.charts.set([]);
+        this.markdownBlocks.set([]);
+      }
+    });
   }
 
   onTemplateChange(id: string): void {
@@ -275,14 +300,8 @@ export class PdfBuilderComponent implements OnInit {
         this.selectedTemplate.set(state.template);
       }
       if (state.instanceName != null && state.dashboardId != null) {
-        // Re-select once the dashboard list has loaded, then reload its palette.
-        this.myDashboards.getMyDashboards().subscribe(dashboards => {
-          this.dashboards.set(dashboards);
-          const match = dashboards.find(d => d.instanceName === state.instanceName && d.id === state.dashboardId);
-          if (match) {
-            this.onDashboardChange(match);
-          }
-        });
+        // Re-select once the (data-domain-filtered) dashboard list arrives from the store.
+        this.pendingRestore = {instanceName: state.instanceName, dashboardId: state.dashboardId};
       }
     } catch {
       // ignore corrupt storage
