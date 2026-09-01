@@ -120,7 +120,7 @@ public class SupersetClient implements Closeable {
      */
     public SupersetClient(String host, int port, String username, String password, CloseableHttpClient client) throws IOException, URISyntaxException {
         if (client == null) {
-            this.client = HttpClientBuilder.create().build();
+            this.client = HttpClientBuilder.create().setMaxConnPerRoute(8).setMaxConnTotal(32).build();
         } else {
             this.client = client;
         }

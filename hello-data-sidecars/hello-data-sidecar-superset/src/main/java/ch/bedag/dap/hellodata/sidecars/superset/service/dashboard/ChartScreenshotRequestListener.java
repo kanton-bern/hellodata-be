@@ -41,8 +41,12 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Renders chart screenshots on request from the portal and streams the PNG bytes back to the
@@ -70,6 +74,11 @@ public class ChartScreenshotRequestListener {
     @Value("${hello-data.screenshot.poll-interval-millis:2000}")
     private long pollIntervalMillis;
 
+    /** Max charts screenshotted in parallel; bounds load on Superset's browser workers while keeping
+     *  a multi-chart export well under the portal's overall timeout. */
+    @Value("${hello-data.screenshot.concurrency:4}")
+    private int concurrency;
+
     @PostConstruct
     public void listenForRequests() {
         String subject = SlugifyUtil.slugify(instanceName + RequestReplySubject.EXPORT_DASHBOARD_SCREENSHOTS.getSubject());
@@ -83,12 +92,22 @@ public class ChartScreenshotRequestListener {
                 // render as the admin/technical account (the thumbnail selenium user).
                 String email = request.getUserEmail();
                 SupersetClient render = email == null || email.isBlank() ? admin : admin.asUser(email);
+                // Render charts in parallel (bounded) so a multi-chart export stays well within the
+                // portal's overall timeout; each renderAndStream handles its own errors and streams a
+                // chunk, so the stream still completes even if some charts fail.
+                int poolSize = Math.max(1, Math.min(concurrency, charts.size()));
+                ExecutorService pool = Executors.newFixedThreadPool(poolSize);
                 try {
+                    List<Future<?>> futures = new ArrayList<>();
                     for (ChartScreenshotRequest.ChartSpec spec : charts) {
-                        renderAndStream(render, spec, replyTo);
+                        futures.add(pool.submit(() -> renderAndStream(render, spec, replyTo)));
+                    }
+                    for (Future<?> future : futures) {
+                        future.get();
                     }
                     publish(replyTo, finalMarker(null));
                 } finally {
+                    pool.shutdownNow();
                     if (render != admin) {
                         render.close();
                     }
