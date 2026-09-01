@@ -39,6 +39,7 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
 import {selectMyDashboards, selectSelectedDataDomain} from "../../store/my-dashboards/my-dashboards.selector";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
+import {NotificationService} from "../../shared/services/notification.service";
 import {PdfExportService} from "../../store/pdf-export/pdf-export.service";
 import {PDF_TEMPLATES, PdfChartRef, PdfLayoutItem, PdfLayoutRequest, PdfTemplateRef} from "../../store/pdf-export/pdf-export.model";
 
@@ -77,6 +78,7 @@ export class PdfBuilderComponent implements OnInit {
   private pdfExport = inject(PdfExportService);
   private store = inject(Store);
   private destroyRef = inject(DestroyRef);
+  private notification = inject(NotificationService);
 
   /** A dashboard to re-select from localStorage once it appears in the (data-domain-filtered) list. */
   private pendingRestore: {instanceName: string; dashboardId: number} | null = null;
@@ -150,12 +152,15 @@ export class PdfBuilderComponent implements OnInit {
         }
         return;
       }
-      // If the data domain changed and the selected dashboard is no longer listed, reset the picker.
+      // If the data domain changed and the selected dashboard is no longer listed, reset the picker
+      // and clear the canvas — its cells reference charts of the now-unavailable dashboard.
       const current = this.selectedDashboard();
       if (current && !dashboards.some(d => d.instanceName === current.instanceName && d.id === current.id)) {
         this.selectedDashboard.set(null);
         this.charts.set([]);
         this.markdownBlocks.set([]);
+        this.cells.set([]);
+        this.persist();
       }
     });
   }
@@ -268,7 +273,11 @@ export class PdfBuilderComponent implements OnInit {
         this.download(blob, `dashboard-${dashboard.id}.pdf`);
         this.exporting.set(false);
       },
-      error: () => this.exporting.set(false),
+      error: (err) => {
+        this.exporting.set(false);
+        console.error('PDF export failed', err);   // full detail (incl. 502/504 body) for debugging
+        this.notification.error('@PDF export failed');
+      },
     });
   }
 
@@ -277,8 +286,13 @@ export class PdfBuilderComponent implements OnInit {
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
+    a.style.display = 'none';
+    // The anchor must be in the DOM for the click to trigger a download in some browsers (Firefox),
+    // and the object URL must outlive the click so the browser can finish reading the blob.
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
   }
 
   private persist(): void {

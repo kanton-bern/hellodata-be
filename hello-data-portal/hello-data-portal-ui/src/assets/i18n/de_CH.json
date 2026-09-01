@@ -201,6 +201,7 @@
   "@External dashboard updated": "Externer Dashboard Link {{title}} aktualisiert",
   "@External dashboards": "Externe Dashboards",
   "@PDF export": "PDF-Export",
+  "@PDF export failed": "PDF-Export fehlgeschlagen. Möglicherweise ist eine Zeitüberschreitung aufgetreten – bitte erneut versuchen.",
   "@Charts": "Diagramme",
   "@Blocks": "Blöcke",
   "@Template": "Vorlage",

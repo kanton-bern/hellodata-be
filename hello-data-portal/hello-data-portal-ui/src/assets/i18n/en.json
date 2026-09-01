@@ -204,6 +204,7 @@
   "@External dashboard updated": "External dashboard {{title}} updated",
   "@External dashboards": "External dashboards",
   "@PDF export": "PDF export",
+  "@PDF export failed": "PDF export failed. It may have timed out — please try again.",
   "@Charts": "Charts",
   "@Blocks": "Blocks",
   "@Template": "Template",

@@ -204,6 +204,7 @@
   "@External dashboard updated": "Lien vers le tableau de bord externe {{title}} mis à jour",
   "@External dashboards": "Tableaux de bord externes",
   "@PDF export": "Export PDF",
+  "@PDF export failed": "Échec de l'export PDF. Le délai a peut-être été dépassé — veuillez réessayer.",
   "@Charts": "Graphiques",
   "@Blocks": "Blocs",
   "@Template": "Modèle",
