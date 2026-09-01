@@ -5,10 +5,11 @@
     <label class="field">
       <span>{{ '@Dashboard' | transloco }}</span>
       <p-select
-        [options]="dashboards()"
+        [options]="dashboardOptions()"
         [ngModel]="selectedDashboard()"
         (ngModelChange)="onDashboardChange($event)"
-        optionLabel="dashboardTitle"
+        optionLabel="label"
+        optionValue="value"
         [placeholder]="'@Choose a dashboard' | transloco"
         appendTo="body"
         styleClass="w-full"/>

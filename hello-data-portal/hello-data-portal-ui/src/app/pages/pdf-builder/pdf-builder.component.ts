@@ -37,7 +37,7 @@ import {DisplayGrid, Gridster, GridsterConfig, GridsterItem, GridsterItemConfig,
 import {ICON_REGISTRY} from "../../shared/icons";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
-import {selectMyDashboards} from "../../store/my-dashboards/my-dashboards.selector";
+import {selectMyDashboards, selectSelectedDataDomain} from "../../store/my-dashboards/my-dashboards.selector";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {PdfExportService} from "../../store/pdf-export/pdf-export.service";
 import {PDF_TEMPLATES, PdfChartRef, PdfLayoutItem, PdfLayoutRequest, PdfTemplateRef} from "../../store/pdf-export/pdf-export.model";
@@ -82,12 +82,21 @@ export class PdfBuilderComponent implements OnInit {
   private pendingRestore: {instanceName: string; dashboardId: number} | null = null;
 
   dashboards = signal<SupersetDashboardWithMetadata[]>([]);
+  /** True when "All Data Domains" is selected; then the picker disambiguates titles with the domain. */
+  allDomainsSelected = signal(true);
   templates = signal<PdfTemplateRef[]>(PDF_TEMPLATES);
   selectedTemplate = signal<string>('portrait');
   charts = signal<PdfChartRef[]>([]);
   markdownBlocks = signal<string[]>([]);
   selectedDashboard = signal<SupersetDashboardWithMetadata | null>(null);
   cells = signal<Cell[]>([]);
+
+  /** Picker options: label is the dashboard title, suffixed with the data-domain name only when all
+   *  domains are shown (so dashboards from different domains stay distinguishable). */
+  dashboardOptions = computed(() => this.dashboards().map(d => ({
+    label: this.allDomainsSelected() && d.contextName ? `${d.dashboardTitle} (${d.contextName})` : d.dashboardTitle,
+    value: d,
+  })));
 
   /** Top offsets (px) of page-boundary lines, one per interior 4-row page break. */
   pageDividers = computed(() => {
@@ -127,6 +136,8 @@ export class PdfBuilderComponent implements OnInit {
     this.store.dispatch(createBreadcrumbs({breadcrumbs: [{label: '@PDF export'}]}));
     this.restore();
     this.store.dispatch(loadMyDashboards());
+    this.store.select(selectSelectedDataDomain).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(dd => this.allDomainsSelected.set(dd === null || dd.id === ''));
     // Reactively track the dashboards of the currently selected data domain (selectMyDashboards
     // returns all domains when "All Data Domains" is selected, otherwise only the chosen one).
     this.store.select(selectMyDashboards).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(dashboards => {
