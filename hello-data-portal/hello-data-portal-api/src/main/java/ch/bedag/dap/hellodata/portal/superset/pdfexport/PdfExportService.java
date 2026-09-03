@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /** Orchestrates the custom-layout PDF export: authZ gate, chart sizing, screenshot fetch over
@@ -79,5 +80,24 @@ public class PdfExportService {
 
         CustomLayout layout = LayoutGridPacker.buildCustomLayout(request, pngs);
         return pdfRenderer.renderCustom(layout, template);
+    }
+
+    /**
+     * Single-chart screenshot for the builder's grid preview, sized to the cell's span so the preview
+     * roughly matches how the chart will appear in the exported PDF. Rendered as the requesting user
+     * (their row-level-security filters apply) and gated on access to the owning dashboard. Reuses the
+     * same Superset screenshot cache as the export, so a preview also warms the export.
+     */
+    public byte[] chartPreview(String instanceName, long dashboardId, long chartId, int cols, int rows, String templateId) {
+        dashboardService.assertCurrentUserMayAccess(instanceName, dashboardId);
+        ReportTemplate template = ReportTemplate.fromId(templateId);
+        int c = LayoutGridPacker.clampCols(cols);
+        int r = LayoutGridPacker.clampRowsToBand(0, rows);
+        int[] size = template.chartScreenshotPx(c, r, SCREENSHOT_DPI);
+        String specId = LayoutGridPacker.specId(chartId, c, r);
+        ChartSpec spec = new ChartSpec(specId, chartId, size[0], size[1]);
+        String userEmail = SecurityUtils.getCurrentUserEmail();
+        Map<String, byte[]> pngs = screenshotClient.fetchScreenshots(instanceName, userEmail, List.of(spec), SCREENSHOT_TIMEOUT);
+        return pngs.get(specId);
     }
 }

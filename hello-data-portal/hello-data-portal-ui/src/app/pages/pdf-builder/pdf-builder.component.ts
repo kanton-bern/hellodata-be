@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, DestroyRef, OnInit, computed, inject, signal} from "@angular/core";
+import {Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
 import {Select} from "primeng/select";
@@ -70,7 +70,7 @@ const PAGE_ROWS = 4;
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
-export class PdfBuilderComponent implements OnInit {
+export class PdfBuilderComponent implements OnInit, OnDestroy {
   protected readonly icons = ICON_REGISTRY;
 
   private pdfExport = inject(PdfExportService);
@@ -94,6 +94,12 @@ export class PdfBuilderComponent implements OnInit {
   pageCount = signal(1);
   /** 0-indexed page currently shown on the 4x4 canvas. */
   currentPage = signal(0);
+
+  /** Per-tile chart screenshot previews, keyed by chart + size + template (see previewKey). Each is
+   *  an object URL for the loaded PNG blob; fetched lazily/async so tiles fill in while you keep
+   *  building. `previewLoading` drives the per-tile spinner. */
+  private previewUrls = signal<Map<string, string>>(new Map());
+  private previewLoading = signal<Set<string>>(new Set());
 
   /** Picker options: label is the dashboard title, suffixed with the data-domain name only when all
    *  domains are shown (so dashboards from different domains stay distinguishable). */
@@ -181,6 +187,9 @@ export class PdfBuilderComponent implements OnInit {
 
   onTemplateChange(id: string): void {
     this.selectedTemplate.set(id);
+    // Previews are keyed by template (orientation changes the aspect) -> drop the old ones and refetch.
+    this.clearPreviews();
+    this.refreshPreviews();
     this.persist();
   }
 
@@ -196,6 +205,7 @@ export class PdfBuilderComponent implements OnInit {
     this.selectedDashboard.set(dashboard);
     this.pdfExport.getCharts(dashboard.instanceName, dashboard.id).subscribe(c => this.charts.set(c));
     this.pdfExport.getMarkdownBlocks(dashboard.instanceName, dashboard.id).subscribe(m => this.markdownBlocks.set(m));
+    this.refreshPreviews();   // load previews for any restored tiles now that the dashboard is known
     this.persist();
   }
 
@@ -216,7 +226,70 @@ export class PdfBuilderComponent implements OnInit {
     const cell: Cell = {...this.dragPayload, page: this.currentPage(), x: pos.x, y: pos.y, cols: 2, rows: 2};
     this.cells.update(cs => [...cs, cell]);
     this.dragPayload = null;
+    this.ensurePreview(cell);
     this.persist();
+  }
+
+  /** Stable cache key for a chart tile's preview: same chart at the same size + template shares one
+   *  screenshot. Includes the template so switching orientation re-renders at the new aspect. */
+  previewKey(cell: Cell): string {
+    return `${cell.chartId}_${cell.cols}_${cell.rows}_${this.selectedTemplate()}`;
+  }
+
+  /** The loaded preview object URL for a chart tile, or undefined while it is still loading/absent. */
+  previewUrl(cell: Cell): string | undefined {
+    return this.previewUrls().get(this.previewKey(cell));
+  }
+
+  /** True while a chart tile's preview screenshot is being fetched (drives the per-tile spinner). */
+  previewLoadingFor(cell: Cell): boolean {
+    return this.previewLoading().has(this.previewKey(cell));
+  }
+
+  /** Fetch a chart tile's preview screenshot once (async, deduplicated by key). */
+  private ensurePreview(cell: Cell): void {
+    const dashboard = this.selectedDashboard();
+    if (cell.type !== 'chart' || cell.chartId == null || dashboard == null) {
+      return;
+    }
+    const key = this.previewKey(cell);
+    if (this.previewUrls().has(key) || this.previewLoading().has(key)) {
+      return;
+    }
+    this.previewLoading.update(s => new Set(s).add(key));
+    this.pdfExport.getChartPreview(dashboard.instanceName, dashboard.id, cell.chartId, cell.cols, cell.rows, this.selectedTemplate())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: blob => {
+          this.previewUrls.update(m => new Map(m).set(key, URL.createObjectURL(blob)));
+          this.clearLoading(key);
+        },
+        error: () => this.clearLoading(key),   // leave the fallback icon in place
+      });
+  }
+
+  /** Kick off previews for every chart tile that doesn't have one yet (e.g. after restore). */
+  private refreshPreviews(): void {
+    this.cells().forEach(c => this.ensurePreview(c));
+  }
+
+  private clearLoading(key: string): void {
+    this.previewLoading.update(s => {
+      const next = new Set(s);
+      next.delete(key);
+      return next;
+    });
+  }
+
+  /** Revoke all preview object URLs and reset the caches (on dashboard/template change and teardown). */
+  private clearPreviews(): void {
+    this.previewUrls().forEach(url => URL.revokeObjectURL(url));
+    this.previewUrls.set(new Map());
+    this.previewLoading.set(new Set());
+  }
+
+  ngOnDestroy(): void {
+    this.clearPreviews();
   }
 
   /** Open the dialog to create a new editable markdown block. */
@@ -258,7 +331,8 @@ export class PdfBuilderComponent implements OnInit {
     this.persist();
   }
 
-  onCellChange(): void {
+  onCellChange(cell: Cell): void {
+    this.ensurePreview(cell);   // a resize changes the tile size -> fetch a preview at the new aspect
     this.persist();
   }
 
@@ -294,6 +368,7 @@ export class PdfBuilderComponent implements OnInit {
     this.cells.set([]);
     this.pageCount.set(1);
     this.currentPage.set(0);
+    this.clearPreviews();
   }
 
   clear(): void {

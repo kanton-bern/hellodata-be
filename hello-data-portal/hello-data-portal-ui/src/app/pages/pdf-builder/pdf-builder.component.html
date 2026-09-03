@@ -90,7 +90,7 @@
     </div>
     <gridster [options]="options">
       @for (cell of visibleCells(); track cell) {
-        <gridster-item [item]="cell" (itemChange)="onCellChange()">
+        <gridster-item [item]="cell" (itemChange)="onCellChange(cell)">
           <div class="cell">
             <div class="cell-head">
               <span class="cell-type">{{ cell.type === 'chart' ? cell.name : ('@Markdown' | transloco) }}</span>
@@ -107,9 +107,15 @@
             </div>
             <div class="cell-body" [class.center]="cell.type === 'chart'">
               @if (cell.type === 'chart') {
-                <svg class="chart-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M3 3h2v18H3V3zm4 10h3v8H7v-8zm5-6h3v14h-3V7zm5 3h3v11h-3V10z"/>
-                </svg>
+                @if (previewUrl(cell); as url) {
+                  <img class="preview" [src]="url" [alt]="cell.name"/>
+                } @else if (previewLoadingFor(cell)) {
+                  <div class="spinner" [attr.aria-label]="'@Loading preview' | transloco"></div>
+                } @else {
+                  <svg class="chart-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M3 3h2v18H3V3zm4 10h3v8H7v-8zm5-6h3v14h-3V7zm5 3h3v11h-3V10z"/>
+                  </svg>
+                }
               } @else {
                 <em>{{ cell.markdown || ('@empty markdown' | transloco) }}</em>
               }

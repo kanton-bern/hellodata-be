@@ -132,6 +132,18 @@ public class SupersetController {
         return paletteClient.markdownBlocks(paletteClient.fetchPalette(instanceName, dashboardId));
     }
 
+    /** Single-chart screenshot preview for a builder grid tile, sized to the cell's span and rendered
+     *  as the current user. The browser can request these lazily per tile while the layout is built. */
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    @GetMapping(value = "/dashboards/{instanceName}/{dashboardId}/charts/{chartId}/preview", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> chartPreview(
+            @PathVariable String instanceName, @PathVariable long dashboardId, @PathVariable long chartId,
+            @RequestParam(defaultValue = "2") int cols, @RequestParam(defaultValue = "2") int rows,
+            @RequestParam(defaultValue = "portrait") String template) {
+        byte[] png = pdfExportService.chartPreview(instanceName, dashboardId, chartId, cols, rows, template);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(png);
+    }
+
     /** Custom grid layout export designed in the Angular builder. */
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     @PostMapping(value = "/dashboards/pdf/custom", produces = MediaType.APPLICATION_PDF_VALUE)

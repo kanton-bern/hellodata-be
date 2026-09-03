@@ -26,7 +26,7 @@
 ///
 
 import {inject, Injectable} from "@angular/core";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {environment} from "../../../environments/environment";
 import {PdfChartRef, PdfLayoutRequest} from "./pdf-export.model";
@@ -54,5 +54,15 @@ export class PdfExportService {
   /** Render the custom grid layout to a PDF (streamed as application/pdf). */
   public exportCustom(request: PdfLayoutRequest): Observable<Blob> {
     return this.httpClient.post(`${this.baseUrl}/pdf/custom`, request, {responseType: 'blob'});
+  }
+
+  /** Single-chart screenshot preview (PNG blob), sized to the tile's span, for the builder grid. */
+  public getChartPreview(instanceName: string, dashboardId: number, chartId: number,
+                         cols: number, rows: number, template: string): Observable<Blob> {
+    const params = new HttpParams().set('cols', cols).set('rows', rows).set('template', template);
+    return this.httpClient.get(
+      `${this.baseUrl}/${encodeURIComponent(instanceName)}/${dashboardId}/charts/${chartId}/preview`,
+      {params, responseType: 'blob'}
+    );
   }
 }

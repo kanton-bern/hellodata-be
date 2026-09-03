@@ -181,6 +181,26 @@ gridster {
   justify-content: center;
 }
 
+.cell-body .preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #ddd;
+  border-top-color: var(--p-primary-color, #2f7d72);
+  border-radius: 50%;
+  animation: pdf-builder-spin 0.8s linear infinite;
+}
+
+@keyframes pdf-builder-spin {
+  to { transform: rotate(360deg); }
+}
+
 .editor-backdrop {
   display: none;
   position: fixed;
