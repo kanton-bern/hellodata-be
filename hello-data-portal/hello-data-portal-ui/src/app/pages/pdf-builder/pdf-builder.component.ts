@@ -141,11 +141,13 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     pushItems: false,
     swap: false,
     pushResizeItems: false,
-    // Validate the empty-cell drop against the ACTUAL 2x2 footprint we place (gridster otherwise
-    // validates a 1x1, so a drop that fits as 1x1 but not as 2x2 gets auto-relocated). Also shows a
-    // 2x2 drop preview. maxRows=4 already keeps a 2x2 within the page.
-    defaultItemCols: 2,
-    defaultItemRows: 2,
+    // Gate the drop on a 1x1 footprint: gridster suppresses the drop callback when the placeholder
+    // collides (getValidItemFromEvent), so a 2x2 default would swallow drops onto any gap smaller
+    // than 2x2 (e.g. the 2x1 slot left by shrinking a chart). With 1x1 the callback fires whenever
+    // the released cell itself is free; onDrop then grows the tile to the largest size that fits
+    // there (up to 2x2). See fitFootprint().
+    defaultItemCols: 1,
+    defaultItemRows: 1,
     // A drop that doesn't fit where released should do nothing, rather than jumping to another slot.
     disableAutoPositionOnConflict: true,
     draggable: {enabled: true, ignoreContentClass: 'cell-body'},
@@ -223,11 +225,54 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     if (!this.dragPayload) {
       return;
     }
-    const cell: Cell = {...this.dragPayload, page: this.currentPage(), x: pos.x, y: pos.y, cols: 2, rows: 2};
+    // pos.x/pos.y is the (empty) cell the user released on. Grow the tile to the largest footprint
+    // that fits there without overlapping other tiles or leaving the 4x4 page.
+    const {cols, rows} = this.fitFootprint(pos.x, pos.y);
+    const cell: Cell = {...this.dragPayload, page: this.currentPage(), x: pos.x, y: pos.y, cols, rows};
     this.cells.update(cs => [...cs, cell]);
     this.dragPayload = null;
     this.ensurePreview(cell);
     this.persist();
+  }
+
+  /** Occupancy grid (PAGE_ROWS x PAGE_ROWS) of the current page's tiles; true = covered. */
+  private occupancy(): boolean[][] {
+    const grid = Array.from({length: PAGE_ROWS}, () => Array<boolean>(PAGE_ROWS).fill(false));
+    this.visibleCells().forEach(c => {
+      for (let y = c.y; y < c.y + c.rows && y < PAGE_ROWS; y++) {
+        for (let x = c.x; x < c.x + c.cols && x < PAGE_ROWS; x++) {
+          grid[y][x] = true;
+        }
+      }
+    });
+    return grid;
+  }
+
+  /** True when a cols x rows footprint anchored at (x,y) stays in the page and hits no occupied cell. */
+  private footprintFits(grid: boolean[][], x: number, y: number, cols: number, rows: number): boolean {
+    if (x + cols > PAGE_ROWS || y + rows > PAGE_ROWS) {
+      return false;
+    }
+    for (let yy = y; yy < y + rows; yy++) {
+      for (let xx = x; xx < x + cols; xx++) {
+        if (grid[yy][xx]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /** Largest footprint (preferring 2x2, then 2x1, 1x2, else 1x1) that fits anchored at the drop cell. */
+  private fitFootprint(x: number, y: number): {cols: number; rows: number} {
+    const grid = this.occupancy();
+    const candidates = [{cols: 2, rows: 2}, {cols: 2, rows: 1}, {cols: 1, rows: 2}];
+    for (const c of candidates) {
+      if (this.footprintFits(grid, x, y, c.cols, c.rows)) {
+        return c;
+      }
+    }
+    return {cols: 1, rows: 1};   // the released cell itself was free (drop callback wouldn't fire otherwise)
   }
 
   /** Stable cache key for a chart tile's preview: same chart at the same size + template shares one
