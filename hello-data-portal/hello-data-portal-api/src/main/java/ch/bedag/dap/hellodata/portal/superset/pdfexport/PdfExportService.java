@@ -78,7 +78,7 @@ public class PdfExportService {
         String userEmail = SecurityUtils.getCurrentUserEmail();
         Map<String, byte[]> pngs = screenshotClient.fetchScreenshots(request.instanceName(), userEmail, new ArrayList<>(specsById.values()), SCREENSHOT_TIMEOUT);
 
-        CustomLayout layout = LayoutGridPacker.buildCustomLayout(request, pngs);
+        CustomLayout layout = LayoutGridPacker.buildCustomLayout(request, pngs, template);
         return pdfRenderer.renderCustom(layout, template);
     }
 

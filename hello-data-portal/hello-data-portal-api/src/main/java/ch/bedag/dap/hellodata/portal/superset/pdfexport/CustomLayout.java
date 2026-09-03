@@ -30,22 +30,20 @@ import java.util.List;
 
 /**
  * View model for the custom-layout template: a title plus one grid per page. Each page is a
- * fixed 4-column grid rendered as one HTML table, so the PDF reproduces the builder's exact
- * cell positions -- side-by-side, stacked, and any empty gap cells -- and breaks every page.
+ * fixed-height box whose tiles are absolutely positioned at their exact grid coordinates, so the
+ * PDF reproduces the builder's layout precisely -- side-by-side, stacked, and any empty gap --
+ * regardless of each chart's rendered content height (which an HTML table's rowspans could not
+ * keep aligned). openhtmltopdf renders CSS 2.1 absolute positioning reliably.
  */
 public record CustomLayout(String title, List<GridPage> pages) {
 
-    /** One page: rows of a fixed 4-column grid. */
-    public record GridPage(List<GridRow> rows) {
+    /** One page: a relatively-positioned box {@code heightCss} tall, holding absolutely-placed tiles. */
+    public record GridPage(String heightCss, List<Tile> tiles) {
     }
 
-    /** One grid row: the cells that start in this row, left to right. Cells covered by a
-     *  {@code rowspan}/{@code colspan} from an earlier cell are omitted (as in HTML tables). */
-    public record GridRow(List<GridCell> cells) {
-    }
-
-    /** One table cell. {@code item == null} is an empty spacer that preserves a gap.
-     *  {@code colspan}/{@code rowspan} carry the chart's cell span. */
-    public record GridCell(DashboardExport.Item item, int colspan, int rowspan) {
+    /** One placed chart/markdown tile. {@code left}/{@code width} are column percentages (e.g.
+     *  {@code "25%"}), {@code top}/{@code height} are millimetres (e.g. {@code "64mm"}); all are
+     *  pre-formatted CSS values so the template just drops them into the inline {@code style}. */
+    public record Tile(DashboardExport.Item item, String left, String top, String width, String height) {
     }
 }

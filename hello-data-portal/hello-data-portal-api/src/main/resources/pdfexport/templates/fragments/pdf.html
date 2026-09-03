@@ -167,29 +167,29 @@
         .markdown a {
             color: #0a0a0a;
         }
-        /* Custom-layout grid: each page is one fixed 4-column table. */
+        /* Custom-layout grid: each page is a fixed-height box; tiles are absolutely positioned at
+           their exact grid coordinates (openhtmltopdf renders CSS 2.1 absolute positioning), so an
+           uneven chart height can never nudge a neighbour out of place. */
         .cover-page {
             page-break-after: always;
         }
         .pdf-page.page-break {
             page-break-before: always;
         }
-        table.grid-page {
+        .grid-page {
+            position: relative;
             width: 100%;
-            table-layout: fixed;
-            border-collapse: collapse;
             page-break-inside: avoid;
         }
-        table.grid-page td.grid-cell {
-            vertical-align: top;
-            height: @@CELL_HEIGHT@@;
+        .grid-page .grid-tile {
+            position: absolute;
+            box-sizing: border-box;
             padding: 0 6px 10pt 6px;
+            overflow: hidden;
         }
-        table.grid-page td.grid-cell:first-child {
-            padding-left: 0;
-        }
-        table.grid-page td.grid-cell:last-child {
-            padding-right: 0;
+        .grid-page .grid-tile .chart,
+        .grid-page .grid-tile .markdown {
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -217,23 +217,13 @@
         <div th:case="'markdown'" class="summary markdown" th:utext="${it.html()}">Markdown</div>
     </th:block>
 
-    <!-- One page: a fixed 4-column grid table. Each cell carries its chart's colspan/rowspan;
-         empty spacer cells preserve the gaps the user left in the builder. -->
-    <table class="grid-page" th:fragment="gridPage(page)">
-        <colgroup>
-            <col style="width:25%" />
-            <col style="width:25%" />
-            <col style="width:25%" />
-            <col style="width:25%" />
-        </colgroup>
-        <tr th:each="row : ${page.rows()}">
-            <td class="grid-cell" th:each="cell : ${row.cells()}"
-                th:colspan="${cell.colspan()}" th:rowspan="${cell.rowspan()}">
-                <th:block th:if="${cell.item()} != null">
-                    <th:block th:replace="~{fragments/pdf :: item(${cell.item()})}"></th:block>
-                </th:block>
-            </td>
-        </tr>
-    </table>
+    <!-- One page: a fixed-height box holding each tile absolutely positioned at its grid slot.
+         Gaps the user left are simply un-covered space (no tile), so nothing needs a spacer. -->
+    <div class="grid-page" th:fragment="gridPage(page)" th:style="'height:' + ${page.heightCss()}">
+        <div class="grid-tile" th:each="tile : ${page.tiles()}"
+             th:style="'left:' + ${tile.left()} + ';top:' + ${tile.top()} + ';width:' + ${tile.width()} + ';height:' + ${tile.height()}">
+            <th:block th:replace="~{fragments/pdf :: item(${tile.item()})}"></th:block>
+        </div>
+    </div>
 </body>
 </html>

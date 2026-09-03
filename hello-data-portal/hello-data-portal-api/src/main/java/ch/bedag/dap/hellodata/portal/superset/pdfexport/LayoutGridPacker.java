@@ -46,7 +46,7 @@ public final class LayoutGridPacker {
     }
 
     /** Build the CustomLayout view model from the builder payload and the fetched PNGs. */
-    public static CustomLayout buildCustomLayout(PdfLayoutRequest request, Map<String, byte[]> pngs) {
+    public static CustomLayout buildCustomLayout(PdfLayoutRequest request, Map<String, byte[]> pngs, ReportTemplate template) {
         String title = request.title() == null || request.title().isBlank() ? "Dashboard " + request.dashboardId() : request.title();
 
         List<Positioned> positioned = new ArrayList<>();
@@ -65,10 +65,10 @@ public final class LayoutGridPacker {
             } else {
                 content = new DashboardExport.Markdown(markdownToHtml(item.markdown()));
             }
-            positioned.add(new Positioned(item.x(), Math.max(0, item.y()), cols, rows, content));
+            positioned.add(new Positioned(Math.max(0, item.x()), Math.max(0, item.y()), cols, rows, content));
         }
 
-        List<CustomLayout.GridPage> pages = groupByPage(positioned).stream().map(LayoutGridPacker::toGridPage).toList();
+        List<CustomLayout.GridPage> pages = groupByPage(positioned).stream().map(page -> toGridPage(page, template)).toList();
         return new CustomLayout(title, pages);
     }
 
@@ -102,45 +102,38 @@ public final class LayoutGridPacker {
         return new ArrayList<>(byPage.values());
     }
 
-    /** Pack a page's items into a fixed GRID_COLS-wide table with colspan/rowspan + spacer cells. */
-    static CustomLayout.GridPage toGridPage(List<Positioned> items) {
-        int cols = ReportTemplate.GRID_COLS;
+    /** Place a page's items as absolutely-positioned tiles on a fixed-height grid box. Each column
+     *  is 1/GRID_COLS of the width; each grid row is {@code cellHeightMm} tall, so the box is
+     *  GRID_ROWS_PER_PAGE rows tall. Positions are exact, so gaps and uneven content heights can't
+     *  shift tiles the way an HTML table's rowspans did. */
+    static CustomLayout.GridPage toGridPage(List<Positioned> items, ReportTemplate template) {
+        int gridCols = ReportTemplate.GRID_COLS;
         int rowsPerPage = ReportTemplate.GRID_ROWS_PER_PAGE;
-        int rowsUsed = 0;
+        int cellHeightMm = template.cellHeightMm();
+        double colPercent = 100.0 / gridCols;
+
+        List<CustomLayout.Tile> tiles = new ArrayList<>();
         for (Positioned p : items) {
+            int x = Math.max(0, Math.min(gridCols - 1, p.x()));
+            int cols = Math.max(1, Math.min(gridCols - x, p.cols()));
             int localY = Math.max(0, p.y()) % rowsPerPage;
-            rowsUsed = Math.max(rowsUsed, Math.min(rowsPerPage, localY + p.rows()));
+            int rows = Math.max(1, Math.min(rowsPerPage - localY, p.rows()));
+            tiles.add(new CustomLayout.Tile(
+                    p.item(),
+                    pct(x * colPercent),
+                    (localY * cellHeightMm) + "mm",
+                    pct(cols * colPercent),
+                    (rows * cellHeightMm) + "mm"));
         }
-        boolean[][] covered = new boolean[rowsUsed][cols];
-        Positioned[][] start = new Positioned[rowsUsed][cols];
-        for (Positioned p : items) {
-            int r0 = Math.max(0, p.y()) % rowsPerPage;
-            int c0 = Math.max(0, Math.min(cols - 1, p.x()));
-            int r1 = Math.min(rowsUsed, r0 + Math.max(1, p.rows()));
-            int c1 = Math.min(cols, c0 + Math.max(1, p.cols()));
-            start[r0][c0] = p;
-            for (int r = r0; r < r1; r++) {
-                for (int c = c0; c < c1; c++) {
-                    covered[r][c] = true;
-                }
-            }
+        return new CustomLayout.GridPage((rowsPerPage * cellHeightMm) + "mm", tiles);
+    }
+
+    /** Format a column percentage as a compact CSS value (e.g. 25.0 -&gt; "25%", 33.333 -&gt; "33.333%"). */
+    private static String pct(double value) {
+        if (value == Math.rint(value)) {
+            return (int) value + "%";
         }
-        List<CustomLayout.GridRow> rows = new ArrayList<>();
-        for (int r = 0; r < rowsUsed; r++) {
-            List<CustomLayout.GridCell> cells = new ArrayList<>();
-            for (int c = 0; c < cols; c++) {
-                Positioned p = start[r][c];
-                if (p != null) {
-                    int colspan = Math.min(cols - c, Math.max(1, p.cols()));
-                    int rowspan = Math.min(rowsUsed - r, Math.max(1, p.rows()));
-                    cells.add(new CustomLayout.GridCell(p.item(), colspan, rowspan));
-                } else if (!covered[r][c]) {
-                    cells.add(new CustomLayout.GridCell(null, 1, 1));
-                }
-            }
-            rows.add(new CustomLayout.GridRow(cells));
-        }
-        return new CustomLayout.GridPage(rows);
+        return Math.round(value * 1000.0) / 1000.0 + "%";
     }
 
     /** A resolved grid cell (page-local position + span) awaiting packing. */

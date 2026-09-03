@@ -62,7 +62,7 @@ public class PdfRenderer {
         ctx.setVariable("export", export);
         ctx.setVariable("generatedAt", LocalDate.now().toString());
         applyBranding(ctx);
-        return toPdf("dashboard", ctx, export.title(), ReportTemplate.PORTRAIT.pageSize(), 0);
+        return toPdf("dashboard", ctx, export.title(), ReportTemplate.PORTRAIT.pageSize());
     }
 
     /** Render the custom grid layout produced by the Angular builder. */
@@ -71,7 +71,7 @@ public class PdfRenderer {
         ctx.setVariable("layout", layout);
         ctx.setVariable("generatedAt", LocalDate.now().toString());
         applyBranding(ctx);
-        return toPdf(template.templateFile(), ctx, layout.title(), template.pageSize(), template.cellHeightMm());
+        return toPdf(template.templateFile(), ctx, layout.title(), template.pageSize());
     }
 
     private void applyBranding(Context ctx) {
@@ -80,14 +80,13 @@ public class PdfRenderer {
         ctx.setVariable("reportCaption", branding.reportCaption());
     }
 
-    private byte[] toPdf(String template, Context ctx, String footerTitle, String pageSize, int cellHeightMm) {
+    private byte[] toPdf(String template, Context ctx, String footerTitle, String pageSize) {
         String html = templateEngine.process(template, ctx);
         // Footer values live in @page CSS content strings, which Thymeleaf can't safely
         // inline; substitute them here (CSS-escaped) so a quote in the title can't break the CSS.
         html = html
                 .replace("@@PAGE_SIZE@@", pageSize)
                 .replace("@@PAGE_MARGIN@@", ReportTemplate.pageMargin())
-                .replace("@@CELL_HEIGHT@@", cellHeightMm + "mm")
                 .replace("@@FOOTER_TITLE@@", cssEscape(footerTitle))
                 .replace("@@FOOTER_DATE@@", GERMAN_DATE_TIME.format(LocalDateTime.now()));
 

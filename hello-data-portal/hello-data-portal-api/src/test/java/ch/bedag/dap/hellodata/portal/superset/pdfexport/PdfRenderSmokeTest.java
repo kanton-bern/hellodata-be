@@ -79,13 +79,10 @@ class PdfRenderSmokeTest {
         byte[] png = logo();
         CustomLayout layout = new CustomLayout(
                 "Mein Layout",
-                List.of(new CustomLayout.GridPage(List.of(
-                        new CustomLayout.GridRow(List.of(
-                                new CustomLayout.GridCell(new DashboardExport.Chart("Links", png), 1, 1),
-                                new CustomLayout.GridCell(null, 2, 1),
-                                new CustomLayout.GridCell(new DashboardExport.Chart("Rechts", png), 1, 1))),
-                        new CustomLayout.GridRow(List.of(
-                                new CustomLayout.GridCell(new DashboardExport.Markdown("<div class=\"markdown\"><p>Notiz</p></div>"), 4, 1)))))));
+                List.of(new CustomLayout.GridPage("256mm", List.of(
+                        new CustomLayout.Tile(new DashboardExport.Chart("Links", png), "0%", "0mm", "25%", "64mm"),
+                        new CustomLayout.Tile(new DashboardExport.Chart("Rechts", png), "75%", "0mm", "25%", "64mm"),
+                        new CustomLayout.Tile(new DashboardExport.Markdown("<div class=\"markdown\"><p>Notiz</p></div>"), "0%", "64mm", "100%", "64mm")))));
 
         byte[] portrait = renderer.renderCustom(layout, ReportTemplate.PORTRAIT);
         assertTrue(new String(portrait, 0, 8, StandardCharsets.ISO_8859_1).startsWith("%PDF-"), "not a PDF");
