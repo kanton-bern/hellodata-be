@@ -214,6 +214,8 @@
   "@Pages": "Seiten",
   "@Add page": "Seite hinzufügen",
   "@Remove page": "Seite entfernen",
+  "@Previous page": "Vorherige Seite",
+  "@Next page": "Nächste Seite",
   "@Export PDF": "PDF exportieren",
   "@Exporting": "Exportieren...",
   "@Markdown": "Markdown",

@@ -53,17 +53,15 @@ type PaletteItem = {
   readonly?: boolean;
 };
 
-/** A gridster cell that also carries what it renders. */
-type Cell = GridsterItemConfig & PaletteItem;
+/** A gridster cell that also carries what it renders and which page it lives on. `x`/`y` are LOCAL
+ *  to that page's grid (y in 0..PAGE_ROWS-1); only the current page's cells are shown at a time. */
+type Cell = GridsterItemConfig & PaletteItem & {page: number};
 
 const STORAGE_KEY = 'pdf-builder-layout';
 
-/** A PDF page is PAGE_ROWS grid rows tall; the builder page-breaks and clamps on this. */
+/** Each PDF page is a PAGE_ROWS x PAGE_ROWS grid. The export maps a cell's page + local y to the
+ *  global row (page * PAGE_ROWS + y) so the backend page-breaks correctly. */
 const PAGE_ROWS = 4;
-/** Must match the gridster options below (fixedRowHeight + margin). */
-const ROW_HEIGHT = 60;
-const GRID_MARGIN = 8;
-const ROW_PITCH = ROW_HEIGHT + GRID_MARGIN;
 
 @Component({
   selector: 'app-pdf-builder',
@@ -92,10 +90,10 @@ export class PdfBuilderComponent implements OnInit {
   markdownBlocks = signal<string[]>([]);
   selectedDashboard = signal<SupersetDashboardWithMetadata | null>(null);
   cells = signal<Cell[]>([]);
-  /** Number of PDF pages the canvas shows. The grid is a fixed pageCount * PAGE_ROWS rows tall, so
-   *  there are always empty cells to drop into on every page; grown via "Add page" (or automatically
-   *  when a cell ends up on a lower page). Persisted with the layout. */
+  /** Total number of PDF pages (>= 1); the paginator adds/removes these. Persisted with the layout. */
   pageCount = signal(1);
+  /** 0-indexed page currently shown on the 4x4 canvas. */
+  currentPage = signal(0);
 
   /** Picker options: label is the dashboard title, suffixed with the data-domain name only when all
    *  domains are shown (so dashboards from different domains stay distinguishable). */
@@ -104,18 +102,14 @@ export class PdfBuilderComponent implements OnInit {
     value: d,
   })));
 
-  /** Top offsets (px) of page-boundary lines, one per interior page break. */
-  pageDividers = computed(() =>
-    Array.from({length: Math.max(0, this.pageCount() - 1)}, (_, i) => (i + 1) * PAGE_ROWS * ROW_PITCH + GRID_MARGIN / 2));
+  /** Cells on the currently shown page (what the 4x4 grid renders). */
+  visibleCells = computed(() => this.cells().filter(c => c.page === this.currentPage()));
 
-  /** Number of pages the current cells actually occupy (at least 1). */
-  contentPages = computed(() => {
-    const rowsUsed = this.cells().reduce((m, c) => Math.max(m, c.y + c.rows), 0);
-    return Math.max(1, Math.ceil(rowsUsed / PAGE_ROWS));
-  });
+  /** 0-indexed page numbers, for the paginator. */
+  pages = computed(() => Array.from({length: this.pageCount()}, (_, i) => i));
 
-  /** The last page can only be removed when it is empty (no cell reaches into it). */
-  canRemovePage = computed(() => this.pageCount() > this.contentPages());
+  /** A page can be removed only when it is empty and it is not the last remaining page. */
+  canRemovePage = computed(() => this.pageCount() > 1 && this.visibleCells().length === 0);
 
   exporting = signal(false);
   editorOpen = signal(false);
@@ -129,10 +123,9 @@ export class PdfBuilderComponent implements OnInit {
   options: GridsterConfig = {
     gridType: GridType.VerticalFixed,
     displayGrid: DisplayGrid.Always,
-    minCols: 4,
-    maxCols: 4,
-    // Fixed height (pageCount * PAGE_ROWS), kept in sync by syncGrid(); a fixed grid means every page
-    // always has empty droppable cells, so no drag-to-expand hack is needed to reach lower pages.
+    // One page is a fixed PAGE_ROWS x PAGE_ROWS grid; the paginator switches which page is shown.
+    minCols: PAGE_ROWS,
+    maxCols: PAGE_ROWS,
     minRows: PAGE_ROWS,
     maxRows: PAGE_ROWS,
     fixedRowHeight: 60,
@@ -142,19 +135,15 @@ export class PdfBuilderComponent implements OnInit {
     swap: false,
     pushResizeItems: false,
     // Validate the empty-cell drop against the ACTUAL 2x2 footprint we place (gridster otherwise
-    // validates a 1x1, so a drop near a page boundary passes as 1x1 but the placed 2x2 straddles the
-    // page / grid bottom and gets auto-relocated to page 1). This also shows a 2x2 drop preview.
+    // validates a 1x1, so a drop that fits as 1x1 but not as 2x2 gets auto-relocated). Also shows a
+    // 2x2 drop preview. maxRows=4 already keeps a 2x2 within the page.
     defaultItemCols: 2,
     defaultItemRows: 2,
-    // A drop that doesn't fit where released should do nothing (the 2x2 preview shows valid spots),
-    // rather than silently jumping the chart to the first free slot on another page.
+    // A drop that doesn't fit where released should do nothing, rather than jumping to another slot.
     disableAutoPositionOnConflict: true,
     draggable: {enabled: true, ignoreContentClass: 'cell-body'},
     resizable: {enabled: true},
     enableEmptyCellDrop: true,
-    // A page is 4x4 cells; a chart may not straddle a 4-row page boundary.
-    itemValidateCallback: (item: GridsterItemConfig) =>
-      Math.floor(item.y / PAGE_ROWS) === Math.floor((item.y + item.rows - 1) / PAGE_ROWS),
     emptyCellDropCallback: (event: DragEvent, item: GridsterItemConfig) => this.onDrop(item),
   };
 
@@ -183,9 +172,7 @@ export class PdfBuilderComponent implements OnInit {
         this.selectedDashboard.set(null);
         this.charts.set([]);
         this.markdownBlocks.set([]);
-        this.cells.set([]);
-        this.pageCount.set(1);
-        this.syncGrid();
+        this.resetPages();
         this.persist();
       }
     });
@@ -203,9 +190,7 @@ export class PdfBuilderComponent implements OnInit {
     // not when the restore flow re-selects the saved dashboard to reattach its saved cells.
     const previous = this.selectedDashboard();
     if (previous && (previous.instanceName !== dashboard.instanceName || previous.id !== dashboard.id)) {
-      this.cells.set([]);
-      this.pageCount.set(1);
-      this.syncGrid();
+      this.resetPages();
     }
     this.selectedDashboard.set(dashboard);
     this.pdfExport.getCharts(dashboard.instanceName, dashboard.id).subscribe(c => this.charts.set(c));
@@ -227,10 +212,9 @@ export class PdfBuilderComponent implements OnInit {
     if (!this.dragPayload) {
       return;
     }
-    const cell: Cell = {...this.dragPayload, x: pos.x, y: pos.y, cols: 2, rows: 2};
+    const cell: Cell = {...this.dragPayload, page: this.currentPage(), x: pos.x, y: pos.y, cols: 2, rows: 2};
     this.cells.update(cs => [...cs, cell]);
     this.dragPayload = null;
-    this.syncGrid();
     this.persist();
   }
 
@@ -257,10 +241,9 @@ export class PdfBuilderComponent implements OnInit {
       const target = this.editingCell;
       this.cells.update(cs => cs.map(c => (c === target ? {...c, markdown: text} : c)));
     } else if (text.trim()) {
-      this.cells.update(cs => [...cs, {type: 'markdown', markdown: text, readonly: false, x: 0, y: 0, cols: 4, rows: 1}]);
+      this.cells.update(cs => [...cs, {type: 'markdown', markdown: text, readonly: false, page: this.currentPage(), x: 0, y: 0, cols: 4, rows: 1}]);
     }
     this.closeEditor();
-    this.syncGrid();
     this.persist();
   }
 
@@ -271,51 +254,49 @@ export class PdfBuilderComponent implements OnInit {
 
   removeCell(cell: Cell): void {
     this.cells.update(cs => cs.filter(c => c !== cell));
-    this.syncGrid();
     this.persist();
   }
 
   onCellChange(): void {
-    // A move/resize may drop a cell onto a lower page; grow the grid to keep it in view.
-    this.syncGrid();
     this.persist();
   }
 
-  /** Append an empty page so charts can be dropped there without dragging one down to expand. */
+  /** Switch the canvas to another page. */
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.pageCount()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  /** Append a new empty page and jump to it. */
   addPage(): void {
     this.pageCount.update(p => p + 1);
-    this.syncGrid();
+    this.currentPage.set(this.pageCount() - 1);
     this.persist();
   }
 
-  /** Remove the last page (only allowed when it is empty). */
+  /** Remove the current page (only when it is empty and not the last one); pages after it shift down. */
   removePage(): void {
     if (!this.canRemovePage()) {
       return;
     }
+    const removed = this.currentPage();
+    this.cells.update(cs => cs.map(c => (c.page > removed ? {...c, page: c.page - 1} : c)));
     this.pageCount.update(p => p - 1);
-    this.syncGrid();
+    if (this.currentPage() >= this.pageCount()) {
+      this.currentPage.set(this.pageCount() - 1);
+    }
     this.persist();
   }
 
-  /** Keep the fixed grid height in sync with pageCount, never smaller than the pages the cells span.
-   *  gridster's row count derives from a computed over the `options` INPUT signal, so it only updates
-   *  when that input gets a new object reference — mutating options in place is ignored. Reassigning
-   *  makes empty pages beyond the current content become real, droppable grid rows. */
-  private syncGrid(): void {
-    if (this.pageCount() < this.contentPages()) {
-      this.pageCount.set(this.contentPages());
-    }
-    const rows = this.pageCount() * PAGE_ROWS;
-    if (this.options.minRows !== rows || this.options.maxRows !== rows) {
-      this.options = {...this.options, minRows: rows, maxRows: rows};
-    }
+  private resetPages(): void {
+    this.cells.set([]);
+    this.pageCount.set(1);
+    this.currentPage.set(0);
   }
 
   clear(): void {
-    this.cells.set([]);
-    this.pageCount.set(1);
-    this.syncGrid();
+    this.resetPages();
     this.persist();
   }
 
@@ -324,13 +305,14 @@ export class PdfBuilderComponent implements OnInit {
     if (dashboard == null || this.cells().length === 0) {
       return;
     }
+    // Map each cell's page + local y to the global grid row the backend page-breaks on.
     const items: PdfLayoutItem[] = this.cells().map(c => ({
       type: c.type,
       chartId: c.chartId,
       markdown: c.markdown,
       name: c.name,
       x: c.x,
-      y: c.y,
+      y: c.page * PAGE_ROWS + c.y,
       cols: c.cols,
       rows: c.rows,
     }));
@@ -376,6 +358,7 @@ export class PdfBuilderComponent implements OnInit {
       dashboardId: dashboard?.id ?? null,
       template: this.selectedTemplate(),
       pageCount: this.pageCount(),
+      currentPage: this.currentPage(),
       cells: this.cells(),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -392,19 +375,22 @@ export class PdfBuilderComponent implements OnInit {
         dashboardId: number | null;
         template?: string | null;
         pageCount?: number | null;
-        cells: Cell[];
+        currentPage?: number | null;
+        cells: (Cell & {page?: number})[];
       };
       if (state.cells) {
-        this.cells.set(state.cells);
+        // Migrate any pre-paginator layout (global y, no page) to page + local y.
+        this.cells.set(state.cells.map(c => c.page === undefined
+          ? {...c, page: Math.floor((c.y ?? 0) / PAGE_ROWS), y: (c.y ?? 0) % PAGE_ROWS}
+          : c));
       }
       if (state.template) {
         this.selectedTemplate.set(state.template);
       }
-      if (state.pageCount && state.pageCount > 0) {
-        this.pageCount.set(state.pageCount);
-      }
-      // Size the grid to the restored pages/cells (bumps pageCount up if cells span further).
-      this.syncGrid();
+      // pageCount is at least 1 and must cover the furthest page any restored cell lives on.
+      const maxCellPage = this.cells().reduce((m, c) => Math.max(m, c.page), 0);
+      this.pageCount.set(Math.max(1, state.pageCount ?? 1, maxCellPage + 1));
+      this.currentPage.set(Math.min(Math.max(0, state.currentPage ?? 0), this.pageCount() - 1));
       if (state.instanceName != null && state.dashboardId != null) {
         // Re-select once the (data-domain-filtered) dashboard list arrives from the store.
         this.pendingRestore = {instanceName: state.instanceName, dashboardId: state.dashboardId};

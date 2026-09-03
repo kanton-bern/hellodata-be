@@ -74,38 +74,44 @@
   padding: 16px;
   overflow: auto;
   background: #fafafa;
-}
-
-.canvas-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 3;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-bottom: 12px;
-  background: #fafafa;
-}
-
-.canvas-toolbar .page-count {
-  font-size: 13px;
-  color: #666;
-  margin-right: auto;
+  flex-direction: column;
 }
 
 gridster {
   background: #f0f0f0;
   position: relative;
+  flex: 0 0 auto;
 }
 
-.page-divider {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 0;
-  border-top: 2px dashed rgba(192, 57, 43, 0.6);
-  pointer-events: none;
-  z-index: 2;
+.paginator {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.page-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #444;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.page-btn:hover {
+  background: #f0f0f0;
+}
+
+.page-btn.active {
+  background: var(--p-primary-color, #2f7d72);
+  border-color: var(--p-primary-color, #2f7d72);
+  color: var(--p-primary-contrast-color, #fff);
+  font-weight: 600;
 }
 
 .cell {
