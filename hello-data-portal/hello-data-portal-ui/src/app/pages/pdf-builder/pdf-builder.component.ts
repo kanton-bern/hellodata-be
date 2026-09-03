@@ -141,6 +141,14 @@ export class PdfBuilderComponent implements OnInit {
     pushItems: false,
     swap: false,
     pushResizeItems: false,
+    // Validate the empty-cell drop against the ACTUAL 2x2 footprint we place (gridster otherwise
+    // validates a 1x1, so a drop near a page boundary passes as 1x1 but the placed 2x2 straddles the
+    // page / grid bottom and gets auto-relocated to page 1). This also shows a 2x2 drop preview.
+    defaultItemCols: 2,
+    defaultItemRows: 2,
+    // A drop that doesn't fit where released should do nothing (the 2x2 preview shows valid spots),
+    // rather than silently jumping the chart to the first free slot on another page.
+    disableAutoPositionOnConflict: true,
     draggable: {enabled: true, ignoreContentClass: 'cell-body'},
     resizable: {enabled: true},
     enableEmptyCellDrop: true,
