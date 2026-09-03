@@ -69,6 +69,7 @@
 
   <main class="canvas">
     <div class="paginator">
+      <span class="page-label">{{ '@Page' | transloco }}</span>
       <p-button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0"
                 [icon]="icons.NAV_CHEVRON_LEFT.class" [text]="true" [rounded]="true" size="small"
                 [ariaLabel]="'@Previous page' | transloco"/>

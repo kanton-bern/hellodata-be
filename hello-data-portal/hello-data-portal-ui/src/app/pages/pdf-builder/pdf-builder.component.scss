@@ -71,8 +71,9 @@
 
 .canvas {
   flex: 1;
+  min-height: 0;
   padding: 16px;
-  overflow: auto;
+  overflow: hidden;
   background: #fafafa;
   display: flex;
   flex-direction: column;
@@ -81,11 +82,11 @@
 gridster {
   background: #f0f0f0;
   position: relative;
-  flex: 0 0 auto;
+  /* Fill the height left after the paginator; GridType.Fit divides this area into exactly 4x4 cells,
+     so one page always fills the available space with no empty gap below and no scrolling. */
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  /* One page fills a bounded area (GridType.Fit divides it into exactly 4x4 cells); capped so the
-     whole page + paginator are visible without scrolling. */
-  height: min(68vh, 620px);
 }
 
 .paginator {
@@ -93,6 +94,12 @@ gridster {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.paginator .page-label {
+  font-size: 13px;
+  color: #666;
+  margin-right: 4px;
 }
 
 /* Add/Remove page buttons pushed to the right edge of the paginator. */
