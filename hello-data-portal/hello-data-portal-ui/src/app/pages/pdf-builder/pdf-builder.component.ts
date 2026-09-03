@@ -121,14 +121,15 @@ export class PdfBuilderComponent implements OnInit {
   private dragPayload: PaletteItem | null = null;
 
   options: GridsterConfig = {
-    gridType: GridType.VerticalFixed,
+    // Fit: exactly PAGE_ROWS x PAGE_ROWS cells that fill the (bounded, see SCSS) page area — one page
+    // on screen at a time, no scrolling. VerticalFixed instead fills the container with fixed-height
+    // rows (many more than 4), which forced the user to scroll to find the paginator.
+    gridType: GridType.Fit,
     displayGrid: DisplayGrid.Always,
-    // One page is a fixed PAGE_ROWS x PAGE_ROWS grid; the paginator switches which page is shown.
     minCols: PAGE_ROWS,
     maxCols: PAGE_ROWS,
     minRows: PAGE_ROWS,
     maxRows: PAGE_ROWS,
-    fixedRowHeight: 60,
     margin: 8,
     // Never rearrange the user's settled layout: moving/resizing a chart must not push others aside.
     pushItems: false,

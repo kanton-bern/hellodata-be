@@ -82,6 +82,10 @@ gridster {
   background: #f0f0f0;
   position: relative;
   flex: 0 0 auto;
+  width: 100%;
+  /* One page fills a bounded area (GridType.Fit divides it into exactly 4x4 cells); capped so the
+     whole page + paginator are visible without scrolling. */
+  height: min(68vh, 620px);
 }
 
 .paginator {
