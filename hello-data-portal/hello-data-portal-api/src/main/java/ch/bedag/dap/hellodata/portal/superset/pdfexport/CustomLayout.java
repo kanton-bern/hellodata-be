@@ -43,7 +43,11 @@ public record CustomLayout(String title, List<GridPage> pages) {
 
     /** One placed chart/markdown tile. {@code left}/{@code width} are column percentages (e.g.
      *  {@code "25%"}), {@code top}/{@code height} are millimetres (e.g. {@code "64mm"}); all are
-     *  pre-formatted CSS values so the template just drops them into the inline {@code style}. */
-    public record Tile(DashboardExport.Item item, String left, String top, String width, String height) {
+     *  pre-formatted CSS values so the template just drops them into the inline {@code style}.
+     *  {@code imageHeight} is the fixed height (mm) of a chart's image box -- the tile height minus
+     *  the heading/border overhead -- so the box always fills its grid slot and the screenshot is
+     *  fitted inside it (openhtmltopdf has no {@code object-fit}); ignored for markdown tiles. */
+    public record Tile(DashboardExport.Item item, String left, String top, String width, String height,
+                       String imageHeight) {
     }
 }

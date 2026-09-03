@@ -118,13 +118,20 @@
             letter-spacing: 0.2px;
             margin: 0 0 8px 0;
         }
+        /* Fixed-height box so a chart always fills its whole grid slot (its height is set inline per
+           tile); the screenshot fills the box width, preserving aspect, and overflow is clipped.
+           openhtmltopdf has no object-fit, so we cannot letterbox-centre -- width:100% is the
+           reliable fit, and since the screenshot is requested at the slot's aspect it fills cleanly. */
         .chart .chart-image {
             border: 1px solid #dedede;
-            padding: 6px;
             background-color: #ffffff;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 6px;
         }
         .chart .chart-image img {
             width: 100%;
+            display: block;
         }
         hr.chart-sep {
             border: none;
@@ -206,11 +213,12 @@
         </tr>
     </table>
 
-    <!-- One leaf cell: a chart image or a rendered markdown block. -->
-    <th:block th:fragment="item(it)" th:switch="${it.type()}">
+    <!-- One leaf cell: a chart image or a rendered markdown block. The chart's image box is a fixed
+         height (imageHeight) so it always fills its grid slot; the screenshot fills the box width. -->
+    <th:block th:fragment="item(it, imageHeight)" th:switch="${it.type()}">
         <div th:case="'chart'" class="chart">
             <h3 class="chart-name" th:text="${it.name()}">Chart name</h3>
-            <div class="chart-image">
+            <div class="chart-image" th:style="'height:' + ${imageHeight}">
                 <img th:src="${it.dataUri()}" alt="chart" />
             </div>
         </div>
@@ -222,7 +230,7 @@
     <div class="grid-page" th:fragment="gridPage(page)" th:style="'height:' + ${page.heightCss()}">
         <div class="grid-tile" th:each="tile : ${page.tiles()}"
              th:style="'left:' + ${tile.left()} + ';top:' + ${tile.top()} + ';width:' + ${tile.width()} + ';height:' + ${tile.height()}">
-            <th:block th:replace="~{fragments/pdf :: item(${tile.item()})}"></th:block>
+            <th:block th:replace="~{fragments/pdf :: item(${tile.item()}, ${tile.imageHeight()})}"></th:block>
         </div>
     </div>
 </body>

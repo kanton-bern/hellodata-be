@@ -118,12 +118,16 @@ public final class LayoutGridPacker {
             int cols = Math.max(1, Math.min(gridCols - x, p.cols()));
             int localY = Math.max(0, p.y()) % rowsPerPage;
             int rows = Math.max(1, Math.min(rowsPerPage - localY, p.rows()));
+            // The image box fills the tile minus the heading/border overhead, so a chart occupies its
+            // whole grid slot (the screenshot is fitted inside it, preserving aspect).
+            int imageHeightMm = Math.max(1, rows * cellHeightMm - ReportTemplate.CHART_OVERHEAD_MM);
             tiles.add(new CustomLayout.Tile(
                     p.item(),
                     pct(x * colPercent),
                     (localY * cellHeightMm) + "mm",
                     pct(cols * colPercent),
-                    (rows * cellHeightMm) + "mm"));
+                    (rows * cellHeightMm) + "mm",
+                    imageHeightMm + "mm"));
         }
         return new CustomLayout.GridPage((rowsPerPage * cellHeightMm) + "mm", tiles);
     }
