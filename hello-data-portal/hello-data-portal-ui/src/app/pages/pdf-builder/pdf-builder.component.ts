@@ -298,17 +298,17 @@ export class PdfBuilderComponent implements OnInit {
     this.persist();
   }
 
-  /** Keep the fixed grid height in sync with pageCount, never smaller than the pages the cells span,
-   *  and push the new bounds to gridster at runtime. */
+  /** Keep the fixed grid height in sync with pageCount, never smaller than the pages the cells span.
+   *  gridster's row count derives from a computed over the `options` INPUT signal, so it only updates
+   *  when that input gets a new object reference — mutating options in place is ignored. Reassigning
+   *  makes empty pages beyond the current content become real, droppable grid rows. */
   private syncGrid(): void {
     if (this.pageCount() < this.contentPages()) {
       this.pageCount.set(this.contentPages());
     }
     const rows = this.pageCount() * PAGE_ROWS;
     if (this.options.minRows !== rows || this.options.maxRows !== rows) {
-      this.options.minRows = rows;
-      this.options.maxRows = rows;
-      this.options['api']?.optionsChanged?.();
+      this.options = {...this.options, minRows: rows, maxRows: rows};
     }
   }
 
