@@ -30,10 +30,10 @@
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <!-- Hold at 26.0.9: keycloak-admin-client 26.0.10-26.0.12 fail user creation (400) against the Keycloak 26.4 server; no 26.1+ admin-client release exists. See renovate.json hold rule. -->
         <keycloak.version>26.0.9</keycloak.version>
-        <lombok-version>1.18.46</lombok-version>
+        <lombok-version>1.18.48</lombok-version>
         <main.class>empty_in_parent</main.class>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
-        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
         <modelmapper.version>3.2.6</modelmapper.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <rest-assured.version>6.0.1</rest-assured.version>
