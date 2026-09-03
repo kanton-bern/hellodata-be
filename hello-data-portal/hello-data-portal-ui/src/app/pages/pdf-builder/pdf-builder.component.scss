@@ -89,10 +89,18 @@ gridster {
 }
 
 .paginator {
-  margin-top: 16px;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Add/Remove page buttons pushed to the right edge of the paginator. */
+.paginator .page-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .page-btn {

@@ -68,6 +68,25 @@
   </aside>
 
   <main class="canvas">
+    <div class="paginator">
+      <p-button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0"
+                [icon]="icons.NAV_CHEVRON_LEFT.class" [text]="true" [rounded]="true" size="small"
+                [ariaLabel]="'@Previous page' | transloco"/>
+      @for (p of pages(); track p) {
+        <button type="button" class="page-btn" [class.active]="p === currentPage()"
+                (click)="goToPage(p)">{{ p + 1 }}</button>
+      }
+      <p-button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= pageCount() - 1"
+                [icon]="icons.NAV_CHEVRON_RIGHT.class" [text]="true" [rounded]="true" size="small"
+                [ariaLabel]="'@Next page' | transloco"/>
+      <div class="page-actions">
+        <p-button (click)="addPage()" [icon]="icons.ACTION_ADD.class" [label]="'@Add page' | transloco"
+                  severity="secondary" size="small" pRipple/>
+        <p-button (click)="removePage()" [disabled]="!canRemovePage()"
+                  [icon]="icons.ACTION_DELETE.class" [label]="'@Remove page' | transloco"
+                  severity="secondary" size="small" pRipple/>
+      </div>
+    </div>
     <gridster [options]="options">
       @for (cell of visibleCells(); track cell) {
         <gridster-item [item]="cell" (itemChange)="onCellChange()">
@@ -98,24 +117,6 @@
         </gridster-item>
       }
     </gridster>
-
-    <div class="paginator">
-      <p-button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0"
-                [icon]="icons.NAV_CHEVRON_LEFT.class" [text]="true" [rounded]="true" size="small"
-                [ariaLabel]="'@Previous page' | transloco"/>
-      @for (p of pages(); track p) {
-        <button type="button" class="page-btn" [class.active]="p === currentPage()"
-                (click)="goToPage(p)">{{ p + 1 }}</button>
-      }
-      <p-button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= pageCount() - 1"
-                [icon]="icons.NAV_CHEVRON_RIGHT.class" [text]="true" [rounded]="true" size="small"
-                [ariaLabel]="'@Next page' | transloco"/>
-      <p-button (click)="addPage()" [icon]="icons.ACTION_ADD.class" [label]="'@Add page' | transloco"
-                severity="secondary" size="small" styleClass="ml-2" pRipple/>
-      <p-button (click)="removePage()" [disabled]="!canRemovePage()"
-                [icon]="icons.ACTION_DELETE.class" [label]="'@Remove page' | transloco"
-                severity="secondary" size="small" pRipple/>
-    </div>
   </main>
 </div>
 
