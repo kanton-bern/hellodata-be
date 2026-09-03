@@ -68,6 +68,16 @@
   </aside>
 
   <main class="canvas">
+    <div class="canvas-toolbar">
+      <span class="page-count">{{ '@Pages' | transloco }}: {{ pageCount() }}</span>
+      <p-button (click)="addPage()" (keydown.enter)="addPage()"
+                [icon]="icons.ACTION_ADD.class" [label]="'@Add page' | transloco"
+                severity="secondary" size="small" pRipple/>
+      <p-button (click)="removePage()" (keydown.enter)="removePage()"
+                [disabled]="!canRemovePage()"
+                [icon]="icons.ACTION_DELETE.class" [label]="'@Remove page' | transloco"
+                severity="secondary" size="small" pRipple/>
+    </div>
     <gridster [options]="options">
       @for (top of pageDividers(); track top) {
         <div class="page-divider" [style.top.px]="top"></div>

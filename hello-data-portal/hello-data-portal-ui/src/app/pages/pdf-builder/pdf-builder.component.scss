@@ -76,6 +76,23 @@
   background: #fafafa;
 }
 
+.canvas-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  background: #fafafa;
+}
+
+.canvas-toolbar .page-count {
+  font-size: 13px;
+  color: #666;
+  margin-right: auto;
+}
+
 gridster {
   background: #f0f0f0;
   position: relative;
