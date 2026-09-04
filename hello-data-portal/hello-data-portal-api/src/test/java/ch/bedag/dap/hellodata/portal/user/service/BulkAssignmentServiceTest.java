@@ -274,13 +274,37 @@ class BulkAssignmentServiceTest {
     }
 
     @Test
-    void testDataDomainAdminAlwaysKeepsFullCommentAccess() {
+    void testDataDomainAdminRespectsExplicitCommentPermissions() {
         UUID userId = UUID.randomUUID();
         mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "NONE"));
 
+        // A Data Domain Admin takes the explicitly requested permissions, mirroring the single-user
+        // assignment page — explicitly clearing them must leave the admin without comment access.
         BulkAssignmentRequestDto.DomainAssignment assignment =
                 createAssignment("domain_a", "DATA_DOMAIN_ADMIN", List.of(), List.of());
         assignment.setCommentPermissions(createCommentPermissions(false, false, false));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        bulkAssignmentService.executeBulkAssignment(request);
+
+        DashboardCommentPermissionDto perm = captureCommentPermission(userId, "domain_a");
+        assertFalse(perm.isReadComments());
+        assertFalse(perm.isWriteComments());
+        assertFalse(perm.isReviewComments());
+    }
+
+    @Test
+    void testDataDomainAdminWithoutExplicitPermissionsGetsFullAccess() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "NONE"));
+
+        // When the request carries no explicit permissions, the admin falls back to the role
+        // defaults, which grant full comment access.
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_ADMIN", List.of(), List.of());
 
         BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
         request.setUserIds(List.of(userId));

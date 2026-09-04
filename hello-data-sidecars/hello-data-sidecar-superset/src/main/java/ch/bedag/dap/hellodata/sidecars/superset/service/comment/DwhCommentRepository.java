@@ -38,7 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * JDBC repository for writing published dashboard comments to the datadomain DWH.
@@ -48,6 +50,9 @@ import java.util.List;
 @Repository
 @ConditionalOnProperty(name = "hello-data.dashboard-comments.dwh-sync-enabled", havingValue = "true")
 public class DwhCommentRepository {
+
+    /** Postgres unquoted identifier charset; guards the role names we interpolate into GRANT statements. */
+    private static final Pattern SAFE_ROLE_NAME = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
 
     private final JdbcTemplate jdbcTemplate;
     private final DwhCommentSyncProperties properties;
@@ -91,7 +96,49 @@ public class DwhCommentRepository {
         jdbcTemplate.execute("GRANT SELECT ON ALL TABLES IN SCHEMA " + schema + " TO PUBLIC");
         jdbcTemplate.execute("ALTER DEFAULT PRIVILEGES IN SCHEMA " + schema + " GRANT SELECT ON TABLES TO PUBLIC");
 
+        grantReadWriteRoles(schema);
+
         log.info("Ensured DWH table {} exists with read grants", qualifiedTable);
+    }
+
+    /**
+     * Grants read/write on the comment schema to the configured RW roles (typically the data domain MODELER),
+     * on top of the read-only grant to PUBLIC. Idempotent: safe to re-run on every startup. A role that does
+     * not exist or cannot be granted is logged and skipped so it never blocks sidecar startup.
+     */
+    private void grantReadWriteRoles(String schema) {
+        for (String role : resolveRwRoles()) {
+            if (!SAFE_ROLE_NAME.matcher(role).matches()) {
+                log.warn("Skipping dashboard-comments RW grant for role '{}': not a valid identifier", role);
+                continue;
+            }
+            try {
+                jdbcTemplate.execute("GRANT USAGE ON SCHEMA " + schema + " TO " + role);
+                jdbcTemplate.execute("GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA " + schema + " TO " + role);
+                jdbcTemplate.execute("ALTER DEFAULT PRIVILEGES IN SCHEMA " + schema +
+                        " GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO " + role);
+                log.info("Granted RW on comment schema {} to role {}", schema, role);
+            } catch (Exception e) {
+                log.warn("Could not grant RW on comment schema {} to role '{}': {}", schema, role, e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Resolves the RW roles: explicit {@code dwh-rw-roles} config wins; otherwise, if enabled and the connecting
+     * user matches the {@code <db>_u_owner} convention, derive the matching {@code <db>_u_modeler} role.
+     */
+    private List<String> resolveRwRoles() {
+        List<String> configured = properties.getDwhRwRoles();
+        if (configured != null && !configured.isEmpty()) {
+            return configured;
+        }
+        List<String> derived = new ArrayList<>();
+        String owner = properties.getDwhUsername();
+        if (properties.isDwhRwDeriveModeler() && owner != null && owner.endsWith("_u_owner")) {
+            derived.add(owner.substring(0, owner.length() - "_u_owner".length()) + "_u_modeler");
+        }
+        return derived;
     }
 
     /**
