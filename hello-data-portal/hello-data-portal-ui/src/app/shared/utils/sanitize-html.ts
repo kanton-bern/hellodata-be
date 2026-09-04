@@ -38,6 +38,23 @@ import DOMPurify from 'dompurify';
  * produces. It is the app-side remediation for GHSA-v3m3-f69x-jf25 (Quill XSS
  * via HTML export), which has no upstream patched release.
  */
-export function sanitizeRichText(html: string): string {
+export function sanitizeRichText(html: string | null | undefined): string {
   return DOMPurify.sanitize(html ?? '', { USE_PROFILES: { html: true } });
+}
+
+/**
+ * Returns true when rich-text HTML (Quill/p-editor output) carries no visible
+ * content. Quill never stores a truly empty string: an emptied editor is saved
+ * as `<p></p>` / `<p><br></p>`, and "blank" content may be whitespace or
+ * &nbsp;-only or empty tags (e.g. `<h1></h1>`). A plain `!value` or
+ * `value.trim() === ''` check misses all of these, so the "fallback to default
+ * language" logic never triggers for emptied translations. This strips markup
+ * and checks for any remaining text (images are disabled in these editors).
+ */
+export function isRichTextEmpty(html: string | null | undefined): boolean {
+  if (!html) {
+    return true;
+  }
+  const textContent = new DOMParser().parseFromString(html, 'text/html').body.textContent ?? '';
+  return textContent.trim().length === 0;
 }
