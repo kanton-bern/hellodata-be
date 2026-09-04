@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
@@ -52,6 +52,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
 import {disableEditorImageInsert} from "../../../shared/utils/editor-utils";
 import {ICON_REGISTRY} from '../../../shared/icons';
+import {isRichTextEmpty} from "../../../shared/utils/sanitize-html";
 
 @Component({
   selector: 'app-documentation',
@@ -68,6 +69,7 @@ export class DocumentationManagementComponent extends BaseComponent implements O
   defaultLanguage$: Observable<string | null>;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
     super();
@@ -127,6 +129,10 @@ export class DocumentationManagementComponent extends BaseComponent implements O
 
   onEditorInit(event: { editor: any }): void {
     disableEditorImageInsert(event.editor);
+    // Quill fires text-change outside Angular's change detection, so the tab's
+    // "not filled" marker would only refresh on a later tick. Force a check on
+    // each edit so it updates immediately as the language's text is emptied/filled.
+    event.editor.on('text-change', () => this.cdr.detectChanges());
   }
 
   notFilled(language: string): boolean {
@@ -134,7 +140,7 @@ export class DocumentationManagementComponent extends BaseComponent implements O
     const languageForm = languagesGroup?.get(language) as FormGroup;
 
     const messageControl = languageForm?.get('text') as FormControl;
-    return messageControl?.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+    return isRichTextEmpty(messageControl?.value);
   }
 
   isAtLeastOneLanguageFilled(): boolean {
@@ -145,8 +151,7 @@ export class DocumentationManagementComponent extends BaseComponent implements O
 
     const some = Object.values(languagesGroup.controls).some((languageControl) => {
       const group = languageControl as FormGroup;
-      const valuePresent = group.get('text')?.value?.trim();
-      return valuePresent && valuePresent !== '';
+      return !isRichTextEmpty(group.get('text')?.value);
     });
     return some === true;
   }
@@ -162,8 +167,7 @@ export class DocumentationManagementComponent extends BaseComponent implements O
       return false;
     }
 
-    const filled = defaultLanguageControl.get('text')?.value?.trim()
-    return filled;
+    return !isRichTextEmpty(defaultLanguageControl.get('text')?.value);
   }
 
   private createBreadcrumbs() {

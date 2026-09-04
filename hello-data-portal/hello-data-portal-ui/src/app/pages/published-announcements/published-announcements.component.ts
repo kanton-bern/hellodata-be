@@ -19,7 +19,7 @@ import {TranslocoPipe} from "@jsverse/transloco";
 
 import {Card} from 'primeng/card';
 import {ICON_REGISTRY} from '../../shared/icons';
-import {sanitizeRichText} from '../../shared/utils/sanitize-html';
+import {sanitizeRichText, isRichTextEmpty} from '../../shared/utils/sanitize-html';
 
 @Component({
   providers: [DialogService],
@@ -48,7 +48,7 @@ export class PublishedAnnouncementsComponent implements OnInit {
 
   getMessage(announcement: Announcement, selectedLanguage: string, defaultLanguage: string): string | undefined {
     const message = this.findMessage(announcement, selectedLanguage);
-    if (!message || message.trim() === '') {
+    if (isRichTextEmpty(message)) {
       const fallback = this.findMessage(announcement, defaultLanguage);
       return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + sanitizeRichText(fallback ?? '');
     }

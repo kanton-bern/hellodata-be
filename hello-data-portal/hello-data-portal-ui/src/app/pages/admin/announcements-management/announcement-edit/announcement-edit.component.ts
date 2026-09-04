@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
@@ -57,6 +57,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
 import {disableEditorImageInsert} from "../../../../shared/utils/editor-utils";
 import {ICON_REGISTRY} from '../../../../shared/icons';
+import {isRichTextEmpty} from "../../../../shared/utils/sanitize-html";
 
 @Component({
   selector: 'app-announcement-edit',
@@ -74,6 +75,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
   defaultLanguage$: Observable<string | null>;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
     super();
@@ -154,6 +156,10 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
 
   onEditorInit(event: { editor: any }): void {
     disableEditorImageInsert(event.editor);
+    // Quill fires text-change outside Angular's change detection, so the tab's
+    // "not filled" marker would only refresh on a later tick. Force a check on
+    // each edit so it updates immediately as the language's text is emptied/filled.
+    event.editor.on('text-change', () => this.cdr.detectChanges());
   }
 
   notFilled(language: string): boolean {
@@ -161,7 +167,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     const languageForm = languagesGroup?.get(language) as FormGroup;
 
     const messageControl = languageForm?.get('message') as FormControl;
-    return messageControl?.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+    return isRichTextEmpty(messageControl?.value);
   }
 
   isAtLeastDefaultLanguageFilled(defaultLanguage: string): boolean {
@@ -175,8 +181,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
       return false;
     }
 
-    const filled = defaultLanguageControl.get('message')?.value?.trim();
-    return filled;
+    return !isRichTextEmpty(defaultLanguageControl.get('message')?.value);
   }
 
   private createCreatedAnnouncementBreadcrumbs() {

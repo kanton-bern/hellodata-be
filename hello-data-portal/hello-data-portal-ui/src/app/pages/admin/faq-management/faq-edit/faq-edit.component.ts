@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
@@ -56,6 +56,7 @@ import {DeleteFaqPopupComponent} from '../delete-faq-popup/delete-faq-popup.comp
 import {TranslocoPipe} from '@jsverse/transloco';
 import {disableEditorImageInsert} from "../../../../shared/utils/editor-utils";
 import {ICON_REGISTRY} from '../../../../shared/icons';
+import {isRichTextEmpty} from "../../../../shared/utils/sanitize-html";
 
 @Component({
   selector: 'app-faq-edit',
@@ -77,6 +78,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private readonly translateService = inject(TranslateService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
     super();
@@ -109,7 +111,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     // Filter out languages where both title and message are empty
     const filteredMessages: { [key: string]: any } = {};
     for (const [locale, value] of Object.entries(formFaq.languages as { [key: string]: any })) {
-      if (value.title?.trim() || value.message?.trim()) {
+      if (value.title?.trim() || !isRichTextEmpty(value.message)) {
         filteredMessages[locale] = value;
       }
     }
@@ -140,6 +142,10 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
   onEditorInit(event: { editor: any }): void {
     disableEditorImageInsert(event.editor);
+    // Quill fires text-change outside Angular's change detection, so the tab's
+    // "not filled" marker would only refresh on a later tick. Force a check on
+    // each edit so it updates immediately as the language's text is emptied/filled.
+    event.editor.on('text-change', () => this.cdr.detectChanges());
   }
 
   getMessage(language: string): FormControl {
@@ -166,7 +172,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
     const messageControl = languageForm?.get('message') as FormControl;
     const titleControl = languageForm?.get('title') as FormControl;
-    const messageNotFilled = messageControl?.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+    const messageNotFilled = isRichTextEmpty(messageControl?.value);
     const titleNotFilled = titleControl?.value === null || titleControl.value === undefined || titleControl.value.trim() === '';
     return messageNotFilled || titleNotFilled;
   }
@@ -182,9 +188,8 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
       return false;
     }
 
-    const filled = defaultLanguageControl.get('title')?.value?.trim() &&
-      defaultLanguageControl.get('message')?.value?.trim();
-    return filled;
+    return !!defaultLanguageControl.get('title')?.value?.trim() &&
+      !isRichTextEmpty(defaultLanguageControl.get('message')?.value);
   }
 
 
@@ -264,7 +269,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     // Filter out languages where both title and message are empty
     const filteredMessages: { [key: string]: any } = {};
     for (const [locale, value] of Object.entries(formFaq.languages as { [key: string]: any })) {
-      if (value.title?.trim() || value.message?.trim()) {
+      if (value.title?.trim() || !isRichTextEmpty(value.message)) {
         filteredMessages[locale] = value;
       }
     }

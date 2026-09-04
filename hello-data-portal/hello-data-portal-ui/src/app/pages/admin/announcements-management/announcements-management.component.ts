@@ -40,7 +40,8 @@ import {
   showDeleteAnnouncementPopup
 } from "../../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
-import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {TranslateService} from "../../../shared/services/translate.service";
 import {AsyncPipe, DatePipe, NgClass} from '@angular/common';
 import {Toolbar} from 'primeng/toolbar';
 import {PrimeTemplate, SharedModule} from 'primeng/api';
@@ -53,7 +54,7 @@ import {DeleteAnnouncementPopupComponent} from './delete-announcement-popup/dele
 import {TranslocoPipe} from '@jsverse/transloco';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {ICON_REGISTRY} from '../../../shared/icons';
-import {sanitizeRichText} from '../../../shared/utils/sanitize-html';
+import {isRichTextEmpty, sanitizeRichText} from '../../../shared/utils/sanitize-html';
 
 @Component({
   selector: 'app-announcements-management',
@@ -65,15 +66,18 @@ export class AnnouncementsManagementComponent extends BaseComponent {
   protected readonly icons = ICON_REGISTRY;
   allAnnouncements$: Observable<Announcement[]>;
   selectedLanguage$: Observable<{ code: string | null; typeTranslationKey: string }>;
+  defaultLanguage$: Observable<string | null>;
   expandedRows: { [key: string]: boolean } = {};
 
   private readonly store = inject<Store<AppState>>(Store);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly translateService = inject(TranslateService);
 
   constructor() {
     super();
     this.allAnnouncements$ = this.store.select(selectAllAnnouncements);
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
+    this.defaultLanguage$ = this.store.select(selectDefaultLanguage);
     this.store.dispatch(loadAllAnnouncements());
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -101,9 +105,16 @@ export class AnnouncementsManagementComponent extends BaseComponent {
     return deleteAnnouncement();
   }
 
-  getMessage(announcement: Announcement, selectedLanguage: any): SafeHtml {
-    const message = this.findAnnouncementMessage(announcement, selectedLanguage.code) || '';
-    return this.sanitizer.bypassSecurityTrustHtml(sanitizeRichText(message));
+  getMessage(announcement: Announcement, selectedLanguage: any, defaultLanguage: string): SafeHtml {
+    const message = this.findAnnouncementMessage(announcement, selectedLanguage.code);
+    if (!isRichTextEmpty(message)) {
+      return this.sanitizer.bypassSecurityTrustHtml(sanitizeRichText(message));
+    }
+    // No message for the selected language: fall back to the default language,
+    // prefixed with the same "translation not available" notice the FAQ/home views use.
+    const fallback = this.findAnnouncementMessage(announcement, defaultLanguage);
+    const notice = this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage?.slice(0, 2)?.toUpperCase()});
+    return this.sanitizer.bypassSecurityTrustHtml(sanitizeRichText('<p>' + notice + '</p>' + (fallback ?? '')));
   }
 
   private findAnnouncementMessage(announcement: Announcement, code: string | null | undefined): string | undefined {

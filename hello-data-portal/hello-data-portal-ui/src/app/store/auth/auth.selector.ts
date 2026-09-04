@@ -141,7 +141,13 @@ export const selectSelectedLanguage = createSelector(
         return {code: state.defaultLanguage, typeTranslationKey: '@App fallback language'};
       }
     }
-    return {code: state.selectedLanguage, typeTranslationKey: '@User selected language'};
+    // Normalize the stored code to the matching supported language (e.g. 'de' -> 'de_CH').
+    // The header/switcher and the transloco init effect already prefix-match this way; without
+    // it, texts keyed by the full code (documentation/FAQ/announcements) miss and wrongly show
+    // the "translation not available, fallback to default" notice for the current language.
+    const selectedPrefix = state.selectedLanguage.slice(0, 2).toLowerCase();
+    const normalized = state.supportedLanguages?.find(lang => lang.slice(0, 2).toLowerCase() === selectedPrefix) ?? state.selectedLanguage;
+    return {code: normalized, typeTranslationKey: '@User selected language'};
   }
 );
 
