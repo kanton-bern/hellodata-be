@@ -219,6 +219,7 @@
   "@Loading preview": "Chargement de l'aperçu",
   "@Add page": "Ajouter une page",
   "@Remove page": "Supprimer la page",
+  "@Remove this page and its charts?": "Supprimer cette page et ses graphiques ?",
   "@Previous page": "Page précédente",
   "@Next page": "Page suivante",
   "@Export PDF": "Exporter en PDF",

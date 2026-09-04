@@ -31,7 +31,7 @@ import {FormsModule} from "@angular/forms";
 import {Select} from "primeng/select";
 import {Button} from "primeng/button";
 import {Ripple} from "primeng/ripple";
-import {TranslocoPipe} from "@jsverse/transloco";
+import {TranslocoPipe, TranslocoService} from "@jsverse/transloco";
 import {Store} from "@ngrx/store";
 import {DisplayGrid, Gridster, GridsterConfig, GridsterItem, GridsterItemConfig, GridType} from "angular-gridster2";
 import {ICON_REGISTRY} from "../../shared/icons";
@@ -77,6 +77,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private destroyRef = inject(DestroyRef);
   private notification = inject(NotificationService);
+  private transloco = inject(TranslocoService);
 
   /** A dashboard to re-select from localStorage once it appears in the (data-domain-filtered) list. */
   private pendingRestore: {instanceName: string; dashboardId: number} | null = null;
@@ -114,8 +115,9 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   /** 0-indexed page numbers, for the paginator. */
   pages = computed(() => Array.from({length: this.pageCount()}, (_, i) => i));
 
-  /** A page can be removed only when it is empty and it is not the last remaining page. */
-  canRemovePage = computed(() => this.pageCount() > 1 && this.visibleCells().length === 0);
+  /** A page can be removed whenever it is not the last remaining page; removing a non-empty page
+   *  discards its tiles (after a confirm — see removePage). */
+  canRemovePage = computed(() => this.pageCount() > 1);
 
   exporting = signal(false);
   editorOpen = signal(false);
@@ -395,13 +397,21 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     this.persist();
   }
 
-  /** Remove the current page (only when it is empty and not the last one); pages after it shift down. */
+  /** Remove the current page (any page but the last one); its tiles are discarded and the pages
+   *  after it shift down. A non-empty page asks for confirmation first, so charts aren't lost by
+   *  accident. */
   removePage(): void {
     if (!this.canRemovePage()) {
       return;
     }
     const removed = this.currentPage();
-    this.cells.update(cs => cs.map(c => (c.page > removed ? {...c, page: c.page - 1} : c)));
+    if (this.visibleCells().length > 0 && !confirm(this.transloco.translate('@Remove this page and its charts?'))) {
+      return;
+    }
+    // Drop this page's tiles, then shift every later page down into the gap it leaves.
+    this.cells.update(cs => cs
+      .filter(c => c.page !== removed)
+      .map(c => (c.page > removed ? {...c, page: c.page - 1} : c)));
     this.pageCount.update(p => p - 1);
     if (this.currentPage() >= this.pageCount()) {
       this.currentPage.set(this.pageCount() - 1);

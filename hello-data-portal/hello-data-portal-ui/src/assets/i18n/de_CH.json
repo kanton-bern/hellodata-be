@@ -216,6 +216,7 @@
   "@Loading preview": "Vorschau wird geladen",
   "@Add page": "Seite hinzufügen",
   "@Remove page": "Seite entfernen",
+  "@Remove this page and its charts?": "Diese Seite und ihre Diagramme entfernen?",
   "@Previous page": "Vorherige Seite",
   "@Next page": "Nächste Seite",
   "@Export PDF": "PDF exportieren",
