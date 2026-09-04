@@ -60,6 +60,7 @@ import {Card} from 'primeng/card';
 import {ContainsPipe} from '../../pipes/contains.pipe';
 import {TruncatePipe} from "../../pipes/truncate.pipe";
 import {ICON_REGISTRY} from '../../icons';
+import {isRichTextEmpty} from '../../utils/sanitize-html';
 
 
 @Component({
@@ -111,7 +112,7 @@ export class SummaryComponent {
 
   getText(documentation: Documentation, selectedLanguage: string, defaultLanguage: string) {
     const text = documentation.texts[selectedLanguage];
-    if (!text) {
+    if (isRichTextEmpty(text)) {
       return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + documentation.texts[defaultLanguage];
     }
     return text;

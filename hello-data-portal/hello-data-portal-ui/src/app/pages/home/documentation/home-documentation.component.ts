@@ -36,6 +36,7 @@ import {
   selectSelectedLanguage
 } from "../../../store/auth/auth.selector";
 import {TranslateService} from "../../../shared/services/translate.service";
+import {isRichTextEmpty} from "../../../shared/utils/sanitize-html";
 import {AsyncPipe} from '@angular/common';
 import {Editor} from 'primeng/editor';
 import {FormsModule} from '@angular/forms';
@@ -69,7 +70,7 @@ export class HomeDocumentationComponent {
 
   getText(documentation: any, selectedLanguage: string, defaultLanguage: string) {
     const text = documentation.texts[selectedLanguage];
-    if (!text || text.trim() === '') {
+    if (isRichTextEmpty(text)) {
       return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + documentation.texts[defaultLanguage];
     }
     return text;

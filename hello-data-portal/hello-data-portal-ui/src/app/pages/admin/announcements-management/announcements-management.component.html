@@ -1,4 +1,5 @@
 <h2 class="content-block">{{ '@Announcements management' | transloco }}</h2>
+@if ((defaultLanguage$ | async); as defaultLanguage) {
 @if ((selectedLanguage$ | async); as selectedLanguage) {
   <p-card>
     <p-toolbar class="mb-6 gap-2">
@@ -51,7 +52,7 @@
                 </td>
                 <td>
                   <div class="announcement-message-preview"
-                       [innerHTML]="getMessage(announcement, selectedLanguage)"></div>
+                       [innerHTML]="getMessage(announcement, selectedLanguage, defaultLanguage)"></div>
                 </td>
                 <td class="hd-col-date">
                   {{ announcement.createdDate | date: 'dd.MM.yyyy HH:mm:ss' }}
@@ -119,6 +120,7 @@
       </div>
     }
   </p-card>
+}
 }
 <div class="mt-3">
   <app-delete-announcement-popup [action]="getDeletionAction()"/>
