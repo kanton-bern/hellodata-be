@@ -70,8 +70,9 @@ RUN pip install \
     hellodata_be_dag_logs==1.0.0
 #USER root
 # Copy config files to container's $AIRFLOW_HOME
-#COPY webserver_config.py $AIRFLOW_HOME/webserver_config.py
-#COPY user_auth.py $AIRFLOW_HOME/user_auth.py
+# FAB security manager (OAuth to Keycloak, cookie-SSO) — reads KEYCLOAK_BASE_URL /
+# KEYCLOAK_CLIENT_ID from env, so the same image works per environment.
+COPY webserver_config.py $AIRFLOW_HOME/webserver_config.py
 COPY airflow.cfg $AIRFLOW_HOME/airflow.cfg
 
 #COPY settings.py /home/airflow/.local/lib/python3.10/site-packages/airflow/settings.py
