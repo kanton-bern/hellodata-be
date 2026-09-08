@@ -108,6 +108,9 @@ RUN chmod a+x /db/*.sh
 # referenced from superset_config.py as `from hd_security_manager import HdSecurityManager`.
 # Reads KEYCLOAK_BASE_URL from env, so no chart-side Secret/mount is needed.
 COPY --chown=1000:1000 ./hd_security_manager.py /app/pythonpath-extra/hd_security_manager.py
+# HelloDATA static Superset config (no per-env values). superset_config.py pulls it in
+# with `from hd_superset_config import *`; env-specific config stays in the chart.
+COPY --chown=1000:1000 ./hd_superset_config.py /app/pythonpath-extra/hd_superset_config.py
 
 # Switching back to using the `superset` user
 USER 1000
