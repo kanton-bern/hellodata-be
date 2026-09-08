@@ -86,7 +86,7 @@ FAB_API_MAX_PAGE_SIZE = -1
 
 HTML_SANITIZATION_SCHEMA_EXTENSIONS = {
   "attributes": {
-    "*": ["style","className", "hidden", "width", "height", "controls", "src"],
+    "*": ["style","className", "hidden", "width", "height", "controls", "src", "target", "rel", "href"],
   },
   "tagNames": ["style", "video", "source"],
 }
