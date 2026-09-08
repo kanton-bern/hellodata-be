@@ -59,8 +59,8 @@ RUN uv pip install pymssql
 RUN uv pip install psycopg2
 # oracle
 RUN uv pip install oracledb
-# statsd
-RUN uv pip install statsd
+# statsd (pinned to match the version the chart bootstrapScript used to pip-install at pod start)
+RUN uv pip install statsd==4.0.1
 
 # Flower is a web based tool for monitoring the Celery cluster
 RUN uv pip install flower
@@ -102,6 +102,12 @@ COPY --chown=1000:1000 ./entrypoint.sh /db/entrypoint.sh
 #    && chown -R superset:superset /db
 
 RUN chmod a+x /db/*.sh
+
+# HelloDATA custom security manager (OAuth to Keycloak, cookie-SSO). Baked onto the
+# PYTHONPATH (extraEnv sets PYTHONPATH=/app/pythonpath:/app/pythonpath-extra) and
+# referenced from superset_config.py as `from hd_security_manager import HdSecurityManager`.
+# Reads KEYCLOAK_BASE_URL from env, so no chart-side Secret/mount is needed.
+COPY --chown=1000:1000 ./hd_security_manager.py /app/pythonpath-extra/hd_security_manager.py
 
 # Switching back to using the `superset` user
 USER 1000
