@@ -82,6 +82,9 @@ COPY airflow.cfg $AIRFLOW_HOME/airflow.cfg
 COPY webserver_config.py $AIRFLOW_HOME/webserver_config.py
 # Cluster policy: dag_policy stamps per-domain access_control (replaces 02_triggers.sql).
 COPY airflow_local_settings.py $AIRFLOW_HOME/config/airflow_local_settings.py
+# HelloDATA technical-user seed (idempotent): seed.py + its SQL, run by the chart's seed Job
+# as `python /opt/airflow/hd-seed/seed.py`. seed.py reads the SQL from its own dir.
+COPY hd-seed $AIRFLOW_HOME/hd-seed
 
 
 ##################### Add Liquibase to manage custom database scripts ######################
