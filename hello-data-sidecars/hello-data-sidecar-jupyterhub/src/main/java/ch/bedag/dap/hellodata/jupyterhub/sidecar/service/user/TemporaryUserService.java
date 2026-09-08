@@ -4,6 +4,7 @@ import ch.bedag.dap.hellodata.jupyterhub.sidecar.config.props.HellodataJupyterhu
 import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user.dto.TemporaryUserResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,8 @@ public class TemporaryUserService {
     private final JdbcTemplate dwhJdbcTemplate;
     private final HellodataJupyterhubProperties hellodataProperties;
 
+    // Not @Transactional: in PostgreSQL a failed statement aborts the transaction, blocking the rest.
     @Scheduled(cron = "0 0 0 * * ?") // Runs at midnight every day
-    @Transactional
     public void cleanupExpiredUsers() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -34,9 +35,24 @@ public class TemporaryUserService {
         List<String> expiredUsernames = dwhJdbcTemplate.queryForList(findExpiredUsersSql, String.class); //NOSONAR
 
         for (String username : expiredUsernames) {
-            String dropUserSql = "DROP USER IF EXISTS " + username;
+            dropExpiredUser(username);
+        }
+    }
+
+    private void dropExpiredUser(String username) {
+        try {
+            // REASSIGN first: DROP OWNED deletes the objects the user owns, not just its grants.
+            String reassignOwnedSql = String.format("REASSIGN OWNED BY %s TO CURRENT_USER", username);
+            dwhJdbcTemplate.execute(reassignOwnedSql); //NOSONAR
+
+            String dropOwnedSql = String.format("DROP OWNED BY %s", username);
+            dwhJdbcTemplate.execute(dropOwnedSql); //NOSONAR
+
+            String dropUserSql = String.format("DROP USER IF EXISTS %s", username);
             dwhJdbcTemplate.execute(dropUserSql); //NOSONAR
             log.info("Dropped expired user: {}", username);
+        } catch (DataAccessException e) {
+            log.error("Could not drop expired user {}", username, e);
         }
     }
 
