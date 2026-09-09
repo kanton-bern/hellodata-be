@@ -19,6 +19,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TemporaryUserServiceTest {
 
+    private static final String SHARED_ROLE = "hd_jupyter_users";
+    private static final String SHARED_SCHEMA = "jupyter_shared";
+
     @Mock
     private HellodataJupyterhubProperties hellodataProperties;
 
@@ -28,51 +31,64 @@ class TemporaryUserServiceTest {
     @InjectMocks
     private TemporaryUserService temporaryUserService;
 
-    private int tempUserPasswordValidInDays;
-    private String dwhUrl;
     private List<String> dwhTempUserSchemas;
 
     @BeforeEach
     void setUp() {
-        tempUserPasswordValidInDays = 7;
-        dwhUrl = "jdbc:testDatabaseUrl";
         dwhTempUserSchemas = List.of("schema1", "schema2");
 
-        when(hellodataProperties.getTempUserPasswordValidInDays()).thenReturn(tempUserPasswordValidInDays);
-        when(hellodataProperties.getDwhUrl()).thenReturn(dwhUrl);
+        when(hellodataProperties.getTempUserPasswordValidInDays()).thenReturn(7);
+        when(hellodataProperties.getDwhUrl()).thenReturn("jdbc:postgresql://localhost:5432/testdwh");
         when(hellodataProperties.getDwhTempUserSchemas()).thenReturn(dwhTempUserSchemas);
+        when(hellodataProperties.getDwhSharedRole()).thenReturn(SHARED_ROLE);
+        when(hellodataProperties.getDwhSharedSchema()).thenReturn(SHARED_SCHEMA);
     }
 
     @Test
-    void createTemporaryUser_ShouldCreateUserAndGrantAccess() {
-        // given when
+    void createTemporaryUser_ShouldCreateUserAsMemberOfSharedRole() {
         TemporaryUserResponseDto responseDto = temporaryUserService.createTemporaryUser();
 
-        // then
         assertNotNull(responseDto);
         assertNotNull(responseDto.getUsername());
         assertNotNull(responseDto.getPassword());
         assertNotNull(responseDto.getExpiryDate());
-
-        String expectedUsernamePattern = "temp_user_\\w{8}";
-        assertTrue(responseDto.getUsername().matches(expectedUsernamePattern));
+        assertTrue(responseDto.getUsername().matches("temp_user_\\w{8}"));
         assertFalse(responseDto.getPassword().isEmpty());
 
+        String username = responseDto.getUsername();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedExpiryDate = responseDto.getExpiryDate().format(formatter);
 
-        verify(dwhJdbcTemplate).execute(startsWith("CREATE USER " + responseDto.getUsername()));
+        // user is created with an expiring password
+        verify(dwhJdbcTemplate).execute(startsWith("CREATE USER " + username));
         verify(dwhJdbcTemplate).execute(contains("VALID UNTIL '" + formattedExpiryDate + "'"));
 
-        // verify granting privileges on database
-        verify(dwhJdbcTemplate).execute(contains("GRANT ALL PRIVILEGES ON DATABASE " + responseDto.getDatabaseName()));
+        // access flows through the shared role, and the user runs each session as it
+        verify(dwhJdbcTemplate).execute("GRANT " + SHARED_ROLE + " TO " + username);
+        verify(dwhJdbcTemplate).execute("ALTER ROLE " + username + " SET role TO " + SHARED_ROLE);
 
-        // verify schema access grants
+        // the user itself receives no direct object privileges - everything is on the shared role
+        verify(dwhJdbcTemplate, never()).execute(contains("GRANT ALL PRIVILEGES ON DATABASE testdwh TO " + username));
+        verify(dwhJdbcTemplate, never()).execute(contains("ON ALL TABLES IN SCHEMA schema1 TO " + username));
+    }
+
+    @Test
+    void createTemporaryUser_ShouldEnsureSharedRoleAndReadGrants() {
+        temporaryUserService.createTemporaryUser();
+
+        // shared role provisioned idempotently
+        verify(dwhJdbcTemplate).execute(contains("CREATE ROLE " + SHARED_ROLE + " NOLOGIN"));
+        verify(dwhJdbcTemplate).execute("GRANT CONNECT ON DATABASE testdwh TO " + SHARED_ROLE);
+
+        // read-only grants on the modelled schemas go to the shared role, not the user
         for (String schema : dwhTempUserSchemas) {
-            verify(dwhJdbcTemplate).execute(contains("GRANT USAGE ON SCHEMA " + schema));
-            verify(dwhJdbcTemplate).execute(contains("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA " + schema));
-            verify(dwhJdbcTemplate).execute(contains("GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA " + schema));
+            verify(dwhJdbcTemplate).execute("GRANT USAGE ON SCHEMA " + schema + " TO " + SHARED_ROLE);
+            verify(dwhJdbcTemplate).execute("GRANT SELECT ON ALL TABLES IN SCHEMA " + schema + " TO " + SHARED_ROLE);
+            verify(dwhJdbcTemplate).execute("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA " + schema + " TO " + SHARED_ROLE);
         }
 
+        // shared read-write workspace owned via the shared role
+        verify(dwhJdbcTemplate).execute("CREATE SCHEMA IF NOT EXISTS " + SHARED_SCHEMA);
+        verify(dwhJdbcTemplate).execute("GRANT USAGE, CREATE ON SCHEMA " + SHARED_SCHEMA + " TO " + SHARED_ROLE);
     }
 }

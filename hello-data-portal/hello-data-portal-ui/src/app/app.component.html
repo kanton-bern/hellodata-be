@@ -1,4 +1,4 @@
-@if (showFirstLoginOverlay) {
+@if (showFirstLoginOverlay || showProvisioningOverlay) {
   <div class="first-login-overlay" [class.fade-out]="overlayFadingOut">
     <div class="first-login-content">
       <div class="card-stack">
