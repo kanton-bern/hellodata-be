@@ -29,7 +29,7 @@ import {Component, HostBinding, inject, OnDestroy, OnInit} from '@angular/core';
 import {AppInfoService, ScreenService, SessionRenewalService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
-import {selectCurrentBusinessDomain, selectFirstLogin} from "./store/auth/auth.selector";
+import {selectCurrentBusinessDomain, selectFirstLogin, selectIsProvisioning} from "./store/auth/auth.selector";
 import {filter, Observable, Subject, take, takeUntil, tap, timer} from "rxjs";
 import {Title} from "@angular/platform-browser";
 import {checkAuth, checkProfile} from "./store/auth/auth.action";
@@ -57,12 +57,18 @@ export class AppComponent implements OnInit, OnDestroy {
   private static readonly REDIRECT_TO_PARAM = 'redirectTo';
   private static readonly FIRST_LOGIN_DELAY_MS = 5000;
   private static readonly FADE_OUT_DURATION_MS = 600;
+  // Safety cap so a genuinely permission-less account is never trapped under the
+  // onboarding overlay forever; after this the app reveals whatever state it has.
+  private static readonly PROVISIONING_OVERLAY_MAX_MS = 90000;
 
   businessDomain$: Observable<string>;
   redirectTo$: Observable<any>;
   isMobile$: Observable<boolean>;
   showFirstLoginOverlay = false;
   overlayFadingOut = false;
+  showProvisioningOverlay = false;
+  private provisioningCapped = false;
+  private provisioningCapTimer?: ReturnType<typeof setTimeout>;
 
   constructor() {
     const appInfo = this.appInfo;
@@ -113,11 +119,42 @@ export class AppComponent implements OnInit, OnDestroy {
     }, 500);
     this.checkProfile();
     this.watchFirstLogin();
+    this.watchProvisioning();
   }
 
   ngOnDestroy(): void {
+    if (this.provisioningCapTimer) {
+      clearTimeout(this.provisioningCapTimer);
+    }
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // Keep an onboarding overlay up while a new user's account is still being provisioned
+  // (authenticated but no permissions yet) so they see "preparing your workspace" instead
+  // of a blank shell. It clears the moment permissions arrive (the profile poller keeps
+  // re-checking), or after a safety cap if they never do.
+  private watchProvisioning(): void {
+    this.store.select(selectIsProvisioning).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(isProvisioning => {
+      if (isProvisioning && !this.provisioningCapped) {
+        if (!this.showProvisioningOverlay) {
+          this.showProvisioningOverlay = true;
+          this.provisioningCapTimer = setTimeout(() => {
+            console.warn('[App] Provisioning still incomplete after cap, revealing app');
+            this.provisioningCapped = true;
+            this.showProvisioningOverlay = false;
+          }, AppComponent.PROVISIONING_OVERLAY_MAX_MS);
+        }
+      } else {
+        this.showProvisioningOverlay = false;
+        if (this.provisioningCapTimer) {
+          clearTimeout(this.provisioningCapTimer);
+          this.provisioningCapTimer = undefined;
+        }
+      }
+    });
   }
 
   private watchFirstLogin(): void {
