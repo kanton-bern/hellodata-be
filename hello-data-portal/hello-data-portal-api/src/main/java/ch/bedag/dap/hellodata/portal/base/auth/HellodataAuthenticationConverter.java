@@ -29,20 +29,17 @@ package ch.bedag.dap.hellodata.portal.base.auth;
 import ch.bedag.dap.hellodata.commons.security.HellodataAuthenticationToken;
 import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
-import ch.bedag.dap.hellodata.portal.user.service.AutoProvisionService;
 import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +53,6 @@ import java.util.concurrent.TimeUnit;
 public class HellodataAuthenticationConverter implements Converter<Jwt, HellodataAuthenticationToken> {
 
     private final UserRepository userRepository;
-    private final AutoProvisionService autoProvisionService;
 
     @Value("${hello-data.cache.user-database-ttl-minutes:2}")
     private int userDatabaseTtlCacheMinutes;
@@ -100,29 +96,21 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public HellodataAuthenticationToken convert(Jwt jwt) {
         String email = jwt.getClaims().get("email").toString();
         String givenName = jwt.getClaims().get("given_name").toString();
         String familyName = jwt.getClaims().get("family_name").toString();
+        UUID keycloakUserId = UUID.fromString(jwt.getSubject());
         boolean isSuperuser = false;
         Set<String> permissions = new HashSet<>();
         UUID userId = null;
 
+        // Pure, read-only identity mapping: resolve the (cached) portal user and their authorities.
+        // A brand-new user whose portal record does not exist yet simply gets userId=null and no
+        // permissions here; provisioning is triggered once from the profile endpoint (see
+        // FirstLoginProvisioningCoordinator) rather than as a per-request side effect of the auth path.
         UserDto userDto = getUserDto(email);
-        if (userDto == null) {
-            try {
-                UserEntity provisioned = autoProvisionService.autoProvisionIfEnabled(email, givenName, familyName, jwt.getSubject());
-                if (provisioned != null) {
-                    invalidateUserCache(email);
-                    userDto = getUserDto(email);
-                }
-            } catch (DataAccessException | PersistenceException e) {
-                log.debug("Concurrent auto-provision for {} ({}), reading existing user", email, e.getClass().getSimpleName());
-                invalidateUserCache(email);
-                userDto = getUserDto(email);
-            }
-        }
         if (userDto != null) { //NOSONAR
             userId = UUID.fromString(userDto.getId());
             isSuperuser = BooleanUtils.isTrue(userDto.getSuperuser());
@@ -135,7 +123,7 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
                 }
             }
         }
-        return new HellodataAuthenticationToken(userId, givenName, familyName, email, isSuperuser, permissions);
+        return new HellodataAuthenticationToken(userId, givenName, familyName, email, keycloakUserId, isSuperuser, permissions);
     }
 
     /**

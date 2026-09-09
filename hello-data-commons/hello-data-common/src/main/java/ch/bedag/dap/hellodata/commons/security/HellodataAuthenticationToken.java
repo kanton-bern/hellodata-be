@@ -37,6 +37,10 @@ import java.util.UUID;
 public class HellodataAuthenticationToken extends AbstractAuthenticationToken {
 
     private final UUID userId; //keycloak and DB id are the same
+    // Keycloak subject (JWT sub). Equals userId once the portal user exists; kept separately so
+    // it is still available for a not-yet-provisioned user, whose userId is null. This lets
+    // first-login provisioning be triggered downstream instead of inside the auth converter.
+    private final UUID keycloakUserId;
     private final String email;
     private final String firstname;
     private final String lastName;
@@ -44,15 +48,22 @@ public class HellodataAuthenticationToken extends AbstractAuthenticationToken {
 
     private final Set<String> permissions;
 
-    public HellodataAuthenticationToken(UUID userId, String firstname, String lastName, String email, boolean superuser, Set<String> permissions) {
+    public HellodataAuthenticationToken(UUID userId, String firstname, String lastName, String email, UUID keycloakUserId, boolean superuser, Set<String> permissions) {
         super(permissions.stream().map(SimpleGrantedAuthority::new).toList());
         this.userId = userId;
+        this.keycloakUserId = keycloakUserId;
         this.email = email;
         this.firstname = firstname;
         this.lastName = lastName;
         this.superuser = superuser;
         this.permissions = permissions;
         setAuthenticated(true);
+    }
+
+    // Backward-compatible constructor: for an existing (provisioned) user the Keycloak subject and
+    // the DB id are the same, so default keycloakUserId to userId.
+    public HellodataAuthenticationToken(UUID userId, String firstname, String lastName, String email, boolean superuser, Set<String> permissions) {
+        this(userId, firstname, lastName, email, userId, superuser, permissions);
     }
 
     @Override
@@ -79,6 +90,10 @@ public class HellodataAuthenticationToken extends AbstractAuthenticationToken {
 
     public UUID getUserId() {
         return userId;
+    }
+
+    public UUID getKeycloakUserId() {
+        return keycloakUserId;
     }
 
     public String getFirstname() {
