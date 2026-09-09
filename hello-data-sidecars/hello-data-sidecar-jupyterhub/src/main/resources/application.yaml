@@ -44,6 +44,11 @@ hello-data:
       - public
       - lzn
       - csv
+    # Shared group role that owns temporary users' objects and holds their privileges.
+    # PostgreSQL roles are cluster-global: in a cluster shared by several data domains, override this
+    # per data domain (e.g. include the DWH database name) so the roles do not collide.
+    dwh-shared-role: hd_jupyter_users
+    dwh-shared-schema: jupyter_shared
 spring:
   application:
     name: HelloDATA Sidecar for Jupyterhub
