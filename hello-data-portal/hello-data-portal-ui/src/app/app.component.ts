@@ -26,7 +26,7 @@
 ///
 
 import {Component, HostBinding, inject, OnDestroy, OnInit} from '@angular/core';
-import {AppInfoService, ScreenService} from './shared/services';
+import {AppInfoService, ScreenService, SessionRenewalService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
 import {selectCurrentBusinessDomain, selectFirstLogin} from "./store/auth/auth.selector";
@@ -51,6 +51,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly screen = inject(ScreenService);
   appInfo = inject(AppInfoService);
   private readonly title = inject(Title);
+  private readonly sessionRenewal = inject(SessionRenewalService);
   private readonly destroy$ = new Subject<void>();
 
   private static readonly REDIRECT_TO_PARAM = 'redirectTo';
@@ -92,6 +93,11 @@ export class AppComponent implements OnInit, OnDestroy {
     if (!window.location.pathname.includes('/callback')) {
       this.store.dispatch(checkAuth());
     }
+
+    // Refresh the token when the tab regains focus, so a session that idled in the
+    // background (silent-renew timer throttled while hidden) recovers silently
+    // instead of 401-ing and bouncing the user out of a subsystem iframe.
+    this.sessionRenewal.start();
 
     // Handle redirectTo param stored in sessionStorage (for opening new tab links)
     setTimeout(() => {
@@ -144,11 +150,19 @@ export class AppComponent implements OnInit, OnDestroy {
     const FAST_INTERVAL_MS = 5000;
     const FAST_PHASE_MS = 120000;
 
-    // Start the normal 30s polling immediately
-    let profileTimer = setInterval(() => {
+    // Skip polling while the tab is hidden: the token may be stale (silent-renew is
+    // throttled in the background), so a poll would 401 and trigger a redirect. On
+    // return, SessionRenewalService refreshes first and polling resumes.
+    const dispatchCheckProfile = () => {
+      if (typeof document !== 'undefined' && document.hidden) {
+        return;
+      }
       console.debug("Check profile");
       this.store.dispatch(checkProfile());
-    }, NORMAL_INTERVAL_MS);
+    };
+
+    // Start the normal 30s polling immediately
+    let profileTimer = setInterval(dispatchCheckProfile, NORMAL_INTERVAL_MS);
 
     // If first login, temporarily switch to fast 5s polling, then revert to 30s
     this.store.select(selectFirstLogin).pipe(
@@ -159,17 +173,11 @@ export class AppComponent implements OnInit, OnDestroy {
       console.debug('[App] First login detected, switching to fast profile polling');
       clearInterval(profileTimer);
 
-      const fastTimer = setInterval(() => {
-        console.debug("Check profile (fast)");
-        this.store.dispatch(checkProfile());
-      }, FAST_INTERVAL_MS);
+      const fastTimer = setInterval(dispatchCheckProfile, FAST_INTERVAL_MS);
 
       setTimeout(() => {
         clearInterval(fastTimer);
-        profileTimer = setInterval(() => {
-          console.debug("Check profile");
-          this.store.dispatch(checkProfile());
-        }, NORMAL_INTERVAL_MS);
+        profileTimer = setInterval(dispatchCheckProfile, NORMAL_INTERVAL_MS);
       }, FAST_PHASE_MS);
     });
   }
