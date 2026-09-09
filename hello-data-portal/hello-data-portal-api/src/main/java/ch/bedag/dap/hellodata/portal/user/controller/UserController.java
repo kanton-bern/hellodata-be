@@ -47,6 +47,7 @@ import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserWithBusinessRoleDto;
 import ch.bedag.dap.hellodata.portal.user.service.BulkAssignmentService;
+import ch.bedag.dap.hellodata.portal.user.service.FirstLoginProvisioningCoordinator;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import jakarta.validation.Valid;
@@ -90,6 +91,7 @@ public class UserController {
     private final BulkAssignmentService bulkAssignmentService;
     private final HelloDataContextConfig helloDataContextConfig;
     private final SystemProperties systemProperties;
+    private final FirstLoginProvisioningCoordinator firstLoginProvisioningCoordinator;
 
 
     @PostMapping
@@ -148,6 +150,28 @@ public class UserController {
     public CurrentUserDto getPermissionsForCurrentUser() {
         try {
             UUID currentUserId = SecurityUtils.getCurrentUserId();
+            // Permissions from the auth token by default (empty for a not-yet-provisioned user).
+            Set<String> permissions = getCurrentUserPermissions();
+
+            if (currentUserId == null) {
+                // First access of a brand-new user. Provisioning was moved out of the per-request
+                // auth converter, so trigger it here - once, idempotent, single-flight. This is the
+                // first call the portal makes after login, so it runs before the rest of the app's
+                // requests. The SecurityContext for THIS request was built before provisioning, so
+                // read the fresh id and authorities from the newly created record.
+                UUID keycloakId = SecurityUtils.getCurrentUserKeycloakId();
+                UserEntity provisioned = firstLoginProvisioningCoordinator.provisionOnFirstAccess(
+                        SecurityUtils.getCurrentUserEmail(),
+                        SecurityUtils.getCurrentUserFirstName(),
+                        SecurityUtils.getCurrentUserLastName(),
+                        keycloakId != null ? keycloakId.toString() : null
+                );
+                if (provisioned != null) {
+                    currentUserId = provisioned.getId();
+                    permissions = userService.getUserPortalPermissions(currentUserId);
+                }
+            }
+
             if (currentUserId != null) {
                 log.debug("Current user id {}", currentUserId);
                 String currentUserIdStr = currentUserId.toString();
@@ -155,13 +179,15 @@ public class UserController {
                 userService.updateLastAccess(currentUserIdStr);
                 // Fetch isSuperuser from database to avoid using cached token value
                 boolean isSuperuser = userService.isUserSuperuser(currentUserId);
-                return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), isSuperuser,
+                return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), permissions, isSuperuser,
                         helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
                         userService.isUserDisabled(currentUserIdStr), userService.getSelectedLanguage(currentUserIdStr),
                         firstLogin
                 );
             }
-            return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), false,
+            // Authenticated but still no portal account (auto-provisioning disabled): the frontend
+            // shows the onboarding state for this empty-permission response.
+            return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), permissions, false,
                     helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
                     false, Locale.ROOT, true);
         } catch (ClientErrorException e) {

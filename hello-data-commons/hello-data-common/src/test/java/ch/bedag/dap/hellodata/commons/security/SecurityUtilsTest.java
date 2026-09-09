@@ -177,6 +177,43 @@ class SecurityUtilsTest {
         assertNull(SecurityUtils.getCurrentUserFullName());
     }
 
+    @Test
+    void testGetCurrentUserKeycloakIdIsAvailableEvenWhenUserIdIsNull() {
+        // given a not-yet-provisioned user: DB userId is null but the Keycloak subject is known
+        UUID keycloakId = UUID.randomUUID();
+        HellodataAuthenticationToken hdToken =
+                new HellodataAuthenticationToken(null, "John", "Doe", "test@example.com", keycloakId, false, Collections.emptySet());
+        mockSecurityContextHolder(hdToken);
+
+        // then
+        assertNull(SecurityUtils.getCurrentUserId());
+        assertEquals(keycloakId, SecurityUtils.getCurrentUserKeycloakId());
+    }
+
+    @Test
+    void testKeycloakIdDefaultsToUserIdOnBackwardCompatibleConstructor() {
+        // given the legacy 6-arg constructor, keycloak subject and DB id are the same
+        UUID userId = UUID.randomUUID();
+        HellodataAuthenticationToken hdToken =
+                new HellodataAuthenticationToken(userId, "John", "Doe", "test@example.com", false, Collections.emptySet());
+        mockSecurityContextHolder(hdToken);
+
+        // then
+        assertEquals(userId, SecurityUtils.getCurrentUserKeycloakId());
+    }
+
+    @Test
+    void testGetCurrentUserFirstAndLastName() {
+        // given
+        HellodataAuthenticationToken hdToken =
+                new HellodataAuthenticationToken(UUID.randomUUID(), "John", "Doe", "test@example.com", false, Collections.emptySet());
+        mockSecurityContextHolder(hdToken);
+
+        // then
+        assertEquals("John", SecurityUtils.getCurrentUserFirstName());
+        assertEquals("Doe", SecurityUtils.getCurrentUserLastName());
+    }
+
     private JwtAuthenticationToken createJwtAuthenticationToken() {
         Jwt jwt = mock(Jwt.class);
         when(jwt.getClaims()).thenReturn(Collections.singletonMap("email", "test@email.com"));
