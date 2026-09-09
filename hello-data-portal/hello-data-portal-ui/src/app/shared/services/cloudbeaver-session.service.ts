@@ -19,6 +19,11 @@ export class CloudbeaverSessionService {
     this.createTimerCookie();
     this.renewSessionInterval$
       .subscribe(() => {
+        // Skip while the tab is hidden: the token may be stale (silent-renew throttled
+        // in the background) so the call would 401; it resumes once the tab is visible.
+        if (typeof document !== 'undefined' && document.hidden) {
+          return;
+        }
         if (this.cookieExists()) {
           this.store.dispatch(prolongCBSession());
         } else {
