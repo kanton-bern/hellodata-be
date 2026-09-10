@@ -97,6 +97,7 @@ public class UploadDashboardsFileListener {
                 }
                 useDefaultSqlAlchemyUri(dashboardUpload, destinationFile);
                 remapDatabaseInZip(supersetClient, destinationFile, dashboardUpload);
+                normalizeChartsInZip(destinationFile);
                 JsonObject passwordsObject = getPasswordsObject(destinationFile);
                 File backupFile = null;
                 boolean pruned = false;
@@ -536,6 +537,113 @@ public class UploadDashboardsFileListener {
                 }
             }
         }
+    }
+
+    /**
+     * Normalizes chart configs in the export zip before they are sent to the Superset import API.
+     * <p>
+     * Some charts are exported with a double-encoded {@code query_context}: the field itself, or the
+     * {@code form_data} nested inside it, is a JSON string instead of an object. Superset's importer
+     * ({@code update_chart_config_dataset}) assumes these are objects and does e.g.
+     * {@code query_context["form_data"]["datasource"] = ...}, which fails the whole import with
+     * {@code TypeError: 'str' object does not support item assignment}. We defensively unwrap those
+     * strings back into objects so the import succeeds regardless of how the source instance encoded them.
+     * <p>
+     * This runs unconditionally on every upload (unlike the optional export-check script) and rewrites
+     * the zip in place, mirroring {@link #replaceSqlalchemyUrisInZip} / {@code remapDatabaseInZip}.
+     */
+    private void normalizeChartsInZip(File destinationFile) throws IOException {
+        File tempZip = File.createTempFile("normalized-", destinationFile.getName(), new File(tmpDir)); //NOSONAR
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+        boolean anyChanged = false;
+
+        try (
+                ZipFile zipFile = new ZipFile(destinationFile);
+                FileOutputStream fos = new FileOutputStream(tempZip);
+                ZipOutputStream zos = new ZipOutputStream(fos, StandardCharsets.UTF_8)
+        ) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                    if (entryName.contains("/charts/") && !entry.isDirectory()) {
+                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                        Map<String, Object> chart = yamlMapper.readValue(content, Map.class);
+
+                        if (normalizeChartConfig(chart)) {
+                            anyChanged = true;
+                            log.info("Normalized double-encoded query_context in chart entry: {}", entryName);
+                            zos.putNextEntry(new ZipEntry(entryName));
+                            zos.write(yamlMapper.writeValueAsString(chart).getBytes(StandardCharsets.UTF_8));
+                            zos.closeEntry();
+                            continue;
+                        }
+                    }
+                    // Copy unchanged entries (and non-chart files) as-is
+                    zos.putNextEntry(new ZipEntry(entryName));
+                    inputStream.transferTo(zos);
+                    zos.closeEntry();
+                }
+            }
+        }
+
+        if (anyChanged) {
+            Files.move(tempZip.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            Files.deleteIfExists(tempZip.toPath());
+        }
+    }
+
+    /**
+     * Coerces a single parsed chart YAML into the shape Superset's importer expects.
+     * Returns {@code true} if anything was changed.
+     */
+    private boolean normalizeChartConfig(Map<String, Object> chart) throws IOException {
+        Object queryContextRaw = chart.get("query_context");
+        // In the export YAML query_context is stored as a JSON string; leave anything else untouched.
+        if (!(queryContextRaw instanceof String queryContextJson) || StringUtils.isBlank(queryContextJson)) {
+            return false;
+        }
+
+        Object queryContext = objectMapper.readValue(queryContextJson, Object.class);
+        // Unwrap a fully double-encoded query_context (a JSON string whose content is itself a JSON string).
+        boolean topLevelUnwrapped = false;
+        while (queryContext instanceof String nested) {
+            queryContext = objectMapper.readValue(nested, Object.class);
+            topLevelUnwrapped = true;
+        }
+        if (!(queryContext instanceof Map)) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, Object> queryContextMap = (Map<String, Object>) queryContext;
+
+        boolean formDataUnwrapped = unwrapJsonObject(queryContextMap, "form_data");
+
+        if (topLevelUnwrapped || formDataUnwrapped) {
+            chart.put("query_context", objectMapper.writeValueAsString(queryContextMap));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * If {@code map[key]} is a JSON string that decodes to an object, replaces it with the decoded object.
+     * Returns {@code true} if a replacement was made.
+     */
+    private boolean unwrapJsonObject(Map<String, Object> map, String key) throws IOException {
+        Object value = map.get(key);
+        if (value instanceof String jsonString && StringUtils.isNotBlank(jsonString)) {
+            Object decoded = objectMapper.readValue(jsonString, Object.class);
+            if (decoded instanceof Map) {
+                map.put(key, decoded);
+                return true;
+            }
+        }
+        return false;
     }
 
     private JsonObject getPasswordsObject(File destinationFile) throws IOException {
