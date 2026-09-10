@@ -57,16 +57,13 @@ import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -78,7 +75,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -104,11 +100,6 @@ public class UserService {
     private final UserDashboardSyncService userDashboardSyncService;
     private final ApplicationEventPublisher eventPublisher;
     private final HellodataAuthenticationConverter authenticationConverter;
-    /**
-     * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
-     */
-    @Value("${hello-data.auth-server.delete-user-in-provider:false}")
-    private boolean deleteUsersInProvider;
 
     @Transactional
     public String createUser(String email, String firstName, String lastName, AdUserOrigin origin) {
@@ -181,22 +172,14 @@ public class UserService {
         if (SecurityUtils.getCurrentUserId() == null || userId.equals(SecurityUtils.getCurrentUserId().toString())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete yourself");//NOSONAR
         }
-        Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(dbId));
+        UserEntity userEntity = getUserEntity(dbId);
         // Remove user from all dashboard groups before deleting the user entity
         removeUserFromDashboardGroupsForAllDomains(dbId);
-        AtomicBoolean isUserFederated = new AtomicBoolean(false);
-        userEntityResult.ifPresentOrElse(
-                userEntity -> {
-                    isUserFederated.set(userEntity.isFederated());
-                    userRepository.delete(userEntity);
-                },
-                () -> {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found");//NOSONAR
-                }
-        );
-        deleteKeycloakUser(userEntityResult.get(), isUserFederated.get());
+        userRepository.delete(userEntity);
+        // The user is intentionally NOT removed from the auth provider (Keycloak): the realm can be
+        // shared across environments and/or federated with AD, so the portal must not touch it.
         SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
-        String email = userEntityResult.get().getEmail().toLowerCase(Locale.ROOT);
+        String email = userEntity.getEmail().toLowerCase(Locale.ROOT);
         subsystemUserDelete.setEmail(email);
         subsystemUserDelete.setUsername(email);
         natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
@@ -228,9 +211,8 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(false);
         userRepository.save(userEntity);
-        if (!userEntity.isFederated()) {
-            disableKeycloakUser(userId);
-        }
+        // Access is revoked in the portal and in the subsystems (below); the auth provider (Keycloak)
+        // is intentionally left untouched, as the realm can be shared across environments / federated with AD.
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
         subsystemUserUpdate.setActive(false);
         natsSenderService.publishMessageToJetStream(HDEvent.DISABLE_USER, subsystemUserUpdate);
@@ -245,9 +227,8 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(true);
         userRepository.saveAndFlush(userEntity);
-        if (!userEntity.isFederated()) {
-            enableKeycloakUser(userId);
-        }
+        // Access is restored in the portal and in the subsystems (below); the auth provider (Keycloak)
+        // is intentionally left untouched, as the realm can be shared across environments / federated with AD.
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
         subsystemUserUpdate.setActive(true);
         natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
@@ -540,14 +521,6 @@ public class UserService {
         }
     }
 
-    private void deleteKeycloakUser(UserEntity userEntity, boolean isUserFederated) {
-        UserResource userResource = getUserResource(userEntity);
-        if (userResource != null && deleteUsersInProvider && !isUserFederated) {
-            userResource.remove();
-            log.info("User {} removed from provider", userEntity.getEmail());
-        }
-    }
-
     private void createInSubsystems(String userId) {
         SubsystemUserUpdate createUser = getSubsystemUserUpdate(userId);
         createUser.setSendBackUsersList(false);
@@ -558,33 +531,6 @@ public class UserService {
         SubsystemUserUpdate createUser = getSubsystemUserUpdate(email, userName, firstName, lastName);
         createUser.setSendBackUsersList(false);
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
-    }
-
-    private void disableKeycloakUser(String userId) {
-        String authUserId = getAuthUserId(userId);
-        try {
-            UserResource userResource = keycloakService.getUserResourceById(authUserId);
-            UserRepresentation representation = userResource.toRepresentation();
-            representation.setEnabled(false);
-            userResource.update(representation);
-            userResource.logout();
-            log.debug("User {} disabled and logged out from keycloak", userId);
-        } catch (NotFoundException nfe) {
-            log.warn("User {} not found in keycloak, skipping keycloak-deactivation.", userId);
-        }
-    }
-
-    private void enableKeycloakUser(String userId) {
-        String authUserId = getAuthUserId(userId);
-        try {
-            UserResource userResource = keycloakService.getUserResourceById(authUserId);
-            UserRepresentation representation = userResource.toRepresentation();
-            representation.setEnabled(true);
-            userResource.update(representation);
-            log.debug("User {} enabled in keycloak", userId);
-        } catch (NotFoundException nfe) {
-            log.warn("User {} not found in keycloak, skipping keycloak-activation.", userId);
-        }
     }
 
     private Set<UserContextRoleEntity> getCurrentUserDataDomainRolesExceptNone() {
@@ -834,11 +780,6 @@ public class UserService {
             }
         }
         return result;
-    }
-
-    private UserResource getUserResource(@NotNull UserEntity userEntity) {
-        String authUserId = userEntity.getAuthId() == null ? userEntity.getId().toString() : userEntity.getAuthId();
-        return keycloakService.getUserResourceById(authUserId);
     }
 
     private UserRepresentation getUserRepresentation(String userId) {
