@@ -29,7 +29,7 @@ import {TestBed} from '@angular/core/testing';
 import {HTTP_INTERCEPTORS, HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import {LoginResponse, OidcSecurityService} from 'angular-auth-oidc-client';
-import {of, throwError} from 'rxjs';
+import {of, Subject, throwError} from 'rxjs';
 import {beforeAll, describe, expect, it, jest} from '@jest/globals';
 import {TokenInterceptor} from './token-interceptor.service';
 import {AuthService} from '../services';
@@ -65,8 +65,9 @@ describe('TokenInterceptor', () => {
       logoffLocal: jest.fn()
     };
 
-    const routerMock = {
-      navigate: jest.fn()
+    const routerMock: { navigate: jest.Mock; url: string } = {
+      navigate: jest.fn(),
+      url: '/'
     };
 
     TestBed.configureTestingModule({
@@ -208,6 +209,78 @@ describe('TokenInterceptor', () => {
             try {
               expect(oidcMock.forceRefreshSession).toHaveBeenCalled();
               expect(oidcMock.logoffLocal).toHaveBeenCalled();
+              expect(routerMock.navigate).toHaveBeenCalledWith(['/home']);
+              httpMock.verify();
+              done();
+            } catch (e) {
+              done(e as Error);
+            }
+          }, 0);
+        }
+      });
+
+      const req = httpMock.expectOne(testUrl);
+      req.flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'});
+    });
+
+    it('should refresh only once for concurrent 401s and retry both (single-flight)', (done) => {
+      const {oidcMock, httpClient, httpMock} = setupTestBed(newMockToken);
+
+      // Deferred refresh so the second 401 arrives while the first is still refreshing.
+      const refresh$ = new Subject<LoginResponse>();
+      oidcMock.forceRefreshSession.mockReturnValue(refresh$.asObservable());
+
+      let completed = 0;
+      const onNext = () => {
+        if (++completed === 2) {
+          try {
+            // The core race fix: a single forceRefreshSession() for the whole burst.
+            expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(1);
+            httpMock.verify();
+            done();
+          } catch (e) {
+            done(e as Error);
+          }
+        }
+      };
+
+      httpClient.get(testUrl).subscribe({next: onNext, error: (e) => done(e as Error)});
+      httpClient.get(testUrl).subscribe({next: onNext, error: (e) => done(e as Error)});
+
+      // Both initial requests fail with 401 while the (single) refresh is in flight.
+      const initial = httpMock.match(testUrl);
+      expect(initial.length).toBe(2);
+      initial.forEach(r => r.flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'}));
+
+      // Release the one in-flight refresh; both parked requests should now retry.
+      refresh$.next({isAuthenticated: true} as LoginResponse);
+      refresh$.complete();
+
+      const retries = httpMock.match(testUrl);
+      expect(retries.length).toBe(2);
+      retries.forEach(r => {
+        expect(r.request.headers.get('Authorization')).toBe(`Bearer ${newMockToken}`);
+        r.flush({success: true});
+      });
+    });
+
+    it('should remember the current route so the user returns after re-auth', (done) => {
+      sessionStorage.clear();
+      const {routerMock, oidcMock, httpClient, httpMock} = setupTestBed(mockToken);
+      routerMock.url = '/orchestration';
+
+      oidcMock.forceRefreshSession.mockReturnValue(
+        of({isAuthenticated: false} as LoginResponse)
+      );
+
+      httpClient.get(testUrl).subscribe({
+        next: () => done(new Error('Should have errored')),
+        error: () => {
+          setTimeout(() => {
+            try {
+              // Route is saved (slash-less) for AppComponent's post-login restore,
+              // instead of always dropping the user on /home.
+              expect(sessionStorage.getItem('redirectTo')).toBe('orchestration');
               expect(routerMock.navigate).toHaveBeenCalledWith(['/home']);
               httpMock.verify();
               done();

@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
+import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
@@ -46,7 +47,6 @@ import jakarta.ws.rs.NotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -150,19 +150,14 @@ class UserServiceTest {
         // given
         UUID uuid = UUID.randomUUID();
         String userId = uuid.toString();
-        UserResource userResourceMock = mock(UserResource.class, Mockito.RETURNS_DEEP_STUBS);
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail("some_email@example.com");
         userEntity.setId(uuid);
-        UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setEmail(userEntity.getEmail());
 
         HdContextEntity dataDomain = new HdContextEntity();
         dataDomain.setContextKey("test-domain");
 
         when(userRepository.getByIdOrAuthId(any(String.class))).thenReturn(userEntity);
-        when(keycloakService.getUserResourceById(any())).thenReturn(userResourceMock);
-        when(userResourceMock.toRepresentation()).thenReturn(userRepresentation);
         when(contextRepository.findAllByTypeIn(any())).thenReturn(List.of(dataDomain));
 
         // when
@@ -183,17 +178,13 @@ class UserServiceTest {
         // given
         UUID uuid = UUID.randomUUID();
         String userId = uuid.toString();
-        UserResource userResourceMock = mock(UserResource.class, Mockito.RETURNS_DEEP_STUBS);
-        UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setEnabled(true);
-        userRepresentation.setEmail("some_email@example.com");
-        userRepresentation.setUsername("username");
         UserEntity userEntity = new UserEntity();
         userEntity.setId(uuid);
+        userEntity.setEmail("some_email@example.com");
+        userEntity.setUsername("username");
+        userEntity.setEnabled(true);
 
         when(userRepository.getByIdOrAuthId(any(String.class))).thenReturn(userEntity);
-        when(keycloakService.getUserResourceById(any())).thenReturn(userResourceMock);
-        when(userResourceMock.toRepresentation()).thenReturn(userRepresentation);
 
         // when
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
@@ -201,8 +192,10 @@ class UserServiceTest {
             userService.disableUserById(userId);
         }
 
-        // then
-        assertFalse(userRepresentation.isEnabled());
+        // then: the portal disables the user locally and never touches the auth provider (Keycloak)
+        assertFalse(userEntity.isEnabled());
+        verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.DISABLE_USER), any());
+        verifyNoInteractions(keycloakService);
     }
 
     @Test
@@ -225,16 +218,12 @@ class UserServiceTest {
         // given
         UUID uuid = UUID.randomUUID();
         String userId = uuid.toString();
-        UserResource userResourceMock = mock(UserResource.class, Mockito.RETURNS_DEEP_STUBS);
-        UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setEnabled(false);
-        userRepresentation.setEmail("some_email@example.com");
-        userRepresentation.setUsername("username");
         UserEntity userEntity = new UserEntity();
         userEntity.setId(uuid);
+        userEntity.setEmail("some_email@example.com");
+        userEntity.setUsername("username");
+        userEntity.setEnabled(false);
         when(userRepository.getByIdOrAuthId(any(String.class))).thenReturn(userEntity);
-        when(keycloakService.getUserResourceById(any())).thenReturn(userResourceMock);
-        when(userResourceMock.toRepresentation()).thenReturn(userRepresentation);
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -242,8 +231,10 @@ class UserServiceTest {
             userService.enableUserById(userId);
         }
 
-        // then
-        assertTrue(userRepresentation.isEnabled());
+        // then: the portal enables the user locally and never touches the auth provider (Keycloak)
+        assertTrue(userEntity.isEnabled());
+        verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.ENABLE_USER), any());
+        verifyNoInteractions(keycloakService);
     }
 
     @Test

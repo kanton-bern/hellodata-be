@@ -252,6 +252,19 @@ class HdSecurityManager(AirflowSecurityManager):
     def __init__(self, appbuilder):
         super(HdSecurityManager, self).__init__(appbuilder)
 
+    def sync_roles(self):
+        # HELLODATA-2351: with AUTH_TYPE = AUTH_OAUTH the user model view declares no "add"
+        # action, so FAB's sync_roles() deletes the (can_create, Users) permission view on every
+        # webserver start and drops it from the Admin role. That makes POST /api/v1/users return
+        # 403, so the airflow sidecar cannot create users (a newly invited user has no access to
+        # orchestration until they log in / a user sync recreates them). A DB migration cannot fix
+        # this because it runs before this sync and gets wiped. Re-add the permission after the
+        # regular sync so the sidecar's techadmin account can create users again.
+        super(HdSecurityManager, self).sync_roles()
+        create_user_permission = self.create_permission("can_create", "Users")
+        admin_role = self.find_role("Admin")
+        self.add_permission_to_role(admin_role, create_user_permission)
+
 
 SECURITY_MANAGER_CLASS = HdSecurityManager
 CUSTOM_SECURITY_MANAGER = HdSecurityManager

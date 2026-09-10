@@ -100,4 +100,33 @@ public class SecurityUtils {
         }
         return null;
     }
+
+    public static String getCurrentUserFirstName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof HellodataAuthenticationToken hdToken) {
+            return hdToken.getFirstname();
+        }
+        return null;
+    }
+
+    public static String getCurrentUserLastName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof HellodataAuthenticationToken hdToken) {
+            return hdToken.getLastName();
+        }
+        return null;
+    }
+
+    /**
+     * The Keycloak subject (JWT sub) of the current user. Available even before the portal user
+     * record exists (unlike {@link #getCurrentUserId()}, which is null until provisioning). Used to
+     * provision a brand-new user on first access outside of the per-request auth converter.
+     */
+    public static UUID getCurrentUserKeycloakId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof HellodataAuthenticationToken hdToken) {
+            return hdToken.getKeycloakUserId();
+        }
+        return null;
+    }
 }

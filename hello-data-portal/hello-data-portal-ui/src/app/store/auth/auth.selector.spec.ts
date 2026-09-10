@@ -25,7 +25,48 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-export * from './app-info.service';
-export * from './auth.service';
-export * from './screen.service';
-export * from './session-renewal.service';
+import {describe, expect, it} from '@jest/globals';
+import {selectIsProvisioning} from './auth.selector';
+import {AuthState} from './auth.state';
+
+describe('selectIsProvisioning', () => {
+  const base: AuthState = {
+    isLoggedIn: true,
+    profile: null,
+    permissions: [],
+    permissionsLoaded: true,
+    isSuperuser: false,
+    businessDomain: '',
+    contextRoles: [],
+    currentUserCommentPermissions: {},
+    disableLogout: false,
+    userDisabled: false,
+    supportedLanguages: [],
+    selectedLanguage: null,
+    defaultLanguage: null,
+    firstLogin: false
+  };
+
+  const run = (overrides: Partial<AuthState>) =>
+    selectIsProvisioning.projector({...base, ...overrides});
+
+  it('is true when authenticated, profile loaded, not disabled, and no permissions yet', () => {
+    expect(run({})).toBe(true);
+  });
+
+  it('is false once permissions have been attached', () => {
+    expect(run({permissions: ['DASHBOARDS']})).toBe(false);
+  });
+
+  it('is false before the profile has loaded (avoids flashing on normal startup)', () => {
+    expect(run({permissionsLoaded: false})).toBe(false);
+  });
+
+  it('is false for a disabled user (that is a forbidden state, not provisioning)', () => {
+    expect(run({userDisabled: true})).toBe(false);
+  });
+
+  it('is false when not logged in', () => {
+    expect(run({isLoggedIn: false})).toBe(false);
+  });
+});

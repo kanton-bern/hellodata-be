@@ -29,24 +29,23 @@ package ch.bedag.dap.hellodata.portal.base.auth;
 import ch.bedag.dap.hellodata.commons.security.HellodataAuthenticationToken;
 import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
-import ch.bedag.dap.hellodata.portal.user.service.AutoProvisionService;
 import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import jakarta.persistence.PersistenceException;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Component
@@ -54,20 +53,28 @@ import java.util.*;
 public class HellodataAuthenticationConverter implements Converter<Jwt, HellodataAuthenticationToken> {
 
     private final UserRepository userRepository;
-    private final AutoProvisionService autoProvisionService;
 
     @Value("${hello-data.cache.user-database-ttl-minutes:2}")
     private int userDatabaseTtlCacheMinutes;
-    private final Cache<String, UserDto> userDatabaseCache = Caffeine.newBuilder()
-            .expireAfterWrite(userDatabaseTtlCacheMinutes, java.util.concurrent.TimeUnit.MINUTES)
-            .maximumSize(1000)
-            .build();
     @Value("${hello-data.cache.user-permission-ttl-minutes:2}")
-    private int getUserDatabaseTtlCacheMinutes;
-    private final Cache<String, List<String>> userPermissionsCache = Caffeine.newBuilder()
-            .expireAfterWrite(getUserDatabaseTtlCacheMinutes, java.util.concurrent.TimeUnit.MINUTES)
-            .maximumSize(1000)
-            .build();
+    private int userPermissionsTtlCacheMinutes;
+    private Cache<String, UserDto> userDatabaseCache;
+    private Cache<String, List<String>> userPermissionsCache;
+
+    @PostConstruct
+    void initCaches() {
+        // Build the caches AFTER @Value injection. Previously they were created in field
+        // initializers, which run before Spring injects the @Value fields, so the TTL was
+        // always 0 (int default) - expireAfterWrite(0) effectively disabled caching.
+        this.userDatabaseCache = Caffeine.newBuilder()
+                .expireAfterWrite(userDatabaseTtlCacheMinutes, TimeUnit.MINUTES)
+                .maximumSize(1000)
+                .build();
+        this.userPermissionsCache = Caffeine.newBuilder()
+                .expireAfterWrite(userPermissionsTtlCacheMinutes, TimeUnit.MINUTES)
+                .maximumSize(1000)
+                .build();
+    }
 
     /**
      * Invalidate cached user data and permissions for a specific user.
@@ -89,29 +96,21 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public HellodataAuthenticationToken convert(Jwt jwt) {
         String email = jwt.getClaims().get("email").toString();
         String givenName = jwt.getClaims().get("given_name").toString();
         String familyName = jwt.getClaims().get("family_name").toString();
+        UUID keycloakUserId = UUID.fromString(jwt.getSubject());
         boolean isSuperuser = false;
         Set<String> permissions = new HashSet<>();
         UUID userId = null;
 
+        // Pure, read-only identity mapping: resolve the (cached) portal user and their authorities.
+        // A brand-new user whose portal record does not exist yet simply gets userId=null and no
+        // permissions here; provisioning is triggered once from the profile endpoint (see
+        // FirstLoginProvisioningCoordinator) rather than as a per-request side effect of the auth path.
         UserDto userDto = getUserDto(email);
-        if (userDto == null) {
-            try {
-                UserEntity provisioned = autoProvisionService.autoProvisionIfEnabled(email, givenName, familyName, jwt.getSubject());
-                if (provisioned != null) {
-                    invalidateUserCache(email);
-                    userDto = getUserDto(email);
-                }
-            } catch (DataAccessException | PersistenceException e) {
-                log.debug("Concurrent auto-provision for {} ({}), reading existing user", email, e.getClass().getSimpleName());
-                invalidateUserCache(email);
-                userDto = getUserDto(email);
-            }
-        }
         if (userDto != null) { //NOSONAR
             userId = UUID.fromString(userDto.getId());
             isSuperuser = BooleanUtils.isTrue(userDto.getSuperuser());
@@ -124,7 +123,7 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
                 }
             }
         }
-        return new HellodataAuthenticationToken(userId, givenName, familyName, email, isSuperuser, permissions);
+        return new HellodataAuthenticationToken(userId, givenName, familyName, email, keycloakUserId, isSuperuser, permissions);
     }
 
     /**
@@ -150,12 +149,22 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
      * @return List of permissions or empty list if not found
      */
     private List<String> getPortalPermissions(String email) {
-        return userPermissionsCache.get(email, emailKey -> {
-            UserEntity userEntity = userRepository.findUserEntityByEmailIgnoreCase(emailKey).orElse(null);
-            if (userEntity != null) {
-                return new ArrayList<>(userEntity.getPermissionsFromAllRoles());
-            }
-            return Collections.emptyList();
-        });
+        List<String> cached = userPermissionsCache.getIfPresent(email);
+        if (cached != null) {
+            return cached;
+        }
+        UserEntity userEntity = userRepository.findUserEntityByEmailIgnoreCase(email).orElse(null);
+        List<String> permissions = userEntity != null
+                ? new ArrayList<>(userEntity.getPermissionsFromAllRoles())
+                : Collections.emptyList();
+        // Only cache a non-empty result. Caching an empty permission set for a user who is
+        // still being provisioned (or whose roles have not been attached yet) would lock
+        // them out of the portal for the whole cache TTL even after provisioning finishes -
+        // the intermittent "blank screen for new users". Leaving it uncached means the next
+        // request reflects the permissions the moment they land.
+        if (!permissions.isEmpty()) {
+            userPermissionsCache.put(email, permissions);
+        }
+        return permissions;
     }
 }
