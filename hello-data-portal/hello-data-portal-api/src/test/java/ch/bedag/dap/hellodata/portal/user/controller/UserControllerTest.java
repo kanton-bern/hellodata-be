@@ -41,6 +41,7 @@ import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
 import ch.bedag.dap.hellodata.portal.user.service.BulkAssignmentService;
+import ch.bedag.dap.hellodata.portal.user.service.FirstLoginProvisioningCoordinator;
 import ch.bedag.dap.hellodata.portal.user.service.KeycloakService;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -79,6 +80,8 @@ class UserControllerTest extends HDControllerTest {
     private SystemProperties systemProperties;
     @MockitoBean
     private KeycloakService keycloakService;
+    @MockitoBean
+    private FirstLoginProvisioningCoordinator firstLoginProvisioningCoordinator;
 
     @Test
     void createUser_noPrivilegesShouldReturnForbidden() throws Exception {
