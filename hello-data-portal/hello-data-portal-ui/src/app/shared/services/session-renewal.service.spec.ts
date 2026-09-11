@@ -59,6 +59,7 @@ describe('SessionRenewalService', () => {
   });
 
   const fireVisibility = () => document.dispatchEvent(new Event('visibilitychange'));
+  const fireResume = () => document.dispatchEvent(new Event('resume'));
 
   it('refreshes when the access token is expired or about to expire', () => {
     const {oidcMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
@@ -92,6 +93,19 @@ describe('SessionRenewalService', () => {
     fireVisibility();
     fireVisibility();
     fireVisibility();
+    expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(1);
+  });
+
+  it('refreshes on the Page Lifecycle resume event (frozen tab un-frozen)', () => {
+    const {oidcMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
+    fireResume();
+    expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(1);
+  });
+
+  it('refreshes on resume even while the tab is not yet in the foreground', () => {
+    const {oidcMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
+    Object.defineProperty(document, 'visibilityState', {value: 'hidden', configurable: true});
+    fireResume();
     expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(1);
   });
 });

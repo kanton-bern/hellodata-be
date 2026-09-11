@@ -63,12 +63,25 @@ export class SessionRenewalService {
       return;
     }
     this.started = true;
+
+    // Page Lifecycle: if the browser evicted this tab from memory (Edge/Chrome tab
+    // discard under memory pressure) it is now reloading from scratch. The normal
+    // bootstrap re-establishes auth; we only record it for diagnostics.
+    if ((document as { wasDiscarded?: boolean }).wasDiscarded) {
+      console.debug('[SessionRenewal] page was discarded by the browser and reloaded');
+    }
+
     // These listeners are pure DOM plumbing; keep them out of Angular's zone so an
     // idle tab-switch doesn't schedule change detection. We re-enter the zone only
     // when we actually trigger a refresh.
     this.zone.runOutsideAngular(() => {
       document.addEventListener('visibilitychange', this.onFocusOrVisible);
       window.addEventListener('focus', this.onFocusOrVisible);
+      // Page Lifecycle: a frozen ("slept") tab was un-frozen. Its timers were paused
+      // while frozen so silent-renew could not run - refresh proactively on wake, even
+      // if the tab is not yet in the foreground (a stale token there would 401 the next
+      // poll and bounce the user out of a subsystem iframe).
+      document.addEventListener('resume', this.onResume);
     });
   }
 
@@ -76,6 +89,16 @@ export class SessionRenewalService {
     if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
       return;
     }
+    this.maybeRenew();
+  };
+
+  private readonly onResume = (): void => {
+    // A resumed tab was frozen, so its access token is likely stale regardless of
+    // current visibility - check it now rather than waiting for a focus/visibility event.
+    this.maybeRenew();
+  };
+
+  private maybeRenew(): void {
     const now = Date.now();
     if (now - this.lastAttemptMs < SessionRenewalService.MIN_INTERVAL_MS) {
       return;
@@ -100,12 +123,12 @@ export class SessionRenewalService {
         }
         this.zone.run(() => {
           this.oidcSecurityService.forceRefreshSession().pipe(take(1)).subscribe({
-            next: result => console.debug('[SessionRenewal] refreshed on focus, authenticated:', result?.isAuthenticated),
-            error: e => console.warn('[SessionRenewal] focus refresh failed (will re-auth on next request):', e)
+            next: result => console.debug('[SessionRenewal] refreshed on wake, authenticated:', result?.isAuthenticated),
+            error: e => console.warn('[SessionRenewal] wake refresh failed (will re-auth on next request):', e)
           });
         });
       },
-      error: e => console.debug('[SessionRenewal] could not evaluate token on focus', e)
+      error: e => console.debug('[SessionRenewal] could not evaluate token on wake', e)
     });
-  };
+  }
 }
