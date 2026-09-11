@@ -28,7 +28,9 @@ public class AirflowUserUtil {
     public static AirflowUser toAirflowUser(SubsystemUserUpdate supersetUserCreate) {
         AirflowUser airflowUser = new AirflowUser();
         airflowUser.setEmail(supersetUserCreate.getEmail());
-        airflowUser.setRoles(new ArrayList<>()); // Default User-Roles are defined in Airflow-Config
+        // Assign the baseline Public role at creation (mirrors the Superset create path) so a freshly
+        // invited user has orchestration access immediately, instead of only after the next user sync.
+        airflowUser.setRoles(new ArrayList<>(List.of(new AirflowUserRole(PUBLIC_ROLE_NAME))));
         airflowUser.setUsername(supersetUserCreate.getUsername());
         airflowUser.setFirstName(supersetUserCreate.getFirstName());
         airflowUser.setLastName(supersetUserCreate.getLastName());
