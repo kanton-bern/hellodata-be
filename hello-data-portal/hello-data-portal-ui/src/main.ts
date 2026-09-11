@@ -26,7 +26,8 @@
 ///
 
 import {AppInfoService, ScreenService} from './app/shared/services';
-import {importProvidersFrom, LOCALE_ID} from '@angular/core';
+import {ErrorHandler, importProvidersFrom, LOCALE_ID} from '@angular/core';
+import {CHUNK_RELOAD_FLAG_KEY, GlobalErrorHandler} from './app/shared/error/global-error-handler';
 import {environment} from './environments/environment';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {TokenInterceptor} from './app/shared/interceptor/token-interceptor.service';
@@ -125,6 +126,7 @@ async function loadLocaleData(locale: string) {
       ScreenService,
       AppInfoService,
       {provide: LOCALE_ID, useValue: environment.locale},
+      {provide: ErrorHandler, useClass: GlobalErrorHandler},
       {
         provide: HTTP_INTERCEPTORS,
         useClass: TokenInterceptor,
@@ -152,5 +154,13 @@ async function loadLocaleData(locale: string) {
       }),
       provideAnimationsAsync()
     ]
+  }).then(() => {
+    // App booted successfully - clear the chunk-reload guard so a future stale-build
+    // navigation in this session can recover again (see GlobalErrorHandler).
+    try {
+      sessionStorage.removeItem(CHUNK_RELOAD_FLAG_KEY);
+    } catch {
+      // sessionStorage may be unavailable - nothing to clear.
+    }
   }).catch(err => console.error(err));
 })();
