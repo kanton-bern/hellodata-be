@@ -570,19 +570,23 @@ public class UploadDashboardsFileListener {
 
                 try (InputStream inputStream = zipFile.getInputStream(entry)) {
                     if (entryName.contains("/charts/") && !entry.isDirectory()) {
-                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-                        Map<String, Object> chart = yamlMapper.readValue(content, Map.class);
+                        // Read the chart bytes once; reuse them whether or not we rewrite the entry.
+                        // (Do NOT fall through to inputStream.transferTo below - the stream is now consumed.)
+                        byte[] chartBytes = inputStream.readAllBytes();
+                        Map<String, Object> chart = yamlMapper.readValue(chartBytes, Map.class);
 
+                        byte[] outBytes = chartBytes;
                         if (normalizeChartConfig(chart)) {
                             anyChanged = true;
                             log.info("Normalized double-encoded query_context in chart entry: {}", entryName);
-                            zos.putNextEntry(new ZipEntry(entryName));
-                            zos.write(yamlMapper.writeValueAsString(chart).getBytes(StandardCharsets.UTF_8));
-                            zos.closeEntry();
-                            continue;
+                            outBytes = yamlMapper.writeValueAsString(chart).getBytes(StandardCharsets.UTF_8);
                         }
+                        zos.putNextEntry(new ZipEntry(entryName));
+                        zos.write(outBytes);
+                        zos.closeEntry();
+                        continue;
                     }
-                    // Copy unchanged entries (and non-chart files) as-is
+                    // Copy non-chart files as-is
                     zos.putNextEntry(new ZipEntry(entryName));
                     inputStream.transferTo(zos);
                     zos.closeEntry();
