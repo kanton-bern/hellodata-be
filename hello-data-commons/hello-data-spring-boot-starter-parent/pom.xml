@@ -40,11 +40,11 @@
         <!-- Boot 4.1.x is supported by Spring Cloud 2025.1.2+ (Oakwood); keep Boot and Cloud versions in lockstep per the compatibility matrix -->
         <spring-boot.version>4.1.1</spring-boot.version>
         <!-- CVE-2026-42584 / CVE-2026-56816 (GHSA-hpcc-26xq-25fv) / CVE-2026-59901 (GHSA-558v-64gr-wgg4): remove once Spring Boot ships Netty >= 4.2.16.Final -->
-        <netty.version>4.2.17.Final</netty.version>
+        <netty.version>4.2.18.Final</netty.version>
         <!-- CVE-2026-41284 / BDSA-2026-10253: remove once Spring Boot ships Tomcat >= 11.0.22 -->
         <tomcat.version>11.0.25</tomcat.version>
         <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
-        <bouncycastle.version>1.85.2</bouncycastle.version>
+        <bouncycastle.version>1.86</bouncycastle.version>
         <!-- CVE-2026-42198 / BDSA-2026-8637 / CVE-2026-54291 (GHSA-j92g-9f8w-j867): remove once Spring Boot ships postgresql >= 42.7.12 -->
         <postgresql.version>42.7.13</postgresql.version>
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.0/.1 target Boot 4.0.x; 2025.1.2+ adds Boot 4.1.x support -->
@@ -54,7 +54,7 @@
         <testcontainers-keycloak.version>4.3.1</testcontainers-keycloak.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <docker-java.version>3.7.0</docker-java.version>
-        <jnats.version>2.26.2</jnats.version>
+        <jnats.version>2.26.3</jnats.version>
         <!-- CVE-2026-71497 (GHSA-pmhh-3w7g-xqp8) -->
         <jsoup.version>1.23.2</jsoup.version>
         <nats-spring.version>0.6.2+3.5</nats-spring.version>
