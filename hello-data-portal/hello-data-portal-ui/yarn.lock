@@ -5537,17 +5537,15 @@ __metadata:
   linkType: hard
 
 "@testing-library/angular@npm:^19.0.0":
-  version: 19.4.2
-  resolution: "@testing-library/angular@npm:19.4.2"
+  version: 19.5.0
+  resolution: "@testing-library/angular@npm:19.5.0"
   dependencies:
     tslib: "npm:^2.3.1"
   peerDependencies:
-    "@angular/common": ">= 21.0.0"
     "@angular/core": ">= 21.0.0"
-    "@angular/platform-browser": ">= 21.0.0"
     "@angular/router": ">= 21.0.0"
     "@testing-library/dom": ^10.0.0
-  checksum: 10c0/d8795460055bf6cc9157c636072ed6db929d3cef34440ec780e58e7fd94a2d20ecf7db94eea1f827942d327628226498c0e7d4eb0f5abf824a7d756a6b22fb23
+  checksum: 10c0/52a2877def4ffa95e34098c300f4cc08b3ab3ccef327dd3ac283c58150a6da2a180d1f383d155ac180f8f6b3ae36a8c41d78b29194d476bca20c24223c224b98
   languageName: node
   linkType: hard
 
