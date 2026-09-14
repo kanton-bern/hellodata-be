@@ -27,8 +27,9 @@
 
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
+import {Actions, ofType} from "@ngrx/effects";
 import {AppState} from "../store/app/app.state";
-import {checkAuth} from "../store/auth/auth.action";
+import {authError, checkAuth} from "../store/auth/auth.action";
 import {selectIsAuthenticated} from "../store/auth/auth.selector";
 import {Router} from "@angular/router";
 import {filter, Subject, takeUntil, timer} from "rxjs";
@@ -41,6 +42,7 @@ import {filter, Subject, takeUntil, timer} from "rxjs";
 })
 export class CallbackComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
+  private readonly actions$ = inject(Actions);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
 
@@ -64,7 +66,23 @@ export class CallbackComponent implements OnInit, OnDestroy {
       this.router.navigate(['/home']);
     });
 
-    // Safety timeout — if auth doesn't complete, retry with a limit
+    // Recover immediately on auth failure instead of waiting for the timeout. The common
+    // cause here is a stale authorization code: the machine was suspended (e.g. laptop
+    // locked) while sitting on /callback, so by the time checkAuth() exchanges the code it
+    // has expired -> "invalid_grant" -> authError. retryOrFail() strips the dead code/state
+    // and reloads to start a fresh authorize (Keycloak SSO is usually still valid). Guarded
+    // by isLoading so a later error (after auth already succeeded) cannot trigger a reload.
+    this.actions$.pipe(
+      ofType(authError),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      if (this.isLoading) {
+        console.warn('[Callback] Auth error during callback, retrying');
+        this.retryOrFail();
+      }
+    });
+
+    // Safety timeout — if auth neither succeeds nor errors, retry with a limit
     timer(CallbackComponent.AUTH_TIMEOUT_MS).pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {

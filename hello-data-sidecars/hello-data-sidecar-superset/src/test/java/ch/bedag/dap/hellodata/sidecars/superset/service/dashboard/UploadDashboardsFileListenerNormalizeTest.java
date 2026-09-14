@@ -22,6 +22,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -81,6 +82,38 @@ class UploadDashboardsFileListenerNormalizeTest {
         // non-chart entry is copied through unchanged
         assertEquals("version: 1.0.0\ntype: Dashboard\n",
                 readEntry(zip, "dashboard_export/metadata.yaml"));
+    }
+
+    /**
+     * Regression: when at least one chart IS normalized (so the rewritten zip replaces the original),
+     * every OTHER chart in the zip must be copied through with its content intact - not emptied. The
+     * original bug read a chart's bytes to inspect it, then tried to copy it from the now-consumed
+     * stream, writing a 0-byte file and leaving the dashboard with no importable charts.
+     */
+    @Test
+    void preservesUnchangedChartsWhenAnotherChartIsNormalized() throws Exception {
+        // chart A needs normalization (double-encoded form_data)
+        Map<String, Object> qcA = orderedMap(
+                "form_data", jsonMapper.writeValueAsString(orderedMap("viz_type", "heatmap_v2")));
+        // chart B is already well-formed and must be left untouched, not emptied
+        Map<String, Object> qcB = orderedMap(
+                "form_data", orderedMap("viz_type", "table"));
+        String chartBYaml = chartYaml("uuid-b", "Clean Table", qcB);
+
+        File zip = writeZip(Map.of(
+                "dashboard_export/charts/Heatmap_A.yaml", chartYaml("uuid-a", "Heatmap", qcA),
+                "dashboard_export/charts/Table_B.yaml", chartBYaml,
+                "dashboard_export/metadata.yaml", "version: 1.0.0\ntype: Dashboard\n"));
+
+        invokeNormalize(zip);
+
+        // the untouched chart must still be present and byte-for-byte identical (NOT 0 bytes)
+        String chartBAfter = readEntry(zip, "dashboard_export/charts/Table_B.yaml");
+        assertFalse(chartBAfter.isEmpty(), "unchanged chart must not be emptied");
+        assertEquals(chartBYaml, chartBAfter, "unchanged chart must be copied through intact");
+        // and the normalized chart is still valid
+        assertInstanceOf(Map.class,
+                jsonMapper.readValue((String) readChart(zip, "dashboard_export/charts/Heatmap_A.yaml").get("query_context"), Map.class).get("form_data"));
     }
 
     @Test
