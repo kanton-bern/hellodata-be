@@ -71,12 +71,13 @@
         </div>
       }
       @if ((supportedLanguages$ | async); as supportedLanguages) {
+        @let defaultLanguage = (defaultLanguage$ | async);
         <p-tabs [value]="0">
           <p-tablist>
             @for (lang of supportedLanguages; track $index) {
               <p-tab [value]="$index">
                 <div class="flex items-center gap-2">
-                  <span class="font-bold whitespace-nowrap m-0 {{notFilled(lang) ? 'not-filled' : ''}}">
+                  <span class="font-bold whitespace-nowrap m-0 {{(lang === defaultLanguage && notFilled(lang)) ? 'not-filled' : ''}}">
                     {{ getHeaderNameWithStatus(lang) }}
                   </span>
                 </div>
@@ -88,7 +89,8 @@
               <p-tabpanel [value]="$index">
                 <div class="field grid grid-cols-12 gap-4 md:items-start">
                   <label class="col-span-12 mb-2 md:col-span-2 md:mb-0 md:pt-2"
-                         for="title">{{ '@Title' | transloco }}</label>
+                         for="title">{{ '@Title' | transloco }}@if (language === defaultLanguage) {<span
+                    class="p-error"> *</span>}</label>
                   <div class="col-span-12 md:col-span-10">
                     <input
                       [formControl]="getTitle(language)"

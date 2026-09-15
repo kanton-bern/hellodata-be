@@ -29,8 +29,9 @@ import {Component, inject, input} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectAppInfoByInstanceName} from "../../../../store/metainfo-resource/metainfo-resource.selector";
+import {selectSelectedLanguage} from "../../../../store/auth/auth.selector";
 import {map} from "rxjs/operators";
-import {Observable} from "rxjs";
+import {combineLatest, Observable} from "rxjs";
 import {AsyncPipe} from '@angular/common';
 import {TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
@@ -52,14 +53,20 @@ export class SelectedWorkspaceDashboardsComponent {
   private readonly store = inject<Store<AppState>>(Store);
 
   createLink(dashboardResource: any): Observable<string> {
-    return this.store.select(selectAppInfoByInstanceName(this.instanceName())).pipe(map(appinfos => {
+    return combineLatest([
+      this.store.select(selectAppInfoByInstanceName(this.instanceName())),
+      this.store.select(selectSelectedLanguage)
+    ]).pipe(map(([appinfos, selectedLanguage]) => {
       if (appinfos) {
         let dashboardId = dashboardResource.id;
         if (dashboardResource.slug) {
           dashboardId = dashboardResource.slug;
         }
         const supersetUrl = appinfos.data.url;
-        return supersetUrl + 'superset/dashboard/' + dashboardId + '/?standalone=1';
+        // Direct link (opens in a new tab): a raw `_l_` param is enough - Superset's
+        // own login flow captures the full URL as `next` and restores it after auth.
+        const lang = ((selectedLanguage?.code as string) ?? 'en').slice(0, 2);
+        return supersetUrl + 'superset/dashboard/' + dashboardId + '/?standalone=1&_l_=' + lang;
       } else {
         console.warn('Could not find app-info by the instance name: ' + this.instanceName());
         return '';

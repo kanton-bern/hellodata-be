@@ -111,6 +111,13 @@
 #mainContentDiv:has(#subsystem-iframe) {
   height: 80vh;
   padding-bottom: 0 !important;
+  /* Use auto instead of the Tailwind `overflow-y-scroll` utility so the
+     vertical scrollbar only renders when the content actually overflows.
+     Forcing `scroll` leaves a permanent, non-functional scrollbar track that
+     Edge (classic scrollbars) draws visibly, while Chrome/FF hide it via
+     overlay scrollbars. The short-height media queries below still override
+     this with `overflow: scroll !important` to keep scroll-to-bottom. */
+  overflow-y: auto;
 }
 
 @media (min-height: 260px) {
