@@ -46,6 +46,12 @@ public enum ReportTemplate {
     // Vertical space each chart's heading + image border/padding + bottom margin eats within its
     // cell; the image gets what's left. Raise it if a chart still nudges past the cells it was allotted.
     static final int CHART_OVERHEAD_MM = 15;
+    // Slack (mm) reserved at the bottom of each page's grid so 4 grid rows are always strictly
+    // shorter than the printable area. Without it a page whose printable height divides evenly by 4
+    // (e.g. landscape: 172mm / 4 = 43mm exactly) leaves zero room, and openhtmltopdf's default body
+    // margin then tips the full-height grid box over a page break -- spilling the bottom-row tile
+    // onto its own page and adding a trailing empty page.
+    static final int GRID_BOTTOM_SAFETY_MM = 3;
     // Default output resolution (pixels per inch) for exported chart images. A chart is captured
     // this many px per inch of its printed size.
     public static final int DEFAULT_SCREENSHOT_DPI = 150;
@@ -76,10 +82,16 @@ public enum ReportTemplate {
         return pageHeightMm - MARGIN_TOP_MM - MARGIN_BOTTOM_MM;
     }
 
-    /** Height (mm) of one grid row: the printable height split into {@code GRID_ROWS_PER_PAGE}
+    /** Usable grid height (mm): the printable height minus the bottom safety slack, so the whole
+     *  {@code GRID_ROWS_PER_PAGE}-row grid stays strictly inside one printed page. */
+    public int gridHeightMm() {
+        return contentHeightMm() - GRID_BOTTOM_SAFETY_MM;
+    }
+
+    /** Height (mm) of one grid row: the usable grid height split into {@code GRID_ROWS_PER_PAGE}
      *  bands. Used as the fixed grid-row height so empty rows still reserve vertical space. */
     public int cellHeightMm() {
-        return contentHeightMm() / GRID_ROWS_PER_PAGE;
+        return gridHeightMm() / GRID_ROWS_PER_PAGE;
     }
 
     /** CSS {@code @page margin} value (top right bottom left), shared by both orientations. */
@@ -96,7 +108,7 @@ public enum ReportTemplate {
         int r = Math.max(1, Math.min(GRID_ROWS_PER_PAGE, rows));
         double pxPerMm = dpi / MM_PER_INCH;
         double cellW = contentWidthMm() / (double) GRID_COLS;
-        double cellH = contentHeightMm() / (double) GRID_ROWS_PER_PAGE;
+        double cellH = cellHeightMm();
         double widthMm = c * cellW;
         double heightMm = Math.max(1, r * cellH - CHART_OVERHEAD_MM);
         return new int[] {
