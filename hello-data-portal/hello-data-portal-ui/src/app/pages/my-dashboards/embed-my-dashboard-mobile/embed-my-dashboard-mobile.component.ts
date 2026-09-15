@@ -90,9 +90,18 @@ export class EmbedMyDashboardMobileComponent extends BaseComponent implements On
   private load(dashboardInfo: any, selectedLanguage: string) {
     if (dashboardInfo.appinfo && dashboardInfo.dashboard && dashboardInfo.profile) {
       const supersetUrl = dashboardInfo.appinfo?.data.url;
-      const dashboardPath = 'superset/dashboard/' + dashboardInfo.dashboard?.id + '/?standalone=1';
+      const lang = selectedLanguage.slice(0, 2);
+      // Force the Superset UI locale on the embedded dashboard. standalone=1 hides the
+      // navbar language selector, and Superset's get_locale() only honours the `_l_`
+      // query param (or a session locale set via /lang). We thread `_l_` through the
+      // login `next` target so it lands on the FINAL dashboard URL. The separator is
+      // double-encoded (%2526): the logout->login hop decodes it once to %26, keeping
+      // `_l_` inside the `next` value; login then decodes `next` once, yielding a real
+      // `&_l_=<lang>` on the dashboard URL the browser is redirected to.
+      const localeParam = `${encodeURIComponent(encodeURIComponent('&'))}_l_=${lang}`;
+      const dashboardPath = 'superset/dashboard/' + dashboardInfo.dashboard?.id + '/?standalone=1' + localeParam;
       const supersetLogoutUrl = supersetUrl + 'logout';
-      const supersetLoginUrl = supersetUrl + `login/keycloak?lang=${selectedLanguage.slice(0, 2)}${encodeURIComponent('&')}next=${supersetUrl + dashboardPath}`;
+      const supersetLoginUrl = supersetUrl + `login/keycloak?lang=${lang}${encodeURIComponent('&')}next=${supersetUrl + dashboardPath}`;
       const defaultUrl = supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
 
       this.url = defaultUrl;
