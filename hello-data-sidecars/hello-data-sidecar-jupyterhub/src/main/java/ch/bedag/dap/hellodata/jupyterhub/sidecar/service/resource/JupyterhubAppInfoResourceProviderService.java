@@ -27,7 +27,7 @@
 package ch.bedag.dap.hellodata.jupyterhub.sidecar.service.resource;
 
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfoFactory;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
@@ -60,26 +60,9 @@ public class JupyterhubAppInfoResourceProviderService {
         log.info("--> publishAppInfo()");
 
         AppInfoResource appInfoResource =
-                new AppInfoResource(createBusinessContextInfo(), this.instanceName, ModuleType.JUPYTERHUB, this.url);
+                new AppInfoResource(HdBusinessContextInfoFactory.createBusinessContextInfo(hellodataContextConfig, true), this.instanceName, ModuleType.JUPYTERHUB, this.url);
         natsSenderService.publishMessageToJetStream(PUBLISH_APP_INFO_RESOURCES, appInfoResource);
         log.info("--> Published app info resource {}", appInfoResource);
     }
 
-    private HdBusinessContextInfo createBusinessContextInfo() {
-        HdBusinessContextInfo businessContextInfo = new HdBusinessContextInfo();
-        HelloDataContextConfig.BusinessContext businessContext = hellodataContextConfig.getBusinessContext();
-        businessContextInfo.setType(businessContext.getType());
-        businessContextInfo.setName(businessContext.getName());
-        businessContextInfo.setKey(businessContext.getKey());
-        businessContextInfo.setExtra(false);
-        HdBusinessContextInfo subContext = new HdBusinessContextInfo();
-        businessContextInfo.setSubContext(subContext);
-        HelloDataContextConfig.Context context = hellodataContextConfig.getContext();
-        subContext.setType(context.getType());
-        subContext.setName(context.getName());
-        subContext.setKey(context.getKey());
-        subContext.setExtra(context.isExtra());
-        log.debug("Created business context info {}", businessContextInfo);
-        return businessContextInfo;
-    }
 }
