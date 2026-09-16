@@ -45,6 +45,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -141,7 +142,13 @@ public class SupersetController {
             @RequestParam(defaultValue = "2") int cols, @RequestParam(defaultValue = "2") int rows,
             @RequestParam(defaultValue = "portrait") String template) {
         byte[] png = pdfExportService.chartPreview(instanceName, dashboardId, chartId, cols, rows, template);
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(png);
+        // Never let the browser cache a chart preview: the underlying Superset screenshot can change
+        // (data refresh, RLS, edits) and a stale cached image must not be shown. Explicit no-store so
+        // it doesn't rely on the global Spring Security default alone.
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .contentType(MediaType.IMAGE_PNG)
+                .body(png);
     }
 
     /** Custom grid layout export designed in the Angular builder. */
