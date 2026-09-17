@@ -544,6 +544,25 @@ public class SupersetClient implements Closeable {
     }
 
     /**
+     * Imports datasets from a dataset-export file. Like the chart importer - and unlike the dashboard
+     * importer, which imports nested datasets with {@code overwrite=False} and therefore never refreshes
+     * an existing dataset - the dataset importer honours {@code overwrite}: with {@code override=true} an
+     * existing dataset (matched by uuid) is updated <em>in place</em>, keeping its numeric id so that
+     * charts and permalinks referencing that dataset survive. This is what propagates changed virtual
+     * dataset SQL from the source instance to the target on re-import.
+     *
+     * @param datasetsFile a dataset-export zip ({@code datasets/}, {@code databases/} and a
+     *                     {@code metadata.yaml} of type {@code SqlaTable})
+     * @param password     A JSON format database password, e.g: {@code {"databases/database.yaml":"password"}}
+     * @param override     overwrite existing datasets
+     */
+    public void importDatasets(File datasetsFile, JsonElement password, boolean override) throws URISyntaxException, IOException {
+        csrf();
+        HttpUriRequest request = SupersetApiRequestBuilder.getImportDatasetsRequest(host, port, authToken, csrfToken, datasetsFile, override, password, sessionCookie);
+        executeRequest(request);
+    }
+
+    /**
      * Updates dashboards published flag (publish/un-publish dashboard).
      *
      * @return an updated dashboard.
