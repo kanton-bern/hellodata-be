@@ -112,6 +112,7 @@ public class UploadDashboardsFileListener {
                     reconcileConflictingDatasets(supersetClient, destinationFile);
                     log.debug("Passwords parameter send to API ");
                     supersetClient.importDashboard(destinationFile, passwordsObject, true);
+                    refreshDatasetsInPlace(supersetClient, destinationFile, passwordsObject);
                     refreshChartsInPlace(supersetClient, destinationFile, passwordsObject);
                     verifyImportedDashboards(supersetClient, destinationFile);
                 } catch (Exception e) {
@@ -402,6 +403,98 @@ public class UploadDashboardsFileListener {
         String qualifiedName() {
             return schema != null ? schema + "." + tableName : tableName;
         }
+    }
+
+    /**
+     * Refreshes the definitions of datasets that already exist in the target Superset.
+     * <p>
+     * The dashboard importer imports nested datasets with {@code overwrite=False}, so an existing dataset
+     * (matched by uuid) keeps its old definition even when the export carries a newer one - the changed
+     * SQL of a virtual dataset from the source instance would silently never reach the target, breaking
+     * charts that rely on the updated columns. The dataset importer, in contrast, honours {@code overwrite},
+     * and {@code overwrite=true} updates the dataset <em>in place</em> - preserving its numeric id so the
+     * charts and permalinks pointing at it survive. A dedicated dataset-import zip is built from the
+     * (already database-remapped) export because the dataset importer rejects a zip whose
+     * {@code metadata.yaml} type is not {@code SqlaTable}.
+     */
+    private void refreshDatasetsInPlace(SupersetClient supersetClient, File destinationFile, JsonObject passwordsObject) throws IOException {
+        File datasetsZip = buildDatasetImportZip(destinationFile);
+        if (datasetsZip == null) {
+            log.info("No datasets found in export, skipping in-place dataset refresh");
+            return;
+        }
+        try {
+            log.info("Refreshing dataset definitions in place via dataset import (overwrite=true)");
+            supersetClient.importDatasets(datasetsZip, passwordsObject, true);
+        } catch (URISyntaxException e) {
+            throw new UploadDashboardsFileException("Failed to refresh datasets after dashboard import", e);
+        } finally {
+            if (datasetsZip.exists() && !datasetsZip.delete()) {
+                log.warn("Could not delete temporary dataset-import file: {}", datasetsZip.getAbsolutePath());
+            }
+        }
+    }
+
+    /**
+     * Builds a dataset-import zip from a dashboard export: it copies the {@code datasets/} and
+     * {@code databases/} entries verbatim and writes a {@code metadata.yaml} of type {@code SqlaTable}
+     * (the type the dataset importer requires). Returns {@code null} when the export contains no datasets.
+     */
+    private File buildDatasetImportZip(File destinationFile) throws IOException {
+        File datasetsZip = File.createTempFile("datasets-import-", ".zip", new File(tmpDir)); //NOSONAR
+        boolean hasDataset = false;
+        String root = "";
+        String metadataContent = null;
+        try (ZipFile zipFile = new ZipFile(destinationFile);
+             ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(datasetsZip), StandardCharsets.UTF_8)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String name = entry.getName();
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                if (name.endsWith("metadata.yaml")) {
+                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                        metadataContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                    }
+                    root = name.substring(0, name.length() - "metadata.yaml".length());
+                    continue;
+                }
+                if (name.contains("/datasets/") || name.contains("/databases/")) {
+                    if (name.contains("/datasets/")) {
+                        hasDataset = true;
+                    }
+                    zos.putNextEntry(new ZipEntry(name));
+                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                        inputStream.transferTo(zos);
+                    }
+                    zos.closeEntry();
+                }
+            }
+            zos.putNextEntry(new ZipEntry(root + "metadata.yaml"));
+            zos.write(buildSqlaTableMetadata(metadataContent).getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+        }
+        if (!hasDataset) {
+            if (datasetsZip.exists() && !datasetsZip.delete()) {
+                log.warn("Could not delete temporary dataset-import file: {}", datasetsZip.getAbsolutePath());
+            }
+            return null;
+        }
+        return datasetsZip;
+    }
+
+    private String buildSqlaTableMetadata(String existingMetadata) throws IOException {
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        if (existingMetadata != null && !existingMetadata.isBlank()) {
+            metadata = yamlMapper.readValue(existingMetadata, Map.class);
+        }
+        metadata.putIfAbsent("version", "1.0.0");
+        // The dataset importer validates that metadata type equals the model name (SqlaTable).
+        metadata.put("type", "SqlaTable");
+        return yamlMapper.writeValueAsString(metadata);
     }
 
     /**

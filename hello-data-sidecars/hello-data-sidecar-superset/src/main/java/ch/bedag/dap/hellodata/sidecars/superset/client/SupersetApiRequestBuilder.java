@@ -79,6 +79,7 @@ public class SupersetApiRequestBuilder {
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
     private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
     private static final String IMPORT_CHART_API_ENDPOINT = "/api/v1/chart/import/";
+    private static final String IMPORT_DATASET_API_ENDPOINT = "/api/v1/dataset/import/";
     private static final String LIST_DATABASE_API_ENDPOINT = "/api/v1/database/";
     private static final String DATABASE_API_ENDPOINT = "/api/v1/database/%d";
     private static final String CHART_CACHE_SCREENSHOT_API_ENDPOINT = "/api/v1/chart/%d/cache_screenshot/";
@@ -299,6 +300,11 @@ public class SupersetApiRequestBuilder {
     public static HttpUriRequest getImportChartsRequest(String host, int port, String authToken, String csrfToken, File compressedChartsFile, boolean isOverride, //NOSONAR
                                                         JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
         return getImportRequest(host, port, authToken, csrfToken, IMPORT_CHART_API_ENDPOINT, compressedChartsFile, isOverride, passwords, sessionCookie);
+    }
+
+    public static HttpUriRequest getImportDatasetsRequest(String host, int port, String authToken, String csrfToken, File compressedDatasetsFile, boolean isOverride, //NOSONAR
+                                                          JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
+        return getImportRequest(host, port, authToken, csrfToken, IMPORT_DATASET_API_ENDPOINT, compressedDatasetsFile, isOverride, passwords, sessionCookie);
     }
 
     private static HttpUriRequest getImportRequest(String host, int port, String authToken, String csrfToken, String endpoint, File compressedFile, boolean isOverride, //NOSONAR
