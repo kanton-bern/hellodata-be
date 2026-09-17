@@ -61,6 +61,7 @@ public class CbAppInfoResourceProviderService {
 
         AppInfoResource appInfoResource = new AppInfoResource(HdBusinessContextInfoFactory.createBusinessContextInfo(hellodataContextConfig, false), this.instanceName, ModuleType.CLOUDBEAVER, this.url);
         natsSenderService.publishMessageToJetStream(PUBLISH_APP_INFO_RESOURCES, appInfoResource);
+        log.debug("--> Published app info resource {}", appInfoResource);
     }
 
 }

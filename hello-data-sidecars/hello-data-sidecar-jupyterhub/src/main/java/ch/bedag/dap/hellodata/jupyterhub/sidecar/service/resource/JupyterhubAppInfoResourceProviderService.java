@@ -62,7 +62,7 @@ public class JupyterhubAppInfoResourceProviderService {
         AppInfoResource appInfoResource =
                 new AppInfoResource(HdBusinessContextInfoFactory.createBusinessContextInfo(hellodataContextConfig, true), this.instanceName, ModuleType.JUPYTERHUB, this.url);
         natsSenderService.publishMessageToJetStream(PUBLISH_APP_INFO_RESOURCES, appInfoResource);
-        log.info("--> Published app info resource {}", appInfoResource);
+        log.debug("--> Published app info resource {}", appInfoResource);
     }
 
 }

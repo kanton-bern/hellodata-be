@@ -62,6 +62,7 @@ public class DbtDocsAppInfoResourceProviderService {
         AppInfoResource appInfoResource =
                 new AppInfoResource(HdBusinessContextInfoFactory.createBusinessContextInfo(hellodataContextConfig, true), this.instanceName, ModuleType.DBT_DOCS, this.url);
         natsSenderService.publishMessageToJetStream(PUBLISH_APP_INFO_RESOURCES, appInfoResource);
+        log.debug("--> Published app info resource {}", appInfoResource);
     }
 
 }
