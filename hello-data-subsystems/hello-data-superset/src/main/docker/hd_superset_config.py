@@ -169,6 +169,11 @@ class CeleryConfig(object):
   imports = ('superset.sql_lab', 'superset.tasks', 'superset.tasks.thumbnails', )
   result_backend = f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/{env('REDIS_RESULTS_DB', 0)}"
   worker_log_level = "DEBUG"
+  # HELLODATA-4110: render one task per worker process at a time (even distribution, no head-of-line
+  # blocking on the ~15s chart-screenshot renders) and redeliver a task if the worker dies mid-render
+  # (renders are idempotent). Celery defaults were prefetch 4 / acks_late False.
+  worker_prefetch_multiplier = 1
+  task_acks_late = True
   task_annotations = {
   'sql_lab.get_sql_results': {
     'rate_limit': '100/s',
@@ -483,7 +488,10 @@ SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{env('DB_USER')}:{env('DB_PASS
 from superset.superset_typing import CacheConfig
 THUMBNAIL_CACHE_CONFIG: CacheConfig = {
     'CACHE_TYPE': 'redis',
-    'CACHE_DEFAULT_TIMEOUT': 24*60*60*7,
+    # HELLODATA-4110: 1 hour (was 7 days). The cache key is the chart-config digest, so a data-only
+    # refresh keeps the same key and would otherwise serve a stale screenshot until the TTL expires;
+    # 1h keeps a PDF export within ~an hour of the current data while still caching usefully.
+    'CACHE_DEFAULT_TIMEOUT': 60*60,
     'CACHE_KEY_PREFIX': f'thumbnail_{DATA_DOMAIN_KEY}_',
     'CACHE_REDIS_URL': f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/1"
 }
@@ -495,6 +503,14 @@ THUMBNAIL_SELENIUM_USER = "techadmin"
 # day (a stuck 404 -> the export times out). Shorten it so a failed render self-heals within
 # seconds and the next export attempt re-renders instead of returning the cached error.
 THUMBNAIL_ERROR_CACHE_TTL = 10
+
+# --- screenshot_waits ---
+# HELLODATA-4110: trim the two FIXED per-render Selenium sleeps from their defaults (HEADSTART 3s +
+# ANIMATION_WAIT 5s = 8s of unconditional waiting on every chart screenshot) to ~3s total, cutting
+# ~5s off each render (~15s -> ~10s cold). SCREENSHOT_LOCATE_WAIT / SCREENSHOT_LOAD_WAIT are timeouts
+# (only cost time if a chart is genuinely slow), so they are left at their defaults.
+SCREENSHOT_SELENIUM_HEADSTART = 1
+SCREENSHOT_SELENIUM_ANIMATION_WAIT = 2
 
 # --- webserver_timeout ---
 SUPERSET_WEBSERVER_TIMEOUT = 600
