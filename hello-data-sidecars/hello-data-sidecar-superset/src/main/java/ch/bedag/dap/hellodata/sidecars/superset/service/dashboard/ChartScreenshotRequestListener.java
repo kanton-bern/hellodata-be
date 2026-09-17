@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,52 +75,85 @@ public class ChartScreenshotRequestListener {
     @Value("${hello-data.screenshot.poll-interval-millis:2000}")
     private long pollIntervalMillis;
 
-    /** Max charts screenshotted in parallel; bounds load on Superset's browser workers while keeping
-     *  a multi-chart export well under the portal's overall timeout. */
+    /** Max charts rendered in parallel across ALL in-flight requests; bounds load on Superset's
+     *  browser workers while keeping a multi-chart export well under the portal's overall timeout. */
     @Value("${hello-data.screenshot.concurrency:4}")
     private int concurrency;
 
+    /** Max screenshot requests handled off the NATS dispatcher at once. Each handler thread mostly
+     *  blocks waiting on the shared render pool, so this may safely exceed {@code concurrency}; it
+     *  must be large enough to admit a full page of tile previews plus the export that follows,
+     *  otherwise those requests would again queue up behind one another. */
+    @Value("${hello-data.screenshot.request-threads:24}")
+    private int requestThreads;
+
+    /** The ONE pool every chart render runs on, so total concurrent renders never exceed
+     *  {@code concurrency} no matter how many requests (previews + an export) are in flight. */
+    private ExecutorService renderPool;
+
+    /** Handles each incoming request on its own thread so the single NATS dispatcher thread is never
+     *  blocked (it used to be: each request blocks ~15s while its charts render, so a page reload's
+     *  previews and the export that followed were processed strictly one at a time). */
+    private ExecutorService requestPool;
+
     @PostConstruct
     public void listenForRequests() {
+        this.renderPool = Executors.newFixedThreadPool(Math.max(1, concurrency));
+        this.requestPool = Executors.newFixedThreadPool(Math.max(1, requestThreads));
         String subject = SlugifyUtil.slugify(instanceName + RequestReplySubject.EXPORT_DASHBOARD_SCREENSHOTS.getSubject());
         log.debug("/*-/*- Listening for chart-screenshot requests on subject {}", subject);
         Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
+            // Hand each request to a worker thread and return immediately, so the single dispatcher
+            // thread never blocks on rendering and can keep accepting requests. Core NATS request/reply
+            // has no redelivery, so acking here (before the work) is a harmless no-op kept for clarity.
+            byte[] data = msg.getData();
             String replyTo = msg.getReplyTo();
-            try (SupersetClient admin = supersetClientProvider.getSupersetClientInstance()) {
-                ChartScreenshotRequest request = objectMapper.readValue(msg.getData(), ChartScreenshotRequest.class);
-                List<ChartScreenshotRequest.ChartSpec> charts = request.getCharts() == null ? List.of() : request.getCharts();
-                // Render as the requesting user (their RLS applies) when an email is supplied; otherwise
-                // render as the admin/technical account (the thumbnail selenium user).
-                String email = request.getUserEmail();
-                SupersetClient render = email == null || email.isBlank() ? admin : admin.asUser(email);
-                // Render charts in parallel (bounded) so a multi-chart export stays well within the
-                // portal's overall timeout; each renderAndStream handles its own errors and streams a
-                // chunk, so the stream still completes even if some charts fail.
-                int poolSize = Math.max(1, Math.min(concurrency, charts.size()));
-                ExecutorService pool = Executors.newFixedThreadPool(poolSize);
-                try {
-                    List<Future<?>> futures = new ArrayList<>();
-                    for (ChartScreenshotRequest.ChartSpec spec : charts) {
-                        futures.add(pool.submit(() -> renderAndStream(render, spec, replyTo)));
-                    }
-                    for (Future<?> future : futures) {
-                        future.get();
-                    }
-                    publish(replyTo, finalMarker(null));
-                } finally {
-                    pool.shutdownNow();
-                    if (render != admin) {
-                        render.close();
-                    }
-                }
-                msg.ack();
-            } catch (Exception e) { //NOSONAR - any failure must still close the stream
-                log.error("Error rendering chart screenshots", e);
-                publish(replyTo, finalMarker(e.getMessage()));
-                msg.ack();
-            }
+            msg.ack();
+            requestPool.submit(() -> handleRequest(data, replyTo));
         });
         dispatcher.subscribe(subject);
+    }
+
+    /** Render one screenshot request's charts and stream them back to {@code replyTo}. Charts are
+     *  submitted to the shared {@link #renderPool}, so all in-flight requests together never exceed
+     *  {@code concurrency} concurrent renders. Each renderAndStream isolates its own errors, so the
+     *  stream still completes (with a final marker) even if some charts fail. */
+    private void handleRequest(byte[] data, String replyTo) {
+        try (SupersetClient admin = supersetClientProvider.getSupersetClientInstance()) {
+            ChartScreenshotRequest request = objectMapper.readValue(data, ChartScreenshotRequest.class);
+            List<ChartScreenshotRequest.ChartSpec> charts = request.getCharts() == null ? List.of() : request.getCharts();
+            // Render as the requesting user (their RLS applies) when an email is supplied; otherwise
+            // render as the admin/technical account (the thumbnail selenium user).
+            String email = request.getUserEmail();
+            SupersetClient render = email == null || email.isBlank() ? admin : admin.asUser(email);
+            try {
+                List<Future<?>> futures = new ArrayList<>();
+                for (ChartScreenshotRequest.ChartSpec spec : charts) {
+                    futures.add(renderPool.submit(() -> renderAndStream(render, spec, replyTo)));
+                }
+                for (Future<?> future : futures) {
+                    future.get();
+                }
+                publish(replyTo, finalMarker(null));
+            } finally {
+                if (render != admin) {
+                    render.close();
+                }
+            }
+        } catch (Exception e) { //NOSONAR - any failure must still close the stream
+            log.error("Error rendering chart screenshots", e);
+            publish(replyTo, finalMarker(e.getMessage()));
+        }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        if (requestPool != null) {
+            requestPool.shutdownNow();
+        }
+        if (renderPool != null) {
+            renderPool.shutdownNow();
+        }
     }
 
     private void renderAndStream(SupersetClient client, ChartScreenshotRequest.ChartSpec spec, String replyTo) {
