@@ -27,7 +27,9 @@
 
 FROM bedag/hellodata-superset:5-0-HD-rc3
 
-ARG GECKODRIVER_VERSION=0.34.0
+# geckodriver 0.37.1 matches firefox-esr 140.* (0.34.0 logged a version-mismatch warning on every
+# chart screenshot render — see HELLODATA-4110). Bump when the bundled firefox-esr major changes.
+ARG GECKODRIVER_VERSION=0.37.1
 
 COPY ./assets/images/* /app/superset/static/assets/images/
 
