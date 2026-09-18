@@ -56,6 +56,8 @@ export interface PdfLayoutRequest {
   title: string;
   template: string;
   items: PdfLayoutItem[];
+  /** Re-render every chart even if a cached screenshot exists (the "fresh data" export option). */
+  force?: boolean;
 }
 
 /** The two fixed page templates — no backend round-trip needed. */

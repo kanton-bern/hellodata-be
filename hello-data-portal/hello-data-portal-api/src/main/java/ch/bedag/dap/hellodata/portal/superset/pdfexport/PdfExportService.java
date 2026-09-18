@@ -76,7 +76,7 @@ public class PdfExportService {
 
         // Render as the requesting user so Superset applies that user's row-level-security filters.
         String userEmail = SecurityUtils.getCurrentUserEmail();
-        Map<String, byte[]> pngs = screenshotClient.fetchScreenshots(request.instanceName(), userEmail, new ArrayList<>(specsById.values()), SCREENSHOT_TIMEOUT);
+        Map<String, byte[]> pngs = screenshotClient.fetchScreenshots(request.instanceName(), userEmail, new ArrayList<>(specsById.values()), SCREENSHOT_TIMEOUT, request.force());
 
         CustomLayout layout = LayoutGridPacker.buildCustomLayout(request, pngs, template);
         return pdfRenderer.renderCustom(layout, template);
@@ -88,7 +88,7 @@ public class PdfExportService {
      * (their row-level-security filters apply) and gated on access to the owning dashboard. Reuses the
      * same Superset screenshot cache as the export, so a preview also warms the export.
      */
-    public byte[] chartPreview(String instanceName, long dashboardId, long chartId, int cols, int rows, String templateId) {
+    public byte[] chartPreview(String instanceName, long dashboardId, long chartId, int cols, int rows, String templateId, boolean force) {
         dashboardService.assertCurrentUserMayAccess(instanceName, dashboardId);
         ReportTemplate template = ReportTemplate.fromId(templateId);
         int c = LayoutGridPacker.clampCols(cols);
@@ -97,7 +97,7 @@ public class PdfExportService {
         String specId = LayoutGridPacker.specId(chartId, c, r);
         ChartSpec spec = new ChartSpec(specId, chartId, size[0], size[1]);
         String userEmail = SecurityUtils.getCurrentUserEmail();
-        Map<String, byte[]> pngs = screenshotClient.fetchScreenshots(instanceName, userEmail, List.of(spec), SCREENSHOT_TIMEOUT);
+        Map<String, byte[]> pngs = screenshotClient.fetchScreenshots(instanceName, userEmail, List.of(spec), SCREENSHOT_TIMEOUT, force);
         return pngs.get(specId);
     }
 }

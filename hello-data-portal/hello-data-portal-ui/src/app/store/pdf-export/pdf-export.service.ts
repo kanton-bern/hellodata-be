@@ -56,10 +56,14 @@ export class PdfExportService {
     return this.httpClient.post(`${this.baseUrl}/pdf/custom`, request, {responseType: 'blob'});
   }
 
-  /** Single-chart screenshot preview (PNG blob), sized to the tile's span, for the builder grid. */
+  /** Single-chart screenshot preview (PNG blob), sized to the tile's span, for the builder grid.
+   *  {@code force} re-renders even if a cached screenshot exists (per-tile "refresh" button). */
   public getChartPreview(instanceName: string, dashboardId: number, chartId: number,
-                         cols: number, rows: number, template: string): Observable<Blob> {
-    const params = new HttpParams().set('cols', cols).set('rows', rows).set('template', template);
+                         cols: number, rows: number, template: string, force = false): Observable<Blob> {
+    let params = new HttpParams().set('cols', cols).set('rows', rows).set('template', template);
+    if (force) {
+      params = params.set('force', true);
+    }
     return this.httpClient.get(
       `${this.baseUrl}/${encodeURIComponent(instanceName)}/${dashboardId}/charts/${chartId}/preview`,
       {params, responseType: 'blob'}

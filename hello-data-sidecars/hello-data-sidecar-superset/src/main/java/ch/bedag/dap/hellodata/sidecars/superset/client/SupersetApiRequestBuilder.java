@@ -256,9 +256,10 @@ public class SupersetApiRequestBuilder {
     }
 
     /** Triggers async screenshot generation for a chart; the JSON response carries a {@code cache_key}. */
-    public static HttpUriRequest getChartCacheScreenshotRequest(String host, int port, String authToken, int chartId, int width, int height) throws URISyntaxException {
+    public static HttpUriRequest getChartCacheScreenshotRequest(String host, int port, String authToken, int chartId, int width, int height, boolean force) throws URISyntaxException {
         String size = "!(" + width + "," + height + ")";
-        String rison = "(window_size:" + size + ",thumb_size:" + size + ")";
+        // force:!t makes Superset re-render even when a cached screenshot exists (should_trigger_task).
+        String rison = "(window_size:" + size + ",thumb_size:" + size + (force ? ",force:!t" : "") + ")";
         URI apiUri = buildUri(host, port, String.format(CHART_CACHE_SCREENSHOT_API_ENDPOINT, chartId), List.of(Pair.of("q", rison)));
         return RequestBuilder.get() //
                 .setUri(apiUri) //

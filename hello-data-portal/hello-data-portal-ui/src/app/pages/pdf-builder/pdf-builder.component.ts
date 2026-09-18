@@ -31,6 +31,7 @@ import {FormsModule} from "@angular/forms";
 import {Select} from "primeng/select";
 import {Button} from "primeng/button";
 import {Ripple} from "primeng/ripple";
+import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe, TranslocoService} from "@jsverse/transloco";
 import {Store} from "@ngrx/store";
 import {DisplayGrid, Gridster, GridsterConfig, GridsterItem, GridsterItemConfig, GridType} from "angular-gridster2";
@@ -66,7 +67,7 @@ const PAGE_ROWS = 4;
 @Component({
   selector: 'app-pdf-builder',
   standalone: true,
-  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, TranslocoPipe],
+  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, TranslocoPipe],
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
@@ -120,6 +121,9 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   canRemovePage = computed(() => this.pageCount() > 1);
 
   exporting = signal(false);
+  /** "Fresh data" export toggle: re-render every chart (force) so the PDF reflects current data,
+   *  bypassing the screenshot cache. Off by default = fast, cached. */
+  freshData = signal(false);
   editorOpen = signal(false);
   editingText = signal('');
   /** The editable cell being edited, or null when creating a new block. */
@@ -293,8 +297,9 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     return this.previewLoading().has(this.previewKey(cell));
   }
 
-  /** Fetch a chart tile's preview screenshot once (async, deduplicated by key). */
-  private ensurePreview(cell: Cell): void {
+  /** Fetch a chart tile's preview screenshot once (async, deduplicated by key). With {@code force}
+   *  the backend re-renders even if a cached screenshot exists (per-tile refresh). */
+  private ensurePreview(cell: Cell, force = false): void {
     const dashboard = this.selectedDashboard();
     if (cell.type !== 'chart' || cell.chartId == null || dashboard == null) {
       return;
@@ -304,7 +309,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       return;
     }
     this.previewLoading.update(s => new Set(s).add(key));
-    this.pdfExport.getChartPreview(dashboard.instanceName, dashboard.id, cell.chartId, cell.cols, cell.rows, this.selectedTemplate())
+    this.pdfExport.getChartPreview(dashboard.instanceName, dashboard.id, cell.chartId, cell.cols, cell.rows, this.selectedTemplate(), force)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: blob => {
@@ -313,6 +318,28 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         },
         error: () => this.clearLoading(key),   // leave the fallback icon in place
       });
+  }
+
+  /** Per-tile "refresh": drop this tile's cached preview and re-fetch with force so a chart whose
+   *  data changed within the cache TTL is re-rendered. No-op while it is already loading. */
+  refreshPreview(cell: Cell): void {
+    if (cell.type !== 'chart') {
+      return;
+    }
+    const key = this.previewKey(cell);
+    if (this.previewLoading().has(key)) {
+      return;
+    }
+    const existing = this.previewUrls().get(key);
+    if (existing) {
+      URL.revokeObjectURL(existing);
+    }
+    this.previewUrls.update(m => {
+      const next = new Map(m);
+      next.delete(key);
+      return next;
+    });
+    this.ensurePreview(cell, true);
   }
 
   /** Kick off previews for every chart tile that doesn't have one yet (e.g. after restore). */
@@ -453,6 +480,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       title: dashboard.dashboardTitle,
       template: this.selectedTemplate(),
       items,
+      force: this.freshData(),
     };
     this.exporting.set(true);
     this.pdfExport.exportCustom(request).subscribe({

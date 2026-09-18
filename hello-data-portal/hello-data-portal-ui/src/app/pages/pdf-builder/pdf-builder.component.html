@@ -56,6 +56,12 @@
           appendTo="body"
           styleClass="w-full"/>
       </label>
+      <label class="fresh-data">
+        <input type="checkbox" [checked]="freshData()"
+               (change)="freshData.set($any($event.target).checked)"/>
+        <span>{{ '@Fresh data' | transloco }}</span>
+        <small>{{ '@Re-render charts with the latest data (slower)' | transloco }}</small>
+      </label>
       <p-button (click)="export()" (keydown.enter)="export()"
                 [disabled]="selectedDashboard() === null || cells().length === 0 || exporting()"
                 [icon]="icons.ACTION_FILE_EXPORT.class"
@@ -95,6 +101,13 @@
             <div class="cell-head">
               <span class="cell-type">{{ cell.type === 'chart' ? cell.name : ('@Markdown' | transloco) }}</span>
               <span class="cell-actions">
+                @if (cell.type === 'chart') {
+                  <p-button (click)="refreshPreview(cell)" [disabled]="previewLoadingFor(cell)"
+                            [icon]="icons.ACTION_REFRESH.class"
+                            [text]="true" [rounded]="true" size="small" severity="secondary"
+                            [pTooltip]="'@Refresh preview with latest data' | transloco"
+                            [ariaLabel]="'@Refresh preview with latest data' | transloco"/>
+                }
                 @if (cell.type === 'markdown' && !cell.readonly) {
                   <p-button (click)="editCell(cell)" [icon]="icons.ACTION_EDIT.class"
                             [text]="true" [rounded]="true" size="small" severity="secondary"

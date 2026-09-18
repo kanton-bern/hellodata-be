@@ -50,6 +50,9 @@ public class ChartScreenshotRequest implements Serializable {
      *  row-level-security (RLS) filters. When null/blank the sidecar renders as its admin/technical
      *  account (the thumbnail selenium user) — no per-user RLS. */
     private String userEmail;
+    /** When true, re-render every chart even if a cached screenshot exists (Superset {@code force}),
+     *  so a chart whose data changed within the cache TTL is refreshed. Default false = use cache. */
+    private boolean force;
 
     @Data
     @AllArgsConstructor

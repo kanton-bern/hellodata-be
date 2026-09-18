@@ -125,11 +125,12 @@ public class ChartScreenshotRequestListener {
             // Render as the requesting user (their RLS applies) when an email is supplied; otherwise
             // render as the admin/technical account (the thumbnail selenium user).
             String email = request.getUserEmail();
+            boolean force = request.isForce();
             SupersetClient render = email == null || email.isBlank() ? admin : admin.asUser(email);
             try {
                 List<Future<?>> futures = new ArrayList<>();
                 for (ChartScreenshotRequest.ChartSpec spec : charts) {
-                    futures.add(renderPool.submit(() -> renderAndStream(render, spec, replyTo)));
+                    futures.add(renderPool.submit(() -> renderAndStream(render, spec, replyTo, force)));
                 }
                 for (Future<?> future : futures) {
                     future.get();
@@ -156,9 +157,9 @@ public class ChartScreenshotRequestListener {
         }
     }
 
-    private void renderAndStream(SupersetClient client, ChartScreenshotRequest.ChartSpec spec, String replyTo) {
+    private void renderAndStream(SupersetClient client, ChartScreenshotRequest.ChartSpec spec, String replyTo, boolean force) {
         try {
-            String cacheKey = client.triggerChartScreenshot((int) spec.getChartId(), spec.getWidth(), spec.getHeight());
+            String cacheKey = client.triggerChartScreenshot((int) spec.getChartId(), spec.getWidth(), spec.getHeight(), force);
             byte[] png = poll(client, (int) spec.getChartId(), cacheKey);
             streamChart(spec, png, replyTo);
         } catch (Exception e) { //NOSONAR - isolate one chart's failure from the rest

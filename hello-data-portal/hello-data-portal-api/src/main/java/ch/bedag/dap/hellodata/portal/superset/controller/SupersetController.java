@@ -140,8 +140,9 @@ public class SupersetController {
     public ResponseEntity<byte[]> chartPreview(
             @PathVariable String instanceName, @PathVariable long dashboardId, @PathVariable long chartId,
             @RequestParam(defaultValue = "2") int cols, @RequestParam(defaultValue = "2") int rows,
-            @RequestParam(defaultValue = "portrait") String template) {
-        byte[] png = pdfExportService.chartPreview(instanceName, dashboardId, chartId, cols, rows, template);
+            @RequestParam(defaultValue = "portrait") String template,
+            @RequestParam(defaultValue = "false") boolean force) {
+        byte[] png = pdfExportService.chartPreview(instanceName, dashboardId, chartId, cols, rows, template, force);
         // Never let the browser cache a chart preview: the underlying Superset screenshot can change
         // (data refresh, RLS, edits) and a stale cached image must not be shown. Explicit no-store so
         // it doesn't rely on the global Spring Security default alone.

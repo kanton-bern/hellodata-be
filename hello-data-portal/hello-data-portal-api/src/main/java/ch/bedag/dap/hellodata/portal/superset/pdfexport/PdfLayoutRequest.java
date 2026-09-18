@@ -29,8 +29,9 @@ package ch.bedag.dap.hellodata.portal.superset.pdfexport;
 import java.util.List;
 
 /** Payload posted by the Angular layout builder: a dashboard plus positioned grid cells.
- *  {@code instanceName} + {@code dashboardId} drive the authZ gate and NATS routing. */
-public record PdfLayoutRequest(String instanceName, long dashboardId, String title, String template, List<Item> items) {
+ *  {@code instanceName} + {@code dashboardId} drive the authZ gate and NATS routing.
+ *  {@code force} (the "fresh data" export option) re-renders every chart even if cached. */
+public record PdfLayoutRequest(String instanceName, long dashboardId, String title, String template, List<Item> items, boolean force) {
 
     /** One grid cell: a chart reference or markdown text, with its gridster position/size. */
     public record Item(String type, Long chartId, String markdown, int x, int y, int cols, int rows, String name) {

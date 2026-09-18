@@ -69,6 +69,29 @@
   gap: 8px;
 }
 
+.fresh-data {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.fresh-data input {
+  grid-row: 1;
+  cursor: pointer;
+}
+
+.fresh-data small {
+  grid-column: 2;
+  grid-row: 2;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
 .canvas {
   flex: 1;
   min-height: 0;

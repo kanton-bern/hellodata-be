@@ -516,8 +516,8 @@ public class SupersetClient implements Closeable {
      * @param height  capture/output height in pixels
      * @return the cache_key used to poll the rendered PNG
      */
-    public String triggerChartScreenshot(int chartId, int width, int height) throws URISyntaxException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getChartCacheScreenshotRequest(host, port, authToken, chartId, width, height);
+    public String triggerChartScreenshot(int chartId, int width, int height, boolean force) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getChartCacheScreenshotRequest(host, port, authToken, chartId, width, height, force);
         ApiResponse resp = executeRequest(request);
         JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
         if (obj == null || !obj.has("cache_key") || obj.get("cache_key").isJsonNull()) {
