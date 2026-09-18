@@ -62,8 +62,13 @@ public class StorageSizeService {
                 Path folderPath = Path.of(path);
                 if (!Files.exists(folderPath)) {
                     try {
-                        Files.createDirectories(folderPath,
-                                PosixFilePermissions.asFileAttribute(DIRECTORY_PERMISSIONS));
+                        Files.createDirectories(folderPath);
+                        // The mode passed to createDirectories is filtered by the process umask
+                        // (e.g. 0770 & ~022 = 0750), which silently drops group write. Set the
+                        // permissions explicitly afterwards - setPosixFilePermissions is not
+                        // umask-filtered - so other members of the storage group (e.g. the
+                        // dbt-docs generation pod) can write into the data-domain folder.
+                        Files.setPosixFilePermissions(folderPath, DIRECTORY_PERMISSIONS);
                         log.info("Created folder {}", folderPath);
                     } catch (IOException e) {
                         log.error("Failed to create folder {}", folderPath, e);
