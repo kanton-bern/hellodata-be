@@ -46,7 +46,7 @@ class PdfRenderSmokeTest {
 
     @BeforeEach
     void setUp() {
-        renderer = new PdfRenderer(new PdfExportTemplateConfig().pdfTemplateEngine(), new PdfBrandingProperties(null, null, null));
+        renderer = new PdfRenderer(new PdfExportTemplateConfig().pdfTemplateEngine(), new PdfBrandingProperties(null, null, null), null);
     }
 
     private static byte[] logo() throws Exception {

@@ -50,9 +50,6 @@ import java.nio.file.StandardCopyOption;
 @Component
 public class PdfTemplateProvisioner {
 
-    private static final String CLASSPATH_TEMPLATES = "pdfexport/templates/";
-    private static final String TEMPLATES_MARKER = "/" + CLASSPATH_TEMPLATES;
-
     private final ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
     @Value("${hello-data.pdf-export.template-location:}")
@@ -64,28 +61,38 @@ public class PdfTemplateProvisioner {
             return;
         }
         Path base = Path.of(templateLocation);
+        // Each classpath root is copied to a target dir, preserving the sub-path below the root:
+        //  - templates land at the folder root (so `fragments/pdf.html` resolves, and `@@…@@` tokens work)
+        //  - the logo lands under branding/ and the fonts under fonts/, matching where PdfRenderer looks.
+        seedTree("pdfexport/templates/", base);
+        seedTree("pdfexport/branding/", base.resolve("branding"));
+        seedTree("pdfexport/fonts/", base.resolve("fonts"));
+        // The operator-facing README explaining what may be edited and which tokens to keep.
+        copyIfAbsent(resolver.getResource("classpath:pdfexport/README.md"), base.resolve("README.md"));
+    }
+
+    /** Copy every file under a classpath directory into {@code targetDir}, keeping the relative sub-path
+     *  and skipping files that already exist (so operator edits survive restarts). */
+    private void seedTree(String classpathDir, Path targetDir) {
+        String marker = "/" + classpathDir;
         try {
-            // The template tree (dashboard.html, portrait_/landscape_template.html, fragments/pdf.html),
-            // preserving the relative path so fragment references still resolve.
-            for (Resource resource : resolver.getResources("classpath*:" + CLASSPATH_TEMPLATES + "**")) {
+            for (Resource resource : resolver.getResources("classpath*:" + classpathDir + "**")) {
                 if (!resource.isReadable()) {
                     continue; // directory entry
                 }
                 String url = resource.getURL().toString();
-                int idx = url.indexOf(TEMPLATES_MARKER);
+                int idx = url.indexOf(marker);
                 if (idx < 0) {
                     continue;
                 }
-                String relativePath = url.substring(idx + TEMPLATES_MARKER.length());
+                String relativePath = url.substring(idx + marker.length());
                 if (relativePath.isBlank() || relativePath.endsWith("/")) {
                     continue;
                 }
-                copyIfAbsent(resource, base.resolve(relativePath));
+                copyIfAbsent(resource, targetDir.resolve(relativePath));
             }
-            // The operator-facing README explaining what may be edited and which tokens to keep.
-            copyIfAbsent(resolver.getResource("classpath:pdfexport/README.md"), base.resolve("README.md"));
         } catch (Exception e) { //NOSONAR - seeding is best-effort; the classpath fallback keeps export working
-            log.warn("Could not seed PDF export templates into {}: {}", templateLocation, e.getMessage());
+            log.warn("Could not seed PDF export resources from {} into {}: {}", classpathDir, targetDir, e.getMessage());
         }
     }
 
