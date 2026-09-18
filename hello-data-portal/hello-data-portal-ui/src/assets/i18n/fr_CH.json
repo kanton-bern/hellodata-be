@@ -219,6 +219,7 @@
   "@Loading preview": "Chargement de l'aperçu",
   "@Refresh preview with latest data": "Actualiser l'aperçu avec les données les plus récentes",
   "@Fresh data": "Données actualisées",
+  "@Export is enabled once all chart previews have loaded": "L'export sera disponible une fois tous les aperçus chargés",
   "@Re-render charts with the latest data (slower)": "Régénérer les graphiques avec les données les plus récentes (plus lent)",
   "@Add page": "Ajouter une page",
   "@Remove page": "Supprimer la page",

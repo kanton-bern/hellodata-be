@@ -63,10 +63,13 @@
         <small>{{ '@Re-render charts with the latest data (slower)' | transloco }}</small>
       </label>
       <p-button (click)="export()" (keydown.enter)="export()"
-                [disabled]="selectedDashboard() === null || cells().length === 0 || exporting()"
+                [disabled]="selectedDashboard() === null || cells().length === 0 || exporting() || anyPreviewLoading()"
                 [icon]="icons.ACTION_FILE_EXPORT.class"
                 [label]="(exporting() ? '@Exporting' : '@Export PDF') | transloco"
                 styleClass="w-full" pRipple/>
+      @if (anyPreviewLoading()) {
+        <small class="export-hint">{{ '@Export is enabled once all chart previews have loaded' | transloco }}</small>
+      }
       <p-button (click)="clear()" (keydown.enter)="clear()"
                 [icon]="icons.ACTION_FILTER_CLEAR.class" [label]="'@Clear' | transloco"
                 severity="secondary" styleClass="w-full" pRipple/>

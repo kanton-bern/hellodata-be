@@ -219,6 +219,7 @@
   "@Loading preview": "Loading preview",
   "@Refresh preview with latest data": "Refresh preview with latest data",
   "@Fresh data": "Fresh data",
+  "@Export is enabled once all chart previews have loaded": "Export is enabled once all chart previews have loaded",
   "@Re-render charts with the latest data (slower)": "Re-render charts with the latest data (slower)",
   "@Add page": "Add page",
   "@Remove page": "Remove page",

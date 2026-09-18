@@ -120,6 +120,10 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
    *  discards its tiles (after a confirm — see removePage). */
   canRemovePage = computed(() => this.pageCount() > 1);
 
+  /** True while at least one chart preview is still rendering. Export is blocked until this clears so
+   *  the export runs against a fully warmed cache (no in-flight render to race or re-render). */
+  anyPreviewLoading = computed(() => this.previewLoading().size > 0);
+
   exporting = signal(false);
   /** "Fresh data" export toggle: re-render every chart (force) so the PDF reflects current data,
    *  bypassing the screenshot cache. Off by default = fast, cached. */

@@ -92,6 +92,14 @@
   line-height: 1.3;
 }
 
+.export-hint {
+  display: block;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.3;
+  margin-top: -2px;
+}
+
 .canvas {
   flex: 1;
   min-height: 0;
