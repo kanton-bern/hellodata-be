@@ -81,6 +81,12 @@ hello-data:
   batch-users-file:
     location: /storage/batch-users-processing
     scan-interval-seconds: 30
+  pdf-export:
+    # Editable copy of the Superset-PDF-export Thymeleaf templates. On startup the portal seeds the
+    # packaged defaults here (only files that don't exist yet, so edits survive restarts) and renders
+    # from here; a missing/broken file falls back to the packaged default. See the README.md written
+    # into this folder for what may be edited and which @@…@@ tokens must be kept.
+    template-location: /storage/pdf-template
 
 #spring props
 spring:
