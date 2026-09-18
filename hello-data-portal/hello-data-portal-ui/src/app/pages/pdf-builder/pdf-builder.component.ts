@@ -464,7 +464,9 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
 
   export(): void {
     const dashboard = this.selectedDashboard();
-    if (dashboard == null || this.cells().length === 0) {
+    // Guard against a re-entrant call while a PDF is already being generated (the button is also
+    // disabled during export, but this makes double-submission impossible even programmatically).
+    if (dashboard == null || this.cells().length === 0 || this.exporting()) {
       return;
     }
     // Map each cell's page + local y to the global grid row the backend page-breaks on.

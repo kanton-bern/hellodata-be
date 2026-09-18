@@ -64,6 +64,7 @@
       </label>
       <p-button (click)="export()" (keydown.enter)="export()"
                 [disabled]="selectedDashboard() === null || cells().length === 0 || exporting() || anyPreviewLoading()"
+                [loading]="exporting()"
                 [icon]="icons.ACTION_FILE_EXPORT.class"
                 [label]="(exporting() ? '@Exporting' : '@Export PDF') | transloco"
                 styleClass="w-full" pRipple/>
