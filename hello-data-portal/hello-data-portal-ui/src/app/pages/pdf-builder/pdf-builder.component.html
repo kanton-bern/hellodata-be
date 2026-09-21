@@ -157,8 +157,26 @@
 
 <div class="editor-backdrop" [class.open]="editorOpen()">
   <div class="editor-dialog">
-    <h3>{{ '@Markdown block' | transloco }}</h3>
-    <textarea rows="12" [ngModel]="editingText()" (ngModelChange)="editingText.set($event)"></textarea>
+    <h3>{{ (editorMode() === 'edit' ? '@Edit text block' : '@Add text block') | transloco }}</h3>
+    <div class="md-toolbar">
+      <p-button (click)="applyFormat('bold')" icon="fa-solid fa-bold"
+                [text]="true" [rounded]="true" size="small" severity="secondary"
+                [pTooltip]="'@Bold' | transloco" [ariaLabel]="'@Bold' | transloco"/>
+      <p-button (click)="applyFormat('italic')" icon="fa-solid fa-italic"
+                [text]="true" [rounded]="true" size="small" severity="secondary"
+                [pTooltip]="'@Italic' | transloco" [ariaLabel]="'@Italic' | transloco"/>
+      <p-button (click)="applyFormat('heading')" icon="fa-solid fa-heading"
+                [text]="true" [rounded]="true" size="small" severity="secondary"
+                [pTooltip]="'@Heading' | transloco" [ariaLabel]="'@Heading' | transloco"/>
+      <p-button (click)="applyFormat('list')" icon="fa-solid fa-list-ul"
+                [text]="true" [rounded]="true" size="small" severity="secondary"
+                [pTooltip]="'@Bullet list' | transloco" [ariaLabel]="'@Bullet list' | transloco"/>
+      <p-button (click)="applyFormat('link')" [icon]="icons.ACTION_LINK.class"
+                [text]="true" [rounded]="true" size="small" severity="secondary"
+                [pTooltip]="'@Link' | transloco" [ariaLabel]="'@Link' | transloco"/>
+    </div>
+    <textarea #mdInput rows="12" [ngModel]="editingText()" (ngModelChange)="editingText.set($event)"></textarea>
+    <small class="md-hint">{{ '@Markdown supported: bold, italic, headings, lists, links' | transloco }}</small>
     <div class="editor-actions">
       <p-button (click)="closeEditor()" (keydown.enter)="closeEditor()"
                 [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"

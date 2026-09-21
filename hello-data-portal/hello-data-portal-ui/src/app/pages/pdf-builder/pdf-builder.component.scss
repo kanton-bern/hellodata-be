@@ -274,6 +274,20 @@ gridster {
   margin: 0 0 12px;
 }
 
+.md-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.md-hint {
+  display: block;
+  color: #888;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
 .editor-dialog textarea {
   width: 100%;
   box-sizing: border-box;

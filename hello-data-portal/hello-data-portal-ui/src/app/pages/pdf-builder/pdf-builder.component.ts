@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal} from "@angular/core";
+import {Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
 import {Select} from "primeng/select";
@@ -133,8 +133,13 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   freshData = signal(false);
   editorOpen = signal(false);
   editingText = signal('');
+  /** 'edit' when changing an existing block, 'add' when creating one - drives the dialog title. */
+  editorMode = signal<'add' | 'edit'>('add');
   /** The editable cell being edited, or null when creating a new block. */
   private editingCell: Cell | null = null;
+
+  /** The editor textarea, so the formatting toolbar can wrap/prefix the current selection. */
+  @ViewChild('mdInput') private mdInput?: ElementRef<HTMLTextAreaElement>;
 
   /** The palette entry currently being dragged (set on dragstart). */
   private dragPayload: PaletteItem | null = null;
@@ -376,6 +381,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   /** Open the dialog to create a new editable markdown block. */
   addMarkdown(): void {
     this.editingCell = null;
+    this.editorMode.set('add');
     this.editingText.set('');
     this.editorOpen.set(true);
   }
@@ -386,6 +392,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       return;
     }
     this.editingCell = cell;
+    this.editorMode.set('edit');
     this.editingText.set(cell.markdown ?? '');
     this.editorOpen.set(true);
   }
@@ -396,10 +403,88 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       const target = this.editingCell;
       this.cells.update(cs => cs.map(c => (c === target ? {...c, markdown: text} : c)));
     } else if (text.trim()) {
-      this.cells.update(cs => [...cs, {type: 'markdown', markdown: text, readonly: false, page: this.currentPage(), x: 0, y: 0, cols: 4, rows: 1}]);
+      // Place the new block in the first free slot on the page. Hardcoding (0,0) made a second block
+      // land on top of the first, where gridster (pushItems/autoPosition off) can't show it until the
+      // first is removed. If the page is full, keep the dialog open so the text isn't lost.
+      const spot = this.findMarkdownSpot();
+      if (!spot) {
+        this.notification.warn('@No free space on this page - add a page or make room first');
+        return;
+      }
+      this.cells.update(cs => [...cs, {type: 'markdown', markdown: text, readonly: false, page: this.currentPage(), ...spot}]);
+      this.reflowGrid();
     }
     this.closeEditor();
     this.persist();
+  }
+
+  /** Where a new full-width text block should go: the first fully-free row (4x1); if no whole row is
+   *  free, the first free cell widened to the free run to its right; null when the page is full. */
+  private findMarkdownSpot(): {x: number; y: number; cols: number; rows: number} | null {
+    const grid = this.occupancy();
+    for (let y = 0; y < PAGE_ROWS; y++) {
+      if (grid[y].every(occupied => !occupied)) {
+        return {x: 0, y, cols: PAGE_ROWS, rows: 1};
+      }
+    }
+    for (let y = 0; y < PAGE_ROWS; y++) {
+      for (let x = 0; x < PAGE_ROWS; x++) {
+        if (!grid[y][x]) {
+          let cols = 1;
+          while (x + cols < PAGE_ROWS && !grid[y][x + cols]) {
+            cols++;
+          }
+          return {x, y, cols, rows: 1};
+        }
+      }
+    }
+    return null;
+  }
+
+  /** Ask gridster to re-run its layout after we add a tile programmatically, so it is positioned (with
+   *  its margins) right away instead of only after the next drag/click. Deferred so the new
+   *  gridster-item has registered before the reflow runs. */
+  private reflowGrid(): void {
+    setTimeout(() => this.options['api']?.optionsChanged?.());
+  }
+
+  /** Wrap/prefix the textarea selection with markdown - a minimal formatting toolbar for the editor. */
+  applyFormat(type: 'bold' | 'italic' | 'heading' | 'list' | 'link'): void {
+    const el = this.mdInput?.nativeElement;
+    const text = this.editingText();
+    const start = el ? el.selectionStart : text.length;
+    const end = el ? el.selectionEnd : text.length;
+    const selected = text.slice(start, end);
+    let insert: string;
+    switch (type) {
+      case 'bold':
+        insert = `**${selected || 'text'}**`;
+        break;
+      case 'italic':
+        insert = `*${selected || 'text'}*`;
+        break;
+      case 'link':
+        insert = `[${selected || 'text'}](https://)`;
+        break;
+      case 'heading':
+      case 'list': {
+        // Line-oriented: prefix each (selected) line. '## ' for a heading, '- ' for a bullet list.
+        const prefix = type === 'heading' ? '## ' : '- ';
+        insert = (selected || 'text').split('\n').map(line => prefix + line).join('\n');
+        break;
+      }
+    }
+    const next = text.slice(0, start) + insert + text.slice(end);
+    this.editingText.set(next);
+    // Restore focus and put the caret just after the inserted text, once the model has re-rendered.
+    setTimeout(() => {
+      if (!el) {
+        return;
+      }
+      el.focus();
+      const caret = start + insert.length;
+      el.setSelectionRange(caret, caret);
+    });
   }
 
   closeEditor(): void {
