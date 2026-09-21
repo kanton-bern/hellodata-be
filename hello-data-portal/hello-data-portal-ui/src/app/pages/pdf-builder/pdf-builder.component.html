@@ -60,9 +60,6 @@
       @if (anyPreviewLoading()) {
         <small class="export-hint">{{ '@Export is enabled once all chart previews have loaded' | transloco }}</small>
       }
-      <p-button (click)="clear()" (keydown.enter)="clear()"
-                [icon]="icons.ACTION_FILTER_CLEAR.class" [label]="'@Clear' | transloco"
-                severity="secondary" styleClass="w-full" pRipple/>
     </div>
   </aside>
 

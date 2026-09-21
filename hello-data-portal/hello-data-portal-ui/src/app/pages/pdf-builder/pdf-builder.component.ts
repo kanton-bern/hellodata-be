@@ -550,11 +550,6 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     this.clearPreviews();
   }
 
-  clear(): void {
-    this.resetPages();
-    this.persist();
-  }
-
   export(): void {
     const dashboard = this.selectedDashboard();
     // Guard against a re-entrant call while a PDF is already being generated (the button is also
