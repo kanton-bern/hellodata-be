@@ -146,6 +146,15 @@
   </main>
 </div>
 
+<p-confirmDialog #removePageDlg key="removePdfPage" [style]="{width: '32rem'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="removePageDlg.onReject()" (keydown.escape)="removePageDlg.onReject()"
+              [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
+    <p-button (click)="removePageDlg.onAccept()" (keydown.enter)="removePageDlg.onAccept()"
+              [icon]="icons.ACTION_DELETE.class" [label]="'@Remove page' | transloco" severity="danger"/>
+  </ng-template>
+</p-confirmDialog>
+
 <div class="editor-backdrop" [class.open]="editorOpen()">
   <div class="editor-dialog">
     <h3>{{ '@Markdown block' | transloco }}</h3>

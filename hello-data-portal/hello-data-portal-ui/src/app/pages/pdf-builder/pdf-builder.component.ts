@@ -32,6 +32,8 @@ import {Select} from "primeng/select";
 import {Button} from "primeng/button";
 import {Ripple} from "primeng/ripple";
 import {Tooltip} from "primeng/tooltip";
+import {ConfirmationService} from "primeng/api";
+import {ConfirmDialog} from "primeng/confirmdialog";
 import {TranslocoPipe, TranslocoService} from "@jsverse/transloco";
 import {Store} from "@ngrx/store";
 import {DisplayGrid, Gridster, GridsterConfig, GridsterItem, GridsterItemConfig, GridType} from "angular-gridster2";
@@ -67,7 +69,7 @@ const PAGE_ROWS = 4;
 @Component({
   selector: 'app-pdf-builder',
   standalone: true,
-  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, TranslocoPipe],
+  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, TranslocoPipe],
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
@@ -79,6 +81,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   private notification = inject(NotificationService);
   private transloco = inject(TranslocoService);
+  private confirmationService = inject(ConfirmationService);
 
   /** A dashboard to re-select from localStorage once it appears in the (data-domain-filtered) list. */
   private pendingRestore: {instanceName: string; dashboardId: number} | null = null;
@@ -436,10 +439,24 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       return;
     }
     const removed = this.currentPage();
-    if (this.visibleCells().length > 0 && !confirm(this.transloco.translate('@Remove this page and its charts?'))) {
+    // An empty page carries nothing to lose, so drop it straight away; a non-empty page asks for
+    // confirmation first via the app's standard dialog so charts aren't discarded by accident.
+    if (this.visibleCells().length === 0) {
+      this.doRemovePage(removed);
       return;
     }
-    // Drop this page's tiles, then shift every later page down into the gap it leaves.
+    this.confirmationService.confirm({
+      key: 'removePdfPage',
+      header: this.transloco.translate('@Remove page'),
+      message: this.transloco.translate('@Remove this page and its charts?'),
+      icon: this.icons.DIALOG_WARNING.class,
+      closeOnEscape: false,
+      accept: () => this.doRemovePage(removed),
+    });
+  }
+
+  /** Drop the given page's tiles, then shift every later page down into the gap it leaves. */
+  private doRemovePage(removed: number): void {
     this.cells.update(cs => cs
       .filter(c => c.page !== removed)
       .map(c => (c.page > removed ? {...c, page: c.page - 1} : c)));
