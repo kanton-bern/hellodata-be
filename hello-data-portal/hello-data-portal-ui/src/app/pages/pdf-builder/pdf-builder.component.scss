@@ -294,6 +294,13 @@ gridster {
   font-family: monospace;
   font-size: 13px;
   padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.editor-dialog textarea:focus {
+  outline: none;
+  border-color: var(--p-primary-color, #2f7d72);
 }
 
 .editor-actions {
