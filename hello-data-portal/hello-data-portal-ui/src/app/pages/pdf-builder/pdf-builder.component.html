@@ -28,21 +28,10 @@
       }
     </ul>
 
-    <h3>{{ '@Blocks' | transloco }}</h3>
-    <p class="hint">{{ '@Existing text blocks drag onto the grid' | transloco }}</p>
-    <ul class="items">
-      @for (code of markdownBlocks(); track $index) {
-        <li class="palette-item block" draggable="true" [title]="code"
-            (dragstart)="onDragStart({ type: 'markdown', markdown: code, readonly: true })">
-          {{ mdLabel(code) }}
-        </li>
-      } @empty {
-        <li class="empty">{{ '@No text blocks on this dashboard' | transloco }}</li>
-      }
-    </ul>
+    <h3>{{ '@Text blocks' | transloco }}</h3>
     <p-button (click)="addMarkdown()" (keydown.enter)="addMarkdown()"
               [icon]="icons.ACTION_ADD.class" [label]="'@Add markdown' | transloco"
-              severity="secondary" styleClass="w-full mt-2" pRipple/>
+              severity="secondary" styleClass="w-full" pRipple/>
 
     <div class="actions">
       <label class="field">

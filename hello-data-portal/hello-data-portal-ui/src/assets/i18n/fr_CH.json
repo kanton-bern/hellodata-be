@@ -214,6 +214,7 @@
   "@Existing text blocks drag onto the grid": "Blocs de texte existants – glissez sur la grille.",
   "@No text blocks on this dashboard": "Aucun bloc de texte sur ce tableau de bord.",
   "@Add markdown": "Ajouter du markdown",
+  "@Text blocks": "Blocs de texte",
   "@Add text block": "Ajouter un bloc de texte",
   "@Edit text block": "Modifier le bloc de texte",
   "@Bold": "Gras",

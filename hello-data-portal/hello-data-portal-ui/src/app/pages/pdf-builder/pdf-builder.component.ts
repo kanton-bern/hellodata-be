@@ -92,7 +92,6 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   templates = signal<PdfTemplateRef[]>(PDF_TEMPLATES);
   selectedTemplate = signal<string>('portrait');
   charts = signal<PdfChartRef[]>([]);
-  markdownBlocks = signal<string[]>([]);
   selectedDashboard = signal<SupersetDashboardWithMetadata | null>(null);
   cells = signal<Cell[]>([]);
   /** Total number of PDF pages (>= 1); the paginator adds/removes these. Persisted with the layout. */
@@ -198,7 +197,6 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       if (current && !dashboards.some(d => d.instanceName === current.instanceName && d.id === current.id)) {
         this.selectedDashboard.set(null);
         this.charts.set([]);
-        this.markdownBlocks.set([]);
         this.resetPages();
         this.persist();
       }
@@ -224,15 +222,8 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     }
     this.selectedDashboard.set(dashboard);
     this.pdfExport.getCharts(dashboard.instanceName, dashboard.id).subscribe(c => this.charts.set(c));
-    this.pdfExport.getMarkdownBlocks(dashboard.instanceName, dashboard.id).subscribe(m => this.markdownBlocks.set(m));
     this.refreshPreviews();   // load previews for any restored tiles now that the dashboard is known
     this.persist();
-  }
-
-  /** Palette label for an existing markdown block: first line, at most 50 chars. */
-  mdLabel(code: string): string {
-    const firstLine = code.split('\n', 1)[0].trim();
-    return firstLine.length > 50 ? firstLine.slice(0, 50) + '…' : firstLine || '(leer)';
   }
 
   onDragStart(payload: PaletteItem): void {
