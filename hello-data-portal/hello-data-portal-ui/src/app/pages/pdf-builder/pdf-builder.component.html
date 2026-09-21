@@ -83,10 +83,12 @@
       <p-button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0"
                 [icon]="icons.NAV_CHEVRON_LEFT.class" [text]="true" [rounded]="true" size="small"
                 [ariaLabel]="'@Previous page' | transloco"/>
-      @for (p of pages(); track p) {
-        <button type="button" class="page-btn" [class.active]="p === currentPage()"
-                (click)="goToPage(p)">{{ p + 1 }}</button>
-      }
+      <div class="page-numbers">
+        @for (p of pages(); track p) {
+          <button type="button" class="page-btn" [class.active]="p === currentPage()"
+                  (click)="goToPage(p)">{{ p + 1 }}</button>
+        }
+      </div>
       <p-button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= pageCount() - 1"
                 [icon]="icons.NAV_CHEVRON_RIGHT.class" [text]="true" [rounded]="true" size="small"
                 [ariaLabel]="'@Next page' | transloco"/>

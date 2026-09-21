@@ -131,17 +131,31 @@ gridster {
   font-size: 13px;
   color: #666;
   margin-right: 4px;
+  flex: 0 0 auto;
 }
 
-/* Add/Remove page buttons pushed to the right edge of the paginator. */
+/* The page numbers take the remaining width and scroll horizontally on their own, so a long run of
+   pages never pushes the prev/next arrows or the Add/Remove actions off screen. */
+.paginator .page-numbers {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+/* Add/Remove page buttons stay pinned at the right edge and always visible. */
 .paginator .page-actions {
-  margin-left: auto;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .page-btn {
+  flex: 0 0 auto;
   min-width: 30px;
   height: 30px;
   padding: 0 8px;
