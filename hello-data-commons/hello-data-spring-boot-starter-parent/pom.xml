@@ -51,6 +51,10 @@
         <logback.version>1.6.3</logback.version>
         <!-- CVE-2026-53712: remove once org.postgresql:r2dbc-postgresql ships scram >= 3.3 -->
         <scram.version>3.3</scram.version>
+        <!-- CVE-2026-19032 (BDSA-2026-30990): remove once Spring Boot ships Jackson 2.x >= 2.21.6 -->
+        <jackson-bom.version>2.21.6</jackson-bom.version>
+        <!-- CVE-2026-19032 (BDSA-2026-30990): remove once Spring Boot ships Jackson 3.x >= 3.1.6 -->
+        <jackson3-bom.version>3.1.6</jackson3-bom.version>
         <!-- CVE-2026-42198 / BDSA-2026-8637 / CVE-2026-54291 (GHSA-j92g-9f8w-j867): remove once Spring Boot ships postgresql >= 42.7.12 -->
         <postgresql.version>42.7.13</postgresql.version>
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.0/.1 target Boot 4.0.x; 2025.1.2+ adds Boot 4.1.x support -->
@@ -287,6 +291,22 @@
                 <artifactId>netty-codec-native-quic</artifactId>
                 <version>${netty.version}</version>
                 <classifier>windows-x86_64</classifier>
+            </dependency>
+            <!-- CVE-2026-19032 (BDSA-2026-30990): pin whole Jackson family ahead of the Spring Boot BOM; remove once Spring Boot ships Jackson 2.x >= 2.21.6 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- CVE-2026-19032 (BDSA-2026-30990): remove once Spring Boot ships Jackson 3.x >= 3.1.6 -->
+            <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson3-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
