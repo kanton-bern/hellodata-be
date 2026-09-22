@@ -83,6 +83,115 @@ Edit `portrait_template.html` (and/or `landscape_template.html`) — **not** `fr
 
 ---
 
+## Recipes - copy-paste examples
+
+Each recipe says **which file** to touch. Remember the golden rule above: **styling → `fragments/pdf.html`**,
+**page content → the PAGE template**. After saving, just run a new export - no restart.
+
+> Before every edit, **keep a backup of the file** (a malformed file makes that export fail; see the
+> troubleshooting section). To undo, delete your copy to fall back to the packaged default.
+
+### 1. Change the logo
+
+1. **Swap the image** - replace `branding/logo.png` with your own PNG, **keeping the filename**. A
+   transparent background looks best. The logo is embedded fresh on every export, so the new file shows
+   on the next PDF.
+2. **Resize it (optional)** - the size is CSS, in the `styles` fragment of **`fragments/pdf.html`**:
+   ```css
+   .header .logo-cell     { width: 120px; }   /* the column the logo sits in */
+   .header .logo-cell img { width: 110px; }   /* the logo itself - raise for a bigger logo */
+   ```
+   If you make the logo much wider, raise the `.logo-cell` width to match.
+
+### 2. Change the first (cover) page
+
+The cover is the `<div class="cover-page">` block at the top of the **PAGE templates**. Edit **both**
+`portrait_template.html` **and** `landscape_template.html` so portrait and landscape stay consistent.
+
+Add a subtitle and a "generated on" date under the title:
+```html
+<div class="cover-page">
+  <th:block th:replace="~{fragments/pdf :: header}"></th:block>
+  <h1 class="title" th:text="${layout.title()}">Layout Title</h1>
+
+  <!-- NEW cover content -->
+  <div class="cover-subtitle" th:text="${reportCaption}">HelloDATA Dashboard Export</div>
+  <div class="cover-date">Erstellt am <span th:text="${generatedAt}">2026-01-01</span></div>
+</div>
+```
+Then style the new classes in the `styles` fragment of **`fragments/pdf.html`**:
+```css
+.cover-subtitle { font-size: 13pt; color: #444444; margin: 4px 0 0 0; }
+.cover-date     { font-size: 9pt;  color: #999999; margin: 2px 0 0 0; }
+```
+Notes:
+- The cover already forces the charts onto page 2 (`.cover-page { page-break-after: always; }`).
+- Values you may use on the cover: `${layout.title()}`, `${orgName}`, `${reportCaption}`,
+  `${generatedAt}`, `${logoDataUri}` (see the variables list above). Don't invent other names.
+
+### 3. Change the fonts
+
+**a) Keep the design, swap the glyphs (no code change)** - drop four TTF files into `fonts/`, named
+**exactly**:
+```
+Roboto-Light.ttf    Roboto-Regular.ttf    Roboto-Medium.ttf    Roboto-Bold.ttf
+```
+They stay registered under the family **`Roboto`** at weights 300 / 400 / 500 / 700, so all the existing
+CSS keeps working - you're only replacing the glyphs.
+
+**b) Make the text bigger/smaller** - one line in the `styles` fragment of **`fragments/pdf.html`**:
+```css
+body { font-size: 10pt; }   /* base size; headings scale from h1.title / h2.tab-title / h3.chart-name */
+```
+
+**c) Use a *differently named* family (e.g. real "Open Sans")** - the family name is registered in the
+portal **code** (`PdfRenderer.registerRoboto`, which maps the four files to family `Roboto`). From this
+folder you can only swap the glyphs behind `Roboto`; a new family name needs a code change + rebuild -
+ask the dev team.
+
+### 4. Change the brand colours
+
+The palette lives in the `styles` fragment of **`fragments/pdf.html`**. Find-and-replace these:
+| Where | Default | Meaning |
+|-------|---------|---------|
+| `body`, titles, headings | `#0a0a0a` | near-black text |
+| borders / hairlines | `#dedede` | thin separators |
+| footer text | `#999999` | footer + meta |
+| `.summary` / markdown box | `#faf1e3` | highlight background |
+
+Example - give the report title a red brand accent:
+```css
+h1.title { color: #b5121b; }   /* was #0a0a0a */
+```
+
+### 5. Change the footer wording
+
+The footer sits in `@page { … }` in the `styles` fragment. Left and right are portal-filled tokens
+(**keep** `@@FOOTER_TITLE@@` / `@@FOOTER_DATE@@` as the `content`); the **middle page counter is plain
+CSS you can reword**:
+```css
+@bottom-center {
+  content: "Seite " counter(page) " / " counter(pages);   /* e.g. "Page " counter(page) " of " counter(pages) */
+  font-family: "Roboto", sans-serif; font-size: 8pt; color: #999999;
+}
+```
+
+### 6. Header caption text (org name / report caption) - config, not this folder
+
+`${orgName}` ("Kanton Bern") and `${reportCaption}` ("HelloDATA Dashboard Export") come from the
+portal's **application config**, not this folder:
+```yaml
+hello-data:
+  pdf-export:
+    org-name: "Kanton Bern"
+    report-caption: "HelloDATA Dashboard Export"
+```
+You can *use* those variables in a template, but to *change the text* edit the config (ask dev/ops).
+Page **size** and **margins** are portal-controlled too (the `@@PAGE_SIZE@@` / `@@PAGE_MARGIN@@` tokens) -
+change orientation in the builder/portal, not here.
+
+---
+
 ## If something goes wrong
 
 - A **missing** file falls back to the packaged default automatically, and is re-seeded on the next
