@@ -45,6 +45,8 @@
         <tomcat.version>11.0.25</tomcat.version>
         <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
         <bouncycastle.version>1.85.2</bouncycastle.version>
+        <!-- CVE-2026-8763: remove once io.nats:jnats ships bcprov-lts8on >= 2.73.12 -->
+        <bouncycastle-lts.version>2.73.12</bouncycastle-lts.version>
         <!-- CVE-2026-42198 / BDSA-2026-8637 / CVE-2026-54291 (GHSA-j92g-9f8w-j867): remove once Spring Boot ships postgresql >= 42.7.12 -->
         <postgresql.version>42.7.13</postgresql.version>
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.0/.1 target Boot 4.0.x; 2025.1.2+ adds Boot 4.1.x support -->
@@ -77,6 +79,12 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
+            </dependency>
+            <!-- CVE-2026-8763: pulled in by io.nats:jnats; remove once jnats ships bcprov-lts8on >= 2.73.12 -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-lts8on</artifactId>
+                <version>${bouncycastle-lts.version}</version>
             </dependency>
             <!-- CVE-2026-41284 / BDSA-2026-10253: remove once Spring Boot ships Tomcat >= 11.0.22 -->
             <dependency>
