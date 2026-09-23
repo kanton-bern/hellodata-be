@@ -28,6 +28,10 @@ package ch.bedag.dap.hellodata.portal.superset.pdfexport;
 
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Entities;
+import org.jsoup.safety.Safelist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +45,17 @@ public final class LayoutGridPacker {
 
     private static final Parser MD_PARSER = Parser.builder().build();
     private static final HtmlRenderer MD_RENDERER = HtmlRenderer.builder().softbreak("<br />\n").build();
+    /** What the builder's rich-text editor can produce; anything else (scripts, styles, images,
+     *  event handlers, non-web links) is stripped before the HTML reaches the PDF renderer. */
+    private static final Safelist RICH_TEXT = new Safelist()
+            .addTags("p", "br", "strong", "b", "em", "i", "u", "s", "h1", "h2", "h3", "ul", "ol", "li", "code", "pre", "blockquote", "a")
+            .addAttributes("a", "href")
+            .addProtocols("a", "href", "http", "https", "mailto");
+    /** openhtmltopdf parses XHTML, so the cleaned HTML is serialized as well-formed XML. */
+    private static final Document.OutputSettings XHTML = new Document.OutputSettings()
+            .syntax(Document.OutputSettings.Syntax.xml)
+            .escapeMode(Entities.EscapeMode.xhtml)
+            .prettyPrint(false);
 
     private LayoutGridPacker() {
     }
@@ -63,7 +78,9 @@ public final class LayoutGridPacker {
                 String name = item.name() == null || item.name().isBlank() ? "Chart " + item.chartId() : item.name();
                 content = new DashboardExport.Chart(name, png);
             } else {
-                content = new DashboardExport.Markdown(markdownToHtml(item.markdown()));
+                content = new DashboardExport.Markdown(item.html() != null && !item.html().isBlank()
+                        ? sanitizeRichText(item.html())
+                        : markdownToHtml(item.markdown()));
             }
             positioned.add(new Positioned(Math.max(0, item.x()), Math.max(0, item.y()), cols, rows, content));
         }
@@ -79,6 +96,11 @@ public final class LayoutGridPacker {
 
     static String markdownToHtml(String markdown) {
         return MD_RENDERER.render(MD_PARSER.parse(markdown == null ? "" : markdown));
+    }
+
+    /** Rich-text HTML from the builder's WYSIWYG editor, reduced to the allowed formatting tags. */
+    static String sanitizeRichText(String html) {
+        return Jsoup.clean(html, "", RICH_TEXT, XHTML);
     }
 
     static int clampCols(int cols) {

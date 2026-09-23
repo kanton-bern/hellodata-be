@@ -42,6 +42,8 @@ export interface PdfLayoutItem {
   type: 'chart' | 'markdown';
   chartId?: number;
   markdown?: string;
+  /** Sanitized again server-side before rendering; takes precedence over `markdown`. */
+  html?: string;
   name?: string;
   x: number;
   y: number;

@@ -221,7 +221,7 @@
   "@Italic": "Italique",
   "@Heading": "Titre",
   "@Bullet list": "Liste à puces",
-  "@Markdown supported: bold, italic, headings, lists, links": "Markdown pris en charge : gras, italique, titres, listes, liens",
+  "@Numbered list": "Liste numérotée",
   "@No free space on this page - add a page or make room first": "Aucun espace libre sur cette page - ajoutez une page ou libérez de la place",
   "@Pages": "Pages",
   "@Page": "Page",

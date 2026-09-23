@@ -25,13 +25,14 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal} from "@angular/core";
+import {Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
 import {Select} from "primeng/select";
 import {Button} from "primeng/button";
 import {Ripple} from "primeng/ripple";
 import {Tooltip} from "primeng/tooltip";
+import {Editor} from "primeng/editor";
 import {ConfirmationService} from "primeng/api";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {TranslocoPipe, TranslocoService} from "@jsverse/transloco";
@@ -39,6 +40,8 @@ import {Store} from "@ngrx/store";
 import {DisplayGrid, Gridster, GridsterConfig, GridsterItem, GridsterItemConfig, GridType} from "angular-gridster2";
 import {ICON_REGISTRY} from "../../shared/icons";
 import {markdownToHtml} from "../../shared/utils/markdown";
+import {isRichTextEmpty, sanitizeRichText} from "../../shared/utils/sanitize-html";
+import {disableEditorImageInsert} from "../../shared/utils/editor-utils";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
 import {selectMyDashboards, selectSelectedDataDomain} from "../../store/my-dashboards/my-dashboards.selector";
@@ -47,13 +50,15 @@ import {NotificationService} from "../../shared/services/notification.service";
 import {PdfExportService} from "../../store/pdf-export/pdf-export.service";
 import {PDF_TEMPLATES, PdfChartRef, PdfLayoutItem, PdfLayoutRequest, PdfTemplateRef} from "../../store/pdf-export/pdf-export.model";
 
-/** What a cell renders. Markdown from the dashboard is read-only; markdown created
- *  via "+ Add markdown" is editable. */
+/** What a cell renders. Markdown from the dashboard is read-only; text blocks created via
+ *  "+ Add text block" are editable rich text (`html`). Older saved blocks may still carry `markdown`
+ *  only - they are shown as-is and converted to `html` the first time they are edited. */
 type PaletteItem = {
   type: 'chart' | 'markdown';
   chartId?: number;
   name?: string;
   markdown?: string;
+  html?: string;
   readonly?: boolean;
 };
 
@@ -70,7 +75,7 @@ const PAGE_ROWS = 4;
 @Component({
   selector: 'app-pdf-builder',
   standalone: true,
-  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, TranslocoPipe],
+  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, Editor, TranslocoPipe],
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
@@ -138,8 +143,8 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   /** The editable cell being edited, or null when creating a new block. */
   private editingCell: Cell | null = null;
 
-  /** The editor textarea, so the formatting toolbar can wrap/prefix the current selection. */
-  @ViewChild('mdInput') private mdInput?: ElementRef<HTMLTextAreaElement>;
+  /** The Quill instance behind the rich-text editor, used to read clean semantic HTML on save. */
+  private quill: any = null;
 
   /** The palette entry currently being dragged (set on dragstart). */
   private dragPayload: PaletteItem | null = null;
@@ -385,16 +390,18 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     }
     this.editingCell = cell;
     this.editorMode.set('edit');
-    this.editingText.set(cell.markdown ?? '');
+    this.editingText.set(cell.html ?? markdownToHtml(cell.markdown));
     this.editorOpen.set(true);
   }
 
   saveEditor(): void {
-    const text = this.editingText();
+    // getSemanticHTML gives real <ul>/<ol> lists instead of Quill's internal <ol data-list> markup.
+    const html = this.quill?.getSemanticHTML?.() ?? this.editingText();
+    const empty = isRichTextEmpty(html);
     if (this.editingCell) {
       const target = this.editingCell;
-      this.cells.update(cs => cs.map(c => (c === target ? {...c, markdown: text} : c)));
-    } else if (text.trim()) {
+      this.cells.update(cs => cs.map(c => (c === target ? {...c, html: empty ? '' : html, markdown: undefined} : c)));
+    } else if (!empty) {
       // Place the new block in the first free slot on the page. Hardcoding (0,0) made a second block
       // land on top of the first, where gridster (pushItems/autoPosition off) can't show it until the
       // first is removed. If the page is full, keep the dialog open so the text isn't lost.
@@ -403,7 +410,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         this.notification.warn('@No free space on this page - add a page or make room first');
         return;
       }
-      this.cells.update(cs => [...cs, {type: 'markdown', markdown: text, readonly: false, page: this.currentPage(), ...spot}]);
+      this.cells.update(cs => [...cs, {type: 'markdown', html, readonly: false, page: this.currentPage(), ...spot}]);
       this.reflowGrid();
     }
     this.closeEditor();
@@ -440,48 +447,14 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     setTimeout(() => this.options['api']?.optionsChanged?.());
   }
 
-  /** Rendered preview of a markdown cell, so the canvas shows formatting like the exported PDF. */
-  markdownHtml(markdown: string): string {
-    return markdownToHtml(markdown);
+  onEditorInit(event: {editor: any}): void {
+    this.quill = event.editor;
+    disableEditorImageInsert(event.editor);
   }
 
-  /** Wrap/prefix the textarea selection with markdown - a minimal formatting toolbar for the editor. */
-  applyFormat(type: 'bold' | 'italic' | 'heading' | 'list' | 'link'): void {
-    const el = this.mdInput?.nativeElement;
-    const text = this.editingText();
-    const start = el ? el.selectionStart : text.length;
-    const end = el ? el.selectionEnd : text.length;
-    const selected = text.slice(start, end);
-    let insert: string;
-    switch (type) {
-      case 'bold':
-        insert = `**${selected || 'text'}**`;
-        break;
-      case 'italic':
-        insert = `*${selected || 'text'}*`;
-        break;
-      case 'link':
-        insert = `[${selected || 'text'}](https://)`;
-        break;
-      case 'heading':
-      case 'list': {
-        // Line-oriented: prefix each (selected) line. '## ' for a heading, '- ' for a bullet list.
-        const prefix = type === 'heading' ? '## ' : '- ';
-        insert = (selected || 'text').split('\n').map(line => prefix + line).join('\n');
-        break;
-      }
-    }
-    const next = text.slice(0, start) + insert + text.slice(end);
-    this.editingText.set(next);
-    // Restore focus and put the caret just after the inserted text, once the model has re-rendered.
-    setTimeout(() => {
-      if (!el) {
-        return;
-      }
-      el.focus();
-      const caret = start + insert.length;
-      el.setSelectionRange(caret, caret);
-    });
+  /** Rendered preview of a text cell, so the canvas shows the formatting the exported PDF will have. */
+  textHtml(cell: Cell): string {
+    return cell.html ? sanitizeRichText(cell.html) : markdownToHtml(cell.markdown);
   }
 
   closeEditor(): void {
@@ -568,6 +541,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       type: c.type,
       chartId: c.chartId,
       markdown: c.markdown,
+      html: c.html,
       name: c.name,
       x: c.x,
       y: c.page * PAGE_ROWS + c.y,

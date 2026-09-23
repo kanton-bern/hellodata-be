@@ -122,8 +122,8 @@
                   </svg>
                 }
               } @else {
-                @if (cell.markdown) {
-                  <div class="markdown" [innerHTML]="markdownHtml(cell.markdown)"></div>
+                @if (cell.html || cell.markdown) {
+                  <div class="markdown" [innerHTML]="textHtml(cell)"></div>
                 } @else {
                   <em>{{ '@empty markdown' | transloco }}</em>
                 }
@@ -148,25 +148,28 @@
 <div class="editor-backdrop" [class.open]="editorOpen()">
   <div class="editor-dialog">
     <h3>{{ (editorMode() === 'edit' ? '@Edit text block' : '@Add text block') | transloco }}</h3>
-    <div class="md-toolbar">
-      <p-button (click)="applyFormat('bold')" icon="fa-solid fa-bold"
-                [text]="true" [rounded]="true" size="small" severity="secondary"
-                [pTooltip]="'@Bold' | transloco" [ariaLabel]="'@Bold' | transloco"/>
-      <p-button (click)="applyFormat('italic')" icon="fa-solid fa-italic"
-                [text]="true" [rounded]="true" size="small" severity="secondary"
-                [pTooltip]="'@Italic' | transloco" [ariaLabel]="'@Italic' | transloco"/>
-      <p-button (click)="applyFormat('heading')" icon="fa-solid fa-heading"
-                [text]="true" [rounded]="true" size="small" severity="secondary"
-                [pTooltip]="'@Heading' | transloco" [ariaLabel]="'@Heading' | transloco"/>
-      <p-button (click)="applyFormat('list')" icon="fa-solid fa-list-ul"
-                [text]="true" [rounded]="true" size="small" severity="secondary"
-                [pTooltip]="'@Bullet list' | transloco" [ariaLabel]="'@Bullet list' | transloco"/>
-      <p-button (click)="applyFormat('link')" [icon]="icons.ACTION_LINK.class"
-                [text]="true" [rounded]="true" size="small" severity="secondary"
-                [pTooltip]="'@Link' | transloco" [ariaLabel]="'@Link' | transloco"/>
-    </div>
-    <textarea #mdInput rows="12" [ngModel]="editingText()" (ngModelChange)="editingText.set($event)"></textarea>
-    <small class="md-hint">{{ '@Markdown supported: bold, italic, headings, lists, links' | transloco }}</small>
+    <p-editor [ngModel]="editingText()" (ngModelChange)="editingText.set($event)"
+              (onInit)="onEditorInit($event)" [style]="{ height: '240px' }">
+      <ng-template #header>
+        <span class="ql-formats">
+          <button type="button" class="ql-bold" [attr.aria-label]="'@Bold' | transloco" [title]="'@Bold' | transloco"></button>
+          <button type="button" class="ql-italic" [attr.aria-label]="'@Italic' | transloco" [title]="'@Italic' | transloco"></button>
+        </span>
+        <span class="ql-formats">
+          <select class="ql-header" [attr.aria-label]="'@Heading' | transloco" [title]="'@Heading' | transloco">
+            <option value="1"></option>
+            <option value="2"></option>
+            <option value="3"></option>
+            <option selected></option>
+          </select>
+        </span>
+        <span class="ql-formats">
+          <button type="button" class="ql-list" value="bullet" [attr.aria-label]="'@Bullet list' | transloco" [title]="'@Bullet list' | transloco"></button>
+          <button type="button" class="ql-list" value="ordered" [attr.aria-label]="'@Numbered list' | transloco" [title]="'@Numbered list' | transloco"></button>
+          <button type="button" class="ql-link" [attr.aria-label]="'@Link' | transloco" [title]="'@Link' | transloco"></button>
+        </span>
+      </ng-template>
+    </p-editor>
     <div class="editor-actions">
       <p-button (click)="closeEditor()" (keydown.enter)="closeEditor()"
                 [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"

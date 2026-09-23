@@ -284,35 +284,6 @@ gridster {
   margin: 0 0 12px;
 }
 
-.md-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-bottom: 6px;
-}
-
-.md-hint {
-  display: block;
-  color: #888;
-  font-size: 11px;
-  margin-top: 4px;
-}
-
-.editor-dialog textarea {
-  width: 100%;
-  box-sizing: border-box;
-  font-family: monospace;
-  font-size: 13px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.editor-dialog textarea:focus {
-  outline: none;
-  border-color: var(--p-primary-color, #2f7d72);
-}
-
 .editor-actions {
   margin-top: 12px;
   display: flex;

@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LayoutGridPackerTest {
@@ -134,5 +135,18 @@ class LayoutGridPackerTest {
         assertTrue(html.contains("<em>test</em><br />"), html);
         assertTrue(html.contains("<a href=\"https://example.ch\">test</a>"), html);
         assertTrue(html.contains("<h2>teXT</h2>"), html);
+    }
+
+    /** Editor HTML keeps its formatting, loses anything unsafe, and comes out as XHTML for openhtmltopdf. */
+    @Test
+    void richTextIsSanitizedToXhtml() {
+        String html = LayoutGridPacker.sanitizeRichText(
+                "<h2>Title</h2><p><strong>Bold</strong><br><em>it</em> <a href=\"https://example.ch\" onclick=\"x()\">link</a></p>"
+                        + "<ul><li>one</li></ul><script>alert(1)</script><img src=\"file:///etc/passwd\"><a href=\"javascript:x()\">bad</a>");
+        assertTrue(html.contains("<h2>Title</h2>"), html);
+        assertTrue(html.contains("<strong>Bold</strong><br />"), html);
+        assertTrue(html.contains("<a href=\"https://example.ch\">link</a>"), html);
+        assertTrue(html.contains("<ul><li>one</li></ul>"), html);
+        assertFalse(html.contains("script") || html.contains("img") || html.contains("onclick") || html.contains("javascript"), html);
     }
 }

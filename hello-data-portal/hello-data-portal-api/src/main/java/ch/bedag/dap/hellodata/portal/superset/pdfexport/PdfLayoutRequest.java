@@ -33,8 +33,10 @@ import java.util.List;
  *  {@code force} (the "fresh data" export option) re-renders every chart even if cached. */
 public record PdfLayoutRequest(String instanceName, long dashboardId, String title, String template, List<Item> items, boolean force) {
 
-    /** One grid cell: a chart reference or markdown text, with its gridster position/size. */
-    public record Item(String type, Long chartId, String markdown, int x, int y, int cols, int rows, String name) {
+    /** One grid cell: a chart reference or a text block, with its gridster position/size. A text block
+     *  carries {@code html} from the WYSIWYG editor, or {@code markdown} (dashboard text and blocks
+     *  saved before the editor switch); {@code html} wins when both are set. */
+    public record Item(String type, Long chartId, String markdown, String html, int x, int y, int cols, int rows, String name) {
         public boolean isChart() {
             return "chart".equals(type) && chartId != null;
         }
