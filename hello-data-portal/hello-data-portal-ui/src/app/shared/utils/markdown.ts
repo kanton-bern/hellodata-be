@@ -82,18 +82,19 @@ export function markdownToHtml(markdown: string | null | undefined): string {
 }
 
 function escapeHtml(text: string): string {
-  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  // Also drops the private-use placeholder char renderInline relies on, so input can't forge a token.
+  return text.replace(/\uE000/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function renderInline(text: string): string {
   // Code spans and links become placeholders first, so emphasis markers inside them (e.g. '_' in a URL) stay literal.
   const tokens: string[] = [];
-  const keep = (html: string) => `\u0000${tokens.push(html) - 1}\u0000`;
+  const keep = (html: string) => `\uE000${tokens.push(html) - 1}\uE000`;
   return text
     .replace(/`([^`]+)`/g, (_m, code) => keep(`<code>${code}</code>`))
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, label, url) =>
       /^(https?:|mailto:)/i.test(url) ? keep(`<a href="${url}">`) + label + keep('</a>') : label)
     .replace(/(\*\*|__)(?=\S)(.+?)(?<=\S)\1/g, '<strong>$2</strong>')
     .replace(/(\*|_)(?=\S)(.+?)(?<=\S)\1/g, '<em>$2</em>')
-    .replace(/\u0000(\d+)\u0000/g, (_m, i) => tokens[Number(i)]);
+    .replace(/\uE000(\d+)\uE000/g, (_m, i) => tokens[Number(i)]);
 }
