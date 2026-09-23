@@ -212,6 +212,16 @@ gridster {
   font-size: 13px;
 }
 
+.cell-body .markdown {
+  :first-child { margin-top: 0; }
+  :last-child { margin-bottom: 0; }
+  p, ul, ol { margin: 0 0 6px; }
+  ul, ol { padding-left: 20px; }
+  h1, h2, h3, h4, h5, h6 { margin: 8px 0 4px; line-height: 1.2; }
+  // Preview only - a click must not navigate away from the builder.
+  a { pointer-events: none; }
+}
+
 .cell-body .chart-icon {
   width: 48px;
   height: 48px;

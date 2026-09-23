@@ -40,7 +40,7 @@ import java.util.TreeMap;
 public final class LayoutGridPacker {
 
     private static final Parser MD_PARSER = Parser.builder().build();
-    private static final HtmlRenderer MD_RENDERER = HtmlRenderer.builder().build();
+    private static final HtmlRenderer MD_RENDERER = HtmlRenderer.builder().softbreak("<br />\n").build();
 
     private LayoutGridPacker() {
     }

@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LayoutGridPackerTest {
 
@@ -123,5 +124,15 @@ class LayoutGridPackerTest {
         assertEquals(1, LayoutGridPacker.clampRowsToBand(3, 4));
         // Starting at the top of a band, a 4-row item fits fully.
         assertEquals(4, LayoutGridPacker.clampRowsToBand(0, 4));
+    }
+
+    /** Single newlines in builder markdown are kept as line breaks instead of being joined into one line. */
+    @Test
+    void markdownKeepsSingleLineBreaks() {
+        String html = LayoutGridPacker.markdownToHtml("**Bold**\n*test*\n[test](https://example.ch)\n## teXT");
+        assertTrue(html.contains("<strong>Bold</strong><br />"), html);
+        assertTrue(html.contains("<em>test</em><br />"), html);
+        assertTrue(html.contains("<a href=\"https://example.ch\">test</a>"), html);
+        assertTrue(html.contains("<h2>teXT</h2>"), html);
     }
 }

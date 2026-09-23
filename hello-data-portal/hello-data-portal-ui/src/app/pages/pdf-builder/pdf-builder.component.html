@@ -122,7 +122,11 @@
                   </svg>
                 }
               } @else {
-                <em>{{ cell.markdown || ('@empty markdown' | transloco) }}</em>
+                @if (cell.markdown) {
+                  <div class="markdown" [innerHTML]="markdownHtml(cell.markdown)"></div>
+                } @else {
+                  <em>{{ '@empty markdown' | transloco }}</em>
+                }
               }
             </div>
           </div>

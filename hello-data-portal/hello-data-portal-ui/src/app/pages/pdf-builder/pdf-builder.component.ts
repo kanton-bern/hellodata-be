@@ -38,6 +38,7 @@ import {TranslocoPipe, TranslocoService} from "@jsverse/transloco";
 import {Store} from "@ngrx/store";
 import {DisplayGrid, Gridster, GridsterConfig, GridsterItem, GridsterItemConfig, GridType} from "angular-gridster2";
 import {ICON_REGISTRY} from "../../shared/icons";
+import {markdownToHtml} from "../../shared/utils/markdown";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
 import {selectMyDashboards, selectSelectedDataDomain} from "../../store/my-dashboards/my-dashboards.selector";
@@ -437,6 +438,11 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
    *  gridster-item has registered before the reflow runs. */
   private reflowGrid(): void {
     setTimeout(() => this.options['api']?.optionsChanged?.());
+  }
+
+  /** Rendered preview of a markdown cell, so the canvas shows formatting like the exported PDF. */
+  markdownHtml(markdown: string): string {
+    return markdownToHtml(markdown);
   }
 
   /** Wrap/prefix the textarea selection with markdown - a minimal formatting toolbar for the editor. */
