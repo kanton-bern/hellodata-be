@@ -26,18 +26,24 @@
  */
 
 .orchestration-embed {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   width: 100%;
 }
 
-// Toggle to show/hide the Airflow 3 native sidebar, overlaid on the iframe (top-right) so it
-// does not consume layout height. The iframe is cross-origin, so this button lives in the
-// portal DOM and only flips the portal-side crop.
-.af3-menu-toggle {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
-  opacity: 0.9;
+// Toggle to show/hide the Airflow 3 native sidebar. It sits in its own slim row above the iframe
+// rather than overlaid on it, so it never covers Airflow's own controls (e.g. the DAG header
+// buttons in the top-right). The iframe is cross-origin, so this button lives in the portal DOM
+// and only flips the portal-side crop.
+.af3-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.orchestration-frame {
+  flex: 1 1 auto;
+  min-height: 0;
 }
