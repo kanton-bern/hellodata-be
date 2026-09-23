@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceServ
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
@@ -39,6 +40,7 @@ import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.*;
+import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,6 +58,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -103,9 +106,6 @@ class UserServiceTest {
 
     @Mock
     private UserSelectedDashboardService userSelectedDashboardService;
-
-    @Mock
-    private UserDashboardSyncService userDashboardSyncService;
 
     @Mock
     private org.springframework.context.ApplicationEventPublisher eventPublisher;
@@ -305,7 +305,6 @@ class UserServiceTest {
         updateDto.setDataDomainRoles(List.of(userContextRoleDto));
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
-        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -348,7 +347,6 @@ class UserServiceTest {
         updateDto.setDataDomainRoles(List.of(userContextRoleDto));
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
-        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -391,7 +389,6 @@ class UserServiceTest {
         updateDto.setDataDomainRoles(List.of(userContextRoleDto));
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
-        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -431,7 +428,6 @@ class UserServiceTest {
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
         when(contextRepository.findAllByTypeIn(anyList())).thenReturn(List.of(dataDomain1, dataDomain2));
-        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -475,7 +471,6 @@ class UserServiceTest {
         updateDto.setDataDomainRoles(List.of(userContextRoleDto));
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
-        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -485,6 +480,58 @@ class UserServiceTest {
 
             // then - verify user was removed from dashboard groups in this domain
             verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
+        }
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void testUpdateContextRoles_selectionForOneContext_fullSyncRebuildsDashboardsForAllContexts() {
+        // given - request only carries dashboard selections for "demo", user also has dashboards in "showcase"
+        UUID userId = UUID.randomUUID();
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
+
+        DashboardForUserDto demoDashboard = new DashboardForUserDto();
+        demoDashboard.setId(39);
+        demoDashboard.setTitle("ePol_minimal");
+        demoDashboard.setInstanceName("Superset Demo");
+        demoDashboard.setViewer(true);
+
+        UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
+        RoleDto businessRole = new RoleDto();
+        businessRole.setName("NONE");
+        updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Map.of("demo", List.of(demoDashboard)));
+
+        ContextDto contextDto = new ContextDto();
+        contextDto.setContextKey("demo");
+        RoleDto dataDomainRole = new RoleDto();
+        dataDomainRole.setName("DATA_DOMAIN_VIEWER");
+        UserContextRoleDto userContextRoleDto = new UserContextRoleDto();
+        userContextRoleDto.setContext(contextDto);
+        userContextRoleDto.setRole(dataDomainRole);
+        updateDto.setDataDomainRoles(List.of(userContextRoleDto));
+
+        when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+
+        try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // when
+            userService.updateContextRolesForUser(userId, updateDto, false);
+
+            // then - only the edited context is persisted, other contexts' selections stay untouched
+            verify(userSelectedDashboardService).saveSelectedDashboards(eq(userId), eq("demo"), anyList());
+            verify(userSelectedDashboardService, never()).saveSelectedDashboards(any(), eq("showcase"), anyList());
+
+            // and the full sync carries no partial dashboard map, so the listener rebuilds all contexts from the DB
+            ArgumentCaptor<UserFullSyncEvent> eventCaptor = ArgumentCaptor.forClass(UserFullSyncEvent.class);
+            verify(eventPublisher).publishEvent(eventCaptor.capture());
+            assertEquals(userId, eventCaptor.getValue().userId());
+            assertNull(eventCaptor.getValue().dashboardsPerContext());
         }
     }
 }

@@ -97,7 +97,6 @@ public class UserService {
     private final UserSelectedDashboardService userSelectedDashboardService;
 
     private final DashboardGroupService dashboardGroupService;
-    private final UserDashboardSyncService userDashboardSyncService;
     private final ApplicationEventPublisher eventPublisher;
     private final HellodataAuthenticationConverter authenticationConverter;
 
@@ -317,15 +316,15 @@ public class UserService {
         // Update dashboard group memberships
         dashboardGroupService.updateDashboardGroupMemberships(userId, updateContextRolesForUserDto.getSelectedDashboardGroupIdsForUser());
 
-        // Merge direct + group dashboards
-        Map<String, List<DashboardForUserDto>> mergedDashboards = userDashboardSyncService.mergeDashboardSelectionsWithGroups(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
-
         if (updateContextRolesForUserDto.getCommentPermissions() != null) {
             dashboardCommentPermissionService.updatePermissions(userId, updateContextRolesForUserDto.getCommentPermissions());
         }
-        // Single unified sync: context roles + dashboards in one JetStream message (via event)
+        // Single unified sync: context roles + dashboards in one JetStream message (via event).
+        // Dashboards are passed as null so the listener builds them from the persisted state (direct selections + groups)
+        // for ALL contexts after commit. The request may only carry the edited context, and the Superset sidecar
+        // treats the payload as the complete set - any context missing from it would lose its dashboard roles.
         eventPublisher.publishEvent(new UserFullSyncEvent(userId, sendBackUserList,
-                updateContextRolesForUserDto.getContextToModuleRoleNamesMap(), mergedDashboards));
+                updateContextRolesForUserDto.getContextToModuleRoleNamesMap(), null));
 
         // Invalidate user cache so permissions are refreshed immediately
         authenticationConverter.invalidateUserCache(userEntity.getEmail());
