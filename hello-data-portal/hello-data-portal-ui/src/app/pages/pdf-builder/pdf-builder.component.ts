@@ -400,7 +400,10 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     const empty = isRichTextEmpty(html);
     if (this.editingCell) {
       const target = this.editingCell;
-      this.cells.update(cs => cs.map(c => (c === target ? {...c, html: empty ? '' : html, markdown: undefined} : c)));
+      // Drop any legacy markdown: once edited, the block is rich text only.
+      const {markdown: _legacy, ...rest} = target;
+      const updated: Cell = {...rest, html: empty ? '' : html};
+      this.cells.update(cs => cs.map(c => (c === target ? updated : c)));
     } else if (!empty) {
       // Place the new block in the first free slot on the page. Hardcoding (0,0) made a second block
       // land on top of the first, where gridster (pushItems/autoPosition off) can't show it until the
