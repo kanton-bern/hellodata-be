@@ -131,6 +131,8 @@ public class PdfLayoutService {
         return dto;
     }
 
+    // Saves are flushed so the audit timestamps (@PreUpdate) are in the response: the builder uses
+    // modifiedDate to notice a layout saved in another window.
     @Transactional
     public PdfLayoutDto createLayout(PdfLayoutSaveDto saveDto) {
         UUID userId = currentUserId();
@@ -140,7 +142,7 @@ public class PdfLayoutService {
         PdfLayoutEntity entity = new PdfLayoutEntity();
         entity.setUserId(userId);
         apply(entity, saveDto, dashboard);
-        return toDto(pdfLayoutRepository.save(entity));
+        return toDto(pdfLayoutRepository.saveAndFlush(entity));
     }
 
     @Transactional
@@ -151,7 +153,7 @@ public class PdfLayoutService {
         SupersetDashboardDto dashboard = requireAccessibleDashboard(saveDto);
         assertNameUnique(entity.getUserId(), saveDto, id);
         apply(entity, saveDto, dashboard);
-        return toDto(pdfLayoutRepository.save(entity));
+        return toDto(pdfLayoutRepository.saveAndFlush(entity));
     }
 
     @Transactional

@@ -247,6 +247,8 @@
   "@Chart {{names}} not found and removed.": "Graphique {{names}} introuvable et supprimé.",
   "@Charts {{names}} not found and removed.": "Graphiques {{names}} introuvables et supprimés.",
   "@and": "et",
+  "@Layout changed in another window": "La mise en page \"{{name}}\" a été modifiée dans une autre fenêtre. L'enregistrement écrasera ces modifications.",
+  "@Layout reloaded": "La mise en page \"{{name}}\" a été modifiée dans une autre fenêtre et a été rechargée.",
   "@Remove this page and its charts?": "Supprimer cette page et ses graphiques ?",
   "@Previous page": "Page précédente",
   "@Next page": "Page suivante",

@@ -104,7 +104,7 @@ class PdfLayoutServiceTest {
     void createLayout_persistsCompleteLayoutForCurrentUser() {
         // given
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
-        when(pdfLayoutRepository.save(any(PdfLayoutEntity.class))).thenAnswer(inv -> {
+        when(pdfLayoutRepository.saveAndFlush(any(PdfLayoutEntity.class))).thenAnswer(inv -> {
             PdfLayoutEntity e = inv.getArgument(0);
             e.setId(UUID.randomUUID());
             return e;
@@ -115,7 +115,7 @@ class PdfLayoutServiceTest {
 
         // then
         ArgumentCaptor<PdfLayoutEntity> captor = ArgumentCaptor.forClass(PdfLayoutEntity.class);
-        verify(pdfLayoutRepository).save(captor.capture());
+        verify(pdfLayoutRepository).saveAndFlush(captor.capture());
         PdfLayoutEntity saved = captor.getValue();
         assertEquals(USER_ID, saved.getUserId());
         assertEquals("Monthly", saved.getName());
@@ -143,7 +143,7 @@ class PdfLayoutServiceTest {
 
         // then
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
-        verify(pdfLayoutRepository, never()).save(any());
+        verify(pdfLayoutRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -156,7 +156,7 @@ class PdfLayoutServiceTest {
 
         // then
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
-        verify(pdfLayoutRepository, never()).save(any());
+        verify(pdfLayoutRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -202,7 +202,7 @@ class PdfLayoutServiceTest {
         when(pdfLayoutRepository.findByUserIdAndInstanceNameAndDashboardIdAndNameIgnoreCase(USER_ID, INSTANCE, DASHBOARD_ID, "Monthly"))
                 .thenReturn(Optional.of(existing));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
-        when(pdfLayoutRepository.save(existing)).thenReturn(existing);
+        when(pdfLayoutRepository.saveAndFlush(existing)).thenReturn(existing);
 
         // when
         PdfLayoutDto result = pdfLayoutService.updateLayout(existing.getId(), saveDto("Monthly"));
@@ -211,7 +211,7 @@ class PdfLayoutServiceTest {
         assertEquals(existing.getId(), result.getId());
         assertEquals("landscape", existing.getTemplate());
         assertEquals(2, existing.getItems().size());
-        verify(pdfLayoutRepository).save(existing);
+        verify(pdfLayoutRepository).saveAndFlush(existing);
     }
 
     @Test
@@ -225,7 +225,7 @@ class PdfLayoutServiceTest {
 
         // then
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
-        verify(pdfLayoutRepository, never()).save(any());
+        verify(pdfLayoutRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -296,7 +296,7 @@ class PdfLayoutServiceTest {
 
         // then
         assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
-        verify(pdfLayoutRepository, never()).save(any());
+        verify(pdfLayoutRepository, never()).saveAndFlush(any());
     }
 
     @Test

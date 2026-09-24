@@ -247,6 +247,8 @@
   "@Chart {{names}} not found and removed.": "Chart {{names}} not found and removed.",
   "@Charts {{names}} not found and removed.": "Charts {{names}} not found and removed.",
   "@and": "and",
+  "@Layout changed in another window": "Layout \"{{name}}\" was changed in another window. Saving will overwrite those changes.",
+  "@Layout reloaded": "Layout \"{{name}}\" was changed in another window and has been reloaded.",
   "@Remove this page and its charts?": "Remove this page and its charts?",
   "@Previous page": "Previous page",
   "@Next page": "Next page",

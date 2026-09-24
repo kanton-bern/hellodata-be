@@ -59,6 +59,7 @@ import {
   PdfLayoutSaveRequest,
   PdfLayoutSummary,
   PdfSavedLayout,
+  PdfSavedLayoutItem,
   PdfTemplateRef
 } from "../../store/pdf-export/pdf-export.model";
 
@@ -103,6 +104,16 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
 
   /** A dashboard to re-select from localStorage once it appears in the (data-domain-filtered) list. */
   private pendingRestore: {instanceName: string; dashboardId: number} | null = null;
+  /** A remembered saved layout to re-fetch from the server once the dashboards are known, so a reload
+   *  shows its latest version (e.g. saved from another window) instead of a stale local copy. */
+  private pendingLayoutReload: string | null = null;
+  /** The canvas as it was when the current layout was loaded/saved; differs from snapshot() when
+   *  there are unsaved changes. */
+  private savedSnapshot: string | null = null;
+  /** Server version (modified or created timestamp) of the loaded layout, to notice saves made in
+   *  another window. */
+  private loadedVersion: number | null = null;
+  private readonly onVisibilityChange = () => this.checkForNewerVersion();
 
   dashboards = signal<SupersetDashboardWithMetadata[]>([]);
   /** True when "All Data Domains" is selected; then the picker disambiguates titles with the domain. */
@@ -223,6 +234,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         this.selectedContextKey.set(all || !dd ? null : dd.key);
       });
     this.loadSavedLayouts();
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
     // Reactively track the dashboards of the currently selected data domain (selectMyDashboards
     // returns all domains when "All Data Domains" is selected, otherwise only the chosen one).
     this.store.select(selectMyDashboards).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(dashboards => {
@@ -232,6 +244,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         if (match) {
           this.pendingRestore = null;
           this.onDashboardChange(match);
+          this.reloadPendingLayout();
         }
         return;
       }
@@ -242,7 +255,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         this.selectedDashboard.set(null);
         this.charts.set([]);
         this.resetPages();
-        this.currentLayout.set(null);
+        this.detachLayout();
         this.persist();
       }
     });
@@ -265,7 +278,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     if (previous && (previous.instanceName !== dashboard.instanceName || previous.id !== dashboard.id)) {
       this.resetPages();
       // A saved layout belongs to one dashboard; don't let a later save overwrite it with another one.
-      this.currentLayout.set(null);
+      this.detachLayout();
     }
     this.selectedDashboard.set(dashboard);
     this.pdfExport.getCharts(dashboard.instanceName, dashboard.id).subscribe(c => this.charts.set(c));
@@ -413,6 +426,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.clearPreviews();
   }
 
@@ -635,7 +649,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         this.savedLayouts.set(layouts);
         const current = this.currentLayout();
         if (current && !layouts.some(l => l.id === current.id)) {
-          this.currentLayout.set(null);
+          this.detachLayout();
           this.persist();
         }
       },
@@ -677,7 +691,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     const maxCellPage = this.cells().reduce((m, c) => Math.max(m, c.page), 0);
     this.pageCount.set(Math.max(1, layout.pageCount, maxCellPage + 1));
     this.currentPage.set(0);
-    this.currentLayout.set({id: layout.id, name: layout.name});
+    this.attachLayout(layout);
     this.refreshPreviews();
     this.reflowGrid();
     this.persist();
@@ -718,19 +732,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       dashboardId: dashboard.id,
       template: this.selectedTemplate(),
       pageCount: this.pageCount(),
-      items: this.cells().map(c => ({
-        type: c.type,
-        chartId: c.chartId,
-        name: c.name,
-        markdown: c.markdown,
-        html: c.html,
-        readonly: c.readonly,
-        page: c.page,
-        x: c.x,
-        y: c.y,
-        cols: c.cols,
-        rows: c.rows,
-      })),
+      items: this.layoutItems(),
     };
     const current = this.currentLayout();
     const save$ = current && !asNew
@@ -741,7 +743,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       next: saved => {
         this.saving.set(false);
         this.saveDialogOpen.set(false);
-        this.currentLayout.set({id: saved.id, name: saved.name});
+        this.attachLayout(saved);
         this.persist();
         this.loadSavedLayouts();
         this.store.dispatch(showSuccess({message: '@Layout saved', interpolateParams: {name: saved.name}}));
@@ -768,13 +770,95 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       closeOnEscape: false,
       accept: () => this.pdfExport.deleteLayout(current.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
-          this.currentLayout.set(null);
+          this.detachLayout();
           this.persist();
           this.loadSavedLayouts();
           this.store.dispatch(showSuccess({message: '@Layout deleted', interpolateParams: {name: current.name}}));
         },
         error: err => this.store.dispatch(showError({error: err})),
       }),
+    });
+  }
+
+  /** The canvas cells in the shape they are saved in. */
+  private layoutItems(): PdfSavedLayoutItem[] {
+    return this.cells().map(c => ({
+      type: c.type,
+      chartId: c.chartId,
+      name: c.name,
+      markdown: c.markdown,
+      html: c.html,
+      readonly: c.readonly,
+      page: c.page,
+      x: c.x,
+      y: c.y,
+      cols: c.cols,
+      rows: c.rows,
+    }));
+  }
+
+  /** Everything a save would store, for detecting unsaved changes. Gridster moves/resizes cells in
+   *  place, so this is computed on demand rather than as a signal. */
+  private snapshot(): string {
+    return JSON.stringify({template: this.selectedTemplate(), pageCount: this.pageCount(), items: this.layoutItems()});
+  }
+
+  /** True when the canvas differs from the loaded/saved layout. */
+  private hasUnsavedChanges(): boolean {
+    return this.currentLayout() !== null && this.savedSnapshot !== this.snapshot();
+  }
+
+  private attachLayout(layout: PdfLayoutSummary): void {
+    this.currentLayout.set({id: layout.id, name: layout.name});
+    this.savedSnapshot = this.snapshot();
+    this.loadedVersion = layout.modifiedDate ?? layout.createdDate ?? null;
+  }
+
+  private detachLayout(): void {
+    this.currentLayout.set(null);
+    this.savedSnapshot = null;
+    this.loadedVersion = null;
+  }
+
+  private reloadPendingLayout(): void {
+    const id = this.pendingLayoutReload;
+    this.pendingLayoutReload = null;
+    if (id) {
+      this.onSavedLayoutSelect(id);
+    }
+  }
+
+  /** When the tab becomes visible again, pick up a newer version of the loaded layout saved in another
+   *  window: reload it when there is nothing to lose, otherwise warn that saving would overwrite it. */
+  private checkForNewerVersion(): void {
+    const current = this.currentLayout();
+    if (document.visibilityState !== 'visible' || current === null || this.loadingLayout()) {
+      return;
+    }
+    this.pdfExport.getLayouts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: layouts => {
+        this.savedLayouts.set(layouts);
+        const summary = layouts.find(l => l.id === current.id);
+        if (!summary) {
+          this.detachLayout();
+          this.persist();
+          return;
+        }
+        const version = summary.modifiedDate ?? summary.createdDate ?? null;
+        if (version === null || version === this.loadedVersion || this.currentLayout()?.id !== current.id) {
+          return;
+        }
+        if (this.hasUnsavedChanges()) {
+          this.loadedVersion = version;   // warn once per newer version
+          this.notification.warn('@Layout changed in another window', {name: summary.name});
+        } else {
+          this.onSavedLayoutSelect(current.id);
+          this.notification.info('@Layout reloaded', {name: summary.name});
+        }
+      },
+      error: () => {
+        // background refresh only; the next explicit action reports errors
+      },
     });
   }
 
@@ -788,6 +872,8 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       currentPage: this.currentPage(),
       cells: this.cells(),
       layout: this.currentLayout(),
+      savedSnapshot: this.savedSnapshot,
+      loadedVersion: this.loadedVersion,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
@@ -806,6 +892,8 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         currentPage?: number | null;
         cells: (Cell & {page?: number})[];
         layout?: {id: string; name: string} | null;
+        savedSnapshot?: string | null;
+        loadedVersion?: number | null;
       };
       if (state.cells) {
         // Migrate any pre-paginator layout (global y, no page) to page + local y.
@@ -816,11 +904,21 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       if (state.template) {
         this.selectedTemplate.set(state.template);
       }
-      this.currentLayout.set(state.layout ?? null);
       // pageCount is at least 1 and must cover the furthest page any restored cell lives on.
       const maxCellPage = this.cells().reduce((m, c) => Math.max(m, c.page), 0);
       this.pageCount.set(Math.max(1, state.pageCount ?? 1, maxCellPage + 1));
       this.currentPage.set(Math.min(Math.max(0, state.currentPage ?? 0), this.pageCount() - 1));
+      if (state.layout) {
+        this.currentLayout.set(state.layout);
+        this.savedSnapshot = state.savedSnapshot ?? null;
+        this.loadedVersion = state.loadedVersion ?? null;
+        // Without unsaved changes the server copy is authoritative: re-fetch it once the dashboards
+        // are known. Unsaved local edits are kept as they are. State stored before change tracking
+        // existed has no snapshot and is refreshed as well.
+        if (state.savedSnapshot === undefined || !this.hasUnsavedChanges()) {
+          this.pendingLayoutReload = state.layout.id;
+        }
+      }
       if (state.instanceName != null && state.dashboardId != null) {
         // Re-select once the (data-domain-filtered) dashboard list arrives from the store.
         this.pendingRestore = {instanceName: state.instanceName, dashboardId: state.dashboardId};
