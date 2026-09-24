@@ -67,3 +67,51 @@ export const PDF_TEMPLATES: PdfTemplateRef[] = [
   {id: 'portrait', name: 'Portrait'},
   {id: 'landscape', name: 'Landscape'},
 ];
+
+/** One cell of a saved layout, exactly as the builder keeps it: `y` is local to `page`. */
+export interface PdfSavedLayoutItem {
+  type: 'chart' | 'markdown';
+  chartId?: number;
+  name?: string;
+  markdown?: string;
+  html?: string;
+  readonly?: boolean;
+  page: number;
+  x: number;
+  y: number;
+  cols: number;
+  rows: number;
+}
+
+/** A saved layout as listed in the picker (private to the user who saved it). */
+export interface PdfLayoutSummary {
+  id: string;
+  name: string;
+  contextKey: string;
+  instanceName: string;
+  dashboardId: number;
+  dashboardTitle?: string;
+  template: string;
+  createdDate?: number;
+  modifiedDate?: number;
+}
+
+/** A complete saved layout. `removedCharts` names charts that no longer exist on the dashboard and
+ *  were dropped by the backend while loading. */
+export interface PdfSavedLayout extends PdfLayoutSummary {
+  pageCount: number;
+  gridCols: number;
+  gridRows: number;
+  items: PdfSavedLayoutItem[];
+  removedCharts: string[];
+}
+
+/** POST/PUT body for saving a layout; data domain and dashboard title are resolved server-side. */
+export interface PdfLayoutSaveRequest {
+  name: string;
+  instanceName: string;
+  dashboardId: number;
+  template: string;
+  pageCount: number;
+  items: PdfSavedLayoutItem[];
+}

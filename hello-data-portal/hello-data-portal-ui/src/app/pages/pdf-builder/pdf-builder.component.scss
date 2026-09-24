@@ -42,6 +42,20 @@
   font-size: 13px;
 }
 
+.layout-actions {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.layout-actions p-button:first-child {
+  flex: 1;
+}
+
+.save-field input {
+  width: 100%;
+}
+
 .items {
   list-style: none;
   margin: 0;

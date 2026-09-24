@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <property name="uuid_type" value="uuid" dbms="postgresql"/>
+    <property name="uuid_function" value="uuid_generate_v4()" dbms="postgresql"/>
+
+    <changeSet id="68-1" author="slawomir.wieczorek">
+        <comment>Create pdf_layout table for custom PDF layouts saved from the layout builder</comment>
+        <createTable tableName="pdf_layout">
+            <column name="id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" unique="true" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="${uuid_type}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context_key" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="instance_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dashboard_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dashboard_title" type="varchar(500)"/>
+            <column name="template" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="page_count" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="grid_cols" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="grid_rows" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="items" type="jsonb"/>
+            <column name="created_date" type="timestamp"/>
+            <column name="created_by" type="varchar(150)"/>
+            <column name="modified_date" type="timestamp"/>
+            <column name="modified_by" type="varchar(150)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="68-2" author="slawomir.wieczorek">
+        <comment>Delete a user's PDF layouts together with the user</comment>
+        <addForeignKeyConstraint
+                baseTableName="pdf_layout"
+                baseColumnNames="user_id"
+                constraintName="fk_pdf_layout_user"
+                referencedTableName="user_"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="68-3" author="slawomir.wieczorek">
+        <comment>Index pdf_layout by owner and data domain, one name per user and dashboard</comment>
+        <createIndex tableName="pdf_layout" indexName="idx_pdf_layout_user_id">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="pdf_layout" indexName="idx_pdf_layout_user_context">
+            <column name="user_id"/>
+            <column name="context_key"/>
+        </createIndex>
+        <addUniqueConstraint
+                tableName="pdf_layout"
+                columnNames="user_id, instance_name, dashboard_id, name"
+                constraintName="uq_pdf_layout_user_dashboard_name"/>
+    </changeSet>
+
+</databaseChangeLog>

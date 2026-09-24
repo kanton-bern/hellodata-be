@@ -3,6 +3,33 @@
     <h2>{{ '@PDF export' | transloco }}</h2>
 
     <label class="field">
+      <span>{{ '@Saved layout' | transloco }}</span>
+      <p-select
+        [options]="savedLayoutOptions()"
+        [ngModel]="currentLayout()?.id ?? null"
+        (ngModelChange)="onSavedLayoutSelect($event)"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'@Choose a saved layout' | transloco"
+        [emptyMessage]="'@No saved layouts' | transloco"
+        [loading]="loadingLayout()"
+        [disabled]="loadingLayout()"
+        appendTo="body"
+        styleClass="w-full"/>
+    </label>
+    <div class="layout-actions">
+      <p-button (click)="openSaveDialog()" (keydown.enter)="openSaveDialog()"
+                [disabled]="selectedDashboard() === null"
+                [icon]="icons.ACTION_SAVE.class" [label]="'@Save layout' | transloco"
+                severity="secondary" size="small" pRipple/>
+      <p-button (click)="deleteLayout()" (keydown.enter)="deleteLayout()"
+                [disabled]="currentLayout() === null"
+                [icon]="icons.ACTION_DELETE.class"
+                [pTooltip]="'@Delete layout' | transloco" [ariaLabel]="'@Delete layout' | transloco"
+                severity="secondary" size="small" pRipple/>
+    </div>
+
+    <label class="field">
       <span>{{ '@Dashboard' | transloco }}</span>
       <p-select
         [options]="dashboardOptions()"
@@ -144,6 +171,39 @@
               [icon]="icons.ACTION_DELETE.class" [label]="'@Remove page' | transloco" severity="danger"/>
   </ng-template>
 </p-confirmDialog>
+
+<p-confirmDialog #deleteLayoutDlg key="deletePdfLayout" [style]="{width: '32rem'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="deleteLayoutDlg.onReject()" (keydown.escape)="deleteLayoutDlg.onReject()"
+              [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
+    <p-button (click)="deleteLayoutDlg.onAccept()" (keydown.enter)="deleteLayoutDlg.onAccept()"
+              [icon]="icons.ACTION_DELETE.class" [label]="'@Delete layout' | transloco" severity="danger"/>
+  </ng-template>
+</p-confirmDialog>
+
+<p-dialog [visible]="saveDialogOpen()" (visibleChange)="saveDialogOpen.set($event)" [modal]="true"
+          [header]="'@Save layout' | transloco" [style]="{width: '28rem'}" appendTo="body">
+  <label class="field save-field">
+    <span>{{ '@Layout name' | transloco }}</span>
+    <input pInputText type="text" maxlength="255" [ngModel]="saveName()" (ngModelChange)="saveName.set($event)"
+           (keydown.enter)="saveLayout()" [attr.aria-label]="'@Layout name' | transloco"/>
+  </label>
+  @if (currentLayout(); as layout) {
+    <small class="hint">{{ '@Save updates the loaded layout' | transloco: {name: layout.name} }}</small>
+  }
+  <ng-template #footer>
+    <p-button (click)="saveDialogOpen.set(false)" (keydown.enter)="saveDialogOpen.set(false)"
+              [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
+    @if (currentLayout()) {
+      <p-button (click)="saveLayout(true)" (keydown.enter)="saveLayout(true)"
+                [disabled]="!saveName().trim() || saving()"
+                [icon]="icons.ACTION_ADD.class" [label]="'@Save as new' | transloco" severity="secondary"/>
+    }
+    <p-button (click)="saveLayout()" (keydown.enter)="saveLayout()"
+              [disabled]="!saveName().trim() || saving()" [loading]="saving()"
+              [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco"/>
+  </ng-template>
+</p-dialog>
 
 <div class="editor-backdrop" [class.open]="editorOpen()">
   <div class="editor-dialog">

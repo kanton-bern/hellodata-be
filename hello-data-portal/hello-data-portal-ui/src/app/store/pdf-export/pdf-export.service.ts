@@ -29,13 +29,14 @@ import {inject, Injectable} from "@angular/core";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {environment} from "../../../environments/environment";
-import {PdfChartRef, PdfLayoutRequest} from "./pdf-export.model";
+import {PdfChartRef, PdfLayoutRequest, PdfLayoutSaveRequest, PdfLayoutSummary, PdfSavedLayout} from "./pdf-export.model";
 
 @Injectable({providedIn: 'root'})
 export class PdfExportService {
   private httpClient = inject(HttpClient);
 
   private baseUrl = `${environment.portalApi}/superset/dashboards`;
+  private layoutsUrl = `${environment.portalApi}/pdf-layouts`;
 
   /** Charts of one dashboard for the builder palette. */
   public getCharts(instanceName: string, dashboardId: number): Observable<PdfChartRef[]> {
@@ -68,5 +69,27 @@ export class PdfExportService {
       `${this.baseUrl}/${encodeURIComponent(instanceName)}/${dashboardId}/charts/${chartId}/preview`,
       {params, responseType: 'blob'}
     );
+  }
+
+  /** The current user's saved layouts (all data domains). */
+  public getLayouts(): Observable<PdfLayoutSummary[]> {
+    return this.httpClient.get<PdfLayoutSummary[]>(this.layoutsUrl);
+  }
+
+  /** A saved layout ready for the builder; charts removed from the dashboard are already dropped. */
+  public getLayout(id: string): Observable<PdfSavedLayout> {
+    return this.httpClient.get<PdfSavedLayout>(`${this.layoutsUrl}/${encodeURIComponent(id)}`);
+  }
+
+  public createLayout(request: PdfLayoutSaveRequest): Observable<PdfSavedLayout> {
+    return this.httpClient.post<PdfSavedLayout>(this.layoutsUrl, request);
+  }
+
+  public updateLayout(id: string, request: PdfLayoutSaveRequest): Observable<PdfSavedLayout> {
+    return this.httpClient.put<PdfSavedLayout>(`${this.layoutsUrl}/${encodeURIComponent(id)}`, request);
+  }
+
+  public deleteLayout(id: string): Observable<void> {
+    return this.httpClient.delete<void>(`${this.layoutsUrl}/${encodeURIComponent(id)}`);
   }
 }

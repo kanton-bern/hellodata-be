@@ -160,3 +160,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/66_add_resource_unique_constraint.xml
   - include:
       file: db/changelog/changelogs/67_revoke_default_read_comments.xml
+  - include:
+      file: db/changelog/changelogs/68_create_pdf_layout_table.xml

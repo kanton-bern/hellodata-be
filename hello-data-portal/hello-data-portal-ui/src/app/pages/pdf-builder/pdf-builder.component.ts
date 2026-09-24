@@ -33,6 +33,8 @@ import {Button} from "primeng/button";
 import {Ripple} from "primeng/ripple";
 import {Tooltip} from "primeng/tooltip";
 import {Editor} from "primeng/editor";
+import {Dialog} from "primeng/dialog";
+import {InputText} from "primeng/inputtext";
 import {ConfirmationService} from "primeng/api";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {TranslocoPipe, TranslocoService} from "@jsverse/transloco";
@@ -48,7 +50,17 @@ import {selectMyDashboards, selectSelectedDataDomain} from "../../store/my-dashb
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {NotificationService} from "../../shared/services/notification.service";
 import {PdfExportService} from "../../store/pdf-export/pdf-export.service";
-import {PDF_TEMPLATES, PdfChartRef, PdfLayoutItem, PdfLayoutRequest, PdfTemplateRef} from "../../store/pdf-export/pdf-export.model";
+import {showError, showSuccess} from "../../store/app/app.action";
+import {
+  PDF_TEMPLATES,
+  PdfChartRef,
+  PdfLayoutItem,
+  PdfLayoutRequest,
+  PdfLayoutSaveRequest,
+  PdfLayoutSummary,
+  PdfSavedLayout,
+  PdfTemplateRef
+} from "../../store/pdf-export/pdf-export.model";
 
 /** What a cell renders. Markdown from the dashboard is read-only; text blocks created via
  *  "+ Add text block" are editable rich text (`html`). Older saved blocks may still carry `markdown`
@@ -75,7 +87,7 @@ const PAGE_ROWS = 4;
 @Component({
   selector: 'app-pdf-builder',
   standalone: true,
-  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, Editor, TranslocoPipe],
+  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, Editor, Dialog, InputText, TranslocoPipe],
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
@@ -95,6 +107,18 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   dashboards = signal<SupersetDashboardWithMetadata[]>([]);
   /** True when "All Data Domains" is selected; then the picker disambiguates titles with the domain. */
   allDomainsSelected = signal(true);
+  /** Key of the selected data domain, or null for "All Data Domains" (filters the saved layouts). */
+  selectedContextKey = signal<string | null>(null);
+
+  /** The current user's saved layouts (all data domains; filtered for the picker below). */
+  savedLayouts = signal<PdfLayoutSummary[]>([]);
+  /** The saved layout the canvas was loaded from / last saved as. Saving again updates it instead of
+   *  creating a duplicate. Cleared when the user switches to another dashboard. */
+  currentLayout = signal<{id: string; name: string} | null>(null);
+  saveDialogOpen = signal(false);
+  saveName = signal('');
+  saving = signal(false);
+  loadingLayout = signal(false);
   templates = signal<PdfTemplateRef[]>(PDF_TEMPLATES);
   selectedTemplate = signal<string>('portrait');
   charts = signal<PdfChartRef[]>([]);
@@ -117,6 +141,15 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     label: this.allDomainsSelected() && d.contextName ? `${d.dashboardTitle} (${d.contextName})` : d.dashboardTitle,
     value: d,
   })));
+
+  /** Saved-layout picker options, narrowed to the selected data domain; the dashboard title is
+   *  appended so equally named layouts of different dashboards stay distinguishable. */
+  savedLayoutOptions = computed(() => {
+    const key = this.selectedContextKey();
+    return this.savedLayouts()
+      .filter(l => key === null || l.contextKey === key)
+      .map(l => ({label: l.dashboardTitle ? `${l.name} (${l.dashboardTitle})` : l.name, value: l.id}));
+  });
 
   /** Cells on the currently shown page (what the 4x4 grid renders). */
   visibleCells = computed(() => this.cells().filter(c => c.page === this.currentPage()));
@@ -184,7 +217,12 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     this.restore();
     this.store.dispatch(loadMyDashboards());
     this.store.select(selectSelectedDataDomain).pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(dd => this.allDomainsSelected.set(dd === null || dd.id === ''));
+      .subscribe(dd => {
+        const all = dd === null || dd.id === '';
+        this.allDomainsSelected.set(all);
+        this.selectedContextKey.set(all || !dd ? null : dd.key);
+      });
+    this.loadSavedLayouts();
     // Reactively track the dashboards of the currently selected data domain (selectMyDashboards
     // returns all domains when "All Data Domains" is selected, otherwise only the chosen one).
     this.store.select(selectMyDashboards).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(dashboards => {
@@ -204,6 +242,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         this.selectedDashboard.set(null);
         this.charts.set([]);
         this.resetPages();
+        this.currentLayout.set(null);
         this.persist();
       }
     });
@@ -225,6 +264,8 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     const previous = this.selectedDashboard();
     if (previous && (previous.instanceName !== dashboard.instanceName || previous.id !== dashboard.id)) {
       this.resetPages();
+      // A saved layout belongs to one dashboard; don't let a later save overwrite it with another one.
+      this.currentLayout.set(null);
     }
     this.selectedDashboard.set(dashboard);
     this.pdfExport.getCharts(dashboard.instanceName, dashboard.id).subscribe(c => this.charts.set(c));
@@ -587,6 +628,156 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     setTimeout(() => URL.revokeObjectURL(url), 10000);
   }
 
+  /** Refresh the saved-layout picker. Also drops a remembered layout that no longer exists. */
+  private loadSavedLayouts(): void {
+    this.pdfExport.getLayouts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: layouts => {
+        this.savedLayouts.set(layouts);
+        const current = this.currentLayout();
+        if (current && !layouts.some(l => l.id === current.id)) {
+          this.currentLayout.set(null);
+          this.persist();
+        }
+      },
+      error: err => this.store.dispatch(showError({error: err})),
+    });
+  }
+
+  /** Load a saved layout onto the canvas. The backend refuses it when its dashboard no longer exists
+   *  and drops charts that were removed from the dashboard (reported as a warning here). */
+  onSavedLayoutSelect(id: string | null): void {
+    if (!id || this.loadingLayout()) {
+      return;
+    }
+    this.loadingLayout.set(true);
+    this.pdfExport.getLayout(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: layout => {
+        this.loadingLayout.set(false);
+        this.applyLayout(layout);
+      },
+      error: err => {
+        this.loadingLayout.set(false);
+        this.store.dispatch(showError({error: err}));
+      },
+    });
+  }
+
+  private applyLayout(layout: PdfSavedLayout): void {
+    const dashboard = this.dashboards().find(d => d.instanceName === layout.instanceName && d.id === layout.dashboardId);
+    if (!dashboard) {
+      // Accessible for the backend but not in the picker (e.g. another data domain is selected).
+      this.notification.error('@Dashboard {{name}} not found.', {name: layout.dashboardTitle ?? layout.dashboardId});
+      return;
+    }
+    this.clearPreviews();
+    this.selectedDashboard.set(dashboard);
+    this.pdfExport.getCharts(dashboard.instanceName, dashboard.id).subscribe(c => this.charts.set(c));
+    this.selectedTemplate.set(layout.template);
+    this.cells.set(layout.items.map(item => ({...item} as Cell)));
+    const maxCellPage = this.cells().reduce((m, c) => Math.max(m, c.page), 0);
+    this.pageCount.set(Math.max(1, layout.pageCount, maxCellPage + 1));
+    this.currentPage.set(0);
+    this.currentLayout.set({id: layout.id, name: layout.name});
+    this.refreshPreviews();
+    this.reflowGrid();
+    this.persist();
+    if (layout.removedCharts?.length) {
+      this.notification.warn(layout.removedCharts.length === 1 ? '@Chart {{names}} not found and removed.' : '@Charts {{names}} not found and removed.',
+        {names: this.joinNames(layout.removedCharts)});
+    }
+  }
+
+  /** "A", "A and B", "A, B and C" - with a translated "and". */
+  private joinNames(names: string[]): string {
+    if (names.length <= 1) {
+      return names.join('');
+    }
+    return `${names.slice(0, -1).join(', ')} ${this.transloco.translate('@and')} ${names[names.length - 1]}`;
+  }
+
+  /** Open the name dialog; prefilled with the loaded layout's name so "Save" updates it. */
+  openSaveDialog(): void {
+    if (this.selectedDashboard() == null) {
+      return;
+    }
+    this.saveName.set(this.currentLayout()?.name ?? '');
+    this.saveDialogOpen.set(true);
+  }
+
+  /** Save the canvas: updates the loaded layout, or creates a new one when none is loaded or
+   *  {@code asNew} is requested ("Save as new"). */
+  saveLayout(asNew = false): void {
+    const dashboard = this.selectedDashboard();
+    const name = this.saveName().trim();
+    if (dashboard == null || !name || this.saving()) {
+      return;
+    }
+    const request: PdfLayoutSaveRequest = {
+      name,
+      instanceName: dashboard.instanceName,
+      dashboardId: dashboard.id,
+      template: this.selectedTemplate(),
+      pageCount: this.pageCount(),
+      items: this.cells().map(c => ({
+        type: c.type,
+        chartId: c.chartId,
+        name: c.name,
+        markdown: c.markdown,
+        html: c.html,
+        readonly: c.readonly,
+        page: c.page,
+        x: c.x,
+        y: c.y,
+        cols: c.cols,
+        rows: c.rows,
+      })),
+    };
+    const current = this.currentLayout();
+    const save$ = current && !asNew
+      ? this.pdfExport.updateLayout(current.id, request)
+      : this.pdfExport.createLayout(request);
+    this.saving.set(true);
+    save$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: saved => {
+        this.saving.set(false);
+        this.saveDialogOpen.set(false);
+        this.currentLayout.set({id: saved.id, name: saved.name});
+        this.persist();
+        this.loadSavedLayouts();
+        this.store.dispatch(showSuccess({message: '@Layout saved', interpolateParams: {name: saved.name}}));
+      },
+      error: err => {
+        // Keep the dialog open so the user can fix the name (e.g. a duplicate) and retry.
+        this.saving.set(false);
+        this.store.dispatch(showError({error: err}));
+      },
+    });
+  }
+
+  /** Delete the loaded saved layout (after a confirm); the canvas itself is kept. */
+  deleteLayout(): void {
+    const current = this.currentLayout();
+    if (!current) {
+      return;
+    }
+    this.confirmationService.confirm({
+      key: 'deletePdfLayout',
+      header: this.transloco.translate('@Delete layout'),
+      message: this.transloco.translate('@Delete the saved layout {{name}}?', {name: current.name}),
+      icon: this.icons.DIALOG_WARNING.class,
+      closeOnEscape: false,
+      accept: () => this.pdfExport.deleteLayout(current.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => {
+          this.currentLayout.set(null);
+          this.persist();
+          this.loadSavedLayouts();
+          this.store.dispatch(showSuccess({message: '@Layout deleted', interpolateParams: {name: current.name}}));
+        },
+        error: err => this.store.dispatch(showError({error: err})),
+      }),
+    });
+  }
+
   private persist(): void {
     const dashboard = this.selectedDashboard();
     const state = {
@@ -596,6 +787,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       pageCount: this.pageCount(),
       currentPage: this.currentPage(),
       cells: this.cells(),
+      layout: this.currentLayout(),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
@@ -613,6 +805,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         pageCount?: number | null;
         currentPage?: number | null;
         cells: (Cell & {page?: number})[];
+        layout?: {id: string; name: string} | null;
       };
       if (state.cells) {
         // Migrate any pre-paginator layout (global y, no page) to page + local y.
@@ -623,6 +816,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       if (state.template) {
         this.selectedTemplate.set(state.template);
       }
+      this.currentLayout.set(state.layout ?? null);
       // pageCount is at least 1 and must cover the furthest page any restored cell lives on.
       const maxCellPage = this.cells().reduce((m, c) => Math.max(m, c.page), 0);
       this.pageCount.set(Math.max(1, state.pageCount ?? 1, maxCellPage + 1));
