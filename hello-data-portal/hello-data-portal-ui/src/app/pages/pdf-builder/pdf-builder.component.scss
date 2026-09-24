@@ -56,6 +56,24 @@
   width: 100%;
 }
 
+.save-hint {
+  display: block;
+  margin-top: 6px;
+}
+
+/* Keep the dialog actions on one right-aligned row; labels must not wrap ("Als neu speichern"). */
+.save-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+.save-footer p-button {
+  white-space: nowrap;
+}
+
 .items {
   list-style: none;
   margin: 0;

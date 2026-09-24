@@ -182,26 +182,29 @@
 </p-confirmDialog>
 
 <p-dialog [visible]="saveDialogOpen()" (visibleChange)="saveDialogOpen.set($event)" [modal]="true"
-          [header]="'@Save layout' | transloco" [style]="{width: '28rem'}" appendTo="body">
+          [header]="'@Save layout' | transloco" [style]="{width: '36rem'}"
+          [breakpoints]="{'640px': '95vw'}" appendTo="body">
   <label class="field save-field">
     <span>{{ '@Layout name' | transloco }}</span>
     <input pInputText type="text" maxlength="255" [ngModel]="saveName()" (ngModelChange)="saveName.set($event)"
            (keydown.enter)="saveLayout()" [attr.aria-label]="'@Layout name' | transloco"/>
   </label>
   @if (currentLayout(); as layout) {
-    <small class="hint">{{ '@Save updates the loaded layout' | transloco: {name: layout.name} }}</small>
+    <small class="hint save-hint">{{ '@Save updates the loaded layout' | transloco: {name: layout.name} }}</small>
   }
   <ng-template #footer>
-    <p-button (click)="saveDialogOpen.set(false)" (keydown.enter)="saveDialogOpen.set(false)"
-              [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
-    @if (currentLayout()) {
-      <p-button (click)="saveLayout(true)" (keydown.enter)="saveLayout(true)"
-                [disabled]="!saveName().trim() || saving()"
-                [icon]="icons.ACTION_ADD.class" [label]="'@Save as new' | transloco" severity="secondary"/>
-    }
-    <p-button (click)="saveLayout()" (keydown.enter)="saveLayout()"
-              [disabled]="!saveName().trim() || saving()" [loading]="saving()"
-              [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco"/>
+    <div class="save-footer">
+      <p-button (click)="saveDialogOpen.set(false)" (keydown.enter)="saveDialogOpen.set(false)"
+                [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
+      @if (currentLayout()) {
+        <p-button (click)="saveLayout(true)" (keydown.enter)="saveLayout(true)"
+                  [disabled]="!saveName().trim() || saving()"
+                  [icon]="icons.ACTION_ADD.class" [label]="'@Save as new' | transloco" severity="secondary"/>
+      }
+      <p-button (click)="saveLayout()" (keydown.enter)="saveLayout()"
+                [disabled]="!saveName().trim() || saving()" [loading]="saving()"
+                [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco"/>
+    </div>
   </ng-template>
 </p-dialog>
 
