@@ -1,0 +1,91 @@
+<h2 class="content-block">{{ '@PDF layouts' | transloco }}</h2>
+<p-card>
+  <p-table
+    #dt
+    [value]="rows()"
+    [loading]="loading()"
+    [globalFilterFields]="['name', 'dashboardTitle', 'dataDomainName', 'createdBy']"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [rowHover]="true"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    sortField="name"
+    [sortOrder]="1"
+    class="p-datatable-striped"
+    dataKey="id"
+    id="pdfLayoutsTable">
+    <ng-template pTemplate="caption">
+      <div class="flex items-center justify-between">
+        <p-button (click)="createLayout()" (keydown.enter)="createLayout()" [icon]="icons.ACTION_CREATE.class"
+                  [label]="'@Create' | transloco" pRipple/>
+        <p-iconfield>
+          <p-inputicon [class]="icons.ACTION_SEARCH.class"/>
+          <input (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
+                 [placeholder]="'@Search' | transloco" type="text"/>
+        </p-iconfield>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th id="nameHeader" pSortableColumn="name">{{ '@Name' | transloco }}
+          <p-sortIcon field="name"/>
+        </th>
+        <th id="dashboardHeader" pSortableColumn="dashboardTitle">{{ '@Dashboard' | transloco }}
+          <p-sortIcon field="dashboardTitle"/>
+        </th>
+        <th id="dataDomainHeader" pSortableColumn="dataDomainName">{{ '@Data domain' | transloco }}
+          <p-sortIcon field="dataDomainName"/>
+        </th>
+        <th id="templateHeader" pSortableColumn="template">{{ '@Template' | transloco }}
+          <p-sortIcon field="template"/>
+        </th>
+        <th id="createdByHeader" pSortableColumn="createdBy">{{ '@Created by' | transloco }}
+          <p-sortIcon field="createdBy"/>
+        </th>
+        <th id="modifiedHeader" pSortableColumn="modifiedDate" style="width:12rem">{{ '@Modified date' | transloco }}
+          <p-sortIcon field="modifiedDate"/>
+        </th>
+        <th id="actionsHeader" style="width:10rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template let-layout pTemplate="body">
+      <tr>
+        <td>{{ layout.name }}</td>
+        <td>{{ layout.dashboardTitle }}</td>
+        <td>{{ layout.dataDomainName }}</td>
+        <td>{{ (layout.template === 'landscape' ? '@Landscape' : '@Portrait') | transloco }}</td>
+        <td>{{ layout.createdBy | lowercase }}</td>
+        <td>{{ (layout.modifiedDate ?? layout.createdDate) | date: 'dd.MM.yyyy HH:mm' }}</td>
+        <td class="whitespace-nowrap">
+          <p-button (click)="useLayout(layout)" (keydown.enter)="useLayout(layout)"
+                    [icon]="icons.ACTION_FILE_EXPORT.class" [text]="true"
+                    [pTooltip]="'@Use for PDF export' | transloco" tooltipPosition="top"
+                    [ariaLabel]="'@Use for PDF export' | transloco"/>
+          <span [pTooltip]="layout.editable ? '' : ('@Only the creator can change this layout' | transloco)" tooltipPosition="top">
+            <p-button (click)="editLayout(layout)" (keydown.enter)="editLayout(layout)" [disabled]="!layout.editable"
+                      [icon]="icons.ACTION_EDIT.class" [text]="true"
+                      [ariaLabel]="'@Edit' | transloco"/>
+            <p-button (click)="deleteLayout(layout)" (keydown.enter)="deleteLayout(layout)" [disabled]="!layout.editable"
+                      [icon]="icons.ACTION_DELETE.class" [text]="true" severity="danger"
+                      [ariaLabel]="'@Delete' | transloco"/>
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">{{ '@No saved layouts' | transloco }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<p-confirmDialog #deleteLayoutDlg key="deletePdfLayout" [style]="{width: '32rem'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="deleteLayoutDlg.onReject()" (keydown.escape)="deleteLayoutDlg.onReject()"
+              [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
+    <p-button (click)="deleteLayoutDlg.onAccept()" (keydown.enter)="deleteLayoutDlg.onAccept()"
+              [icon]="icons.ACTION_DELETE.class" [label]="'@Delete layout' | transloco" severity="danger"/>
+  </ng-template>
+</p-confirmDialog>

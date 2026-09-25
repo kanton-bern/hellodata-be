@@ -33,7 +33,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/** A saved PDF layout as listed in the builder's picker (without its cells). */
+/** A saved PDF layout as listed in the layout management table and the export page picker (without its cells). */
 @Data
 public class PdfLayoutSummaryDto {
     private UUID id;
@@ -47,4 +47,7 @@ public class PdfLayoutSummaryDto {
     private LocalDateTime createdDate;
     @JsonSerialize(using = LocalDateTimeToMillisSerializer.class)
     private LocalDateTime modifiedDate;
+    private String createdBy;
+    /** True when the current user may change or delete the layout (its creator, for now). */
+    private boolean editable;
 }

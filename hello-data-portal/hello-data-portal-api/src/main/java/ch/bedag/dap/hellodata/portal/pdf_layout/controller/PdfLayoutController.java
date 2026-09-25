@@ -39,7 +39,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-/** Saved custom PDF layouts of the current user (the PDF export builder). */
+/** Saved custom PDF layouts: managed in the "PDF layouts" section, picked on the PDF export page.
+ *  All endpoints use DASHBOARDS until a dedicated layout management permission exists. */
 @Log4j2
 @RestController
 @RequiredArgsConstructor
@@ -50,8 +51,8 @@ public class PdfLayoutController {
 
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     @GetMapping
-    public List<PdfLayoutSummaryDto> getMyLayouts(@RequestParam(required = false) String contextKey) {
-        return pdfLayoutService.findMyLayouts(contextKey);
+    public List<PdfLayoutSummaryDto> getLayouts(@RequestParam(required = false) String contextKey) {
+        return pdfLayoutService.findLayouts(contextKey);
     }
 
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")

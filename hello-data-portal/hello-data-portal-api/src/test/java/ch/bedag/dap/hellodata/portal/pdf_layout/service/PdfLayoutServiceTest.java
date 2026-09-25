@@ -71,6 +71,7 @@ class PdfLayoutServiceTest {
     private static final String INSTANCE = "superset-ctx1";
     private static final long DASHBOARD_ID = 7;
     private static final UUID USER_ID = UUID.randomUUID();
+    private static final UUID OTHER_USER_ID = UUID.randomUUID();
 
     @InjectMocks
     private PdfLayoutService pdfLayoutService;
@@ -135,8 +136,8 @@ class PdfLayoutServiceTest {
         // given
         PdfLayoutEntity existing = entity(List.of());
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
-        when(pdfLayoutRepository.findByUserIdAndInstanceNameAndDashboardIdAndNameIgnoreCase(USER_ID, INSTANCE, DASHBOARD_ID, "Monthly"))
-                .thenReturn(Optional.of(existing));
+        when(pdfLayoutRepository.findAllByInstanceNameAndDashboardIdAndNameIgnoreCase(INSTANCE, DASHBOARD_ID, "Monthly"))
+                .thenReturn(List.of(existing));
 
         // when
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.createLayout(saveDto("Monthly")));
@@ -198,9 +199,9 @@ class PdfLayoutServiceTest {
     void updateLayout_updatesExistingInsteadOfCreatingDuplicate() {
         // given
         PdfLayoutEntity existing = entity(List.of());
-        when(pdfLayoutRepository.findByIdAndUserId(existing.getId(), USER_ID)).thenReturn(Optional.of(existing));
-        when(pdfLayoutRepository.findByUserIdAndInstanceNameAndDashboardIdAndNameIgnoreCase(USER_ID, INSTANCE, DASHBOARD_ID, "Monthly"))
-                .thenReturn(Optional.of(existing));
+        when(pdfLayoutRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+        when(pdfLayoutRepository.findAllByInstanceNameAndDashboardIdAndNameIgnoreCase(INSTANCE, DASHBOARD_ID, "Monthly"))
+                .thenReturn(List.of(existing));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
         when(pdfLayoutRepository.saveAndFlush(existing)).thenReturn(existing);
 
@@ -215,10 +216,10 @@ class PdfLayoutServiceTest {
     }
 
     @Test
-    void updateLayout_ofAnotherUser_isNotFound() {
+    void updateLayout_unknownLayout_isNotFound() {
         // given
         UUID id = UUID.randomUUID();
-        when(pdfLayoutRepository.findByIdAndUserId(id, USER_ID)).thenReturn(Optional.empty());
+        when(pdfLayoutRepository.findById(id)).thenReturn(Optional.empty());
 
         // when
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.updateLayout(id, saveDto("Monthly")));
@@ -236,7 +237,7 @@ class PdfLayoutServiceTest {
                 chart(2L, "Costs"),
                 chart(3L, "Margin"),
                 PdfLayoutItem.builder().type("markdown").html("<p>Hi</p>").page(0).x(0).y(3).cols(4).rows(1).build()));
-        when(pdfLayoutRepository.findByIdAndUserId(existing.getId(), USER_ID)).thenReturn(Optional.of(existing));
+        when(pdfLayoutRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
         when(paletteClient.fetchPalette(INSTANCE, DASHBOARD_ID))
                 .thenReturn(new DashboardPaletteResponse(List.of(new DashboardPaletteResponse.ChartRef(1L, "Revenue")), "{}"));
@@ -255,7 +256,7 @@ class PdfLayoutServiceTest {
     void loadLayout_failsWhenDashboardNoLongerExists() {
         // given
         PdfLayoutEntity existing = entity(List.of(chart(1L, "Revenue")));
-        when(pdfLayoutRepository.findByIdAndUserId(existing.getId(), USER_ID)).thenReturn(Optional.of(existing));
+        when(pdfLayoutRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of());
 
         // when
@@ -271,7 +272,7 @@ class PdfLayoutServiceTest {
     void loadLayout_ofInaccessibleDashboard_isForbidden() {
         // given
         PdfLayoutEntity existing = entity(List.of(chart(1L, "Revenue")));
-        when(pdfLayoutRepository.findByIdAndUserId(existing.getId(), USER_ID)).thenReturn(Optional.of(existing));
+        when(pdfLayoutRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of());
         dashboardStillExists(DASHBOARD_ID);
 
@@ -287,7 +288,7 @@ class PdfLayoutServiceTest {
     void updateLayout_ofInaccessibleDashboard_isForbidden() {
         // given
         PdfLayoutEntity existing = entity(List.of());
-        when(pdfLayoutRepository.findByIdAndUserId(existing.getId(), USER_ID)).thenReturn(Optional.of(existing));
+        when(pdfLayoutRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of());
         dashboardStillExists(DASHBOARD_ID);
 
@@ -303,7 +304,7 @@ class PdfLayoutServiceTest {
     void deleteLayout_ofInaccessibleDashboard_isForbidden() {
         // given
         PdfLayoutEntity existing = entity(List.of());
-        when(pdfLayoutRepository.findByIdAndUserId(existing.getId(), USER_ID)).thenReturn(Optional.of(existing));
+        when(pdfLayoutRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of());
         dashboardStillExists(DASHBOARD_ID);
 
@@ -316,7 +317,7 @@ class PdfLayoutServiceTest {
     }
 
     @Test
-    void findMyLayouts_hidesLayoutsOfInaccessibleDashboards() {
+    void findLayouts_hidesLayoutsOfInaccessibleDashboards() {
         // given
         PdfLayoutEntity accessible = entity(List.of());
         PdfLayoutEntity inaccessible = entity(List.of());
@@ -325,37 +326,144 @@ class PdfLayoutServiceTest {
         PdfLayoutEntity gone = entity(List.of());
         gone.setName("Gone");
         gone.setDashboardId(9);
-        when(pdfLayoutRepository.findAllByUserIdOrderByNameAsc(USER_ID)).thenReturn(List.of(accessible, inaccessible, gone));
+        when(pdfLayoutRepository.findAllByOrderByNameAsc()).thenReturn(List.of(accessible, inaccessible, gone));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
         dashboardStillExists(DASHBOARD_ID, 8);
 
         // when
-        List<PdfLayoutSummaryDto> result = pdfLayoutService.findMyLayouts(null);
+        List<PdfLayoutSummaryDto> result = pdfLayoutService.findLayouts(null);
 
         // then
         assertEquals(List.of("Monthly", "Gone"), result.stream().map(PdfLayoutSummaryDto::getName).toList());
     }
 
     @Test
-    void findMyLayouts_filtersByContextKeyWhenGiven() {
+    void findLayouts_filtersByContextKeyWhenGiven() {
         // given
-        when(pdfLayoutRepository.findAllByUserIdAndContextKeyOrderByNameAsc(USER_ID, "ctx1")).thenReturn(List.of(entity(List.of())));
+        when(pdfLayoutRepository.findAllByContextKeyOrderByNameAsc("ctx1")).thenReturn(List.of(entity(List.of())));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
 
         // when
-        List<PdfLayoutSummaryDto> result = pdfLayoutService.findMyLayouts("ctx1");
+        List<PdfLayoutSummaryDto> result = pdfLayoutService.findLayouts("ctx1");
 
         // then
         assertEquals(1, result.size());
         assertEquals("Monthly", result.get(0).getName());
-        verify(pdfLayoutRepository, never()).findAllByUserIdOrderByNameAsc(any());
+        verify(pdfLayoutRepository, never()).findAllByOrderByNameAsc();
+    }
+
+    @Test
+    void findLayouts_sharesLayoutsOfAccessibleDashboardsWithOtherUsers() {
+        // given
+        PdfLayoutEntity foreign = entity(List.of());
+        foreign.setUserId(OTHER_USER_ID);
+        foreign.setCreatedBy("OTHER@EXAMPLE.COM");
+        PdfLayoutEntity foreignGone = entity(List.of());
+        foreignGone.setUserId(OTHER_USER_ID);
+        foreignGone.setName("Gone");
+        foreignGone.setDashboardId(9);
+        when(pdfLayoutRepository.findAllByOrderByNameAsc()).thenReturn(List.of(foreign, foreignGone));
+        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
+
+        // when
+        List<PdfLayoutSummaryDto> result = pdfLayoutService.findLayouts(null);
+
+        // then - the shared layout is visible read-only, another user's orphan is not visible at all
+        assertEquals(1, result.size());
+        assertEquals("Monthly", result.get(0).getName());
+        assertEquals("OTHER@EXAMPLE.COM", result.get(0).getCreatedBy());
+        assertFalse(result.get(0).isEditable());
+        verifyNoInteractions(metaInfoResourceService);
+    }
+
+    @Test
+    void loadLayout_ofAnotherUser_isAllowedWithDashboardAccess() {
+        // given
+        PdfLayoutEntity foreign = entity(List.of(chart(1L, "Revenue")));
+        foreign.setUserId(OTHER_USER_ID);
+        when(pdfLayoutRepository.findById(foreign.getId())).thenReturn(Optional.of(foreign));
+        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
+        when(paletteClient.fetchPalette(INSTANCE, DASHBOARD_ID))
+                .thenReturn(new DashboardPaletteResponse(List.of(new DashboardPaletteResponse.ChartRef(1L, "Revenue")), "{}"));
+
+        // when
+        PdfLayoutDto result = pdfLayoutService.loadLayout(foreign.getId());
+
+        // then
+        assertEquals(1, result.getItems().size());
+        assertFalse(result.isEditable());
+    }
+
+    @Test
+    void loadLayout_ofAnotherUserWithDeletedDashboard_isNotFound() {
+        // given
+        PdfLayoutEntity foreign = entity(List.of());
+        foreign.setUserId(OTHER_USER_ID);
+        when(pdfLayoutRepository.findById(foreign.getId())).thenReturn(Optional.of(foreign));
+        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of());
+
+        // when
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.loadLayout(foreign.getId()));
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+        assertEquals("PDF layout not found.", ex.getReason());
+    }
+
+    @Test
+    void updateLayout_ofAnotherUser_isForbidden() {
+        // given
+        PdfLayoutEntity foreign = entity(List.of());
+        foreign.setUserId(OTHER_USER_ID);
+        when(pdfLayoutRepository.findById(foreign.getId())).thenReturn(Optional.of(foreign));
+        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
+
+        // when
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.updateLayout(foreign.getId(), saveDto("Monthly")));
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+        verify(pdfLayoutRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void deleteLayout_ofAnotherUser_isForbidden() {
+        // given
+        PdfLayoutEntity foreign = entity(List.of());
+        foreign.setUserId(OTHER_USER_ID);
+        when(pdfLayoutRepository.findById(foreign.getId())).thenReturn(Optional.of(foreign));
+        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
+
+        // when
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.deleteLayout(foreign.getId()));
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+        verify(pdfLayoutRepository, never()).delete(any());
+    }
+
+    @Test
+    void updateLayout_cannotMoveLayoutToAnotherDashboard() {
+        // given
+        PdfLayoutEntity existing = entity(List.of());
+        when(pdfLayoutRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
+        PdfLayoutSaveDto dto = saveDto("Monthly");
+        dto.setDashboardId(8);
+
+        // when
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.updateLayout(existing.getId(), dto));
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        verify(pdfLayoutRepository, never()).saveAndFlush(any());
     }
 
     @Test
     void deleteLayout_deletesOwnedLayout() {
         // given
         PdfLayoutEntity existing = entity(List.of());
-        when(pdfLayoutRepository.findByIdAndUserId(existing.getId(), USER_ID)).thenReturn(Optional.of(existing));
+        when(pdfLayoutRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
 
         // when
         pdfLayoutService.deleteLayout(existing.getId());

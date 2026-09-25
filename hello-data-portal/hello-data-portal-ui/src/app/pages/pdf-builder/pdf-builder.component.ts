@@ -28,12 +28,12 @@
 import {Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
+import {ActivatedRoute, Router} from "@angular/router";
 import {Select} from "primeng/select";
 import {Button} from "primeng/button";
 import {Ripple} from "primeng/ripple";
 import {Tooltip} from "primeng/tooltip";
 import {Editor} from "primeng/editor";
-import {Dialog} from "primeng/dialog";
 import {InputText} from "primeng/inputtext";
 import {ConfirmationService} from "primeng/api";
 import {ConfirmDialog} from "primeng/confirmdialog";
@@ -85,10 +85,17 @@ const STORAGE_KEY = 'pdf-builder-layout';
  *  global row (page * PAGE_ROWS + y) so the backend page-breaks correctly. */
 const PAGE_ROWS = 4;
 
+/**
+ * The grid layout builder, in one of two modes (route data `mode`):
+ * - `export` (PDF export page): pick a saved layout or start empty, adapt it for your own export only
+ *   (kept in the browser, never saved to the layout) and export the PDF.
+ * - `manage` (PDF layouts section, create/edit): build a layout and save it for everyone with access
+ *   to its dashboard.
+ */
 @Component({
   selector: 'app-pdf-builder',
   standalone: true,
-  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, Editor, Dialog, InputText, TranslocoPipe],
+  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, Editor, InputText, TranslocoPipe],
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
@@ -101,6 +108,12 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   private notification = inject(NotificationService);
   private transloco = inject(TranslocoService);
   private confirmationService = inject(ConfirmationService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  readonly mode: 'export' | 'manage' = this.route.snapshot.data['mode'] === 'manage' ? 'manage' : 'export';
+  /** The layout being edited in manage mode, or null when creating one. */
+  readonly editId: string | null = this.mode === 'manage' ? this.route.snapshot.paramMap.get('id') : null;
 
   /** A dashboard to re-select from localStorage once it appears in the (data-domain-filtered) list. */
   private pendingRestore: {instanceName: string; dashboardId: number} | null = null;
@@ -121,13 +134,12 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   /** Key of the selected data domain, or null for "All Data Domains" (filters the saved layouts). */
   selectedContextKey = signal<string | null>(null);
 
-  /** The current user's saved layouts (all data domains; filtered for the picker below). */
+  /** The saved layouts the user may see (all data domains; filtered for the picker below). */
   savedLayouts = signal<PdfLayoutSummary[]>([]);
-  /** The saved layout the canvas was loaded from / last saved as. Saving again updates it instead of
-   *  creating a duplicate. Cleared when the user switches to another dashboard. */
+  /** The saved layout the canvas was loaded from. Cleared when the user switches to another dashboard. */
   currentLayout = signal<{id: string; name: string} | null>(null);
-  saveDialogOpen = signal(false);
-  saveName = signal('');
+  /** Name of the layout being created/edited (manage mode). */
+  layoutName = signal('');
   saving = signal(false);
   loadingLayout = signal(false);
   templates = signal<PdfTemplateRef[]>(PDF_TEMPLATES);
@@ -224,8 +236,24 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
-    this.store.dispatch(createBreadcrumbs({breadcrumbs: [{label: '@PDF export'}]}));
-    this.restore();
+    if (this.mode === 'manage') {
+      this.store.dispatch(createBreadcrumbs({breadcrumbs: [
+        {label: '@PDF layouts', routerLink: 'pdf-layouts'},
+        {label: this.editId ? '@Edit layout' : '@Create layout'},
+      ]}));
+      this.pendingLayoutReload = this.editId;
+    } else {
+      this.store.dispatch(createBreadcrumbs({breadcrumbs: [{label: '@PDF export'}]}));
+      this.restore();
+      // "Use for PDF export" from the layout management opens this page with ?layout=<id>.
+      const requested = this.route.snapshot.queryParamMap.get('layout');
+      if (requested) {
+        this.pendingLayoutReload = requested;
+        this.router.navigate([], {relativeTo: this.route, queryParams: {}, replaceUrl: true});
+      }
+      this.loadSavedLayouts();
+      document.addEventListener('visibilitychange', this.onVisibilityChange);
+    }
     this.store.dispatch(loadMyDashboards());
     this.store.select(selectSelectedDataDomain).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(dd => {
@@ -233,8 +261,6 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         this.allDomainsSelected.set(all);
         this.selectedContextKey.set(all || !dd ? null : dd.key);
       });
-    this.loadSavedLayouts();
-    document.addEventListener('visibilitychange', this.onVisibilityChange);
     // Reactively track the dashboards of the currently selected data domain (selectMyDashboards
     // returns all domains when "All Data Domains" is selected, otherwise only the chosen one).
     this.store.select(selectMyDashboards).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(dashboards => {
@@ -244,8 +270,14 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         if (match) {
           this.pendingRestore = null;
           this.onDashboardChange(match);
-          this.reloadPendingLayout();
         }
+      }
+      // A layout to (re)load from the server needs the dashboards to resolve its dashboard.
+      if (this.pendingLayoutReload && dashboards.length > 0) {
+        this.reloadPendingLayout();
+        return;
+      }
+      if (this.pendingRestore) {
         return;
       }
       // If the data domain changed and the selected dashboard is no longer listed, reset the picker
@@ -677,6 +709,11 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   }
 
   private applyLayout(layout: PdfSavedLayout): void {
+    if (this.mode === 'manage' && !layout.editable) {
+      this.notification.error('@Only the creator can change this layout');
+      this.router.navigate(['pdf-layouts']);
+      return;
+    }
     const dashboard = this.dashboards().find(d => d.instanceName === layout.instanceName && d.id === layout.dashboardId);
     if (!dashboard) {
       // Accessible for the backend but not in the picker (e.g. another data domain is selected).
@@ -692,6 +729,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     this.pageCount.set(Math.max(1, layout.pageCount, maxCellPage + 1));
     this.currentPage.set(0);
     this.attachLayout(layout);
+    this.layoutName.set(layout.name);
     this.refreshPreviews();
     this.reflowGrid();
     this.persist();
@@ -709,21 +747,11 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     return `${names.slice(0, -1).join(', ')} ${this.transloco.translate('@and')} ${names[names.length - 1]}`;
   }
 
-  /** Open the name dialog; prefilled with the loaded layout's name so "Save" updates it. */
-  openSaveDialog(): void {
-    if (this.selectedDashboard() == null) {
-      return;
-    }
-    this.saveName.set(this.currentLayout()?.name ?? '');
-    this.saveDialogOpen.set(true);
-  }
-
-  /** Save the canvas: updates the loaded layout, or creates a new one when none is loaded or
-   *  {@code asNew} is requested ("Save as new"). */
-  saveLayout(asNew = false): void {
+  /** Manage mode: create the layout, or update the edited one, then return to the layout list. */
+  saveManagedLayout(): void {
     const dashboard = this.selectedDashboard();
-    const name = this.saveName().trim();
-    if (dashboard == null || !name || this.saving()) {
+    const name = this.layoutName().trim();
+    if (this.mode !== 'manage' || dashboard == null || !name || this.saving()) {
       return;
     }
     const request: PdfLayoutSaveRequest = {
@@ -734,49 +762,61 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       pageCount: this.pageCount(),
       items: this.layoutItems(),
     };
-    const current = this.currentLayout();
-    const save$ = current && !asNew
-      ? this.pdfExport.updateLayout(current.id, request)
+    const save$ = this.editId
+      ? this.pdfExport.updateLayout(this.editId, request)
       : this.pdfExport.createLayout(request);
     this.saving.set(true);
     save$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: saved => {
         this.saving.set(false);
-        this.saveDialogOpen.set(false);
         this.attachLayout(saved);
-        this.persist();
-        this.loadSavedLayouts();
         this.store.dispatch(showSuccess({message: '@Layout saved', interpolateParams: {name: saved.name}}));
+        this.router.navigate(['pdf-layouts']);
       },
       error: err => {
-        // Keep the dialog open so the user can fix the name (e.g. a duplicate) and retry.
         this.saving.set(false);
         this.store.dispatch(showError({error: err}));
       },
     });
   }
 
-  /** Delete the loaded saved layout (after a confirm); the canvas itself is kept. */
-  deleteLayout(): void {
+  /** Manage mode: back to the layout list, after confirming when there are unsaved changes. */
+  cancelManage(): void {
+    const dirty = this.editId
+      ? this.hasUnsavedChanges() || this.layoutName().trim() !== (this.currentLayout()?.name ?? '')
+      : this.cells().length > 0 || this.layoutName().trim() !== '';
+    if (!dirty) {
+      this.router.navigate(['pdf-layouts']);
+      return;
+    }
+    this.confirmDiscard('@Unsaved changes message', () => this.router.navigate(['pdf-layouts']));
+  }
+
+  openLayoutManagement(): void {
+    this.router.navigate(['pdf-layouts']);
+  }
+
+  /** Export mode: drop the local changes and reload the selected layout as it is saved. */
+  resetToLayout(): void {
     const current = this.currentLayout();
     if (!current) {
       return;
     }
+    if (!this.hasUnsavedChanges()) {
+      this.onSavedLayoutSelect(current.id);
+      return;
+    }
+    this.confirmDiscard('@Reset the layout and discard your changes?', () => this.onSavedLayoutSelect(current.id));
+  }
+
+  private confirmDiscard(messageKey: string, accept: () => void): void {
     this.confirmationService.confirm({
-      key: 'deletePdfLayout',
-      header: this.transloco.translate('@Delete layout'),
-      message: this.transloco.translate('@Delete the saved layout {{name}}?', {name: current.name}),
+      key: 'discardPdfLayout',
+      header: this.transloco.translate('@Discard changes'),
+      message: this.transloco.translate(messageKey),
       icon: this.icons.DIALOG_WARNING.class,
       closeOnEscape: false,
-      accept: () => this.pdfExport.deleteLayout(current.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
-          this.detachLayout();
-          this.persist();
-          this.loadSavedLayouts();
-          this.store.dispatch(showSuccess({message: '@Layout deleted', interpolateParams: {name: current.name}}));
-        },
-        error: err => this.store.dispatch(showError({error: err})),
-      }),
+      accept,
     });
   }
 
@@ -823,13 +863,16 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   private reloadPendingLayout(): void {
     const id = this.pendingLayoutReload;
     this.pendingLayoutReload = null;
+    // The loaded layout decides the dashboard; don't re-select a remembered one afterwards.
+    this.pendingRestore = null;
     if (id) {
       this.onSavedLayoutSelect(id);
     }
   }
 
-  /** When the tab becomes visible again, pick up a newer version of the loaded layout saved in another
-   *  window: reload it when there is nothing to lose, otherwise warn that saving would overwrite it. */
+  /** Export mode: when the tab becomes visible again, pick up a newer version of the selected layout
+   *  (changed in the layout management): reload it when there are no local changes, otherwise tell
+   *  the user that "Reset to layout" gets the new version. */
   private checkForNewerVersion(): void {
     const current = this.currentLayout();
     if (document.visibilityState !== 'visible' || current === null || this.loadingLayout()) {
@@ -850,7 +893,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         }
         if (this.hasUnsavedChanges()) {
           this.loadedVersion = version;   // warn once per newer version
-          this.notification.warn('@Layout changed in another window', {name: summary.name});
+          this.notification.warn('@Layout was updated', {name: summary.name});
         } else {
           this.onSavedLayoutSelect(current.id);
           this.notification.info('@Layout reloaded', {name: summary.name});
@@ -862,7 +905,11 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Remembers the export page canvas in the browser; the manage mode keeps nothing locally. */
   private persist(): void {
+    if (this.mode === 'manage') {
+      return;
+    }
     const dashboard = this.selectedDashboard();
     const state = {
       instanceName: dashboard?.instanceName ?? null,

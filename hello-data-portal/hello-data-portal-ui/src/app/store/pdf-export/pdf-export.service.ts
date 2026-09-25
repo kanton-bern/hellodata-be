@@ -71,7 +71,7 @@ export class PdfExportService {
     );
   }
 
-  /** The current user's saved layouts (all data domains). */
+  /** The saved layouts the current user may see (all data domains). */
   public getLayouts(): Observable<PdfLayoutSummary[]> {
     return this.httpClient.get<PdfLayoutSummary[]>(this.layoutsUrl);
   }

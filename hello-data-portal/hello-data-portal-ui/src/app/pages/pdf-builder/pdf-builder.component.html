@@ -1,33 +1,45 @@
 <div class="app">
   <aside class="palette">
-    <h2>{{ '@PDF export' | transloco }}</h2>
+    @if (mode === 'manage') {
+      <h2>{{ (editId ? '@Edit layout' : '@Create layout') | transloco }}</h2>
 
-    <label class="field">
-      <span>{{ '@Saved layout' | transloco }}</span>
-      <p-select
-        [options]="savedLayoutOptions()"
-        [ngModel]="currentLayout()?.id ?? null"
-        (ngModelChange)="onSavedLayoutSelect($event)"
-        optionLabel="label"
-        optionValue="value"
-        [placeholder]="'@Choose a saved layout' | transloco"
-        [emptyMessage]="'@No saved layouts' | transloco"
-        [loading]="loadingLayout()"
-        [disabled]="loadingLayout()"
-        appendTo="body"
-        styleClass="w-full"/>
-    </label>
-    <div class="layout-actions">
-      <p-button (click)="openSaveDialog()" (keydown.enter)="openSaveDialog()"
-                [disabled]="selectedDashboard() === null"
-                [icon]="icons.ACTION_SAVE.class" [label]="'@Save layout' | transloco"
-                severity="secondary" size="small" pRipple/>
-      <p-button (click)="deleteLayout()" (keydown.enter)="deleteLayout()"
-                [disabled]="currentLayout() === null"
-                [icon]="icons.ACTION_DELETE.class"
-                [pTooltip]="'@Delete layout' | transloco" [ariaLabel]="'@Delete layout' | transloco"
-                severity="secondary" size="small" pRipple/>
-    </div>
+      <label class="field name-field">
+        <span>{{ '@Layout name' | transloco }}</span>
+        <input pInputText type="text" maxlength="255" [ngModel]="layoutName()" (ngModelChange)="layoutName.set($event)"
+               [attr.aria-label]="'@Layout name' | transloco"/>
+      </label>
+    } @else {
+      <h2>{{ '@PDF export' | transloco }}</h2>
+
+      <label class="field">
+        <span>{{ '@Saved layout' | transloco }}</span>
+        <p-select
+          [options]="savedLayoutOptions()"
+          [ngModel]="currentLayout()?.id ?? null"
+          (ngModelChange)="onSavedLayoutSelect($event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'@Choose a saved layout' | transloco"
+          [emptyMessage]="'@No saved layouts' | transloco"
+          [loading]="loadingLayout()"
+          [disabled]="loadingLayout()"
+          appendTo="body"
+          styleClass="w-full"/>
+      </label>
+      <div class="layout-actions">
+        <p-button (click)="resetToLayout()" (keydown.enter)="resetToLayout()"
+                  [disabled]="currentLayout() === null || loadingLayout()"
+                  [icon]="icons.ACTION_UNDO.class" [label]="'@Reset to layout' | transloco"
+                  severity="secondary" size="small" pRipple/>
+        <p-button (click)="openLayoutManagement()" (keydown.enter)="openLayoutManagement()"
+                  [icon]="icons.ACTION_EDIT.class"
+                  [pTooltip]="'@Manage layouts' | transloco" [ariaLabel]="'@Manage layouts' | transloco"
+                  severity="secondary" size="small" pRipple/>
+      </div>
+      @if (currentLayout()) {
+        <p class="hint local-hint">{{ '@Changes here are only used for your export' | transloco }}</p>
+      }
+    }
 
     <label class="field">
       <span>{{ '@Dashboard' | transloco }}</span>
@@ -37,6 +49,7 @@
         (ngModelChange)="onDashboardChange($event)"
         optionLabel="label"
         optionValue="value"
+        [disabled]="editId !== null"
         [placeholder]="'@Choose a dashboard' | transloco"
         appendTo="body"
         styleClass="w-full"/>
@@ -72,20 +85,31 @@
           appendTo="body"
           styleClass="w-full"/>
       </label>
-      <label class="fresh-data">
-        <input type="checkbox" [checked]="freshData()"
-               (change)="freshData.set($any($event.target).checked)"/>
-        <span>{{ '@Fresh data' | transloco }}</span>
-        <small>{{ '@Re-render charts with the latest data (slower)' | transloco }}</small>
-      </label>
-      <p-button (click)="export()" (keydown.enter)="export()"
-                [disabled]="selectedDashboard() === null || cells().length === 0 || exporting() || anyPreviewLoading()"
-                [loading]="exporting()"
-                [icon]="icons.ACTION_FILE_EXPORT.class"
-                [label]="(exporting() ? '@Exporting' : '@Export PDF') | transloco"
-                styleClass="w-full" pRipple/>
-      @if (anyPreviewLoading()) {
-        <small class="export-hint">{{ '@Export is enabled once all chart previews have loaded' | transloco }}</small>
+      @if (mode === 'manage') {
+        <p-button (click)="saveManagedLayout()" (keydown.enter)="saveManagedLayout()"
+                  [disabled]="selectedDashboard() === null || !layoutName().trim() || saving()"
+                  [loading]="saving()"
+                  [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco"
+                  styleClass="w-full" pRipple/>
+        <p-button (click)="cancelManage()" (keydown.enter)="cancelManage()"
+                  [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"
+                  severity="secondary" styleClass="w-full" pRipple/>
+      } @else {
+        <label class="fresh-data">
+          <input type="checkbox" [checked]="freshData()"
+                 (change)="freshData.set($any($event.target).checked)"/>
+          <span>{{ '@Fresh data' | transloco }}</span>
+          <small>{{ '@Re-render charts with the latest data (slower)' | transloco }}</small>
+        </label>
+        <p-button (click)="export()" (keydown.enter)="export()"
+                  [disabled]="selectedDashboard() === null || cells().length === 0 || exporting() || anyPreviewLoading()"
+                  [loading]="exporting()"
+                  [icon]="icons.ACTION_FILE_EXPORT.class"
+                  [label]="(exporting() ? '@Exporting' : '@Export PDF') | transloco"
+                  styleClass="w-full" pRipple/>
+        @if (anyPreviewLoading()) {
+          <small class="export-hint">{{ '@Export is enabled once all chart previews have loaded' | transloco }}</small>
+        }
       }
     </div>
   </aside>
@@ -172,41 +196,14 @@
   </ng-template>
 </p-confirmDialog>
 
-<p-confirmDialog #deleteLayoutDlg key="deletePdfLayout" [style]="{width: '32rem'}">
+<p-confirmDialog #discardDlg key="discardPdfLayout" [style]="{width: '32rem'}">
   <ng-template pTemplate="footer">
-    <p-button (click)="deleteLayoutDlg.onReject()" (keydown.escape)="deleteLayoutDlg.onReject()"
+    <p-button (click)="discardDlg.onReject()" (keydown.escape)="discardDlg.onReject()"
               [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
-    <p-button (click)="deleteLayoutDlg.onAccept()" (keydown.enter)="deleteLayoutDlg.onAccept()"
-              [icon]="icons.ACTION_DELETE.class" [label]="'@Delete layout' | transloco" severity="danger"/>
+    <p-button (click)="discardDlg.onAccept()" (keydown.enter)="discardDlg.onAccept()"
+              [icon]="icons.ACTION_UNDO.class" [label]="'@Discard changes' | transloco" severity="danger"/>
   </ng-template>
 </p-confirmDialog>
-
-<p-dialog [visible]="saveDialogOpen()" (visibleChange)="saveDialogOpen.set($event)" [modal]="true"
-          [header]="'@Save layout' | transloco" [style]="{width: '36rem'}"
-          [breakpoints]="{'640px': '95vw'}" appendTo="body">
-  <label class="field save-field">
-    <span>{{ '@Layout name' | transloco }}</span>
-    <input pInputText type="text" maxlength="255" [ngModel]="saveName()" (ngModelChange)="saveName.set($event)"
-           (keydown.enter)="saveLayout()" [attr.aria-label]="'@Layout name' | transloco"/>
-  </label>
-  @if (currentLayout(); as layout) {
-    <small class="hint save-hint">{{ '@Save updates the loaded layout' | transloco: {name: layout.name} }}</small>
-  }
-  <ng-template #footer>
-    <div class="save-footer">
-      <p-button (click)="saveDialogOpen.set(false)" (keydown.enter)="saveDialogOpen.set(false)"
-                [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
-      @if (currentLayout()) {
-        <p-button (click)="saveLayout(true)" (keydown.enter)="saveLayout(true)"
-                  [disabled]="!saveName().trim() || saving()"
-                  [icon]="icons.ACTION_ADD.class" [label]="'@Save as new' | transloco" severity="secondary"/>
-      }
-      <p-button (click)="saveLayout()" (keydown.enter)="saveLayout()"
-                [disabled]="!saveName().trim() || saving()" [loading]="saving()"
-                [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco"/>
-    </div>
-  </ng-template>
-</p-dialog>
 
 <div class="editor-backdrop" [class.open]="editorOpen()">
   <div class="editor-dialog">

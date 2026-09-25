@@ -52,26 +52,16 @@
   flex: 1;
 }
 
-.save-field input {
+.name-field input {
   width: 100%;
 }
 
-.save-hint {
-  display: block;
-  margin-top: 6px;
+.name-field {
+  margin-bottom: 12px;
 }
 
-/* Keep the dialog actions on one right-aligned row; labels must not wrap ("Als neu speichern"). */
-.save-footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-  width: 100%;
-}
-
-.save-footer p-button {
-  white-space: nowrap;
+.local-hint {
+  margin: 0 0 12px;
 }
 
 .items {

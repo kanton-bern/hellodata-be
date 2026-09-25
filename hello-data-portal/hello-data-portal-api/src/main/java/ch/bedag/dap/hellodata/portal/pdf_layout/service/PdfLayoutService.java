@@ -55,14 +55,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Saved custom PDF layouts. There are no dedicated permissions for this area yet, so a layout is
- * private to the user who saved it: every read and write is scoped to the current user's id, and a
- * layout of another user is reported as not found.
+ * Saved custom PDF layouts, managed in the "PDF layouts" section and picked on the PDF export page.
  * <p>
- * A layout is also strictly bound to its data domain dashboard: whoever may not see the dashboard
- * (any more) may not see or touch the layout either. Such layouts are hidden from the list and
- * refused with 403. Only a layout whose dashboard no longer exists at all stays listed, so the user
- * gets "Dashboard X not found." when loading it and can still delete it.
+ * A layout is shared with everyone who may access its data domain dashboard, and is strictly bound
+ * to that dashboard: whoever may not see the dashboard may not see or touch the layout either (hidden
+ * from the list, 403 otherwise). A layout whose dashboard no longer exists stays listed for its creator
+ * only, so loading it reports "Dashboard X not found." and it can still be deleted.
+ * <p>
+ * There are no dedicated permissions for this area yet: until there are, only the creator of a layout
+ * may change or delete it.
  */
 @Log4j2
 @Service
@@ -78,21 +79,21 @@ public class PdfLayoutService {
     private final PaletteClient paletteClient;
     private final MetaInfoResourceService metaInfoResourceService;
 
-    /** The current user's layouts, optionally narrowed to one data domain. */
+    /** The layouts the current user may see, optionally narrowed to one data domain. */
     @Transactional(readOnly = true)
-    public List<PdfLayoutSummaryDto> findMyLayouts(String contextKey) {
+    public List<PdfLayoutSummaryDto> findLayouts(String contextKey) {
         UUID userId = currentUserId();
         List<PdfLayoutEntity> layouts = StringUtils.isBlank(contextKey)
-                ? pdfLayoutRepository.findAllByUserIdOrderByNameAsc(userId)
-                : pdfLayoutRepository.findAllByUserIdAndContextKeyOrderByNameAsc(userId, contextKey);
+                ? pdfLayoutRepository.findAllByOrderByNameAsc()
+                : pdfLayoutRepository.findAllByContextKeyOrderByNameAsc(contextKey);
         if (layouts.isEmpty()) {
             return List.of();
         }
         Set<SupersetDashboardDto> myDashboards = dashboardService.fetchMyDashboards();
         return layouts.stream()
                 .filter(l -> findDashboard(myDashboards, l.getInstanceName(), l.getDashboardId()).isPresent()
-                        || !dashboardExists(l.getInstanceName(), l.getDashboardId()))
-                .map(this::toSummary)
+                        || (userId.equals(l.getUserId()) && !dashboardExists(l.getInstanceName(), l.getDashboardId())))
+                .map(l -> toSummary(l, userId))
                 .toList();
     }
 
@@ -103,8 +104,9 @@ public class PdfLayoutService {
      */
     @Transactional(readOnly = true)
     public PdfLayoutDto loadLayout(UUID id) {
-        PdfLayoutEntity entity = findOwned(id);
-        SupersetDashboardDto dashboard = requireDashboardAccess(entity);
+        UUID userId = currentUserId();
+        PdfLayoutEntity entity = findLayout(id);
+        SupersetDashboardDto dashboard = requireDashboardAccess(entity, userId);
 
         Set<Long> existingChartIds = Optional.ofNullable(paletteClient.fetchPalette(entity.getInstanceName(), entity.getDashboardId()).getCharts())
                 .orElse(List.of()).stream()
@@ -124,7 +126,7 @@ public class PdfLayoutService {
             log.info("PDF layout {} loaded without removed charts {}", id, removed);
         }
 
-        PdfLayoutDto dto = toDto(entity);
+        PdfLayoutDto dto = toDto(entity, userId);
         dto.setDashboardTitle(dashboard.getDashboardTitle());
         dto.setItems(kept);
         dto.setRemovedCharts(new ArrayList<>(removed));
@@ -138,31 +140,37 @@ public class PdfLayoutService {
         UUID userId = currentUserId();
         validate(saveDto);
         SupersetDashboardDto dashboard = requireAccessibleDashboard(saveDto);
-        assertNameUnique(userId, saveDto, null);
+        assertNameUnique(saveDto, null);
         PdfLayoutEntity entity = new PdfLayoutEntity();
         entity.setUserId(userId);
         apply(entity, saveDto, dashboard);
-        return toDto(pdfLayoutRepository.saveAndFlush(entity));
+        return toDto(pdfLayoutRepository.saveAndFlush(entity), userId);
     }
 
     @Transactional
     public PdfLayoutDto updateLayout(UUID id, PdfLayoutSaveDto saveDto) {
-        PdfLayoutEntity entity = findOwned(id);
-        requireDashboardAccess(entity);
+        UUID userId = currentUserId();
+        PdfLayoutEntity entity = findLayout(id);
+        SupersetDashboardDto dashboard = requireDashboardAccess(entity, userId);
+        assertCreator(entity, userId);
         validate(saveDto);
-        SupersetDashboardDto dashboard = requireAccessibleDashboard(saveDto);
-        assertNameUnique(entity.getUserId(), saveDto, id);
+        if (!entity.getInstanceName().equalsIgnoreCase(saveDto.getInstanceName()) || entity.getDashboardId() != saveDto.getDashboardId()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The dashboard of a saved layout can't be changed.");
+        }
+        assertNameUnique(saveDto, id);
         apply(entity, saveDto, dashboard);
-        return toDto(pdfLayoutRepository.saveAndFlush(entity));
+        return toDto(pdfLayoutRepository.saveAndFlush(entity), userId);
     }
 
     @Transactional
     public void deleteLayout(UUID id) {
-        PdfLayoutEntity entity = findOwned(id);
+        UUID userId = currentUserId();
+        PdfLayoutEntity entity = findLayout(id);
         // A layout of a deleted dashboard may still be cleaned up; one of an inaccessible dashboard not.
         if (findDashboard(entity.getInstanceName(), entity.getDashboardId()).isEmpty()) {
             assertDashboardGone(entity);
         }
+        assertCreator(entity, userId);
         pdfLayoutRepository.delete(entity);
     }
 
@@ -174,19 +182,30 @@ public class PdfLayoutService {
         return userId;
     }
 
-    private PdfLayoutEntity findOwned(UUID id) {
-        return pdfLayoutRepository.findByIdAndUserId(id, currentUserId())
+    private PdfLayoutEntity findLayout(UUID id) {
+        return pdfLayoutRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PDF layout not found."));
     }
 
+    /** Until a dedicated permission exists, only the creator may change or delete a layout. */
+    private static void assertCreator(PdfLayoutEntity entity, UUID userId) {
+        if (!userId.equals(entity.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the creator of the layout can change or delete it.");
+        }
+    }
+
     /** The layout's dashboard if the current user may access it; 403 when it exists but is not
-     *  accessible, 404 "Dashboard X not found." when it no longer exists. */
-    private SupersetDashboardDto requireDashboardAccess(PdfLayoutEntity entity) {
+     *  accessible, 404 "Dashboard X not found." when it no longer exists (reported to the creator
+     *  only - for anyone else such a layout doesn't exist). */
+    private SupersetDashboardDto requireDashboardAccess(PdfLayoutEntity entity, UUID userId) {
         Optional<SupersetDashboardDto> dashboard = findDashboard(entity.getInstanceName(), entity.getDashboardId());
         if (dashboard.isPresent()) {
             return dashboard.get();
         }
         assertDashboardGone(entity);
+        if (!userId.equals(entity.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "PDF layout not found.");
+        }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Dashboard " + dashboardLabel(entity) + " not found.");
     }
 
@@ -224,14 +243,14 @@ public class PdfLayoutService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dashboard " + saveDto.getDashboardId() + " not found."));
     }
 
-    /** One user can't have two layouts of the same name on the same dashboard; saving under an
-     *  existing name must go through an update of that layout instead. */
-    private void assertNameUnique(UUID userId, PdfLayoutSaveDto saveDto, UUID selfId) {
-        pdfLayoutRepository.findByUserIdAndInstanceNameAndDashboardIdAndNameIgnoreCase(userId, saveDto.getInstanceName(), saveDto.getDashboardId(), saveDto.getName().trim())
-                .filter(existing -> !existing.getId().equals(selfId))
-                .ifPresent(existing -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "A layout named '" + saveDto.getName().trim() + "' already exists for this dashboard.");
-                });
+    /** Layouts are shared, so a name is unique per dashboard; saving under an existing name must go
+     *  through an update of that layout instead. */
+    private void assertNameUnique(PdfLayoutSaveDto saveDto, UUID selfId) {
+        boolean taken = pdfLayoutRepository.findAllByInstanceNameAndDashboardIdAndNameIgnoreCase(saveDto.getInstanceName(), saveDto.getDashboardId(), saveDto.getName().trim())
+                .stream().anyMatch(existing -> !existing.getId().equals(selfId));
+        if (taken) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A layout named '" + saveDto.getName().trim() + "' already exists for this dashboard.");
+        }
     }
 
     private void apply(PdfLayoutEntity entity, PdfLayoutSaveDto saveDto, SupersetDashboardDto dashboard) {
@@ -302,15 +321,15 @@ public class PdfLayoutService {
         }
     }
 
-    private PdfLayoutSummaryDto toSummary(PdfLayoutEntity entity) {
+    private PdfLayoutSummaryDto toSummary(PdfLayoutEntity entity, UUID userId) {
         PdfLayoutSummaryDto dto = new PdfLayoutSummaryDto();
-        fillSummary(dto, entity);
+        fillSummary(dto, entity, userId);
         return dto;
     }
 
-    private PdfLayoutDto toDto(PdfLayoutEntity entity) {
+    private PdfLayoutDto toDto(PdfLayoutEntity entity, UUID userId) {
         PdfLayoutDto dto = new PdfLayoutDto();
-        fillSummary(dto, entity);
+        fillSummary(dto, entity, userId);
         dto.setPageCount(entity.getPageCount());
         dto.setGridCols(entity.getGridCols());
         dto.setGridRows(entity.getGridRows());
@@ -318,7 +337,7 @@ public class PdfLayoutService {
         return dto;
     }
 
-    private void fillSummary(PdfLayoutSummaryDto dto, PdfLayoutEntity entity) {
+    private void fillSummary(PdfLayoutSummaryDto dto, PdfLayoutEntity entity, UUID userId) {
         dto.setId(entity.getId());
         dto.setName(entity.getName());
         dto.setContextKey(entity.getContextKey());
@@ -328,5 +347,7 @@ public class PdfLayoutService {
         dto.setTemplate(entity.getTemplate());
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setModifiedDate(entity.getModifiedDate());
+        dto.setCreatedBy(entity.getCreatedBy());
+        dto.setEditable(userId.equals(entity.getUserId()));
     }
 }

@@ -294,6 +294,12 @@ export class MenuService {
         routerLink: 'pdf-builder',
         requiredPermissions: ['DASHBOARDS']
       });
+      myDashboards.push({
+        id: 'pdfLayouts',
+        label: '@PDF layouts',
+        routerLink: 'pdf-layouts',
+        requiredPermissions: ['DASHBOARDS']
+      });
     }
     return myDashboards;
   }

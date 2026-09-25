@@ -31,17 +31,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface PdfLayoutRepository extends JpaRepository<PdfLayoutEntity, UUID> {
 
-    List<PdfLayoutEntity> findAllByUserIdOrderByNameAsc(UUID userId);
+    List<PdfLayoutEntity> findAllByOrderByNameAsc();
 
-    List<PdfLayoutEntity> findAllByUserIdAndContextKeyOrderByNameAsc(UUID userId, String contextKey);
+    List<PdfLayoutEntity> findAllByContextKeyOrderByNameAsc(String contextKey);
 
-    Optional<PdfLayoutEntity> findByIdAndUserId(UUID id, UUID userId);
-
-    Optional<PdfLayoutEntity> findByUserIdAndInstanceNameAndDashboardIdAndNameIgnoreCase(UUID userId, String instanceName, long dashboardId, String name);
+    List<PdfLayoutEntity> findAllByInstanceNameAndDashboardIdAndNameIgnoreCase(String instanceName, long dashboardId, String name);
 }

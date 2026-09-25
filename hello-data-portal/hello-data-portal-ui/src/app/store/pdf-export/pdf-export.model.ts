@@ -83,7 +83,8 @@ export interface PdfSavedLayoutItem {
   rows: number;
 }
 
-/** A saved layout as listed in the picker (private to the user who saved it). */
+/** A saved layout as listed in the management table and the export page picker. Shared with
+ *  everyone who may access its dashboard; only `editable` ones (own, for now) can be changed. */
 export interface PdfLayoutSummary {
   id: string;
   name: string;
@@ -94,6 +95,8 @@ export interface PdfLayoutSummary {
   template: string;
   createdDate?: number;
   modifiedDate?: number;
+  createdBy?: string;
+  editable: boolean;
 }
 
 /** A complete saved layout. `removedCharts` names charts that no longer exist on the dashboard and

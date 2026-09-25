@@ -50,6 +50,30 @@ const routes: Routes = [
     },
   },
   {
+    // PDF layout management. DASHBOARDS until a dedicated layout management permission exists.
+    path: 'pdf-layouts',
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARDS'],
+    },
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/pdf-layouts/pdf-layouts.component').then(m => m.PdfLayoutsComponent),
+      },
+      {
+        path: 'create',
+        loadComponent: () => import('./pages/pdf-builder/pdf-builder.component').then(m => m.PdfBuilderComponent),
+        data: {mode: 'manage'},
+      },
+      {
+        path: 'edit/:id',
+        loadComponent: () => import('./pages/pdf-builder/pdf-builder.component').then(m => m.PdfBuilderComponent),
+        data: {mode: 'manage'},
+      },
+    ]
+  },
+  {
     path: naviElements.profile.path,
     loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [AutoLoginPartialRoutesGuard],
