@@ -30,7 +30,7 @@
         <java.version>21</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+        <maven-deploy-plugin.version>3.2.0</maven-deploy-plugin.version>
         <git-commit-id-maven-plugin.version>9.2.0</git-commit-id-maven-plugin.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <docker.namespace>bedag</docker.namespace>
@@ -114,7 +114,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>tidy-maven-plugin</artifactId>
-                    <version>1.4.0</version>
+                    <version>1.4.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
