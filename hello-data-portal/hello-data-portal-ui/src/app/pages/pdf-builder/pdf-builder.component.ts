@@ -80,6 +80,15 @@ type PaletteItem = {
 type Cell = GridsterItemConfig & PaletteItem & {page: number};
 
 const STORAGE_KEY = 'pdf-builder-layout';
+const CHARTS_EXPANDED_KEY = 'pdf-builder-charts-expanded';
+
+function readChartsExpanded(): boolean {
+  try {
+    return localStorage.getItem(CHARTS_EXPANDED_KEY) !== 'false';
+  } catch {
+    return true;
+  }
+}
 
 /** Each PDF page is a PAGE_ROWS x PAGE_ROWS grid. The export maps a cell's page + local y to the
  *  global row (page * PAGE_ROWS + y) so the backend page-breaks correctly. */
@@ -138,6 +147,8 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   savedLayouts = signal<PdfLayoutSummary[]>([]);
   /** The saved layout the canvas was loaded from. Cleared when the user switches to another dashboard. */
   currentLayout = signal<{id: string; name: string} | null>(null);
+  /** Whether the chart palette is expanded; remembered in the browser. */
+  chartsExpanded = signal(readChartsExpanded());
   /** Name of the layout being created/edited (manage mode). */
   layoutName = signal('');
   saving = signal(false);
@@ -316,6 +327,15 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     this.pdfExport.getCharts(dashboard.instanceName, dashboard.id).subscribe(c => this.charts.set(c));
     this.refreshPreviews();   // load previews for any restored tiles now that the dashboard is known
     this.persist();
+  }
+
+  toggleCharts(): void {
+    this.chartsExpanded.update(v => !v);
+    try {
+      localStorage.setItem(CHARTS_EXPANDED_KEY, String(this.chartsExpanded()));
+    } catch {
+      // storage unavailable - the section just doesn't remember its state
+    }
   }
 
   onDragStart(payload: PaletteItem): void {

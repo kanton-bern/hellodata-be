@@ -30,6 +30,7 @@
         <p-button (click)="resetToLayout()" (keydown.enter)="resetToLayout()"
                   [disabled]="currentLayout() === null || loadingLayout()"
                   [icon]="icons.ACTION_UNDO.class" [label]="'@Reset to layout' | transloco"
+                  [pTooltip]="'@Discard your changes and load the saved layout' | transloco"
                   severity="secondary" size="small" pRipple/>
         <p-button (click)="openLayoutManagement()" (keydown.enter)="openLayoutManagement()"
                   [icon]="icons.ACTION_EDIT.class"
@@ -55,18 +56,31 @@
         styleClass="w-full"/>
     </label>
 
-    <h3>{{ '@Charts' | transloco }}</h3>
-    <p class="hint">{{ '@Drag a chart onto the grid' | transloco }}</p>
-    <ul class="items">
-      @for (c of charts(); track c.id) {
-        <li class="palette-item" draggable="true"
-            (dragstart)="onDragStart({ type: 'chart', chartId: c.id, name: c.name })">
-          {{ c.name }}
-        </li>
-      } @empty {
-        <li class="empty">{{ '@No charts loaded' | transloco }}</li>
-      }
-    </ul>
+    <h3>
+      <button type="button" class="section-toggle" (click)="toggleCharts()"
+              [attr.aria-expanded]="chartsExpanded()" aria-controls="pdf-builder-charts">
+        <i [class]="chartsExpanded() ? icons.NAV_CHEVRON_DOWN.class : icons.NAV_CHEVRON_RIGHT.class" aria-hidden="true"></i>
+        <span>{{ '@Charts' | transloco }}</span>
+        @if (charts().length) {
+          <span class="count">{{ charts().length }}</span>
+        }
+      </button>
+    </h3>
+    @if (chartsExpanded()) {
+      <div id="pdf-builder-charts">
+        <p class="hint">{{ '@Drag a chart onto the grid' | transloco }}</p>
+        <ul class="items">
+          @for (c of charts(); track c.id) {
+            <li class="palette-item" draggable="true"
+                (dragstart)="onDragStart({ type: 'chart', chartId: c.id, name: c.name })">
+              {{ c.name }}
+            </li>
+          } @empty {
+            <li class="empty">{{ '@No charts loaded' | transloco }}</li>
+          }
+        </ul>
+      </div>
+    }
 
     <h3>{{ '@Text' | transloco }}</h3>
     <p-button (click)="addMarkdown()" (keydown.enter)="addMarkdown()"

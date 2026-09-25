@@ -28,6 +28,33 @@
   margin: 20px 0 6px;
 }
 
+/* Collapsible section heading (charts); looks like the plain h3, the whole row is clickable. */
+.section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.section-toggle i {
+  font-size: 11px;
+  width: 12px;
+}
+
+.section-toggle .count {
+  margin-left: auto;
+  color: #888;
+  font-weight: normal;
+  font-size: 12px;
+}
+
 .hint,
 .empty {
   color: #888;
@@ -50,6 +77,10 @@
 
 .layout-actions p-button:first-child {
   flex: 1;
+}
+
+.layout-actions p-button {
+  white-space: nowrap;
 }
 
 .name-field input {
