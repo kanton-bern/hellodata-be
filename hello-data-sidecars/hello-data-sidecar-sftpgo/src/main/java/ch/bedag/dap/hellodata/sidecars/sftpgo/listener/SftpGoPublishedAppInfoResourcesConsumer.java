@@ -2,14 +2,17 @@ package ch.bedag.dap.hellodata.sidecars.sftpgo.listener;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
+import ch.bedag.dap.hellodata.commons.nats.service.UsersSyncTriggerService;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.Permission;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.ConfigHashService;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +30,9 @@ public class SftpGoPublishedAppInfoResourcesConsumer {
 
     private final SftpGoService sftpGoService;
     private final ConfigHashService configHashService;
+    private final UsersSyncTriggerService usersSyncTriggerService;
+    @Value("${hello-data.instance.name}")
+    private String instanceName;
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_APP_INFO_RESOURCES)
@@ -52,6 +58,7 @@ public class SftpGoPublishedAppInfoResourcesConsumer {
                     configChanged);
             sftpGoService.createOrUpdateGroup(dataDomainKey, subContext.getName(), groupName + VIEWER_GROUP_POSTFIX,
                     List.of(Permission.LIST, Permission.DOWNLOAD), configChanged);
+            usersSyncTriggerService.dataDomainRolesReady(ModuleType.SFTPGO, instanceName, dataDomainKey);
         }
     }
 }

@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.sidecars.superset.service.resource;
 
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
+import ch.bedag.dap.hellodata.commons.nats.service.UsersSyncTriggerService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePermissions;
@@ -53,6 +54,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_ROL
 @RequiredArgsConstructor
 public class RoleResourceProviderService {
     private final NatsSenderService natsSenderService;
+    private final UsersSyncTriggerService usersSyncTriggerService;
     private final SupersetClientProvider supersetClientProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
@@ -64,6 +66,7 @@ public class RoleResourceProviderService {
 
         RoleResource roleResource = new RoleResource(this.instanceName, ModuleType.SUPERSET, data);
         natsSenderService.publishMessageToJetStream(PUBLISH_ROLE_RESOURCES, roleResource);
+        usersSyncTriggerService.subsystemReady(ModuleType.SUPERSET, this.instanceName);
     }
 
     private static final int BATCH_SIZE = 40; // stay well under Superset's 50 req/s rate limit
