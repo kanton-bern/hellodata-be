@@ -27,21 +27,17 @@
 package ch.bedag.dap.hellodata.portal.user.event;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.portal.sync.service.UsersSyncService;
 import ch.bedag.dap.hellodata.portal.user.service.UserSubsystemSyncService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -57,7 +53,6 @@ public class UserSyncEventListener {
 
     private final UserSubsystemSyncService userSubsystemSyncService;
     private final UserRepository userRepository;
-    private final UsersSyncService usersSyncService;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -103,15 +98,10 @@ public class UserSyncEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleSyncAllUsersEvent(SyncAllUsersEvent event) {
         log.info("Received SyncAllUsersEvent - synchronizing all users with dashboards");
-        LocalDateTime startTime = LocalDateTime.now();
         try {
             userSubsystemSyncService.syncAllUsers();
         } catch (Exception e) {
             log.error("Failed to sync all users: {}", e.getMessage(), e);
-        } finally {
-            usersSyncService.finishSynchronization();
-            Duration between = Duration.between(startTime, LocalDateTime.now());
-            log.info("[syncAllUsers] Synchronize users completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
         }
     }
 

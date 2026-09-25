@@ -49,7 +49,7 @@ class UsersSyncRequestServiceTest {
     private final UsersSyncService usersSyncService = mock(UsersSyncService.class);
     private final Connection natsConnection = mock(Connection.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final UsersSyncRequestService service = new UsersSyncRequestService(usersSyncService, natsConnection, objectMapper, true, 60, 600);
+    private final UsersSyncRequestService service = new UsersSyncRequestService(usersSyncService, natsConnection, objectMapper, true, 60, 600, 600);
     private final Instant start = Instant.parse("2026-01-01T10:00:00Z");
 
     @Test
@@ -97,8 +97,24 @@ class UsersSyncRequestServiceTest {
     }
 
     @Test
+    void keepsMinIntervalBetweenSynchronizations() {
+        service.registerRequest(start);
+        service.startSynchronizationIfDue(start.plusSeconds(60));
+        verify(usersSyncService, times(1)).startSynchronization();
+
+        // e.g. a crash looping sidecar asking again
+        service.registerRequest(start.plusSeconds(120));
+        service.startSynchronizationIfDue(start.plusSeconds(300));
+        service.startSynchronizationIfDue(start.plusSeconds(600));
+        verify(usersSyncService, times(1)).startSynchronization();
+
+        service.startSynchronizationIfDue(start.plusSeconds(660));
+        verify(usersSyncService, times(2)).startSynchronization();
+    }
+
+    @Test
     void ignoresRequestsWhenDisabled() {
-        UsersSyncRequestService disabled = new UsersSyncRequestService(usersSyncService, natsConnection, objectMapper, false, 60, 600);
+        UsersSyncRequestService disabled = new UsersSyncRequestService(usersSyncService, natsConnection, objectMapper, false, 60, 600, 600);
 
         disabled.onCommenceUsersSync(new CommenceUsersSync(ModuleType.SUPERSET, "superset", null));
         disabled.startSynchronizationIfDue(Instant.now().plusSeconds(3600));

@@ -1,83 +1,83 @@
 package ch.bedag.dap.hellodata.portal.sync.service;
 
+import ch.bedag.dap.hellodata.portal.lock.service.AdvisoryLockService;
 import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncLockEntity;
 import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus;
 import ch.bedag.dap.hellodata.portal.sync.repository.UserSyncLockRepository;
 import ch.bedag.dap.hellodata.portal.user.event.SyncAllUsersEvent;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus.COMPLETED;
-import static ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus.RERUN_REQUESTED;
-import static ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus.RUNNING;
-import static ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus.STARTED;
-
-/**
- * Makes sure only one users synchronization runs at a time across all portal instances.
- * The status moves STARTED -> RUNNING -> COMPLETED, requests coming in while running are merged into one follow-up run.
- */
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class UsersSyncService {
 
-    private static final long STALE_RUN_MINUTES = 30;
+    private static final long LOCK_ID = 5432543124L;
     private final ApplicationEventPublisher eventPublisher;
     private final UserSyncLockRepository userSyncLockRepository;
+    private final AdvisoryLockService advisoryLockService;
 
-    /**
-     * Releases the lock when the instance running the synchronization died before finishing it
-     */
+    @PostConstruct
+    public void releaseStaleLocksOnStartup() {
+        advisoryLockService.releaseStaleLock(LOCK_ID);
+        log.info("[syncAllUsers] Released stale advisory lock at startup.");
+    }
+
+    @Transactional
     @Scheduled(fixedDelay = 15, timeUnit = TimeUnit.MINUTES)
     public void resetStatusIfOld() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime olderThan = now.minusMinutes(STALE_RUN_MINUTES);
-        int reset = userSyncLockRepository.changeStatusIfOlderThan(RUNNING, COMPLETED, olderThan, now)
-                + userSyncLockRepository.changeStatusIfOlderThan(RERUN_REQUESTED, STARTED, olderThan, now);
-        if (reset > 0) {
-            log.warn("[syncAllUsers] Synchronization did not finish within {} minutes, releasing the lock", STALE_RUN_MINUTES);
+        UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
+        if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED &&
+                userSyncLockEntity.getModifiedDate().isBefore(LocalDateTime.now().minusMinutes(15))) {
+            userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
+            userSyncLockRepository.save(userSyncLockEntity);
+            advisoryLockService.releaseStaleLock(LOCK_ID);
         }
     }
 
-    /**
-     * Picks up a requested synchronization, the synchronization itself runs asynchronously and calls {@link #finishSynchronization()} when done
-     */
     @Transactional
     @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
     public void synchronizeUsers() {
-        if (userSyncLockRepository.changeStatus(STARTED, RUNNING, LocalDateTime.now()) == 1) {
-            log.info("[syncAllUsers] Synchronize users started");
-            // delivered after this transaction commits, so the RUNNING status is visible to all instances
-            eventPublisher.publishEvent(new SyncAllUsersEvent());
+        if (Boolean.TRUE.equals(advisoryLockService.acquireLock(LOCK_ID))) {
+            UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
+            if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED) {
+                LocalDateTime startTime = LocalDateTime.now();
+                try {
+                    log.info("[syncAllUsers] Synchronize users started");
+                    eventPublisher.publishEvent(new SyncAllUsersEvent());
+                } finally {
+                    userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
+                    userSyncLockRepository.save(userSyncLockEntity);
+                    advisoryLockService.releaseStaleLock(LOCK_ID);
+                    Duration between = Duration.between(startTime, LocalDateTime.now());
+                    log.info("[syncAllUsers] Synchronize users completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
+                }
+            }
         } else {
-            log.debug("[syncAllUsers] No synchronization requested or another one is running.");
+            log.debug("[syncAllUsers] Another instance is already synchronizing users.");
         }
     }
 
     @Transactional
     public UserSyncStatus startSynchronization() {
-        LocalDateTime now = LocalDateTime.now();
-        if (userSyncLockRepository.changeStatus(COMPLETED, STARTED, now) == 0) {
-            userSyncLockRepository.changeStatus(RUNNING, RERUN_REQUESTED, now);
+        UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
+        if (userSyncLockEntity.getStatus() == UserSyncStatus.COMPLETED) {
+            userSyncLockEntity.setStatus(UserSyncStatus.STARTED);
+            userSyncLockRepository.save(userSyncLockEntity);
         }
-        return getUserSyncLockEntity().getStatus();
-    }
-
-    @Transactional
-    public void finishSynchronization() {
-        LocalDateTime now = LocalDateTime.now();
-        if (userSyncLockRepository.changeStatus(RUNNING, COMPLETED, now) == 0
-                && userSyncLockRepository.changeStatus(RERUN_REQUESTED, STARTED, now) == 1) {
-            log.info("[syncAllUsers] Another synchronization was requested while running, it starts shortly");
-        }
+        return userSyncLockEntity.getStatus();
     }
 
     @Transactional(readOnly = true)
