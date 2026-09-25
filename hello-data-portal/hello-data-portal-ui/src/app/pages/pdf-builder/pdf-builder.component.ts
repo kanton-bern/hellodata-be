@@ -25,8 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal} from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {Component, DestroyRef, OnDestroy, OnInit, computed, inject, linkedSignal, signal} from "@angular/core";
+import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Select} from "primeng/select";
@@ -80,6 +80,8 @@ type PaletteItem = {
 type Cell = GridsterItemConfig & PaletteItem & {page: number};
 
 const STORAGE_KEY = 'pdf-builder-layout';
+/** Picker value for "No layout" (an own canvas, not based on a saved layout). */
+const NO_LAYOUT = '';
 const CHARTS_EXPANDED_KEY = 'pdf-builder-charts-expanded';
 
 function readChartsExpanded(): boolean {
@@ -149,6 +151,10 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   currentLayout = signal<{id: string; name: string} | null>(null);
   /** Whether the chart palette is expanded; remembered in the browser. */
   chartsExpanded = signal(readChartsExpanded());
+  /** What the two pickers show. Linked to the real state, but set ahead of a confirm so a cancelled
+   *  switch can put the picker back (setting the unchanged real value wouldn't refresh it). */
+  layoutPickerValue = linkedSignal(() => this.currentLayout()?.id ?? NO_LAYOUT);
+  dashboardPickerValue = linkedSignal(() => this.selectedDashboard());
   /** Name of the layout being created/edited (manage mode). */
   layoutName = signal('');
   saving = signal(false);
@@ -178,11 +184,16 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
 
   /** Saved-layout picker options, narrowed to the selected data domain; the dashboard title is
    *  appended so equally named layouts of different dashboards stay distinguishable. */
+  private activeLang = toSignal(this.transloco.langChanges$);
   savedLayoutOptions = computed(() => {
+    this.activeLang();   // re-translate "No layout" on a language switch
     const key = this.selectedContextKey();
-    return this.savedLayouts()
-      .filter(l => key === null || l.contextKey === key)
-      .map(l => ({label: l.dashboardTitle ? `${l.name} (${l.dashboardTitle})` : l.name, value: l.id}));
+    return [
+      {label: this.transloco.translate('@No layout'), value: NO_LAYOUT},
+      ...this.savedLayouts()
+        .filter(l => key === null || l.contextKey === key)
+        .map(l => ({label: l.dashboardTitle ? `${l.name} (${l.dashboardTitle})` : l.name, value: l.id})),
+    ];
   });
 
   /** Cells on the currently shown page (what the 4x4 grid renders). */
@@ -310,6 +321,20 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     this.clearPreviews();
     this.refreshPreviews();
     this.persist();
+  }
+
+  /** Dashboard picked by the user: switching clears the canvas, so confirm when that loses changes. */
+  onDashboardPick(dashboard: SupersetDashboardWithMetadata): void {
+    const previous = this.selectedDashboard();
+    const switching = previous !== null && (previous.instanceName !== dashboard.instanceName || previous.id !== dashboard.id);
+    if (!switching || !this.hasPendingChanges()) {
+      this.onDashboardChange(dashboard);
+      return;
+    }
+    this.dashboardPickerValue.set(dashboard);
+    this.confirmDiscard('@Switch the dashboard and discard your changes?', {},
+      () => this.onDashboardChange(dashboard),
+      () => this.dashboardPickerValue.set(previous));
   }
 
   onDashboardChange(dashboard: SupersetDashboardWithMetadata): void {
@@ -711,6 +736,26 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
 
   /** Load a saved layout onto the canvas. The backend refuses it when its dashboard no longer exists
    *  and drops charts that were removed from the dashboard (reported as a warning here). */
+  /** Layout picked by the user. "No layout" keeps the canvas as an own layout; loading a saved one
+   *  replaces the canvas, so confirm first when that would discard own changes. */
+  onLayoutPick(id: string): void {
+    if (id === NO_LAYOUT) {
+      this.detachLayout();
+      this.persist();
+      return;
+    }
+    if (id === this.currentLayout()?.id || !this.hasPendingChanges()) {
+      this.onSavedLayoutSelect(id);
+      return;
+    }
+    const previous = this.currentLayout()?.id ?? NO_LAYOUT;
+    const name = this.savedLayouts().find(l => l.id === id)?.name ?? '';
+    this.layoutPickerValue.set(id);
+    this.confirmDiscard('@Load the layout and discard your changes?', {name},
+      () => this.onSavedLayoutSelect(id),
+      () => this.layoutPickerValue.set(previous));
+  }
+
   onSavedLayoutSelect(id: string | null): void {
     if (!id || this.loadingLayout()) {
       return;
@@ -723,6 +768,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       },
       error: err => {
         this.loadingLayout.set(false);
+        this.layoutPickerValue.set(this.currentLayout()?.id ?? NO_LAYOUT);
         this.store.dispatch(showError({error: err}));
       },
     });
@@ -809,35 +855,32 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       this.router.navigate(['pdf-layouts']);
       return;
     }
-    this.confirmDiscard('@Unsaved changes message', () => this.router.navigate(['pdf-layouts']));
+    this.confirmDiscard('@Unsaved changes message', {}, () => this.router.navigate(['pdf-layouts']));
   }
 
   openLayoutManagement(): void {
     this.router.navigate(['pdf-layouts']);
   }
 
-  /** Export mode: drop the local changes and reload the selected layout as it is saved. */
-  resetToLayout(): void {
-    const current = this.currentLayout();
-    if (!current) {
-      return;
-    }
-    if (!this.hasUnsavedChanges()) {
-      this.onSavedLayoutSelect(current.id);
-      return;
-    }
-    this.confirmDiscard('@Reset the layout and discard your changes?', () => this.onSavedLayoutSelect(current.id));
-  }
-
-  private confirmDiscard(messageKey: string, accept: () => void): void {
+  private confirmDiscard(messageKey: string, params: Record<string, unknown>, accept: () => void, reject?: () => void): void {
     this.confirmationService.confirm({
       key: 'discardPdfLayout',
       header: this.transloco.translate('@Discard changes'),
-      message: this.transloco.translate(messageKey),
+      message: this.transloco.translate(messageKey, params),
       icon: this.icons.DIALOG_WARNING.class,
       closeOnEscape: false,
       accept,
+      reject,
     });
+  }
+
+  /** True when the canvas holds work that a layout/dashboard switch would throw away: in manage mode
+   *  any tile; on the export page an own canvas (no layout, or a changed one) with tiles. */
+  private hasPendingChanges(): boolean {
+    if (this.cells().length === 0) {
+      return false;
+    }
+    return this.mode === 'manage' || this.currentLayout() === null || this.hasUnsavedChanges();
   }
 
   /** The canvas cells in the shape they are saved in. */
@@ -880,6 +923,18 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     this.loadedVersion = null;
   }
 
+  /** Export mode: once the canvas differs from the selected layout it is the user's own layout - the
+   *  picker switches to "No layout" and the saved layout stays as it is. Returns true when detached. */
+  private detachIfChanged(): boolean {
+    const current = this.currentLayout();
+    if (this.mode !== 'export' || current === null || !this.hasUnsavedChanges()) {
+      return false;
+    }
+    this.detachLayout();
+    this.notification.info('@Now editing your own layout', {name: current.name});
+    return true;
+  }
+
   private reloadPendingLayout(): void {
     const id = this.pendingLayoutReload;
     this.pendingLayoutReload = null;
@@ -891,8 +946,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   }
 
   /** Export mode: when the tab becomes visible again, pick up a newer version of the selected layout
-   *  (changed in the layout management): reload it when there are no local changes, otherwise tell
-   *  the user that "Reset to layout" gets the new version. */
+   *  (changed in the layout management). A selected layout is always unchanged - any edit detaches it. */
   private checkForNewerVersion(): void {
     const current = this.currentLayout();
     if (document.visibilityState !== 'visible' || current === null || this.loadingLayout()) {
@@ -911,13 +965,11 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         if (version === null || version === this.loadedVersion || this.currentLayout()?.id !== current.id) {
           return;
         }
-        if (this.hasUnsavedChanges()) {
-          this.loadedVersion = version;   // warn once per newer version
-          this.notification.warn('@Layout was updated', {name: summary.name});
-        } else {
-          this.onSavedLayoutSelect(current.id);
-          this.notification.info('@Layout reloaded', {name: summary.name});
+        if (this.detachIfChanged()) {
+          return;   // an own canvas now - the newer layout version doesn't affect it
         }
+        this.onSavedLayoutSelect(current.id);
+        this.notification.info('@Layout reloaded', {name: summary.name});
       },
       error: () => {
         // background refresh only; the next explicit action reports errors
@@ -930,6 +982,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     if (this.mode === 'manage') {
       return;
     }
+    this.detachIfChanged();
     const dashboard = this.selectedDashboard();
     const state = {
       instanceName: dashboard?.instanceName ?? null,
@@ -979,11 +1032,13 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
         this.currentLayout.set(state.layout);
         this.savedSnapshot = state.savedSnapshot ?? null;
         this.loadedVersion = state.loadedVersion ?? null;
-        // Without unsaved changes the server copy is authoritative: re-fetch it once the dashboards
-        // are known. Unsaved local edits are kept as they are. State stored before change tracking
-        // existed has no snapshot and is refreshed as well.
+        // An unchanged layout is re-fetched once the dashboards are known, so its latest version is
+        // shown (state stored before change tracking existed has no snapshot and is refreshed too).
+        // A changed one is an own layout by now.
         if (state.savedSnapshot === undefined || !this.hasUnsavedChanges()) {
           this.pendingLayoutReload = state.layout.id;
+        } else {
+          this.detachLayout();
         }
       }
       if (state.instanceName != null && state.dashboardId != null) {

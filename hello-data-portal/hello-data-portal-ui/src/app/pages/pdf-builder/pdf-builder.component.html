@@ -15,8 +15,8 @@
         <span>{{ '@Saved layout' | transloco }}</span>
         <p-select
           [options]="savedLayoutOptions()"
-          [ngModel]="currentLayout()?.id ?? null"
-          (ngModelChange)="onSavedLayoutSelect($event)"
+          [ngModel]="layoutPickerValue()"
+          (ngModelChange)="onLayoutPick($event)"
           optionLabel="label"
           optionValue="value"
           [placeholder]="'@Choose a saved layout' | transloco"
@@ -27,14 +27,8 @@
           styleClass="w-full"/>
       </label>
       <div class="layout-actions">
-        <p-button (click)="resetToLayout()" (keydown.enter)="resetToLayout()"
-                  [disabled]="currentLayout() === null || loadingLayout()"
-                  [icon]="icons.ACTION_UNDO.class" [label]="'@Reset to layout' | transloco"
-                  [pTooltip]="'@Discard your changes and load the saved layout' | transloco"
-                  severity="secondary" size="small" pRipple/>
         <p-button (click)="openLayoutManagement()" (keydown.enter)="openLayoutManagement()"
-                  [icon]="icons.ACTION_EDIT.class"
-                  [pTooltip]="'@Manage layouts' | transloco" [ariaLabel]="'@Manage layouts' | transloco"
+                  [icon]="icons.ACTION_EDIT.class" [label]="'@Manage layouts' | transloco"
                   severity="secondary" size="small" pRipple/>
       </div>
       @if (currentLayout()) {
@@ -46,8 +40,8 @@
       <span>{{ '@Dashboard' | transloco }}</span>
       <p-select
         [options]="dashboardOptions()"
-        [ngModel]="selectedDashboard()"
-        (ngModelChange)="onDashboardChange($event)"
+        [ngModel]="dashboardPickerValue()"
+        (ngModelChange)="onDashboardPick($event)"
         optionLabel="label"
         optionValue="value"
         [disabled]="editId !== null"
