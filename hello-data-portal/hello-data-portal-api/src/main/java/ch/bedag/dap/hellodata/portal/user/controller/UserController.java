@@ -182,14 +182,15 @@ public class UserController {
                 return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), permissions, isSuperuser,
                         helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
                         userService.isUserDisabled(currentUserIdStr), userService.getSelectedLanguage(currentUserIdStr),
-                        firstLogin
+                        firstLogin, false
                 );
             }
             // Authenticated but still no portal account (auto-provisioning disabled): the frontend
-            // shows the onboarding state for this empty-permission response.
+            // shows the onboarding state while provisioning is flagged. An existing account with no
+            // permissions is not provisioning - it gets the regular "permission missing" page.
             return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), permissions, false,
                     helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
-                    false, Locale.ROOT, true);
+                    false, Locale.ROOT, true, true);
         } catch (ClientErrorException e) {
             log.error("Error on getting user sessions", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));

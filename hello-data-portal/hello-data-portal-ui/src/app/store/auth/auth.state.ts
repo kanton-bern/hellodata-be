@@ -41,7 +41,8 @@ export interface AuthState {
   supportedLanguages: string[],
   selectedLanguage: string | null,
   defaultLanguage: string | null,
-  firstLogin: boolean
+  firstLogin: boolean,
+  provisioning: boolean
 }
 
 export interface CurrentUserAuthData {
@@ -51,7 +52,8 @@ export interface CurrentUserAuthData {
   disableLogout: boolean,
   userDisabled: boolean,
   selectedLanguage: string | null,
-  firstLogin: boolean
+  firstLogin: boolean,
+  provisioning: boolean
 }
 
 export const initialAuthState: AuthState = {
@@ -68,6 +70,7 @@ export const initialAuthState: AuthState = {
   supportedLanguages: [],
   selectedLanguage: null,
   defaultLanguage: null,
-  firstLogin: false
+  firstLogin: false,
+  provisioning: false
 }
 

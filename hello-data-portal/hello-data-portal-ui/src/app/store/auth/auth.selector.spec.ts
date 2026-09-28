@@ -44,13 +44,14 @@ describe('selectIsProvisioning', () => {
     supportedLanguages: [],
     selectedLanguage: null,
     defaultLanguage: null,
-    firstLogin: false
+    firstLogin: false,
+    provisioning: true
   };
 
   const run = (overrides: Partial<AuthState>) =>
     selectIsProvisioning.projector({...base, ...overrides});
 
-  it('is true when authenticated, profile loaded, not disabled, and no permissions yet', () => {
+  it('is true when authenticated, profile loaded, not disabled, provisioning and no permissions yet', () => {
     expect(run({})).toBe(true);
   });
 
@@ -64,6 +65,10 @@ describe('selectIsProvisioning', () => {
 
   it('is false for a disabled user (that is a forbidden state, not provisioning)', () => {
     expect(run({userDisabled: true})).toBe(false);
+  });
+
+  it('is false for an existing user without permissions (not provisioning)', () => {
+    expect(run({provisioning: false})).toBe(false);
   });
 
   it('is false when not logged in', () => {
