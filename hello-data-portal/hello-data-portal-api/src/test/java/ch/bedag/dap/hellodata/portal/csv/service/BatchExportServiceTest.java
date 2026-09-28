@@ -13,7 +13,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupUserEntry;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
-import ch.bedag.dap.hellodata.portal.metainfo.data.DataDomainRoleDto;
+import ch.bedag.dap.hellodata.portalcommon.userscache.data.DataDomainRoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserWithBusinessRoleDto;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;

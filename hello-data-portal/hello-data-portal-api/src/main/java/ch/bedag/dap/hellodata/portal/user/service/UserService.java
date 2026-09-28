@@ -47,7 +47,7 @@ import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
-import ch.bedag.dap.hellodata.portal.metainfo.data.DataDomainRoleDto;
+import ch.bedag.dap.hellodata.portalcommon.userscache.data.DataDomainRoleDto;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;

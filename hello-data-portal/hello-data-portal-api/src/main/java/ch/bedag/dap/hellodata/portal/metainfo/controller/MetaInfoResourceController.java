@@ -31,8 +31,8 @@ import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import ch.bedag.dap.hellodata.portal.csv.service.BatchExportService;
-import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
-import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUsersResultDto;
+import ch.bedag.dap.hellodata.portalcommon.userscache.data.DashboardUsersResultDto;
+import ch.bedag.dap.hellodata.portalcommon.userscache.data.SubsystemUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.UserSubsystemRolesDto;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
 import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
@@ -60,8 +60,8 @@ import java.util.stream.Collectors;
 
 import static ch.bedag.dap.hellodata.commons.security.Permission.USER_MANAGEMENT;
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
-import static ch.bedag.dap.hellodata.portal.base.config.RedisConfig.SUBSYSTEM_USERS_CACHE;
-import static ch.bedag.dap.hellodata.portal.base.config.RedisConfig.USERS_WITH_DASHBOARD_CACHE;
+import static ch.bedag.dap.hellodata.portalcommon.userscache.UsersCacheNames.SUBSYSTEM_USERS_CACHE;
+import static ch.bedag.dap.hellodata.portalcommon.userscache.UsersCacheNames.USERS_WITH_DASHBOARD_CACHE;
 
 @Log4j2
 @RestController

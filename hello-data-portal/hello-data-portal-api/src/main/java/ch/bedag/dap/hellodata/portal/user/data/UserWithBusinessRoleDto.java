@@ -1,7 +1,7 @@
 package ch.bedag.dap.hellodata.portal.user.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
-import ch.bedag.dap.hellodata.portal.metainfo.data.DataDomainRoleDto;
+import ch.bedag.dap.hellodata.portalcommon.userscache.data.DataDomainRoleDto;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

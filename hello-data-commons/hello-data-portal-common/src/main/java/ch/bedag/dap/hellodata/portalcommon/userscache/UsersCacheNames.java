@@ -24,39 +24,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.base.config;
+package ch.bedag.dap.hellodata.portalcommon.userscache;
 
-import ch.bedag.dap.hellodata.portalcommon.userscache.UsersCacheManagerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurer;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.interceptor.CacheErrorHandler;
-import org.springframework.cache.interceptor.LoggingCacheErrorHandler;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import lombok.experimental.UtilityClass;
 
-@EnableCaching
-@Configuration
-public class RedisConfig implements CachingConfigurer {
-
-    @Value("${hello-data.cache.users-with-dashboards-ttl-minutes}")
-    private long usersWithDashboardsTtlCacheMinutes;
-
-    @Value("${hello-data.cache.subsystem-users-ttl-minutes}")
-    private long subsystemUsersTtlCacheMinutes;
-
-    @Bean
-    public CacheManager cacheManager(RedisConnectionFactory factory) {
-        return UsersCacheManagerFactory.create(factory, usersWithDashboardsTtlCacheMinutes, subsystemUsersTtlCacheMinutes);
-    }
-
-    /**
-     * An entry that cannot be read (e.g. written by an older version) is treated as a cache miss and rebuilt instead of failing the request.
-     */
-    @Override
-    public CacheErrorHandler errorHandler() {
-        return new LoggingCacheErrorHandler();
-    }
+/**
+ * Redis caches with the users overview data. The sidecar for portal writes them, the portal api reads them.
+ */
+@UtilityClass
+public class UsersCacheNames {
+    public static final String USERS_WITH_DASHBOARD_CACHE = "users_with_dashboards";
+    public static final String SUBSYSTEM_USERS_CACHE = "subsystem_users";
 }

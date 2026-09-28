@@ -1,4 +1,4 @@
-package ch.bedag.dap.hellodata.portal.metainfo.data;
+package ch.bedag.dap.hellodata.portalcommon.userscache.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 

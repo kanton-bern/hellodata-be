@@ -28,7 +28,6 @@ package ch.bedag.dap.hellodata.portal.user;
 
 import ch.bedag.dap.hellodata.commons.nats.actuator.NatsHealthIndicator;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
-import ch.bedag.dap.hellodata.portal.cache.service.CacheUpdateService;
 import ch.bedag.dap.hellodata.portal.initialize.service.RolesInitializer;
 import ch.bedag.dap.hellodata.portal.monitoring.service.StorageSizeService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
@@ -111,8 +110,6 @@ public abstract class KeycloakTestContainerTest {
     private StorageSizeService storageSizeService;
     @MockitoBean
     private NatsHealthIndicator natsHealthIndicator;
-    @MockitoBean
-    private CacheUpdateService cacheUpdateService;
     @MockitoBean
     private UsersSyncRequestService usersSyncRequestService;
     @MockitoBean
