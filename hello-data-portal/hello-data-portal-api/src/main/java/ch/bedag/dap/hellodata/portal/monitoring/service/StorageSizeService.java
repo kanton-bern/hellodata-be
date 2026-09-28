@@ -37,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +55,7 @@ public class StorageSizeService {
 
     @Transactional
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.HOURS)
+    @SchedulerLock(name = "removeOldStorageSizeEntries", lockAtMostFor = "PT10M")
     public void removeOldEntries() {
         storageSizeRepository.deleteAllByCreatedDateBefore(LocalDateTime.now().minusDays(14));
     }

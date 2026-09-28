@@ -1,13 +1,12 @@
 package ch.bedag.dap.hellodata.portal.sync.service;
 
-import ch.bedag.dap.hellodata.portal.lock.service.AdvisoryLockService;
 import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncLockEntity;
 import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus;
 import ch.bedag.dap.hellodata.portal.sync.repository.UserSyncLockRepository;
 import ch.bedag.dap.hellodata.portal.user.event.SyncAllUsersEvent;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,49 +23,40 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class UsersSyncService {
 
-    private static final long LOCK_ID = 5432543124L;
     private final ApplicationEventPublisher eventPublisher;
     private final UserSyncLockRepository userSyncLockRepository;
-    private final AdvisoryLockService advisoryLockService;
-
-    @PostConstruct
-    public void releaseStaleLocksOnStartup() {
-        advisoryLockService.releaseStaleLock(LOCK_ID);
-        log.info("[syncAllUsers] Released stale advisory lock at startup.");
-    }
 
     @Transactional
     @Scheduled(fixedDelay = 15, timeUnit = TimeUnit.MINUTES)
+    @SchedulerLock(name = "resetUsersSyncStatusIfOld", lockAtMostFor = "PT5M")
     public void resetStatusIfOld() {
         UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
         if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED &&
                 userSyncLockEntity.getModifiedDate().isBefore(LocalDateTime.now().minusMinutes(15))) {
             userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
             userSyncLockRepository.save(userSyncLockEntity);
-            advisoryLockService.releaseStaleLock(LOCK_ID);
         }
     }
 
+    /**
+     * Only publishes the event, the synchronization itself runs asynchronously after the commit, so a short lock is enough
+     */
     @Transactional
     @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
+    @SchedulerLock(name = "synchronizeUsers", lockAtMostFor = "PT5M")
     public void synchronizeUsers() {
-        if (Boolean.TRUE.equals(advisoryLockService.acquireLock(LOCK_ID))) {
-            UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
-            if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED) {
-                LocalDateTime startTime = LocalDateTime.now();
-                try {
-                    log.info("[syncAllUsers] Synchronize users started");
-                    eventPublisher.publishEvent(new SyncAllUsersEvent());
-                } finally {
-                    userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
-                    userSyncLockRepository.save(userSyncLockEntity);
-                    advisoryLockService.releaseStaleLock(LOCK_ID);
-                    Duration between = Duration.between(startTime, LocalDateTime.now());
-                    log.info("[syncAllUsers] Synchronize users completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
-                }
+        UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
+        if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED) {
+            LocalDateTime startTime = LocalDateTime.now();
+            try {
+                log.info("[syncAllUsers] Synchronize users started");
+                eventPublisher.publishEvent(new SyncAllUsersEvent());
+            } finally {
+                userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
+                userSyncLockRepository.save(userSyncLockEntity);
+                Duration between = Duration.between(startTime, LocalDateTime.now());
+                log.info("[syncAllUsers] Synchronize users completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
             }
-        } else {
-            log.debug("[syncAllUsers] Another instance is already synchronizing users.");
         }
     }
 

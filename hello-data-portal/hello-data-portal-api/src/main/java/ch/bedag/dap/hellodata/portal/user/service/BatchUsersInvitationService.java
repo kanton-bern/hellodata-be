@@ -48,6 +48,7 @@ import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -91,6 +92,7 @@ public class BatchUsersInvitationService {
     }
 
     @Scheduled(fixedDelayString = "${hello-data.batch-users-file.scan-interval-seconds}", timeUnit = TimeUnit.SECONDS)
+    @SchedulerLock(name = "inviteOrUpdateBatchUsers", lockAtMostFor = "PT1H")
     public void inviteOrUpdateUsers() {
         try {
             ContextsDto availableContexts = userService.getAvailableContexts();

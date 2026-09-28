@@ -162,3 +162,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/67_revoke_default_read_comments.xml
   - include:
       file: db/changelog/changelogs/68_create_pdf_layout_table.xml
+  - include:
+      file: db/changelog/changelogs/69_add_scheduled_jobs_locking.xml

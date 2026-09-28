@@ -27,12 +27,15 @@
 package ch.bedag.dap.hellodata.portal.sync.service;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.CommenceUsersSync;
+import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncLockEntity;
+import ch.bedag.dap.hellodata.portal.sync.repository.UserSyncLockRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Message;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -41,6 +44,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static ch.bedag.dap.hellodata.commons.nats.service.UsersSyncTriggerService.OK_REPLY;
@@ -52,6 +57,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject
  * Data domains show up one after another, so requests are merged and the synchronization starts once no new request came in
  * for the quiet period, or at the latest after the max delay.
  * Two automatic synchronizations are at least the min interval apart, so a restarting sidecar cannot flood the subsystems.
+ * The pending requests are kept in the database, so all portal instances share them.
  */
 @Log4j2
 @Service
@@ -60,6 +66,7 @@ public class UsersSyncRequestService {
     private static final String QUEUE_GROUP = "portal-users-sync";
 
     private final UsersSyncService usersSyncService;
+    private final UserSyncLockRepository userSyncLockRepository;
     private final Connection natsConnection;
     private final ObjectMapper objectMapper;
     private final boolean enabled;
@@ -67,11 +74,8 @@ public class UsersSyncRequestService {
     private final Duration maxDelay;
     private final Duration minInterval;
 
-    private Instant firstRequestAt;
-    private Instant lastRequestAt;
-    private Instant lastSynchronizationAt;
-
     public UsersSyncRequestService(UsersSyncService usersSyncService,
+                                   UserSyncLockRepository userSyncLockRepository,
                                    Connection natsConnection,
                                    ObjectMapper objectMapper,
                                    @Value("${hello-data.users-sync.auto.enabled:true}") boolean enabled,
@@ -79,6 +83,7 @@ public class UsersSyncRequestService {
                                    @Value("${hello-data.users-sync.auto.max-delay-seconds:600}") long maxDelaySeconds,
                                    @Value("${hello-data.users-sync.auto.min-interval-seconds:600}") long minIntervalSeconds) {
         this.usersSyncService = usersSyncService;
+        this.userSyncLockRepository = userSyncLockRepository;
         this.natsConnection = natsConnection;
         this.objectMapper = objectMapper;
         this.enabled = enabled;
@@ -117,23 +122,26 @@ public class UsersSyncRequestService {
             return;
         }
         log.info("[autoSyncUsers] Users synchronization requested by {}", commenceUsersSync);
-        registerRequest(Instant.now());
+        registerRequest(now());
     }
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.SECONDS)
+    @SchedulerLock(name = "startUsersSynchronizationIfDue", lockAtMostFor = "PT1M")
     public void startSynchronizationIfDue() {
-        startSynchronizationIfDue(Instant.now());
+        startSynchronizationIfDue(now());
     }
 
-    synchronized void registerRequest(Instant now) {
-        if (firstRequestAt == null) {
-            firstRequestAt = now;
-        }
-        lastRequestAt = now;
+    void registerRequest(Instant now) {
+        userSyncLockRepository.registerSyncRequest(now);
     }
 
-    synchronized void startSynchronizationIfDue(Instant now) {
-        if (firstRequestAt == null) {
+    // each step commits on its own, the scheduler lock keeps other instances out until all of them are done
+    void startSynchronizationIfDue(Instant now) {
+        UserSyncLockEntity state = getUserSyncLockEntity();
+        Instant firstRequestAt = state.getSyncRequestedFirstAt();
+        Instant lastRequestAt = state.getSyncRequestedLastAt();
+        Instant lastSynchronizationAt = state.getLastAutoSyncAt();
+        if (firstRequestAt == null || lastRequestAt == null) {
             return;
         }
         boolean quiet = !now.isBefore(lastRequestAt.plus(quietPeriod));
@@ -142,9 +150,18 @@ public class UsersSyncRequestService {
         if ((quiet || waitedTooLong) && intervalPassed) {
             log.info("[autoSyncUsers] Starting users synchronization requested by the sidecars");
             usersSyncService.startSynchronization();
-            lastSynchronizationAt = now;
-            firstRequestAt = null;
-            lastRequestAt = null;
+            userSyncLockRepository.setLastAutoSyncAt(now);
+            userSyncLockRepository.clearHandledSyncRequests(lastRequestAt);
         }
+    }
+
+    private UserSyncLockEntity getUserSyncLockEntity() {
+        List<UserSyncLockEntity> all = userSyncLockRepository.findAll();
+        return all.get(0);
+    }
+
+    // the database keeps microseconds, so the stored request time can be compared with the one read back
+    private static Instant now() {
+        return Instant.now().truncatedTo(ChronoUnit.MICROS);
     }
 }

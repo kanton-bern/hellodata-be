@@ -33,23 +33,36 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.portal.base.config.PersistenceConfig;
+import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncLockEntity;
+import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus;
+import ch.bedag.dap.hellodata.portal.sync.repository.UserSyncLockRepository;
 import io.nats.client.Connection;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import net.javacrumbs.shedlock.core.LockConfiguration;
+import net.javacrumbs.shedlock.core.SimpleLock;
+import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import javax.sql.DataSource;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.nullValue;
 
 @SpringBootTest
 @Transactional
@@ -77,6 +90,10 @@ class PostgresTestContainerTest {
     private ResourceRepository resourceRepository;
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    private UserSyncLockRepository userSyncLockRepository;
+    @Autowired
+    private DataSource dataSource;
     @MockitoBean
     private SecurityFilterChain securityFilterChain;
     @MockitoBean
@@ -109,5 +126,49 @@ class PostgresTestContainerTest {
         assertThat(all.get(0).getInstanceName(), equalTo(metaInfoResourceEntity.getInstanceName()));
         assertThat(all.get(0).getMetainfo(), equalTo(appInfoResource));
     }
-}
 
+    @Test
+    void should_keep_users_sync_requests_in_user_sync_lock_table() {
+        // ddl-auto recreates the table after liquibase, without the row it inserts
+        UserSyncLockEntity userSyncLock = new UserSyncLockEntity();
+        userSyncLock.setId(UUID.randomUUID());
+        userSyncLock.setStatus(UserSyncStatus.COMPLETED);
+        entityManager.persist(userSyncLock);
+        Instant first = Instant.now().truncatedTo(ChronoUnit.MICROS);
+        Instant last = first.plusSeconds(30);
+
+        userSyncLockRepository.registerSyncRequest(first);
+        userSyncLockRepository.registerSyncRequest(last);
+        UserSyncLockEntity registered = userSyncLockRepository.findAll().get(0);
+        assertThat(registered.getSyncRequestedFirstAt(), equalTo(first));
+        assertThat(registered.getSyncRequestedLastAt(), equalTo(last));
+
+        // a newer request than the handled one stays pending
+        assertThat(userSyncLockRepository.clearHandledSyncRequests(first), equalTo(0));
+        assertThat(userSyncLockRepository.clearHandledSyncRequests(last), equalTo(1));
+        userSyncLockRepository.setLastAutoSyncAt(last);
+
+        UserSyncLockEntity handled = userSyncLockRepository.findAll().get(0);
+        assertThat(handled.getSyncRequestedFirstAt(), nullValue());
+        assertThat(handled.getSyncRequestedLastAt(), nullValue());
+        assertThat(handled.getLastAutoSyncAt(), equalTo(last));
+    }
+
+    @Test
+    void should_lock_scheduled_job_in_shedlock_table() {
+        JdbcTemplateLockProvider lockProvider = new JdbcTemplateLockProvider(JdbcTemplateLockProvider.Configuration.builder()
+                .withJdbcTemplate(new JdbcTemplate(dataSource))
+                .usingDbTime()
+                .build());
+        LockConfiguration lockConfiguration = new LockConfiguration(Instant.now(), "testJob", Duration.ofMinutes(1), Duration.ZERO);
+
+        Optional<SimpleLock> lock = lockProvider.lock(lockConfiguration);
+        assertThat(lock.isPresent(), equalTo(true));
+        assertThat(lockProvider.lock(lockConfiguration).isPresent(), equalTo(false));
+
+        lock.get().unlock();
+        Optional<SimpleLock> lockAgain = lockProvider.lock(lockConfiguration);
+        assertThat(lockAgain.isPresent(), equalTo(true));
+        lockAgain.get().unlock();
+    }
+}

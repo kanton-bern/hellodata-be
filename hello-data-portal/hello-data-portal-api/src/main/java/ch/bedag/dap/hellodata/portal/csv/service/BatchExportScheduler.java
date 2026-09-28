@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.csv.service;
 
 import lombok.extern.log4j.Log4j2;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,8 @@ public class BatchExportScheduler {
     }
 
     @Scheduled(cron = "0 0 23 * * *")
+    // cron fires on all instances at the same time, lockAtLeastFor covers the clock differences between them
+    @SchedulerLock(name = "exportBatchUsersBackup", lockAtMostFor = "PT30M", lockAtLeastFor = "PT5M")
     public void exportBackup() {
         try {
             log.info("Starting scheduled batch users backup");

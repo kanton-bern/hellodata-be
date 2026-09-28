@@ -37,6 +37,7 @@
         <modelmapper.version>3.2.6</modelmapper.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <rest-assured.version>6.0.1</rest-assured.version>
+        <shedlock.version>7.10.1</shedlock.version>
         <!-- Boot 4.1.x is supported by Spring Cloud 2025.1.2+ (Oakwood); keep Boot and Cloud versions in lockstep per the compatibility matrix -->
         <spring-boot.version>4.1.1</spring-boot.version>
         <!-- CVE-2026-42584 / CVE-2026-56816 (GHSA-hpcc-26xq-25fv) / CVE-2026-59901 (GHSA-558v-64gr-wgg4) / CVE-2026-93568 (BDSA-2026-33790) / CVE-2026-93569 (BDSA-2026-33768) / CVE-2026-93576 (BDSA-2026-33770): remove once Spring Boot ships Netty >= 4.2.18.Final -->
@@ -319,6 +320,13 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-bom</artifactId>
+                <version>${shedlock.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

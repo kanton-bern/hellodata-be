@@ -11,6 +11,7 @@ import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,10 @@ public class UserRoleSyncService {
      */
     @Transactional
     @Scheduled(fixedDelayString = "${hello-data.check-user-context-roles-in-minutes}", timeUnit = TimeUnit.MINUTES)
+    // held for 90% of the interval, so the instances do not each run it once per interval
+    @SchedulerLock(name = "checkUserRolesSync",
+            lockAtMostFor = "${hello-data.check-user-context-roles-in-minutes}m",
+            lockAtLeastFor = "#{${hello-data.check-user-context-roles-in-minutes} * 54}s")
     public void checkUserRolesSync() {
         List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         log.debug("Available data domains: {}", dataDomains);
