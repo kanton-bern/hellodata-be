@@ -27,6 +27,9 @@
 package ch.bedag.dap.hellodata.portal.pdf_layout.data;
 
 import ch.bedag.dap.hellodata.portal.pdf_layout.entity.PdfLayoutItem;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
@@ -36,8 +39,12 @@ import java.util.List;
  *  {@code PdfLayoutService} so the frontend gets a readable message per violation. */
 @Data
 public class PdfLayoutSaveDto {
+    @NotBlank
+    @Size(max = 255)
     private String name;
+    @NotBlank
     private String instanceName;
+    @Min(1)
     private long dashboardId;
     private String template;
     private int pageCount;

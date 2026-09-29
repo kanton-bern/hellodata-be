@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDomainUs
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupUpdateDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -78,12 +79,12 @@ public class DashboardGroupController {
     }
 
     @PostMapping
-    public UUID createDashboardGroup(@RequestBody DashboardGroupCreateDto createDto) {
+    public UUID createDashboardGroup(@Valid @RequestBody DashboardGroupCreateDto createDto) {
         return dashboardGroupService.create(createDto);
     }
 
     @PutMapping
-    public void updateDashboardGroup(@RequestBody DashboardGroupUpdateDto updateDto) {
+    public void updateDashboardGroup(@Valid @RequestBody DashboardGroupUpdateDto updateDto) {
         dashboardGroupService.update(updateDto);
     }
 

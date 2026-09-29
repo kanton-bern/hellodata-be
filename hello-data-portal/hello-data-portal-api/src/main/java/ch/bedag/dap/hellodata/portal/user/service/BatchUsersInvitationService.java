@@ -160,7 +160,7 @@ public class BatchUsersInvitationService {
         AdUserDto adUserDto = firstAD.orElseGet(() -> any.orElseThrow(() -> new NoSuchElementException("User not found: " + user.getEmail())));
         try {
             String userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName(), adUserDto.getOrigin());
-            Thread.sleep(1000L); //wait for it to push to subsystems before proceeding to set context roles
+            waitForSubsystemPropagation();
             batchUsersCustomLogger.logMessage(String.format("Created user %s", user.getEmail()));
             return userId;
         } catch (UserAlreadyExistsException e) {
@@ -168,6 +168,15 @@ public class BatchUsersInvitationService {
             log.info(errMsg);
             batchUsersCustomLogger.logMessage(errMsg);
             return allUsers.stream().filter(userDto -> userDto.getEmail().equalsIgnoreCase(adUserDto.getEmail())).findFirst().get().getId();
+        }
+    }
+
+    private static void waitForSubsystemPropagation() {
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000L);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted while waiting for user creation propagation in subsystems", e);
         }
     }
 

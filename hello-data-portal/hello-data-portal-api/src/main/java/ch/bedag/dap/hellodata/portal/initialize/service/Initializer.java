@@ -35,10 +35,15 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 @Log4j2
 @Component
 @RequiredArgsConstructor
 public class Initializer implements CommandLineRunner {
+
+    private static final int MAX_CONTEXT_ROLES_INIT_RETRIES = 10;
+    private static final long RETRY_INTERVAL_MS = 10_000L;
 
     private final ContextsInitializer contextsInitializer;
     private final RolesInitializer rolesInitializer;
@@ -51,12 +56,23 @@ public class Initializer implements CommandLineRunner {
         contextsInitializer.initContexts();
         rolesInitializer.initSystemDefaultPortalRoles();
         boolean areContextRolesFetched = false;
+        int attempts = 0;
         do {
             try {
                 rolesInitializer.initContextRoles();
             } catch (ContextsNotFetchedYetException e) {
-                log.warn("Contexts not initialized yet, waiting...", e);
-                Thread.sleep(10000);
+                attempts++;
+                if (attempts >= MAX_CONTEXT_ROLES_INIT_RETRIES) {
+                    log.error("Contexts not initialized after {} attempts. Aborting startup initialization.", attempts, e);
+                    throw new IllegalStateException("Failed to initialize context roles after " + attempts + " attempts", e);
+                }
+                log.warn("Contexts not initialized yet (attempt {}/{}), waiting {} ms...", attempts, MAX_CONTEXT_ROLES_INIT_RETRIES, RETRY_INTERVAL_MS, e);
+                try {
+                    TimeUnit.MILLISECONDS.sleep(RETRY_INTERVAL_MS);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while waiting for context initialization", ie);
+                }
                 continue;
             }
             boolean defaultUsersInitiated = defaultUserInitializer.initDefaultUsers();

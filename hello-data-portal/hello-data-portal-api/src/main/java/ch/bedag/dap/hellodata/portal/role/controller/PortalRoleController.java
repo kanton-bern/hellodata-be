@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.portal.role.data.PortalRoleCreateDto;
 import ch.bedag.dap.hellodata.portal.role.data.PortalRoleDto;
 import ch.bedag.dap.hellodata.portal.role.data.PortalRoleUpdateDto;
 import ch.bedag.dap.hellodata.portal.role.service.PortalRoleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,12 +58,12 @@ public class PortalRoleController {
     }
 
     @PostMapping
-    public void createRole(@RequestBody PortalRoleCreateDto portalRoleCreateDto) {
+    public void createRole(@Valid @RequestBody PortalRoleCreateDto portalRoleCreateDto) {
         portalRoleService.createRole(portalRoleCreateDto);
     }
 
     @PatchMapping
-    public void updateRole(@RequestBody PortalRoleUpdateDto roleUpdateDto) {
+    public void updateRole(@Valid @RequestBody PortalRoleUpdateDto roleUpdateDto) {
         portalRoleService.updateRole(roleUpdateDto);
     }
 

@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.portal.pdf_layout.data.PdfLayoutDto;
 import ch.bedag.dap.hellodata.portal.pdf_layout.data.PdfLayoutSaveDto;
 import ch.bedag.dap.hellodata.portal.pdf_layout.data.PdfLayoutSummaryDto;
 import ch.bedag.dap.hellodata.portal.pdf_layout.service.PdfLayoutService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -64,13 +65,13 @@ public class PdfLayoutController {
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PdfLayoutDto createLayout(@RequestBody PdfLayoutSaveDto saveDto) {
+    public PdfLayoutDto createLayout(@Valid @RequestBody PdfLayoutSaveDto saveDto) {
         return pdfLayoutService.createLayout(saveDto);
     }
 
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     @PutMapping("/{id}")
-    public PdfLayoutDto updateLayout(@PathVariable UUID id, @RequestBody PdfLayoutSaveDto saveDto) {
+    public PdfLayoutDto updateLayout(@PathVariable UUID id, @Valid @RequestBody PdfLayoutSaveDto saveDto) {
         return pdfLayoutService.updateLayout(id, saveDto);
     }
 

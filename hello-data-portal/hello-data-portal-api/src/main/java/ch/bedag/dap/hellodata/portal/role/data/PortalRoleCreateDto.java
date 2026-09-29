@@ -26,12 +26,14 @@
  */
 package ch.bedag.dap.hellodata.portal.role.data;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class PortalRoleCreateDto {
+    @NotBlank
     private String name;
     private String description;
     private List<String> permissions;
