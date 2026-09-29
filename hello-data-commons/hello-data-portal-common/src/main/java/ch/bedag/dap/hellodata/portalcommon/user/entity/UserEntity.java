@@ -67,9 +67,11 @@ public class UserEntity extends BaseEntity {  //NOSONAR
     private int invitationsCount;
     private boolean creationEmailSent;
     private Locale selectedLanguage;
+    @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<UserContextRoleEntity> contextRoles;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<UserPortalRoleEntity> portalRoles;
 

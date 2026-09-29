@@ -39,9 +39,19 @@ import java.util.Optional;
 public interface DashboardCommentRepository extends JpaRepository<DashboardCommentEntity, String> {
 
     /**
-     * Find all comments for a specific dashboard in a context
+     * Find all comments for a specific dashboard in a context with history eagerly loaded
      */
-    List<DashboardCommentEntity> findByContextKeyAndDashboardIdOrderByCreatedDateAsc(String contextKey, Integer dashboardId);
+    @Query("SELECT DISTINCT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history " +
+            "WHERE c.contextKey = :contextKey AND c.dashboardId = :dashboardId ORDER BY c.createdDate ASC")
+    List<DashboardCommentEntity> findByContextKeyAndDashboardIdOrderByCreatedDateAsc(
+            @Param("contextKey") String contextKey,
+            @Param("dashboardId") Integer dashboardId);
+
+    /**
+     * Find all active (non-deleted) comments with history eagerly loaded for DWH sync.
+     */
+    @Query("SELECT DISTINCT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.deleted = false")
+    List<DashboardCommentEntity> findAllActiveWithHistory();
 
     /**
      * Find comment by ID with history eagerly loaded
@@ -59,7 +69,7 @@ public interface DashboardCommentRepository extends JpaRepository<DashboardComme
     /**
      * Find all comments for a specific context (data domain) across all dashboards
      */
-    @Query("SELECT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.contextKey = :contextKey ORDER BY c.createdDate ASC")
+    @Query("SELECT DISTINCT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.contextKey = :contextKey ORDER BY c.createdDate ASC")
     List<DashboardCommentEntity> findByContextKeyOrderByCreatedDateAsc(@Param("contextKey") String contextKey);
 
     /**

@@ -78,7 +78,9 @@ public class SubscribeAnnotationThread extends Thread {
         // Initial subscription is performed in run()
     }
 
-    private static ObjectMapper getObjectMapper() {
+    private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
+
+    private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
@@ -186,24 +188,17 @@ public class SubscribeAnnotationThread extends Thread {
     }
 
     private void processMessageInThread(Message message) {
-        // Submit as a CompletableFuture directly
-        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> passMessageToSpringBean(message), executorService);
-
-        // Create a ScheduledExecutorService for the timeout task
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        ScheduledFuture<?> timeoutHandler = scheduler.schedule(() -> {
-            if (!completableFuture.isDone()) {
-                log.warn("[NATS] Task exceeded timeout. Attempting to cancel...");
-                completableFuture.cancel(true);
-            }
-        }, subscribeAnnotation.timeoutMinutes(), TimeUnit.MINUTES);
-
-        // If completableFuture finishes before timeout, cancel the scheduled task and release resources
-        completableFuture.whenComplete((result, throwable) -> {
-            timeoutHandler.cancel(false);  // Cancel the timeout task
-            scheduler.shutdown();  // Release the scheduled thread
-        });
-
+        CompletableFuture.runAsync(() -> passMessageToSpringBean(message), executorService)
+                .orTimeout(subscribeAnnotation.timeoutMinutes(), TimeUnit.MINUTES)
+                .exceptionally(throwable -> {
+                    if (throwable instanceof TimeoutException || throwable.getCause() instanceof TimeoutException) {
+                        log.warn("[NATS] Task exceeded timeout for stream {} and subject {}. Attempting to cancel...",
+                                subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                    } else {
+                        log.error("[NATS] Error processing async NATS message", throwable);
+                    }
+                    return null;
+                });
     }
 
     private void subscribe() {
@@ -243,7 +238,7 @@ public class SubscribeAnnotationThread extends Thread {
                 watch.start();
                 log.debug("[NATS] Expected type: {}", clazz.getName());
                 log.debug("[NATS] Method parameter type: {}", beanWrapper.method().getParameterTypes()[0].getName());
-                beanWrapper.method().invoke(beanWrapper.bean(), getObjectMapper().readValue(message.getData(), clazz));
+                beanWrapper.method().invoke(beanWrapper.bean(), OBJECT_MAPPER.readValue(message.getData(), clazz));
                 log.debug("[NATS] NATS message processing finished {}. The operation took {}", beanWrapper.bean().getClass().getName(), watch.formatTime());
             }
             message.ack();

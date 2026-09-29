@@ -102,9 +102,8 @@ public class DashboardCommentDwhSyncService {
         }
         log.info("Starting full comments DWH sync");
 
-        List<DashboardCommentEntity> allComments = commentRepository.findAll();
+        List<DashboardCommentEntity> allComments = commentRepository.findAllActiveWithHistory();
         Map<String, List<DashboardCommentEntity>> byContext = allComments.stream()
-                .filter(c -> !c.isDeleted())
                 .collect(Collectors.groupingBy(DashboardCommentEntity::getContextKey));
 
         int totalPublished = 0;
