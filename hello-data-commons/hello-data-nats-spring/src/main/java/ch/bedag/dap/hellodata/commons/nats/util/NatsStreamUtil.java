@@ -50,7 +50,7 @@ public class NatsStreamUtil {
         log.debug("[NATS] Create or update stream {}, streamInfo {}", streamName, streamInfo);
         if (streamInfo == null) {
             StreamInfo stream = createStream(jsm, streamName, StorageType.File, subject);
-            log.debug("[NATS] Created stream {}", getObjectMapper().writeValueAsString(stream));
+            log.debug("[NATS] Created stream {}", OBJECT_MAPPER.writeValueAsString(stream));
             return stream;
         }
 
@@ -60,7 +60,7 @@ public class NatsStreamUtil {
             streamConfiguration = StreamConfiguration.builder(streamConfiguration).subjects(streamConfiguration.getSubjects()).build();
             streamInfo = jsm.updateStream(streamConfiguration);
             log.debug("[NATS] Existing stream {} was updated, has subject(s) {}", streamName, streamInfo.getConfiguration().getSubjects());
-            log.debug("[NATS] Updated stream configuration {}", getObjectMapper().writeValueAsString(streamConfiguration));
+            log.debug("[NATS] Updated stream configuration {}", OBJECT_MAPPER.writeValueAsString(streamConfiguration));
         }
 
         return streamInfo;
@@ -95,7 +95,9 @@ public class NatsStreamUtil {
         return si;
     }
 
-    private static ObjectMapper getObjectMapper() {
+    private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
+
+    private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
