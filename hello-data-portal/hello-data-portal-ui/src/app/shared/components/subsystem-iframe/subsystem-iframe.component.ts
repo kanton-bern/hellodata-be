@@ -27,6 +27,7 @@
 
 import {
   Component,
+  DestroyRef,
   ElementRef,
   HostListener,
   inject,
@@ -38,6 +39,7 @@ import {
   SimpleChanges,
   viewChild
 } from '@angular/core';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {NgStyle} from "@angular/common";
 
 import {AuthService} from "../../services";
@@ -84,6 +86,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   private langSub?: Subscription;
   private readonly authService = inject(AuthService);
   private readonly transloco = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     console.debug('on init', this.url(), this.delay());
@@ -95,7 +98,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     // TranslateService.setActiveLang writes the cookie synchronously before this fires.
     if (this.reloadOnLanguageChange()) {
       this.langSub = this.transloco.langChanges$
-        .pipe(distinctUntilChanged(), skip(1))
+        .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed(this.destroyRef))
         .subscribe(() => this.reloadIframe());
     }
 
@@ -128,7 +131,8 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
 
     this.accessTokenSub = prepare$.pipe(
       switchMap(() => refresh$),
-      switchMap((refreshed: string | null) => refreshed ? of(refreshed) : this.authService.accessToken)
+      switchMap((refreshed: string | null) => refreshed ? of(refreshed) : this.authService.accessToken),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: value => {
         console.debug("creating an auth cookie for a domain: ." + environment.baseDomain);
@@ -193,7 +197,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
       if (this.accessTokenSub) {
         this.accessTokenSub.unsubscribe();
       }
-      this.accessTokenSub = this.authService.accessToken.subscribe({
+      this.accessTokenSub = this.authService.accessToken.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.frameUrl = this.url();
           this.iframeSetup.emit(true);

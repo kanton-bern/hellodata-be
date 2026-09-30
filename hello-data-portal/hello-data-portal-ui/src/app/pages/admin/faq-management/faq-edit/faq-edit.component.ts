@@ -25,7 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
@@ -79,6 +80,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   private readonly fb = inject(FormBuilder);
   private readonly translateService = inject(TranslateService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     super();
@@ -226,9 +228,11 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
         }
 
         this.unsubFormValueChanges();
-        this.formValueChangedSub = this.faqForm.valueChanges.subscribe(newValues => {
-          this.onChange(faqCpy);
-        });
+        this.formValueChangedSub = this.faqForm.valueChanges
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(newValues => {
+            this.onChange(faqCpy);
+          });
       }),
       map(([faqCpy]) => faqCpy)
     );

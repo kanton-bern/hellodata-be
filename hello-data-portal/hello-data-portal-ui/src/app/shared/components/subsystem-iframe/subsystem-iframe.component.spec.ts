@@ -32,6 +32,7 @@ import {BehaviorSubject} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {afterEach, beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {AuthService} from "../../services";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 
 describe('SubsystemIframeComponent', () => {
   let component: SubsystemIframeComponent;
@@ -56,7 +57,7 @@ describe('SubsystemIframeComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [CommonModule, SubsystemIframeComponent],
+      imports: [CommonModule, SubsystemIframeComponent, TranslocoTestingModule.forRoot({})],
       providers: [
         {provide: ElementRef, useValue: mockElementRef},
         {provide: AuthService, useValue: mockAuthService},

@@ -25,8 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {combineLatest, Observable, Subscription, tap} from "rxjs";
+import {Component, DestroyRef, ElementRef, HostListener, inject, OnInit, ViewChild} from '@angular/core';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {filter, take} from "rxjs/operators";
 import {AsyncPipe, NgClass} from '@angular/common';
@@ -55,10 +56,11 @@ export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
   styleUrls: ['./embed-my-dashboard.component.scss'],
   imports: [SubsystemIframeComponent, AsyncPipe, NgClass, CommentsTogglePanelComponent, TranslocoPipe]
 })
-export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
+export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
   private static readonly COMMENTS_WIDTH_KEY = 'hd_comments_panel_width_px';
 
@@ -75,7 +77,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   private loadedDashboardId: number | null = null;
   private loadedDashboardContextKey: string | null = null;
   private isNavigatingToPointerUrl = false;
-  private commentPermissionsSub: Subscription | null = null;
 
   constructor() {
     super();
@@ -103,10 +104,12 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       }
     });
 
-    this.commentPermissionsSub = combineLatest([
+    combineLatest([
       this.store.select(selectCurrentDashboardContextKey),
       this.store.select(selectCurrentUserCommentPermissions)
-    ]).subscribe(([contextKey, commentPermissions]) => {
+    ]).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(([contextKey, commentPermissions]) => {
       if (contextKey && commentPermissions[contextKey]) {
         this.canReadComments = commentPermissions[contextKey].readComments;
       } else {
@@ -162,12 +165,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
     return 400; // Default width
   }
 
-  ngOnDestroy(): void {
-    if (this.commentPermissionsSub) {
-      this.commentPermissionsSub.unsubscribe();
-      this.commentPermissionsSub = null;
-    }
-  }
 
   private load(dashboardInfo: any, selectedLanguage: string) {
     if (dashboardInfo.appinfo && dashboardInfo.dashboard && dashboardInfo.profile) {

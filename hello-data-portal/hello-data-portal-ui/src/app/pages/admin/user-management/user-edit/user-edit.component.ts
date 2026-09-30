@@ -25,10 +25,11 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {combineLatest, Observable, Subscription, tap} from "rxjs";
+import {combineLatest, Observable, tap} from "rxjs";
 import {
   selectAllBusinessDomains,
   selectAllDataDomains,
@@ -94,7 +95,7 @@ import {ICON_REGISTRY} from '../../../../shared/icons';
   styleUrls: ['./user-edit.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, DashboardGroupMembershipComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent, Card, NgClass]
 })
-export class UserEditComponent extends BaseComponent implements OnInit, OnDestroy {
+export class UserEditComponent extends BaseComponent implements OnInit {
   protected readonly icons = ICON_REGISTRY;
   editedUser$: Observable<any>;
   businessDomains$: Observable<any>;
@@ -119,9 +120,8 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly userContextRoles$: Observable<any>;
-  private userContextRolesSub!: Subscription;
-  private commentPermissionsSub!: Subscription;
 
   constructor() {
     super();
@@ -150,22 +150,15 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
 
   override ngOnInit() {
     super.ngOnInit();
-    this.userContextRolesSub = this.userContextRoles$.subscribe();
-    this.commentPermissionsSub = this.store.select(selectCommentPermissionsForUser).subscribe(perms => {
-      this.commentPermissions.clear();
-      Object.entries(perms).forEach(([contextKey, permissions]) => {
-        this.commentPermissions.set(contextKey, {...permissions});
+    this.userContextRoles$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+    this.store.select(selectCommentPermissionsForUser)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(perms => {
+        this.commentPermissions.clear();
+        Object.entries(perms).forEach(([contextKey, permissions]) => {
+          this.commentPermissions.set(contextKey, {...permissions});
+        });
       });
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.userContextRolesSub) {
-      this.userContextRolesSub.unsubscribe();
-    }
-    if (this.commentPermissionsSub) {
-      this.commentPermissionsSub.unsubscribe();
-    }
   }
 
   cancel() {

@@ -25,7 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {
@@ -36,8 +37,6 @@ import {
   map,
   Observable,
   Subject,
-  Subscription,
-  takeUntil,
   tap
 } from "rxjs";
 import {
@@ -86,7 +85,7 @@ import {ICON_REGISTRY} from '../../../shared/icons';
   styleUrls: ['./user-management.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card, NgClass]
 })
-export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
+export class UserManagementComponent extends BaseComponent implements OnInit {
   protected readonly icons = ICON_REGISTRY;
   users$: Observable<User[]>;
   syncStatus$: Observable<string>;
@@ -100,9 +99,8 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private readonly userService = inject(UsersManagementService);
-  private searchSubscription?: Subscription;
+  private readonly destroyRef = inject(DestroyRef);
   private readonly searchSubject = new Subject<string | undefined>();
-  private readonly destroy$ = new Subject<void>();
 
   constructor() {
     super();
@@ -134,12 +132,6 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
       lastName: [null, Validators.compose([Validators.required.bind(this), Validators.minLength(3), Validators.maxLength(255), Validators.pattern(/[\p{L}\p{N}].*/u)])],
     });
     this.restoreUserTableSearchFilter();
-  }
-
-  public ngOnDestroy(): void {
-    this.searchSubscription?.unsubscribe();
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   createUser() {
@@ -217,13 +209,14 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 
   private createSearchSubscription() {
-    this.searchSubscription = this.searchSubject
+    this.searchSubject
       .pipe(
         debounceTime(500),
         distinctUntilChanged(),
         switchMap((searchQuery: string | undefined) => {
           return this.userService.searchUserByEmail(searchQuery);
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(
         (users: AdUser[]) => {
@@ -263,7 +256,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
 
   private createInterval(): void {
     this.syncStatusInterval$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.store.dispatch(loadSyncStatus());
       });

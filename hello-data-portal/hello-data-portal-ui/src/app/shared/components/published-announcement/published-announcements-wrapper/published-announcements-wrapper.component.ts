@@ -25,7 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject} from '@angular/core';
+import {Component, DestroyRef, inject} from '@angular/core';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
@@ -61,6 +62,7 @@ export class PublishedAnnouncementsWrapperComponent {
   onCloseSubscription!: Subscription | undefined;
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
   private dismissedByUser = false;
 
   constructor() {
@@ -101,7 +103,7 @@ export class PublishedAnnouncementsWrapperComponent {
     if (this.onCloseSubscription) {
       this.onCloseSubscription.unsubscribe();
     }
-    this.onCloseSubscription = this.ref?.onClose.subscribe((result) => {
+    this.onCloseSubscription = this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       console.debug('Dialog closed, result:', result);
       this.ref = null;
       this.dismissedByUser = true;

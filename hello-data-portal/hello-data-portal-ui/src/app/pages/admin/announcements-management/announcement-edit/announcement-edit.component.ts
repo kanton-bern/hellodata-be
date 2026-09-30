@@ -25,7 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
@@ -76,6 +77,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     super();
@@ -113,9 +115,11 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
           this.createCreatedAnnouncementBreadcrumbs();
         }
         this.unsubFormValueChanges();
-        this.formValueChangedSub = this.announcementForm.valueChanges.subscribe(newValues => {
-          this.onChange(announcement);
-        });
+        this.formValueChangedSub = this.announcementForm.valueChanges
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(newValues => {
+            this.onChange(announcement);
+          });
       }),
       map(([announcement]) => announcement)
     )

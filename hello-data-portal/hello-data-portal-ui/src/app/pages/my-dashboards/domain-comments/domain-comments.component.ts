@@ -25,7 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit, viewChild} from '@angular/core';
+import {Component, DestroyRef, inject, OnDestroy, OnInit, viewChild} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
@@ -104,11 +105,11 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   readonly commentUtils = inject(DashboardCommentUtilsService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly dt = viewChild<Table>('dt');
 
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
-  private routeSubscription?: Subscription;
   private commentsRefreshSubscription: Subscription | null = null;
 
   contextKey: string = '';
@@ -165,12 +166,13 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     this.store.dispatch(fetchCurrentUserCommentPermissions());
 
     // Subscribe to route params using ngrx selectors
-    this.routeSubscription = combineLatest([
+    combineLatest([
       this.store.select(selectContextKey),
       this.store.select(selectContextNameByKey),
       this.store.select(selectCurrentUserCommentPermissions)
     ]).pipe(
-      filter(([contextKey]) => !!contextKey)
+      filter(([contextKey]) => !!contextKey),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(([contextKey, contextName, commentPermissions]) => {
       // Check if permissions are loaded (not empty object)
       const hasPermissionsLoaded = Object.keys(commentPermissions).length > 0;
@@ -218,7 +220,6 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.routeSubscription?.unsubscribe();
     this.stopRefreshTimer();
   }
 
@@ -281,7 +282,9 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   private startRefreshTimer(): void {
     this.stopRefreshTimer();
-    this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).subscribe(() => {
+    this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
       if (this.contextKey) {
         this.loadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
       }

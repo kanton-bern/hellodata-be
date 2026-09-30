@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {AfterViewInit, Component, effect, ElementRef, inject, input, OnDestroy, output, signal, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, DestroyRef, effect, ElementRef, inject, input, OnDestroy, output, signal, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button} from "primeng/button";
@@ -165,6 +165,7 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   availableTags$ = this.store.select(selectAvailableTags);
   private readonly http = inject(HttpClient);
   private readonly notificationService = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
   private previousSelectedStatus: DashboardCommentStatus | null = null;
   // Signal to track filtered comments for auto-scroll
   private readonly filteredCommentsSignal;
@@ -382,12 +383,12 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   }
 
   searchTags(event: { query: string }): void {
-    this.availableTags$.subscribe(tags => {
+    this.availableTags$.pipe(take(1)).subscribe(tags => {
       const query = event.query.toLowerCase();
       this.tagSuggestions = tags.filter(tag =>
         tag.toLowerCase().includes(query) && !this.selectedTags.includes(tag)
       );
-    }).unsubscribe();
+    });
   }
 
   addTag(): void {
@@ -563,6 +564,7 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   private startRefreshTimer(): void {
     this.stopRefreshTimer();
     this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
+      takeUntilDestroyed(this.destroyRef),
       switchMap(() => combineLatest([
         this.store.select(selectCurrentDashboardId),
         this.store.select(selectCurrentDashboardContextKey),
