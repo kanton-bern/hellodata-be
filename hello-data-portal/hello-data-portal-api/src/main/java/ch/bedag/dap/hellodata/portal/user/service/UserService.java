@@ -46,6 +46,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupServi
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
+import ch.bedag.dap.hellodata.portal.user.conf.SupportContactProperties;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
 import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
@@ -92,6 +93,7 @@ public class UserService {
     private final UserLookupService userLookupService;
     private final UserPreferenceService userPreferenceService;
     private final UserContextRoleService userContextRoleService;
+    private final SupportContactProperties supportContactProperties;
 
     @Transactional
     public String createUser(String email, String firstName, String lastName, AdUserOrigin origin) {
@@ -332,6 +334,24 @@ public class UserService {
             return businessDomainAdmins;
         }
         return userRepository.findUsersByHdRoleName(HdRoleName.HELLODATA_ADMIN).stream().filter(UserEntity::isEnabled).toList();
+    }
+
+    /**
+     * 1st level support for customer users are the customer business domain admins. Users that are also HELLODATA_ADMIN or have an email of an excluded (non-customer) domain are left out.
+     */
+    @Transactional(readOnly = true)
+    public List<String> findSupportContactEmails() {
+        Set<UUID> helloDataAdminIds = userRepository.findUsersByHdRoleName(HdRoleName.HELLODATA_ADMIN).stream().map(UserEntity::getId).collect(Collectors.toSet());
+        List<String> excludedDomains = supportContactProperties.getExcludedEmailDomains().stream().map(d -> d.trim().toLowerCase(Locale.ROOT).replaceFirst("^@", "")).toList();
+        return userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN)
+                             .stream()
+                             .filter(UserEntity::isEnabled)
+                             .filter(u -> !helloDataAdminIds.contains(u.getId()))
+                             .map(UserEntity::getEmail)
+                             .filter(email -> email != null && !email.isBlank())
+                             .filter(email -> excludedDomains.stream().noneMatch(d -> email.toLowerCase(Locale.ROOT).endsWith("@" + d)))
+                             .distinct()
+                             .toList();
     }
 
     @Transactional

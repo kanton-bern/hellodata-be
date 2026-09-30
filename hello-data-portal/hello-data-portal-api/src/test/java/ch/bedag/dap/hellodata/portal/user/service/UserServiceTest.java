@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
@@ -39,6 +40,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupServi
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
+import ch.bedag.dap.hellodata.portal.user.conf.SupportContactProperties;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -118,6 +120,9 @@ class UserServiceTest {
 
     @Mock
     private UserContextRoleService userContextRoleService;
+
+    @Mock
+    private SupportContactProperties supportContactProperties;
 
     @InjectMocks
     private UserService userService;
@@ -296,5 +301,26 @@ class UserServiceTest {
     void testSetSelectedLanguage_delegates() {
         userService.setSelectedLanguage("user-1", Locale.FRENCH);
         verify(userPreferenceService).setSelectedLanguage("user-1", Locale.FRENCH);
+    }
+
+    @Test
+    void findSupportContactEmails_listsOnlyCustomerBusinessDomainAdmins() {
+        UserEntity customer = supportUser("admin@customer.ch", true);
+        UserEntity disabled = supportUser("disabled@customer.ch", false);
+        UserEntity helloDataAdmin = supportUser("both@customer.ch", true);
+        UserEntity internal = supportUser("ops@Bedag.ch", true);
+        when(userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN)).thenReturn(List.of(customer, disabled, helloDataAdmin, internal));
+        when(userRepository.findUsersByHdRoleName(HdRoleName.HELLODATA_ADMIN)).thenReturn(List.of(helloDataAdmin));
+        when(supportContactProperties.getExcludedEmailDomains()).thenReturn(List.of("bedag.ch"));
+
+        assertEquals(List.of("admin@customer.ch"), userService.findSupportContactEmails());
+    }
+
+    private UserEntity supportUser(String email, boolean enabled) {
+        UserEntity user = new UserEntity();
+        user.setId(UUID.randomUUID());
+        user.setEmail(email);
+        user.setEnabled(enabled);
+        return user;
     }
 }

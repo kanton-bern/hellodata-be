@@ -142,8 +142,7 @@ public class UserController {
 
     @GetMapping("/admin-emails")
     public List<String> getAdminEmails() {
-        List<UserEntity> users = userService.findHelloDataAdminUsers();
-        return users.stream().map(UserEntity::getEmail).toList();
+        return userService.findSupportContactEmails();
     }
 
     @GetMapping("/current/profile")

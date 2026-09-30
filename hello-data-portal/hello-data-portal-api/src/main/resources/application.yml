@@ -59,6 +59,10 @@ hello-data:
     password: admin
     first-name: HelloDATA
     last-name: Admin
+  support-contact:
+    # business domain admins with an email of these domains are not customers, so they are not shown as 1st level support on the access denied page
+    excluded-email-domains:
+      - bedag.ch
   example-users: #requires create-example-users profile
     business-domain-admin-password: admin
     data-domain-admin-password: admin

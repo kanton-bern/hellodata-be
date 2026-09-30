@@ -24,19 +24,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.base.config;
+package ch.bedag.dap.hellodata.portal.user.conf;
 
-import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
-import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfBrandingProperties;
-import ch.bedag.dap.hellodata.portal.user.conf.DefaultAdminProperties;
-import ch.bedag.dap.hellodata.portal.user.conf.SupportContactProperties;
-import ch.bedag.dap.hellodata.portal.user.conf.ExampleUsersProperties;
-import ch.bedag.dap.hellodata.portal.user.service.ldap.LdapConfigProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@Configuration
-@EnableConfigurationProperties({ HelloDataContextConfig.class, DefaultAdminProperties.class, SystemProperties.class, LdapConfigProperties.class, ExampleUsersProperties.class,
-        PdfBrandingProperties.class, SupportContactProperties.class })
-public class ConfigurationProperties {
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Settings for the 1st level support contacts shown on the access denied page.
+ */
+@Data
+@ConfigurationProperties("hello-data.support-contact")
+public class SupportContactProperties {
+
+    /**
+     * Email domains (e.g. "bedag.ch") of non-customer users. Business domain admins with such an email are not listed as support contacts.
+     */
+    private List<String> excludedEmailDomains = new ArrayList<>();
 }
