@@ -65,6 +65,15 @@ export const myDashboardsReducer = createReducer(
     }
   }),
   on(loadAvailableDataDomainsSuccess, (state: MyDashboardsState, {payload}): MyDashboardsState => {
+    // A user with access to a single data domain gets no "All Data Domains" entry, that domain is always selected
+    if (payload.length === 1) {
+      localStorage.setItem(SELECTED_DATA_DOMAIN_KEY, JSON.stringify(payload[0]));
+      return {
+        ...state,
+        selectedDataDomain: payload[0],
+        availableDataDomains: [...payload],
+      }
+    }
     const uniqueDataDomains = [
       {
         id: '',
