@@ -184,12 +184,13 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Saved-layout picker options, narrowed to the selected data domain; the dashboard title is
    *  appended so equally named layouts of different dashboards stay distinguishable. */
-  private activeLang = toSignal(this.transloco.langChanges$);
+  // selectTranslate emits once the new language file is loaded; a sync translate() on langChanges$
+  // runs before that and returns the raw key.
+  private noLayoutLabel = toSignal(this.transloco.selectTranslate('@No layout'), {initialValue: ''});
   savedLayoutOptions = computed(() => {
-    this.activeLang();   // re-translate "No layout" on a language switch
     const key = this.selectedContextKey();
     return [
-      {label: this.transloco.translate('@No layout'), value: NO_LAYOUT},
+      {label: this.noLayoutLabel(), value: NO_LAYOUT},
       ...this.savedLayouts()
         .filter(l => l.accessible !== false && (key === null || l.contextKey === key))
         .map(l => ({label: l.dashboardTitle ? `${l.name} (${l.dashboardTitle})` : l.name, value: l.id})),
