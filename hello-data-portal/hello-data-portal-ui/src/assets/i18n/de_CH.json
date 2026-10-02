@@ -207,6 +207,8 @@
   "@Template": "Vorlage",
   "@Choose a dashboard": "Dashboard auswählen...",
   "@Drag a chart onto the grid": "Ziehen Sie ein Diagramm auf das Raster.",
+  "@Drag a text block onto the grid": "Ziehen Sie einen Textblock auf das Raster.",
+  "@Text block": "Textblock",
   "@No charts loaded": "Keine Diagramme geladen.",
   "@Existing text blocks drag onto the grid": "Vorhandene Textblöcke – auf das Raster ziehen.",
   "@No text blocks on this dashboard": "Keine Textblöcke in diesem Dashboard.",

@@ -210,6 +210,8 @@
   "@Template": "Template",
   "@Choose a dashboard": "Choose a dashboard...",
   "@Drag a chart onto the grid": "Drag a chart onto the grid.",
+  "@Drag a text block onto the grid": "Drag a text block onto the grid.",
+  "@Text block": "Text block",
   "@No charts loaded": "No charts loaded.",
   "@Existing text blocks drag onto the grid": "Existing text blocks — drag onto the grid.",
   "@No text blocks on this dashboard": "No text blocks on this dashboard.",

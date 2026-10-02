@@ -210,6 +210,8 @@
   "@Template": "Modèle",
   "@Choose a dashboard": "Choisir un tableau de bord...",
   "@Drag a chart onto the grid": "Faites glisser un graphique sur la grille.",
+  "@Drag a text block onto the grid": "Faites glisser un bloc de texte sur la grille.",
+  "@Text block": "Bloc de texte",
   "@No charts loaded": "Aucun graphique chargé.",
   "@Existing text blocks drag onto the grid": "Blocs de texte existants – glissez sur la grille.",
   "@No text blocks on this dashboard": "Aucun bloc de texte sur ce tableau de bord.",

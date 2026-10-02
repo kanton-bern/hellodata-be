@@ -220,6 +220,8 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   editorMode = signal<'add' | 'edit'>('add');
   /** The editable cell being edited, or null when creating a new block. */
   private editingCell: Cell | null = null;
+  /** A text tile just dropped on the canvas whose editor is still open; removed again when left empty. */
+  private pendingDrop: Cell | null = null;
 
   /** The Quill instance behind the rich-text editor, used to read clean semantic HTML on save. */
   private quill: any = null;
@@ -378,6 +380,14 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     this.cells.update(cs => [...cs, cell]);
     this.dragPayload = null;
     this.ensurePreview(cell);
+    if (cell.type === 'markdown') {
+      // A dropped text block opens its editor right away; cancelling removes the still-empty tile.
+      this.pendingDrop = cell;
+      this.editingCell = cell;
+      this.editorMode.set('add');
+      this.editingText.set('');
+      this.editorOpen.set(true);
+    }
     this.persist();
   }
 
@@ -530,6 +540,10 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     // getSemanticHTML gives real <ul>/<ol> lists instead of Quill's internal <ol data-list> markup.
     const html = this.quill?.getSemanticHTML?.() ?? this.editingText();
     const empty = isRichTextEmpty(html);
+    if (this.editingCell && empty && this.editingCell === this.pendingDrop) {
+      this.closeEditor();   // saving nothing into a just-dropped tile removes it
+      return;
+    }
     if (this.editingCell) {
       const target = this.editingCell;
       // Drop any legacy markdown: once edited, the block is rich text only.
@@ -595,6 +609,12 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   closeEditor(): void {
     this.editorOpen.set(false);
     this.editingCell = null;
+    const dropped = this.pendingDrop;
+    this.pendingDrop = null;
+    if (dropped && !dropped.html && this.cells().includes(dropped)) {
+      this.cells.update(cs => cs.filter(c => c !== dropped));
+      this.persist();
+    }
   }
 
   removeCell(cell: Cell): void {
