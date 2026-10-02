@@ -35,7 +35,7 @@ import {Ripple} from "primeng/ripple";
 import {Tooltip} from "primeng/tooltip";
 import {Editor} from "primeng/editor";
 import {InputText} from "primeng/inputtext";
-import {ConfirmationService} from "primeng/api";
+import {ConfirmationService, PrimeTemplate} from "primeng/api";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {TranslocoPipe, TranslocoService} from "@jsverse/transloco";
 import {Store} from "@ngrx/store";
@@ -106,7 +106,7 @@ const PAGE_ROWS = 4;
 @Component({
   selector: 'app-pdf-builder',
   standalone: true,
-  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, Editor, InputText, TranslocoPipe],
+  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, PrimeTemplate, Editor, InputText, TranslocoPipe],
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
