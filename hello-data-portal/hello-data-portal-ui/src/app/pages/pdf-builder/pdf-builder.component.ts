@@ -756,7 +756,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       () => this.layoutPickerValue.set(previous));
   }
 
-  onSavedLayoutSelect(id: string | null): void {
+  onSavedLayoutSelect(id: string | null, onGone?: () => void): void {
     if (!id || this.loadingLayout()) {
       return;
     }
@@ -768,6 +768,10 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       },
       error: err => {
         this.loadingLayout.set(false);
+        if (onGone && err?.status === 404) {
+          onGone();   // a remembered layout that is gone: handled by the caller, no error toast
+          return;
+        }
         this.layoutPickerValue.set(this.currentLayout()?.id ?? NO_LAYOUT);
         this.store.dispatch(showError({error: err}));
       },
@@ -939,9 +943,24 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     const id = this.pendingLayoutReload;
     this.pendingLayoutReload = null;
     // The loaded layout decides the dashboard; don't re-select a remembered one afterwards.
+    const remembered = this.pendingRestore;
     this.pendingRestore = null;
     if (id) {
-      this.onSavedLayoutSelect(id);
+      // A remembered layout may have been deleted (or its dashboard removed) meanwhile: keep the
+      // canvas as the user's own one instead of failing on every visit.
+      this.onSavedLayoutSelect(id, () => this.fallBackToOwnCanvas(remembered));
+    }
+  }
+
+  private fallBackToOwnCanvas(remembered: {instanceName: string; dashboardId: number} | null): void {
+    this.detachLayout();
+    this.layoutPickerValue.set(NO_LAYOUT);
+    const match = remembered && this.dashboards()
+      .find(d => d.instanceName === remembered.instanceName && d.id === remembered.dashboardId);
+    if (match) {
+      this.onDashboardChange(match);
+    } else {
+      this.persist();
     }
   }
 
