@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, DestroyRef, OnDestroy, OnInit, computed, inject, linkedSignal, signal} from "@angular/core";
+import {AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, computed, inject, linkedSignal, signal, viewChild} from "@angular/core";
 import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -110,7 +110,7 @@ const PAGE_ROWS = 4;
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
-export class PdfBuilderComponent implements OnInit, OnDestroy {
+export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly icons = ICON_REGISTRY;
 
   private pdfExport = inject(PdfExportService);
@@ -226,8 +226,10 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
   /** The Quill instance behind the rich-text editor, used to read clean semantic HTML on save. */
   private quill: any = null;
 
-  /** The palette entry currently being dragged (set on dragstart). */
+  /** The palette entry currently being dragged (set on dragstart, cleared on drop/dragend). */
   private dragPayload: PaletteItem | null = null;
+
+  private grid = viewChild(Gridster);
 
   options: GridsterConfig = {
     // Fit: exactly PAGE_ROWS x PAGE_ROWS cells that fill the (bounded, see SCSS) page area — one page
@@ -367,6 +369,30 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
 
   onDragStart(payload: PaletteItem): void {
     this.dragPayload = payload;
+  }
+
+  /** A palette drag ended without a drop (or after one): later tile drags must not be grown. */
+  onDragEnd(): void {
+    this.dragPayload = null;
+  }
+
+  /** Gridster highlights a 1x1 cell while a palette entry is dragged over the grid (defaultItemCols/
+   *  Rows, see options), but onDrop grows the tile to fitFootprint(). Grow the highlighted preview the
+   *  same way, so it shows the cells the tile will really take. Gridster builds a fresh preview item
+   *  on every dragover, so adjusting it in place affects nothing else. */
+  ngAfterViewInit(): void {
+    const grid = this.grid();
+    if (!grid) {
+      return;
+    }
+    const previewStyle = grid.previewStyle.bind(grid);
+    grid.previewStyle = (drag?: boolean) => {
+      const item = grid.movingItem;
+      if (item && this.dragPayload) {
+        Object.assign(item, this.fitFootprint(item.x, item.y));
+      }
+      previewStyle(drag);
+    };
   }
 
   private onDrop(pos: GridsterItemConfig): void {

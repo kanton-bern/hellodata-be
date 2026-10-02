@@ -66,7 +66,7 @@
         <ul class="items">
           @for (c of charts(); track c.id) {
             <li class="palette-item" draggable="true"
-                (dragstart)="onDragStart({ type: 'chart', chartId: c.id, name: c.name })">
+                (dragstart)="onDragStart({ type: 'chart', chartId: c.id, name: c.name })" (dragend)="onDragEnd()">
               {{ c.name }}
             </li>
           } @empty {
@@ -80,7 +80,7 @@
     <p class="hint">{{ '@Drag a text block onto the grid' | transloco }}</p>
     <ul class="items">
       <li class="palette-item" draggable="true"
-          (dragstart)="onDragStart({ type: 'markdown', html: '', readonly: false })">
+          (dragstart)="onDragStart({ type: 'markdown', html: '', readonly: false })" (dragend)="onDragEnd()">
         {{ '@Text block' | transloco }}
       </li>
     </ul>
