@@ -63,8 +63,8 @@ import {
   PdfTemplateRef
 } from "../../store/pdf-export/pdf-export.model";
 
-/** What a cell renders. Markdown from the dashboard is read-only; text blocks created via
- *  "+ Add text block" are editable rich text (`html`). Older saved blocks may still carry `markdown`
+/** What a cell renders. Markdown from the dashboard is read-only; text blocks dropped from
+ *  the palette are editable rich text (`html`). Older saved blocks may still carry `markdown`
  *  only - they are shown as-is and converted to `html` the first time they are edited. */
 type PaletteItem = {
   type: 'chart' | 'markdown';
@@ -517,14 +517,6 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     this.clearPreviews();
   }
 
-  /** Open the dialog to create a new editable markdown block. */
-  addMarkdown(): void {
-    this.editingCell = null;
-    this.editorMode.set('add');
-    this.editingText.set('');
-    this.editorOpen.set(true);
-  }
-
   /** Open the dialog to edit an existing editable markdown cell. */
   editCell(cell: Cell): void {
     if (cell.type !== 'markdown' || cell.readonly) {
@@ -550,43 +542,9 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       const {markdown: _legacy, ...rest} = target;
       const updated: Cell = {...rest, html: empty ? '' : html};
       this.cells.update(cs => cs.map(c => (c === target ? updated : c)));
-    } else if (!empty) {
-      // Place the new block in the first free slot on the page. Hardcoding (0,0) made a second block
-      // land on top of the first, where gridster (pushItems/autoPosition off) can't show it until the
-      // first is removed. If the page is full, keep the dialog open so the text isn't lost.
-      const spot = this.findMarkdownSpot();
-      if (!spot) {
-        this.notification.warn('@No free space on this page - add a page or make room first');
-        return;
-      }
-      this.cells.update(cs => [...cs, {type: 'markdown', html, readonly: false, page: this.currentPage(), ...spot}]);
-      this.reflowGrid();
     }
     this.closeEditor();
     this.persist();
-  }
-
-  /** Where a new full-width text block should go: the first fully-free row (4x1); if no whole row is
-   *  free, the first free cell widened to the free run to its right; null when the page is full. */
-  private findMarkdownSpot(): {x: number; y: number; cols: number; rows: number} | null {
-    const grid = this.occupancy();
-    for (let y = 0; y < PAGE_ROWS; y++) {
-      if (grid[y].every(occupied => !occupied)) {
-        return {x: 0, y, cols: PAGE_ROWS, rows: 1};
-      }
-    }
-    for (let y = 0; y < PAGE_ROWS; y++) {
-      for (let x = 0; x < PAGE_ROWS; x++) {
-        if (!grid[y][x]) {
-          let cols = 1;
-          while (x + cols < PAGE_ROWS && !grid[y][x + cols]) {
-            cols++;
-          }
-          return {x, y, cols, rows: 1};
-        }
-      }
-    }
-    return null;
   }
 
   /** Ask gridster to re-run its layout after we add a tile programmatically, so it is positioned (with

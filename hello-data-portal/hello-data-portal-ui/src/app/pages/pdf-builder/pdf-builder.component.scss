@@ -266,17 +266,21 @@ gridster {
 }
 
 .cell-body .markdown {
-  :first-child { margin-top: 0; }
-  :last-child { margin-bottom: 0; }
-  p, ul, ol { margin: 0 0 6px; }
-  ul, ol { padding-left: 20px; }
-  // Global resets strip list markers; restore them so the preview matches the exported PDF.
-  ul { list-style: disc outside; }
-  ol { list-style: decimal outside; }
-  li { display: list-item; }
-  h1, h2, h3, h4, h5, h6 { margin: 8px 0 4px; line-height: 1.2; }
-  // Preview only - a click must not navigate away from the builder.
-  a { pointer-events: none; }
+  // The content comes in through [innerHTML], so it carries no component style-scope attribute:
+  // these rules need ::ng-deep to reach it.
+  ::ng-deep {
+    > :first-child { margin-top: 0; }
+    > :last-child { margin-bottom: 0; }
+    p, ul, ol { margin: 0 0 6px; }
+    ul, ol { padding-left: 20px; }
+    // Global resets strip list markers; restore them so the preview matches the exported PDF.
+    ul { list-style: disc outside; }
+    ol { list-style: decimal outside; }
+    li { display: list-item; }
+    h1, h2, h3, h4, h5, h6 { margin: 8px 0 4px; line-height: 1.2; }
+    // Preview only - a click must not navigate away from the builder.
+    a { pointer-events: none; }
+  }
 }
 
 .cell-body .chart-icon {
