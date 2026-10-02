@@ -272,7 +272,8 @@ gridster {
     > :first-child { margin-top: 0; }
     > :last-child { margin-bottom: 0; }
     p, ul, ol { margin: 0 0 6px; }
-    ul, ol { padding-left: 20px; }
+    // Same text indent as the editor (Quill: 1.5em list + 1.5em item padding) and the PDF.
+    ul, ol { padding-left: 3em; }
     // Global resets strip list markers; restore them so the preview matches the exported PDF.
     ul { list-style: disc outside; }
     ol { list-style: decimal outside; }
