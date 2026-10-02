@@ -255,6 +255,7 @@
   "@Edit layout": "Modifier la mise en page",
   "@Use for PDF export": "Utiliser pour l'export PDF",
   "@Only the creator can change this layout": "Seule la personne qui l'a créée peut modifier cette mise en page",
+  "@No access to the dashboard of this layout": "Vous n'avez plus accès au tableau de bord de cette mise en page",
   "@Manage layouts": "Gérer les mises en page",
   "@Changes here are only used for your export": "Modifier la zone de travail crée votre propre mise en page pour cet export - la mise en page enregistrée reste inchangée.",
   "@Portrait": "Portrait",

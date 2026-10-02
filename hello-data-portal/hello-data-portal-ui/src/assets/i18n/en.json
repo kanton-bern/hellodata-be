@@ -255,6 +255,7 @@
   "@Edit layout": "Edit layout",
   "@Use for PDF export": "Use for PDF export",
   "@Only the creator can change this layout": "Only the creator can change this layout",
+  "@No access to the dashboard of this layout": "You no longer have access to the dashboard of this layout",
   "@Manage layouts": "Manage layouts",
   "@Changes here are only used for your export": "Changing the canvas starts your own layout for this export - the saved layout stays unchanged.",
   "@Portrait": "Portrait",

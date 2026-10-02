@@ -58,14 +58,18 @@
         <td>{{ layout.createdBy | lowercase }}</td>
         <td>{{ (layout.modifiedDate ?? layout.createdDate) | date: 'dd.MM.yyyy HH:mm' }}</td>
         <td class="whitespace-nowrap">
-          <p-button (click)="useLayout(layout)" (keydown.enter)="useLayout(layout)"
-                    [icon]="icons.ACTION_FILE_EXPORT.class" [text]="true" [disabled]="!layout.accessible"
-                    [pTooltip]="'@Use for PDF export' | transloco" tooltipPosition="top"
-                    [ariaLabel]="'@Use for PDF export' | transloco"/>
-          <span [pTooltip]="layout.editable ? '' : ('@Only the creator can change this layout' | transloco)" tooltipPosition="top">
+          <!-- Tooltips sit on wrappers: a disabled button gets no mouse events. -->
+          <span [pTooltip]="(layout.accessible ? '@Use for PDF export' : '@No access to the dashboard of this layout') | transloco" tooltipPosition="top">
+            <p-button (click)="useLayout(layout)" (keydown.enter)="useLayout(layout)"
+                      [icon]="icons.ACTION_FILE_EXPORT.class" [text]="true" [disabled]="!layout.accessible"
+                      [ariaLabel]="'@Use for PDF export' | transloco"/>
+          </span>
+          <span [pTooltip]="!layout.editable ? ('@Only the creator can change this layout' | transloco) : !layout.accessible ? ('@No access to the dashboard of this layout' | transloco) : ''" tooltipPosition="top">
             <p-button (click)="editLayout(layout)" (keydown.enter)="editLayout(layout)" [disabled]="!layout.editable || !layout.accessible"
                       [icon]="icons.ACTION_EDIT.class" [text]="true"
                       [ariaLabel]="'@Edit' | transloco"/>
+          </span>
+          <span [pTooltip]="layout.editable ? '' : ('@Only the creator can change this layout' | transloco)" tooltipPosition="top">
             <p-button (click)="deleteLayout(layout)" (keydown.enter)="deleteLayout(layout)" [disabled]="!layout.editable"
                       [icon]="icons.ACTION_DELETE.class" [text]="true" severity="danger"
                       [ariaLabel]="'@Delete' | transloco"/>

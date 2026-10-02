@@ -252,6 +252,7 @@
   "@Edit layout": "Layout bearbeiten",
   "@Use for PDF export": "Für PDF-Export verwenden",
   "@Only the creator can change this layout": "Nur die erstellende Person kann dieses Layout ändern",
+  "@No access to the dashboard of this layout": "Sie haben keinen Zugriff mehr auf das Dashboard dieses Layouts",
   "@Manage layouts": "Layouts verwalten",
   "@Changes here are only used for your export": "Änderungen an der Arbeitsfläche erstellen Ihr eigenes Layout für diesen Export - das gespeicherte Layout bleibt unverändert.",
   "@Portrait": "Hochformat",
