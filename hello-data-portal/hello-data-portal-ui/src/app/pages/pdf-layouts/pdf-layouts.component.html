@@ -59,11 +59,11 @@
         <td>{{ (layout.modifiedDate ?? layout.createdDate) | date: 'dd.MM.yyyy HH:mm' }}</td>
         <td class="whitespace-nowrap">
           <p-button (click)="useLayout(layout)" (keydown.enter)="useLayout(layout)"
-                    [icon]="icons.ACTION_FILE_EXPORT.class" [text]="true"
+                    [icon]="icons.ACTION_FILE_EXPORT.class" [text]="true" [disabled]="!layout.accessible"
                     [pTooltip]="'@Use for PDF export' | transloco" tooltipPosition="top"
                     [ariaLabel]="'@Use for PDF export' | transloco"/>
           <span [pTooltip]="layout.editable ? '' : ('@Only the creator can change this layout' | transloco)" tooltipPosition="top">
-            <p-button (click)="editLayout(layout)" (keydown.enter)="editLayout(layout)" [disabled]="!layout.editable"
+            <p-button (click)="editLayout(layout)" (keydown.enter)="editLayout(layout)" [disabled]="!layout.editable || !layout.accessible"
                       [icon]="icons.ACTION_EDIT.class" [text]="true"
                       [ariaLabel]="'@Edit' | transloco"/>
             <p-button (click)="deleteLayout(layout)" (keydown.enter)="deleteLayout(layout)" [disabled]="!layout.editable"

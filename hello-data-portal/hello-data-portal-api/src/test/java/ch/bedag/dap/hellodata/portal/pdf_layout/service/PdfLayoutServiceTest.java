@@ -301,23 +301,20 @@ class PdfLayoutServiceTest {
     }
 
     @Test
-    void deleteLayout_ofInaccessibleDashboard_isForbidden() {
+    void deleteLayout_ofInaccessibleDashboard_isAllowedForCreator() {
         // given
         PdfLayoutEntity existing = entity(List.of());
         when(pdfLayoutRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
-        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of());
-        dashboardStillExists(DASHBOARD_ID);
 
         // when
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.deleteLayout(existing.getId()));
+        pdfLayoutService.deleteLayout(existing.getId());
 
         // then
-        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
-        verify(pdfLayoutRepository, never()).delete(any());
+        verify(pdfLayoutRepository).delete(existing);
     }
 
     @Test
-    void findLayouts_hidesLayoutsOfInaccessibleDashboards() {
+    void findLayouts_listsOwnLayoutsOfInaccessibleDashboardsAsNotAccessible() {
         // given
         PdfLayoutEntity accessible = entity(List.of());
         PdfLayoutEntity inaccessible = entity(List.of());
@@ -328,13 +325,13 @@ class PdfLayoutServiceTest {
         gone.setDashboardId(9);
         when(pdfLayoutRepository.findAllByOrderByNameAsc()).thenReturn(List.of(accessible, inaccessible, gone));
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
-        dashboardStillExists(DASHBOARD_ID, 8);
 
         // when
         List<PdfLayoutSummaryDto> result = pdfLayoutService.findLayouts(null);
 
         // then
-        assertEquals(List.of("Monthly", "Gone"), result.stream().map(PdfLayoutSummaryDto::getName).toList());
+        assertEquals(List.of("Monthly", "Hidden", "Gone"), result.stream().map(PdfLayoutSummaryDto::getName).toList());
+        assertEquals(List.of(true, false, false), result.stream().map(PdfLayoutSummaryDto::isAccessible).toList());
     }
 
     @Test
@@ -432,7 +429,6 @@ class PdfLayoutServiceTest {
         PdfLayoutEntity foreign = entity(List.of());
         foreign.setUserId(OTHER_USER_ID);
         when(pdfLayoutRepository.findById(foreign.getId())).thenReturn(Optional.of(foreign));
-        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
 
         // when
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.deleteLayout(foreign.getId()));

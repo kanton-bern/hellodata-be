@@ -59,8 +59,9 @@ import java.util.stream.Collectors;
  * <p>
  * A layout is shared with everyone who may access its data domain dashboard, and is strictly bound
  * to that dashboard: whoever may not see the dashboard may not see or touch the layout either (hidden
- * from the list, 403 otherwise). A layout whose dashboard no longer exists stays listed for its creator
- * only, so loading it reports "Dashboard X not found." and it can still be deleted.
+ * from the list, 403 otherwise). The exception is the creator: their layouts stay listed (flagged as not
+ * accessible) even when the dashboard no longer exists or access to it was lost, so they can still delete
+ * them; loading one reports "Dashboard X not found." or 403.
  * <p>
  * There are no dedicated permissions for this area yet: until there are, only the creator of a layout
  * may change or delete it.
@@ -91,9 +92,11 @@ public class PdfLayoutService {
         }
         Set<SupersetDashboardDto> myDashboards = dashboardService.fetchMyDashboards();
         return layouts.stream()
-                .filter(l -> findDashboard(myDashboards, l.getInstanceName(), l.getDashboardId()).isPresent()
-                        || (userId.equals(l.getUserId()) && !dashboardExists(l.getInstanceName(), l.getDashboardId())))
-                .map(l -> toSummary(l, userId))
+                .map(l -> {
+                    boolean accessible = findDashboard(myDashboards, l.getInstanceName(), l.getDashboardId()).isPresent();
+                    return (accessible || userId.equals(l.getUserId())) ? toSummary(l, userId, accessible) : null;
+                })
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -166,10 +169,7 @@ public class PdfLayoutService {
     public void deleteLayout(UUID id) {
         UUID userId = currentUserId();
         PdfLayoutEntity entity = findLayout(id);
-        // A layout of a deleted dashboard may still be cleaned up; one of an inaccessible dashboard not.
-        if (findDashboard(entity.getInstanceName(), entity.getDashboardId()).isEmpty()) {
-            assertDashboardGone(entity);
-        }
+        // The creator may always clean up the layout, even when its dashboard was deleted or access to it was lost.
         assertCreator(entity, userId);
         pdfLayoutRepository.delete(entity);
     }
@@ -321,9 +321,10 @@ public class PdfLayoutService {
         }
     }
 
-    private PdfLayoutSummaryDto toSummary(PdfLayoutEntity entity, UUID userId) {
+    private PdfLayoutSummaryDto toSummary(PdfLayoutEntity entity, UUID userId, boolean accessible) {
         PdfLayoutSummaryDto dto = new PdfLayoutSummaryDto();
         fillSummary(dto, entity, userId);
+        dto.setAccessible(accessible);
         return dto;
     }
 

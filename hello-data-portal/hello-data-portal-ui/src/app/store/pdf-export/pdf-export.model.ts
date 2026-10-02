@@ -97,6 +97,8 @@ export interface PdfLayoutSummary {
   modifiedDate?: number;
   createdBy?: string;
   editable: boolean;
+  /** False when the user lost access to the layout's dashboard (still listed to its creator, to delete it). */
+  accessible: boolean;
 }
 
 /** A complete saved layout. `removedCharts` names charts that no longer exist on the dashboard and

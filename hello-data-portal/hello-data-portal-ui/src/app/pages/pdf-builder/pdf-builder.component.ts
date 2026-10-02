@@ -191,7 +191,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     return [
       {label: this.transloco.translate('@No layout'), value: NO_LAYOUT},
       ...this.savedLayouts()
-        .filter(l => key === null || l.contextKey === key)
+        .filter(l => l.accessible !== false && (key === null || l.contextKey === key))
         .map(l => ({label: l.dashboardTitle ? `${l.name} (${l.dashboardTitle})` : l.name, value: l.id})),
     ];
   });
@@ -768,8 +768,8 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
       },
       error: err => {
         this.loadingLayout.set(false);
-        if (onGone && err?.status === 404) {
-          onGone();   // a remembered layout that is gone: handled by the caller, no error toast
+        if (onGone && (err?.status === 404 || err?.status === 403)) {
+          onGone();   // a remembered layout that is gone or no longer accessible: handled by the caller, no error toast
           return;
         }
         this.layoutPickerValue.set(this.currentLayout()?.id ?? NO_LAYOUT);
@@ -946,7 +946,7 @@ export class PdfBuilderComponent implements OnInit, OnDestroy {
     const remembered = this.pendingRestore;
     this.pendingRestore = null;
     if (id) {
-      // A remembered layout may have been deleted (or its dashboard removed) meanwhile: keep the
+      // A remembered layout may have been deleted (or its dashboard removed or no longer accessible) meanwhile: keep the
       // canvas as the user's own one instead of failing on every visit.
       this.onSavedLayoutSelect(id, () => this.fallBackToOwnCanvas(remembered));
     }

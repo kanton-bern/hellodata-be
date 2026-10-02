@@ -104,13 +104,16 @@ export class PdfLayoutsComponent implements OnInit {
   }
 
   editLayout(layout: PdfLayoutSummary): void {
-    if (layout.editable) {
+    if (layout.editable && layout.accessible) {
       this.router.navigate(['pdf-layouts', 'edit', layout.id]);
     }
   }
 
   /** Open the PDF export page with this layout selected. */
   useLayout(layout: PdfLayoutSummary): void {
+    if (!layout.accessible) {
+      return;
+    }
     this.router.navigate(['pdf-builder'], {queryParams: {layout: layout.id}});
   }
 

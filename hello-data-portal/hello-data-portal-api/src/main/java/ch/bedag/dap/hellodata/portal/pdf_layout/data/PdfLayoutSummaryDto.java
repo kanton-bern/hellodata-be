@@ -50,4 +50,6 @@ public class PdfLayoutSummaryDto {
     private String createdBy;
     /** True when the current user may change or delete the layout (its creator, for now). */
     private boolean editable;
+    /** False when the current user can no longer access the layout's dashboard (listed for its creator only, to delete it). */
+    private boolean accessible = true;
 }
