@@ -531,9 +531,10 @@
   "@All members of the group are assigned to the selected RLS groups": "Tous les membres du groupe sont affectés aux groupes RLS sélectionnés",
   "@Optional - restricts the data the user sees in the dashboards": "Facultatif - limite les données que l'utilisateur voit dans les tableaux de bord",
   "@Give the RLS groups of a data domain a meaningful name. The name is shown when assigning users and dashboard groups to RLS groups.": "Donnez un nom explicite aux groupes RLS d'un domaine de données. Ce nom est affiché lors de l'affectation des utilisateurs et des groupes de tableaux de bord aux groupes RLS.",
-  "@No data domains available": "Aucun domaine de données disponible",
   "@RLS role ID": "ID du rôle RLS",
   "@RLS group name must be unique": "Le nom du groupe RLS doit être unique",
   "@Reset to default name": "Rétablir le nom par défaut",
-  "@RLS group names saved": "Noms des groupes RLS enregistrés"
+  "@RLS group names saved": "Noms des groupes RLS enregistrés",
+  "@You are not allowed to manage the RLS groups of this data domain": "Vous n'êtes pas autorisé à gérer les groupes RLS de ce domaine de données",
+  "@Select a data domain in the header to manage its RLS groups": "Sélectionnez un domaine de données en haut pour gérer ses groupes RLS"
 }

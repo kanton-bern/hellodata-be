@@ -29,7 +29,7 @@ the RLS Groups of all Dashboard Groups the user is a member of.
 ## Naming RLS Groups
 
 By default an RLS Group is named after its role ID (`RLS_01` - `RLS_15`). On the page **Administration > RLS Groups**
-a meaningful name can be set per Data Domain (i.e. `RLS_01` -> "Region Bern"). The name is shown in the user management
+a meaningful name can be set for the Data Domain selected in the header (i.e. `RLS_01` -> "Region Bern"). The name is shown in the user management
 and on the Dashboard Group edit page. Leaving the name empty restores the default name. Names must be unique within a
 Data Domain.
 

@@ -531,9 +531,10 @@
   "@All members of the group are assigned to the selected RLS groups": "All members of the group are assigned to the selected RLS groups",
   "@Optional - restricts the data the user sees in the dashboards": "Optional - restricts the data the user sees in the dashboards",
   "@Give the RLS groups of a data domain a meaningful name. The name is shown when assigning users and dashboard groups to RLS groups.": "Give the RLS groups of a data domain a meaningful name. The name is shown when assigning users and dashboard groups to RLS groups.",
-  "@No data domains available": "No data domains available",
   "@RLS role ID": "RLS role ID",
   "@RLS group name must be unique": "RLS group name must be unique",
   "@Reset to default name": "Reset to default name",
-  "@RLS group names saved": "RLS group names saved"
+  "@RLS group names saved": "RLS group names saved",
+  "@You are not allowed to manage the RLS groups of this data domain": "You are not allowed to manage the RLS groups of this data domain",
+  "@Select a data domain in the header to manage its RLS groups": "Select a data domain in the header to manage its RLS groups"
 }

@@ -26,12 +26,12 @@
 ///
 
 import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {combineLatest} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Store} from '@ngrx/store';
 import {FormsModule} from '@angular/forms';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Card} from 'primeng/card';
-import {Select} from 'primeng/select';
 import {TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
 import {InputText} from 'primeng/inputtext';
@@ -46,22 +46,25 @@ import {naviElements} from '../../../app-navi-elements';
 import {RlsRolesService} from '../../../store/rls-roles/rls-roles.service';
 import {RlsDataDomain, RlsRole} from '../../../store/rls-roles/rls-roles.model';
 import {ICON_REGISTRY} from '../../../shared/icons';
+import {selectSelectedDataDomain} from '../../../store/my-dashboards/my-dashboards.selector';
 
 /**
  * Lets a data domain admin give the RLS roles (RLS_01 - RLS_15) of a data domain a meaningful name.
+ * The data domain is taken from the global data domain selector in the header.
  */
 @Component({
   selector: 'app-rls-groups',
   templateUrl: './rls-groups.component.html',
-  imports: [FormsModule, PrimeTemplate, TranslocoPipe, Card, Select, TableModule, InputText, Button, Ripple, Toolbar]
+  imports: [FormsModule, PrimeTemplate, TranslocoPipe, Card, TableModule, InputText, Button, Ripple, Toolbar]
 })
 export class RlsGroupsComponent extends BaseComponent implements OnInit {
   protected readonly icons = ICON_REGISTRY;
   readonly maxNameLength = 150;
-  readonly dataDomains = signal<RlsDataDomain[]>([]);
   readonly rlsRoles = signal<RlsRole[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
+  // true if a single data domain is selected in the header but the current user can't manage its RLS groups
+  readonly notManageable = signal(false);
   selectedDataDomain: RlsDataDomain | null = null;
 
   private readonly store = inject<Store<AppState>>(Store);
@@ -73,22 +76,23 @@ export class RlsGroupsComponent extends BaseComponent implements OnInit {
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [{label: naviElements.rlsGroups.label, routerLink: naviElements.rlsGroups.path}]
     }));
-    this.rlsRolesService.getManageableDataDomains()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    combineLatest([
+      this.rlsRolesService.getManageableDataDomains(),
+      this.store.select(selectSelectedDataDomain)
+    ]).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: dataDomains => {
-          this.dataDomains.set(dataDomains);
-          if (dataDomains.length > 0) {
-            this.selectedDataDomain = dataDomains[0];
+        next: ([manageableDataDomains, selectedDataDomain]) => {
+          const contextKey = selectedDataDomain?.key;
+          this.selectedDataDomain = contextKey ? manageableDataDomains.find(dataDomain => dataDomain.key === contextKey) ?? null : null;
+          this.notManageable.set(!!contextKey && !this.selectedDataDomain);
+          if (this.selectedDataDomain) {
             this.loadRlsRoles();
+          } else {
+            this.rlsRoles.set([]);
           }
         },
         error: error => this.store.dispatch(showError({error}))
       });
-  }
-
-  onDataDomainChange(): void {
-    this.loadRlsRoles();
   }
 
   hasDuplicateName(rlsRole: RlsRole): boolean {
