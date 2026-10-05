@@ -29,7 +29,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -58,7 +57,14 @@ public class QuerySynchronizer {
         log.debug("Synchronizing queries from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
         for (HdContextEntity contextEntity : dataDomains) {
             log.info("Started synchronizing queries for data domain {}", contextEntity.getName());
-            for (SupersetQuery supersetQuery : fetchQueries(contextEntity.getContextKey())) {
+            List<SupersetQuery> queries;
+            try {
+                queries = fetchQueries(contextEntity.getContextKey());
+            } catch (RuntimeException e) {
+                log.error("[fetchQueries] Could not fetch queries for data domain {}, they will be fetched on the next run", contextEntity.getName(), e);
+                continue;
+            }
+            for (SupersetQuery supersetQuery : queries) {
                 log.debug("Processing query: {}", supersetQuery);
                 QueryEntity queryEntity = new QueryEntity();
                 queryEntity.setContextKey(contextEntity.getContextKey());
@@ -112,20 +118,16 @@ public class QuerySynchronizer {
             String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.GET_QUERY_LIST.getSubject());
             log.debug("[fetchQueries] Sending request to subject: {}", subject);
 
-            Optional<QueryEntity> foundEntity = queryRepository.findFirstByContextKeyOrderByChangedOnDesc(contextKey);
+            // The first sync only goes back as far as the cleanup would keep the queries
+            OffsetDateTime changedOn = queryRepository.findFirstByContextKeyOrderByChangedOnDesc(contextKey)
+                    .map(QueryEntity::getChangedOn)
+                    .orElseGet(() -> OffsetDateTime.now(ZoneOffset.UTC).minusDays(RETENTION_DAYS));
             ObjectNode filterNode = objectMapper.createObjectNode();
-
-            if (foundEntity.isPresent()) {
-                QueryEntity queryEntity = foundEntity.get();
-                OffsetDateTime changedOn = queryEntity.getChangedOn();
-                ObjectNode changedOnFilter = objectMapper.createObjectNode();
-                changedOnFilter.put("col", "changed_on");
-                changedOnFilter.put("opr", "gt");
-                changedOnFilter.put("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
-                filterNode.putArray("filters").add(changedOnFilter);
-            } else {
-                filterNode.putArray("filters");
-            }
+            ObjectNode changedOnFilter = objectMapper.createObjectNode();
+            changedOnFilter.put("col", "changed_on");
+            changedOnFilter.put("opr", "gt");
+            changedOnFilter.put("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
+            filterNode.putArray("filters").add(changedOnFilter);
 
             List<SupersetQuery> allQueries = new ArrayList<>();
             for (int page = 0; page < MAX_PAGES; page++) {
@@ -155,15 +157,15 @@ public class QuerySynchronizer {
             if (reply != null) {
                 reply.ack();
             }
-            return Collections.emptyList();
+            throw new RuntimeException("No reply from superset instance for contextKey=" + contextKey + " for page " + page); //NOSONAR
         }
         reply.ack();
         String content = new String(reply.getData(), StandardCharsets.UTF_8);
         try {
             JsonNode responseNode = objectMapper.readTree(content);
             if (responseNode.has("error")) {
-                log.error("[fetchQueries] Error response from superset instance for contextKey={}: {}", contextKey, responseNode.get("error").asText());
-                return Collections.emptyList();
+                throw new RuntimeException("Error response from superset instance for contextKey=" + contextKey + " for page " + page + ": " //NOSONAR
+                        + responseNode.get("error").asText());
             }
             if (responseNode.has("result")) {
                 List<SupersetQuery> pageResults = objectMapper.readValue(
@@ -178,7 +180,7 @@ public class QuerySynchronizer {
             });
         } catch (JsonProcessingException e) {
             log.error("[fetchQueries] Non-JSON response from superset instance for contextKey={}: {}", contextKey, content, e);
-            return Collections.emptyList();
+            throw e;
         }
     }
 }

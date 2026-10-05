@@ -34,7 +34,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -78,7 +77,14 @@ public class DashboardAccessSynchronizer {
         for (HdContextEntity contextEntity : dataDomains) {
             log.info("[fetchDashboardAccess] Started synchronizing dashboard accesses for data domain {}", contextEntity.getName());
             String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextEntity.getContextKey());
-            for (SupersetLog supersetLog : fetchDashboardAccess(contextEntity.getContextKey(), supersetInstanceName)) {
+            List<SupersetLog> dashboardAccesses;
+            try {
+                dashboardAccesses = fetchDashboardAccess(contextEntity.getContextKey(), supersetInstanceName);
+            } catch (RuntimeException e) {
+                log.error("[fetchDashboardAccess] Could not fetch dashboard accesses for data domain {}, they will be fetched on the next run", contextEntity.getName(), e);
+                continue;
+            }
+            for (SupersetLog supersetLog : dashboardAccesses) {
                 assembleAndSaveEntity(contextEntity, supersetLog, supersetInstanceName);
             }
             log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses for data domain {}", contextEntity.getName());
@@ -148,28 +154,25 @@ public class DashboardAccessSynchronizer {
             String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.GET_DASHBOARD_ACCESS_LIST.getSubject());
             log.debug("[fetchDashboardAccess] Sending request to subject: {}", subject);
 
-            Optional<DashboardAccessEntity> foundEntity = dashboardAccessRepository.findFirstByContextKeyOrderByDttmDesc(contextKey);
+            // The first sync only goes back as far as the cleanup would keep the accesses
+            OffsetDateTime accessDate = dashboardAccessRepository.findFirstByContextKeyOrderByDttmDesc(contextKey)
+                    .map(DashboardAccessEntity::getDttm)
+                    .orElseGet(() -> OffsetDateTime.now(ZoneOffset.UTC).minusDays(RETENTION_DAYS));
             ObjectNode requestNode = objectMapper.createObjectNode();
-
-            if (foundEntity.isPresent()) {
-                DashboardAccessEntity dashboardAccessEntity = foundEntity.get();
-                OffsetDateTime accessDate = dashboardAccessEntity.getDttm();
-                ObjectNode changedOnFilter = objectMapper.createObjectNode();
-                changedOnFilter.put("col", "dttm");
-                changedOnFilter.put("opr", "gt");
-                changedOnFilter.put("value", accessDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
-                requestNode.putArray("filters").add(changedOnFilter);
-            } else {
-                requestNode.putArray("filters");
-            }
+            ObjectNode changedOnFilter = objectMapper.createObjectNode();
+            changedOnFilter.put("col", "dttm");
+            changedOnFilter.put("opr", "gt");
+            changedOnFilter.put("value", accessDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
+            requestNode.putArray("filters").add(changedOnFilter);
 
             List<SupersetLog> allLogs = new ArrayList<>();
             for (int page = 0; page < MAX_PAGES; page++) {
                 requestNode.put("page", page);
                 requestNode.put("pageSize", PAGE_SIZE);
-                List<SupersetLog> pageResults = fetchDashboardAccessPage(subject, requestNode, supersetInstanceName, contextKey, page);
-                allLogs.addAll(pageResults);
-                if (pageResults.size() < PAGE_SIZE) {
+                DashboardAccessPage pageResults = fetchDashboardAccessPage(subject, requestNode, supersetInstanceName, contextKey, page);
+                allLogs.addAll(pageResults.result());
+                // The result only holds the mount_dashboard rows, so the page size before that filter tells if there is more
+                if (pageResults.rawCount() < PAGE_SIZE) {
                     break;
                 }
             }
@@ -183,7 +186,7 @@ public class DashboardAccessSynchronizer {
         }
     }
 
-    private List<SupersetLog> fetchDashboardAccessPage(String subject, ObjectNode requestNode, String supersetInstanceName, String contextKey, int page)
+    private DashboardAccessPage fetchDashboardAccessPage(String subject, ObjectNode requestNode, String supersetInstanceName, String contextKey, int page)
             throws JsonProcessingException, InterruptedException {
         byte[] requestBytes = objectMapper.writeValueAsString(requestNode).getBytes(StandardCharsets.UTF_8);
         Message reply = connection.request(subject, requestBytes, Duration.ofSeconds(60));
@@ -191,7 +194,7 @@ public class DashboardAccessSynchronizer {
             if (reply != null) {
                 reply.ack();
             }
-            return Collections.emptyList();
+            throw new RuntimeException("No reply from superset instance " + supersetInstanceName + " (contextKey=" + contextKey + ") for page " + page); //NOSONAR
         }
         reply.ack();
         String content = new String(reply.getData(), StandardCharsets.UTF_8);
@@ -199,23 +202,28 @@ public class DashboardAccessSynchronizer {
         try {
             JsonNode responseNode = objectMapper.readTree(content);
             if (responseNode.has("error")) {
-                log.error("[fetchDashboardAccess] Error response from superset instance {} (contextKey={}): {}", supersetInstanceName, contextKey, responseNode.get("error").asText());
-                return Collections.emptyList();
+                throw new RuntimeException("Error response from superset instance " + supersetInstanceName + " (contextKey=" + contextKey + ") for page " + page + ": " //NOSONAR
+                        + responseNode.get("error").asText());
             }
             if (responseNode.has("result")) {
                 List<SupersetLog> pageResults = objectMapper.readValue(
                         responseNode.get("result").toString(), new TypeReference<>() {
                         });
                 int count = responseNode.has("count") ? responseNode.get("count").asInt() : 0;
-                log.debug("[fetchDashboardAccess] Page {} returned {} results (count: {})", page, pageResults.size(), count);
-                return pageResults;
+                int rawCount = responseNode.has("rawCount") ? responseNode.get("rawCount").asInt() : pageResults.size();
+                log.debug("[fetchDashboardAccess] Page {} returned {} results (count: {}, rawCount: {})", page, pageResults.size(), count, rawCount);
+                return new DashboardAccessPage(pageResults, rawCount);
             }
             // Legacy response: plain JSON array (no pagination support on responder)
-            return objectMapper.readValue(content, new TypeReference<>() {
+            List<SupersetLog> legacyResults = objectMapper.readValue(content, new TypeReference<>() {
             });
+            return new DashboardAccessPage(legacyResults, legacyResults.size());
         } catch (JsonProcessingException e) {
             log.error("[fetchDashboardAccess] Non-JSON response from superset instance {} (contextKey={}): {}", supersetInstanceName, contextKey, content, e);
-            return Collections.emptyList();
+            throw e;
         }
+    }
+
+    private record DashboardAccessPage(List<SupersetLog> result, int rawCount) {
     }
 }

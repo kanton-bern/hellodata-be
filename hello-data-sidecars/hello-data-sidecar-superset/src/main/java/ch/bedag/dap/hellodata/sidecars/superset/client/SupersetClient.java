@@ -420,8 +420,8 @@ public class SupersetClient implements Closeable {
         return getObjectMapper().readValue(bytes, SupersetQueryResponse.class);
     }
 
-    public SupersetQueryResponse queriesFiltered(JsonArray filters, int page, int pageSize) throws URISyntaxException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequestFiltered(host, port, authToken, filters, page, pageSize);
+    public SupersetQueryResponse queriesFiltered(JsonArray filters, int page, int pageSize, String orderColumn, String orderDirection) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequestFiltered(host, port, authToken, filters, page, pageSize, orderColumn, orderDirection);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("queriesFiltered() page {} response json \n{}", page, new String(bytes));
@@ -454,8 +454,8 @@ public class SupersetClient implements Closeable {
         return getObjectMapper().readValue(bytes, SupersetLogResponse.class);
     }
 
-    public SupersetLogResponse logsFiltered(JsonArray filters, int page, int pageSize) throws URISyntaxException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getLisLogsRequestFiltered(host, port, authToken, filters, page, pageSize);
+    public SupersetLogResponse logsFiltered(JsonArray filters, int page, int pageSize, String orderColumn, String orderDirection) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getLisLogsRequestFiltered(host, port, authToken, filters, page, pageSize, orderColumn, orderDirection);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("logsFiltered() page {} response json \n{}", page, new String(bytes));
