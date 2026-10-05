@@ -28,9 +28,12 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +61,14 @@ public class QuerySynchronizer {
         log.debug("Synchronizing queries from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
         for (HdContextEntity contextEntity : dataDomains) {
             log.info("Started synchronizing queries for data domain {}", contextEntity.getName());
-            for (SupersetQuery supersetQuery : fetchQueries(contextEntity.getContextKey())) {
+            List<SupersetQuery> queries;
+            try {
+                queries = fetchQueries(contextEntity.getContextKey());
+            } catch (RuntimeException e) {
+                log.error("[fetchQueries] Could not fetch queries for data domain {}, they will be fetched on the next run", contextEntity.getName(), e);
+                continue;
+            }
+            for (SupersetQuery supersetQuery : queries) {
                 log.debug("Processing query: {}", supersetQuery);
                 QueryEntity queryEntity = new QueryEntity();
                 queryEntity.setContextKey(contextEntity.getContextKey());
@@ -112,39 +122,59 @@ public class QuerySynchronizer {
             String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.GET_QUERY_LIST.getSubject());
             log.debug("[fetchQueries] Sending request to subject: {}", subject);
 
-            Optional<QueryEntity> foundEntity = queryRepository.findFirstByContextKeyOrderByChangedOnDesc(contextKey);
-            ObjectNode filterNode = objectMapper.createObjectNode();
+            // The first sync only goes back as far as the cleanup would keep the queries
+            OffsetDateTime cursor = queryRepository.findFirstByContextKeyOrderByChangedOnDesc(contextKey)
+                    .map(QueryEntity::getChangedOn)
+                    .orElseGet(() -> OffsetDateTime.now(ZoneOffset.UTC).minusDays(RETENTION_DAYS));
 
-            if (foundEntity.isPresent()) {
-                QueryEntity queryEntity = foundEntity.get();
-                OffsetDateTime changedOn = queryEntity.getChangedOn();
-                ObjectNode changedOnFilter = objectMapper.createObjectNode();
-                changedOnFilter.put("col", "changed_on");
-                changedOnFilter.put("opr", "gt");
-                changedOnFilter.put("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
-                filterNode.putArray("filters").add(changedOnFilter);
-            } else {
-                filterNode.putArray("filters");
-            }
-
-            List<SupersetQuery> allQueries = new ArrayList<>();
+            // Keyset paging: always the first page, after the newest changed_on read so far. Offsets would skip a query
+            // whenever another one finishes during the run, because its new changed_on moves it to the end of the list.
+            Map<Integer, SupersetQuery> allQueries = new LinkedHashMap<>();
             for (int page = 0; page < MAX_PAGES; page++) {
-                filterNode.put("page", page);
+                ObjectNode filterNode = objectMapper.createObjectNode();
+                filterNode.putArray("filters").add(changedOnAfterFilter(cursor));
+                filterNode.put("page", 0);
                 filterNode.put("pageSize", PAGE_SIZE);
                 List<SupersetQuery> pageResults = fetchQueriesPage(subject, filterNode, contextKey, page);
-                allQueries.addAll(pageResults);
+                // queries at the cursor are fetched again on purpose, keep the latest version of each
+                pageResults.forEach(query -> {
+                    allQueries.remove(query.getId());
+                    allQueries.put(query.getId(), query);
+                });
                 if (pageResults.size() < PAGE_SIZE) {
                     break;
                 }
+                OffsetDateTime newestChangedOn = pageResults.stream()
+                        .map(query -> query.getChangedOn().atOffset(ZoneOffset.UTC))
+                        .max(Comparator.naturalOrder())
+                        .orElse(cursor);
+                if (!newestChangedOn.isAfter(cursor)) {
+                    log.warn("[fetchQueries] More than {} queries share changed_on {} for contextKey={}, stopping this run", PAGE_SIZE, cursor, contextKey);
+                    break;
+                }
+                cursor = newestChangedOn;
             }
             log.debug("[fetchQueries] Fetched total of {} queries for contextKey={}", allQueries.size(), contextKey);
-            return allQueries;
+            return new ArrayList<>(allQueries.values());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Thread was interrupted when fetching queries from the superset instance " + contextKey, e); //NOSONAR
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error fetching queries from the superset instance " + contextKey, e); //NOSONAR
         }
+    }
+
+    /**
+     * Superset filters can only be combined with AND, so there is no (changed_on, id) tie-breaker. Starting one millisecond
+     * before the cursor fetches the queries sharing its changed_on again instead of skipping them, the upsert by
+     * subsystemId takes care of the duplicates.
+     */
+    private ObjectNode changedOnAfterFilter(OffsetDateTime cursor) {
+        ObjectNode changedOnFilter = objectMapper.createObjectNode();
+        changedOnFilter.put("col", "changed_on");
+        changedOnFilter.put("opr", "gt");
+        changedOnFilter.put("value", cursor.truncatedTo(ChronoUnit.MILLIS).minus(1, ChronoUnit.MILLIS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
+        return changedOnFilter;
     }
 
     private List<SupersetQuery> fetchQueriesPage(String subject, ObjectNode filterNode, String contextKey, int page)
@@ -155,15 +185,15 @@ public class QuerySynchronizer {
             if (reply != null) {
                 reply.ack();
             }
-            return Collections.emptyList();
+            throw new RuntimeException("No reply from superset instance for contextKey=" + contextKey + " for page " + page); //NOSONAR
         }
         reply.ack();
         String content = new String(reply.getData(), StandardCharsets.UTF_8);
         try {
             JsonNode responseNode = objectMapper.readTree(content);
             if (responseNode.has("error")) {
-                log.error("[fetchQueries] Error response from superset instance for contextKey={}: {}", contextKey, responseNode.get("error").asText());
-                return Collections.emptyList();
+                throw new RuntimeException("Error response from superset instance for contextKey=" + contextKey + " for page " + page + ": " //NOSONAR
+                        + responseNode.get("error").asText());
             }
             if (responseNode.has("result")) {
                 List<SupersetQuery> pageResults = objectMapper.readValue(
@@ -178,7 +208,7 @@ public class QuerySynchronizer {
             });
         } catch (JsonProcessingException e) {
             log.error("[fetchQueries] Non-JSON response from superset instance for contextKey={}: {}", contextKey, content, e);
-            return Collections.emptyList();
+            throw e;
         }
     }
 }

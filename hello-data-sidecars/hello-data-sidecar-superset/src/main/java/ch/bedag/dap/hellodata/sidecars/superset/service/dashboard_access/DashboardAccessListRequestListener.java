@@ -3,7 +3,6 @@ package ch.bedag.dap.hellodata.sidecars.superset.service.dashboard_access;
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.logs.response.superset.SupersetLog;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.logs.response.superset.SupersetLogResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +31,9 @@ import java.util.List;
 public class DashboardAccessListRequestListener {
 
     private static final int DEFAULT_PAGE_SIZE = 1000;
+    // Oldest first, so the portal watermark only moves over rows that were actually read
+    private static final String ORDER_COLUMN = "dttm";
+    private static final String ORDER_DIRECTION = "asc";
 
     private final Connection natsConnection;
     private final SupersetClientProvider supersetClientProvider;
@@ -69,13 +71,16 @@ public class DashboardAccessListRequestListener {
                     throw new IllegalStateException("Expected a JSON array or object but received: " + jsonString);
                 }
 
-                List<SupersetLog> logs = getSupersetLogResponse(filter, page, pageSize);
-                log.debug("Received {} log entries from Superset (page={}, pageSize={})", logs.size(), page, pageSize);
+                List<SupersetLog> rawLogs = getSupersetLogResponse(filter, page, pageSize);
+                List<SupersetLog> logs = rawLogs.stream().filter(logEntry -> logEntry.getJson().contains("mount_dashboard")).toList();
+                log.debug("Received {} log entries from Superset, {} of them dashboard accesses (page={}, pageSize={})", rawLogs.size(), logs.size(), page, pageSize);
 
                 ObjectNode responseNode = objectMapper.createObjectNode();
                 ArrayNode resultArray = objectMapper.valueToTree(logs);
                 responseNode.set("result", resultArray);
                 responseNode.put("count", logs.size());
+                // The portal pages on the number of rows before the mount_dashboard filter
+                responseNode.put("rawCount", rawLogs.size());
 
                 String result = objectMapper.writeValueAsString(responseNode);
                 natsConnection.publish(msg.getReplyTo(), result.getBytes(StandardCharsets.UTF_8));
@@ -103,10 +108,8 @@ public class DashboardAccessListRequestListener {
         dashboardIdFilter.addProperty("value", 0);
         filter.add(dashboardIdFilter);
 
-        SupersetLogResponse supersetLogResponse;
         try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
-            supersetLogResponse = supersetClient.logsFiltered(filter, page, pageSize);
+            return supersetClient.logsFiltered(filter, page, pageSize, ORDER_COLUMN, ORDER_DIRECTION).getResult();
         }
-        return supersetLogResponse.getResult().stream().filter(logEntry -> logEntry.getJson().contains("mount_dashboard")).toList();
     }
 }
