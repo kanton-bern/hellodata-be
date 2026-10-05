@@ -523,5 +523,14 @@
   "@Yes": "Ja",
   "@You are not allowed to access this page": "Du bist leider nicht berechtigt, auf diese Seite zuzugreifen. Kontaktiere bitte deinen Administrator.",
   "@Filter by role": "Nach Datendomänenrolle filtern",
-  "@Loading user roles": "Benutzerrollen werden geladen"
+  "@Loading user roles": "Benutzerrollen werden geladen",
+  "@RLS Groups": "RLS-Gruppen",
+  "@All members of the group are assigned to the selected RLS groups": "Alle Mitglieder der Gruppe werden den ausgewählten RLS-Gruppen zugewiesen",
+  "@Optional - restricts the data the user sees in the dashboards": "Optional - schränkt die Daten ein, die der Benutzer in den Dashboards sieht",
+  "@Give the RLS groups of a data domain a meaningful name. The name is shown when assigning users and dashboard groups to RLS groups.": "Vergeben Sie den RLS-Gruppen einer Datendomäne einen sprechenden Namen. Der Name wird bei der Zuweisung von Benutzern und Dashboard-Gruppen zu RLS-Gruppen angezeigt.",
+  "@No data domains available": "Keine Datendomänen verfügbar",
+  "@RLS role ID": "RLS-Rollen-ID",
+  "@RLS group name must be unique": "Der Name der RLS-Gruppe muss eindeutig sein",
+  "@Reset to default name": "Auf Standardnamen zurücksetzen",
+  "@RLS group names saved": "Namen der RLS-Gruppen gespeichert"
 }

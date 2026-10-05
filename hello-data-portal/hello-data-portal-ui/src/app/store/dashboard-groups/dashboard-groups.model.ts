@@ -52,6 +52,7 @@ export interface DashboardGroup {
   contextKey: string;
   entries: DashboardGroupEntry[];
   users: DashboardGroupUserEntry[];
+  rlsRoles?: string[];
   createdDate?: number;
   createdBy?: string;
   modifiedDate?: number;
@@ -64,4 +65,5 @@ export interface DashboardGroupCreateUpdate {
   contextKey: string;
   entries: DashboardGroupEntry[];
   users: DashboardGroupUserEntry[];
+  rlsRoles: string[];
 }

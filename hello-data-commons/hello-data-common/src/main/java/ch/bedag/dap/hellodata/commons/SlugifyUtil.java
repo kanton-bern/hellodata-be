@@ -38,6 +38,10 @@ public class SlugifyUtil {
     public static final String BI_EDITOR_ROLE_NAME = "BI_EDITOR";//temporary name
     public static final String DASHBOARD_ROLE_PREFIX = "D_";
     public static final String ADMIN_ROLE_NAME = "Admin";
+    /**
+     * Prefix of the row level security roles (RLS_01 - RLS_15) available in every Superset instance
+     */
+    public static final String RLS_ROLE_PREFIX = "RLS_";
 
     public static String slugify(String value, int id) {
         return slugify(value) + "_" + id;

@@ -127,6 +127,7 @@ public class SupersetUpdateUserContextRoleConsumer {
 
                 default -> log.debug("Irrelevant role name? {}", contextRole.getRoleName());
             }
+            applyRlsRoles(userContextRoleUpdate, allRoles, dataDomainKey, contextRole, supersetUserRolesUpdate);
 
 
             removePublicRoleIfAdded(allRoles, supersetUserRolesUpdate);
@@ -152,6 +153,30 @@ public class SupersetUpdateUserContextRoleConsumer {
         }
 
         leaveOnlyBiViewerRoleIfNoneAttached(allRoles, supersetUserRolesUpdate);
+    }
+
+    /**
+     * Row level security roles (RLS_01 - RLS_15) are managed by the portal. If the payload contains the RLS roles for this data domain,
+     * all RLS roles are removed and only the given ones are assigned (VIEWER/BUSINESS_SPECIALIST only).
+     * A payload without RLS roles for this data domain leaves the current RLS roles untouched.
+     */
+    private void applyRlsRoles(UserContextRoleUpdate userContextRoleUpdate, SupersetRolesResponse allRoles, String dataDomainKey,
+                               UserContextRoleUpdate.ContextRole contextRole, SupersetUserRolesUpdate supersetUserRolesUpdate) {
+        Map<String, List<String>> rlsRolesPerContext = userContextRoleUpdate.getRlsRolesPerContext();
+        if (rlsRolesPerContext == null || !rlsRolesPerContext.containsKey(dataDomainKey)) {
+            return;
+        }
+        removeAllRlsRoles(allRoles, supersetUserRolesUpdate);
+        HdRoleName roleName = contextRole.getRoleName();
+        if (roleName != HdRoleName.DATA_DOMAIN_VIEWER && roleName != HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST) {
+            return;
+        }
+        CollectionUtils.emptyIfNull(rlsRolesPerContext.get(dataDomainKey)).stream()
+                .filter(rlsRoleName -> rlsRoleName.startsWith(SlugifyUtil.RLS_ROLE_PREFIX))
+                .forEach(rlsRoleName -> {
+                    log.info("\tAssigning RLS role {} to user {}", rlsRoleName, userContextRoleUpdate.getEmail());
+                    assignRoleToUser(rlsRoleName, allRoles, supersetUserRolesUpdate);
+                });
     }
 
     private boolean shouldAssignDashboardRoles(Map<String, List<DashboardForUserDto>> dashboards, String dataDomainKey, UserContextRoleUpdate.ContextRole contextRole) {

@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
+import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
 import ch.bedag.dap.hellodata.portal.user.data.BulkAssignmentRequestDto;
@@ -88,6 +89,7 @@ public class UserController {
 
     private final UserService userService;
     private final DashboardGroupService dashboardGroupService;
+    private final RlsRoleService rlsRoleService;
     private final BulkAssignmentService bulkAssignmentService;
     private final HelloDataContextConfig helloDataContextConfig;
     private final SystemProperties systemProperties;
@@ -290,6 +292,12 @@ public class UserController {
     public List<DashboardGroupMembershipDto> getDashboardGroupMembership(
             @PathVariable UUID userId, @RequestParam String contextKey) {
         return dashboardGroupService.getDashboardGroupMembership(userId, contextKey);
+    }
+
+    @GetMapping("/{userId}/rls-roles")
+    @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
+    public List<String> getSelectedRlsRoles(@PathVariable UUID userId, @RequestParam String contextKey) {
+        return rlsRoleService.getSelectedRlsRoleKeys(userId, contextKey);
     }
 
     @GetMapping("search/{email}")

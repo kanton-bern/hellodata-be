@@ -41,4 +41,5 @@ public class DashboardGroupCreateDto {
     private String contextKey;
     private List<DashboardGroupEntry> entries;
     private List<DashboardGroupUserEntry> users;
+    private List<String> rlsRoles;
 }

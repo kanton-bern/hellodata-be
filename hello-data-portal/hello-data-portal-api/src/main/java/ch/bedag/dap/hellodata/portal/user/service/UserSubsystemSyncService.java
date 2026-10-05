@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntit
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
@@ -42,6 +43,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.Dashboa
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
+import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
 import ch.bedag.dap.hellodata.portal.role.service.AirflowKeycloakRoleService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
@@ -70,6 +72,7 @@ public class UserSubsystemSyncService {
     private final MetaInfoResourceService metaInfoResourceService;
     private final UserSelectedDashboardService userSelectedDashboardService;
     private final DashboardGroupService dashboardGroupService;
+    private final RlsRoleService rlsRoleService;
     private final DashboardCommentPermissionService dashboardCommentPermissionService;
     private final AirflowKeycloakRoleService airflowKeycloakRoleService;
 
@@ -273,7 +276,14 @@ public class UserSubsystemSyncService {
         userContextRoleUpdate.setActive(userEntity.isEnabled());
         List<UserContextRoleEntity> allContextRolesForUser = roleService.getAllContextRolesForUser(userEntity);
         List<UserContextRoleUpdate.ContextRole> contextRoles = new ArrayList<>();
+        Map<String, List<String>> rlsRolesPerContext = new HashMap<>();
         allContextRolesForUser.forEach(contextRoleForUser -> {
+            if (contextRoleForUser.getRole().getContextType() == HdContextType.DATA_DOMAIN) {
+                // every data domain gets its complete list of RLS roles (empty if none), so the sidecar can revoke the removed ones
+                rlsRolesPerContext.put(contextRoleForUser.getContextKey(), RlsRoleService.isEligibleForRlsRoles(contextRoleForUser.getRole().getName())
+                        ? rlsRoleService.getEffectiveRlsRoleKeys(userEntity.getId(), contextRoleForUser.getContextKey())
+                        : new ArrayList<>());
+            }
             UserContextRoleUpdate.ContextRole contextRole = new UserContextRoleUpdate.ContextRole();
             contextRole.setContextKey(contextRoleForUser.getContextKey());
             contextRole.setRoleName(contextRoleForUser.getRole().getName());
@@ -282,6 +292,7 @@ public class UserSubsystemSyncService {
             contextRoles.add(contextRole);
         });
         userContextRoleUpdate.setContextRoles(contextRoles);
+        userContextRoleUpdate.setRlsRolesPerContext(rlsRolesPerContext);
         userContextRoleUpdate.setSendBackUsersList(sendBackUsersList);
         return userContextRoleUpdate;
     }

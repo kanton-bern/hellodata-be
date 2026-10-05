@@ -164,3 +164,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/68_create_pdf_layout_table.xml
   - include:
       file: db/changelog/changelogs/69_add_scheduled_jobs_locking.xml
+  - include:
+      file: db/changelog/changelogs/70_create_rls_role_tables.xml

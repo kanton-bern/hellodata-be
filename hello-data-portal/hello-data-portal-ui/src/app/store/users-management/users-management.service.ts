@@ -202,7 +202,8 @@ export class UsersManagementService {
     data: any,
     contextDashboardsForUser: ContextDashboardsForUser[],
     commentPermissions?: Map<string, CommentPermissions>,
-    selectedDashboardGroupIdsForUser?: Record<string, string[]>
+    selectedDashboardGroupIdsForUser?: Record<string, string[]>,
+    selectedRlsRolesForUser?: Record<string, string[]>
   ): Observable<any> {
     const selectedDashboardsForUser = new Map<string, DashboardForUser[]>();
     contextDashboardsForUser.forEach(contextDashboardForUser => {
@@ -223,13 +224,19 @@ export class UsersManagementService {
       dataDomainRoles: data.dataDomainRoles,
       selectedDashboardsForUser: this.convertMapToJson(selectedDashboardsForUser),
       commentPermissions: commentPermissionsList,
-      selectedDashboardGroupIdsForUser: selectedDashboardGroupIdsForUser || {}
+      selectedDashboardGroupIdsForUser: selectedDashboardGroupIdsForUser || {},
+      selectedRlsRolesForUser: selectedRlsRolesForUser || {}
     });
   }
 
   public getDashboardGroupMemberships(userId: string, contextKey: string): Observable<DashboardGroupMembership[]> {
     const params = new HttpParams().set('contextKey', contextKey);
     return this.httpClient.get<DashboardGroupMembership[]>(`${this.baseUsersUrl}/${userId}/dashboard-groups-membership`, {params});
+  }
+
+  public getSelectedRlsRoles(userId: string, contextKey: string): Observable<string[]> {
+    const params = new HttpParams().set('contextKey', contextKey);
+    return this.httpClient.get<string[]>(`${this.baseUsersUrl}/${userId}/rls-roles`, {params});
   }
 
   public getCommentPermissions(userId: string): Observable<{

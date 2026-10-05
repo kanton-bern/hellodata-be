@@ -60,6 +60,7 @@ import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {
   clearDashboardGroupMembershipsForContext,
+  clearRlsRolesForContext,
   loadAvailableContextRoles,
   loadAvailableContexts,
   loadCommentPermissions,
@@ -84,6 +85,7 @@ import {
   DashboardViewerPermissionsComponent
 } from './dashboard-viewer-permissions/dashboard-viewer-permissions.component';
 import {DashboardGroupMembershipComponent} from './dashboard-group-membership/dashboard-group-membership.component';
+import {RlsRoleSelectionComponent} from './rls-role-selection/rls-role-selection.component';
 import {ActionsUserPopupComponent} from '../actions-user-popup/actions-user-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {UserEditToolbarComponent} from './user-edit-toolbar/user-edit-toolbar.component';
@@ -93,7 +95,7 @@ import {ICON_REGISTRY} from '../../../../shared/icons';
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, DashboardGroupMembershipComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent, Card, NgClass]
+  imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, DashboardGroupMembershipComponent, RlsRoleSelectionComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent, Card, NgClass]
 })
 export class UserEditComponent extends BaseComponent implements OnInit {
   protected readonly icons = ICON_REGISTRY;
@@ -203,6 +205,7 @@ export class UserEditComponent extends BaseComponent implements OnInit {
         // Clear selected dashboards and dashboard group memberships when switching to admin role
         this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
         this.store.dispatch(clearDashboardGroupMembershipsForContext({contextKey}));
+        this.store.dispatch(clearRlsRolesForContext({contextKey}));
         this.store.dispatch(selectDataDomainRoleForEditedUser({
           selectedRoleForContext: {
             role: dataDomainAdmin,
@@ -238,11 +241,13 @@ export class UserEditComponent extends BaseComponent implements OnInit {
       if (!eligibleRoles.includes(previousRole)) {
         this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
         this.store.dispatch(clearDashboardGroupMembershipsForContext({contextKey}));
+        this.store.dispatch(clearRlsRolesForContext({contextKey}));
       }
     } else {
       // Clear selected dashboards and dashboard group memberships when switching away from viewer/specialist role
       this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
       this.store.dispatch(clearDashboardGroupMembershipsForContext({contextKey}));
+      this.store.dispatch(clearRlsRolesForContext({contextKey}));
       this.dashboardTableVisibility.set(contextKey, false);
     }
     if ($event.value.name === NONE_ROLE) {

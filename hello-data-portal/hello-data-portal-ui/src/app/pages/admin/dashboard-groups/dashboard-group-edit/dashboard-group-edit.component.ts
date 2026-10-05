@@ -90,6 +90,8 @@ import {Card} from 'primeng/card';
 import {Select} from 'primeng/select';
 import {DashboardGroupsService} from '../../../../store/dashboard-groups/dashboard-groups.service';
 import {ICON_REGISTRY} from '../../../../shared/icons';
+import {RlsRolesService} from '../../../../store/rls-roles/rls-roles.service';
+import {RlsRole} from '../../../../store/rls-roles/rls-roles.model';
 
 @Component({
   selector: 'app-dashboard-group-edit',
@@ -113,6 +115,8 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   selectedDashboardIds: Set<number> = new Set();
   selectedUserIds: Set<string> = new Set();
   selectedUserDetailsMap = new Map<string, DashboardGroupDomainUser>();
+  rlsRoles: RlsRole[] = [];
+  selectedRlsRoleKeys: Set<string> = new Set();
 
   dashboardSearchFilter = '';
   userSearchFilter = '';
@@ -134,6 +138,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly dashboardGroupsService = inject(DashboardGroupsService);
+  private readonly rlsRolesService = inject(RlsRolesService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
   private readonly userSearch$ = new Subject<string>();
@@ -199,6 +204,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
               sort: 'name,asc'
             }));
             this.loadEligibleUsersPage();
+            this.loadRlsRoles();
 
             // Get domain name and create breadcrumbs - wait for domains to be loaded
             this.store.select(selectAllAvailableDataDomains).pipe(
@@ -317,6 +323,30 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   private updateSelectAllDashboardsState() {
     this.selectAllDashboards = this.filteredDashboards.length > 0 &&
       this.filteredDashboards.every(d => this.selectedDashboardIds.has(d.id));
+  }
+
+  // RLS role selection methods
+  onRlsRoleSelectionChange(roleKey: string, checked: boolean, editedDashboardGroup: DashboardGroup) {
+    if (checked) {
+      this.selectedRlsRoleKeys.add(roleKey);
+    } else {
+      this.selectedRlsRoleKeys.delete(roleKey);
+    }
+    this.onChange(editedDashboardGroup);
+  }
+
+  isRlsRoleSelected(roleKey: string): boolean {
+    return this.selectedRlsRoleKeys.has(roleKey);
+  }
+
+  private loadRlsRoles(): void {
+    if (!this.currentContextKey) return;
+    this.rlsRolesService.getRlsRoles(this.currentContextKey).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(rlsRoles => {
+      this.rlsRoles = rlsRoles;
+      this.cdr.markForCheck();
+    });
   }
 
   // User selection methods
@@ -447,6 +477,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     this.selectedDashboardIds.clear();
     this.selectedUserIds.clear();
     this.selectedUserDetailsMap.clear();
+    this.selectedRlsRoleKeys = new Set(dashboardGroup.rlsRoles ?? []);
 
     if (dashboardGroup.entries) {
       dashboardGroup.entries.forEach(entry => {
@@ -494,7 +525,8 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       name: formValue.name,
       contextKey: this.currentContextKey,
       entries,
-      users
+      users,
+      rlsRoles: Array.from(this.selectedRlsRoleKeys).sort((a, b) => a.localeCompare(b))
     };
   }
 

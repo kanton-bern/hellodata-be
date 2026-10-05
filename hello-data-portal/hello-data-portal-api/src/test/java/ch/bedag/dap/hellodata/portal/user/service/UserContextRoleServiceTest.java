@@ -37,6 +37,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentP
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
+import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
 import ch.bedag.dap.hellodata.portal.user.data.DataDomainDto;
@@ -91,6 +92,9 @@ class UserContextRoleServiceTest {
 
     @Mock
     private UserSelectedDashboardService userSelectedDashboardService;
+
+    @Mock
+    private RlsRoleService rlsRoleService;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -305,6 +309,7 @@ class UserContextRoleServiceTest {
             verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), "dd1");
             verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), "dd2");
             verify(userSelectedDashboardService).removeAllForUser(userId);
+            verify(rlsRoleService).removeAllForUser(userId);
         }
     }
 
@@ -348,6 +353,7 @@ class UserContextRoleServiceTest {
             // then - verify user was removed from dashboard groups in this domain
             verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
             verify(userSelectedDashboardService).removeAllForUserInContext(userId, contextKey);
+            verify(rlsRoleService).removeAllForUserInContext(userId, contextKey);
         }
     }
 
@@ -394,5 +400,46 @@ class UserContextRoleServiceTest {
             org.junit.jupiter.api.Assertions.assertNull(publishedEvent.dashboardsPerContext(),
                     "Event must have null dashboards so listener rebuilds for all contexts");
         }
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void testUpdateContextRoles_persistsRlsRolesOnlyForEligibleContexts() {
+        // given
+        UUID userId = UUID.randomUUID();
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Set.of(mockContextRole("ctx-viewer", HdRoleName.DATA_DOMAIN_VIEWER),
+                mockContextRole("ctx-editor", HdRoleName.DATA_DOMAIN_EDITOR)));
+
+        UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
+        RoleDto businessRole = new RoleDto();
+        businessRole.setName("NONE");
+        updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedRlsRolesForUser(Map.of("ctx-viewer", List.of("RLS_01", "RLS_02"), "ctx-editor", List.of("RLS_03")));
+
+        when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+
+        try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // when
+            userContextRoleService.updateContextRolesForUser(userId, updateDto, false);
+
+            // then
+            verify(rlsRoleService).saveSelectedRlsRoles(userId, "ctx-viewer", List.of("RLS_01", "RLS_02"));
+            verify(rlsRoleService, never()).saveSelectedRlsRoles(eq(userId), eq("ctx-editor"), anyCollection());
+            verify(rlsRoleService).removeAllForUserInContext(userId, "ctx-editor");
+        }
+    }
+
+    private static UserContextRoleEntity mockContextRole(String contextKey, HdRoleName roleName) {
+        RoleEntity role = mock(RoleEntity.class);
+        when(role.getName()).thenReturn(roleName);
+        UserContextRoleEntity contextRole = mock(UserContextRoleEntity.class);
+        when(contextRole.getContextKey()).thenReturn(contextKey);
+        when(contextRole.getRole()).thenReturn(role);
+        return contextRole;
     }
 }

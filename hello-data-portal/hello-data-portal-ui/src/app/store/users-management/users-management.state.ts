@@ -25,6 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
+import {RlsRole} from "../rls-roles/rls-roles.model";
 import {
   CommentPermissions,
   ContextDashboardsForUser,
@@ -64,6 +65,10 @@ export interface UsersManagementState {
   currentPagination: any,
   dashboardGroupMembershipsForUser: Record<string, DashboardGroupMembership[]>,
   selectedDashboardGroupIdsForUser: Record<string, string[]>,
+  // RLS roles (with names) available per data domain context key
+  rlsRolesForUser: Record<string, RlsRole[]>,
+  // RLS role keys directly assigned to the edited user per data domain context key
+  selectedRlsRolesForUser: Record<string, string[]>,
   // Paginated subsystem users
   paginatedSubsystemUsers: UserSubsystemRolesDto[],
   paginatedSubsystemUsersTotalRecords: number,
@@ -100,6 +105,8 @@ export const initialUsersManagementState: UsersManagementState = {
   currentPagination: null,
   dashboardGroupMembershipsForUser: {},
   selectedDashboardGroupIdsForUser: {},
+  rlsRolesForUser: {},
+  selectedRlsRolesForUser: {},
   paginatedSubsystemUsers: [],
   paginatedSubsystemUsersTotalRecords: 0,
   paginatedSubsystemUsersLoading: false,

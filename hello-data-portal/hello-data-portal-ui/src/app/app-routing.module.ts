@@ -359,6 +359,14 @@ const routes: Routes = [
     ]
   },
   {
+    path: naviElements.rlsGroups.path,
+    loadComponent: () => import('./pages/admin/rls-groups/rls-groups.component').then(m => m.RlsGroupsComponent),
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['RLS_ROLES_MANAGEMENT'],
+    }
+  },
+  {
     path: naviElements.dashboardGroups.path,
     canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
     data: {

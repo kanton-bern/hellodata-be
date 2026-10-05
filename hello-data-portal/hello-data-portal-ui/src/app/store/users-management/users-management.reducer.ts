@@ -28,6 +28,7 @@
 import {initialUsersManagementState, UsersManagementState} from "./users-management.state";
 import {
   clearDashboardGroupMembershipsForContext,
+  clearRlsRolesForContext,
   clearSubsystemUsersCache,
   clearSubsystemUsersForDashboardsCache,
   deleteUserInStore,
@@ -37,6 +38,7 @@ import {
   loadAvailableContextsSuccess,
   loadCommentPermissionsSuccess,
   loadDashboardGroupMembershipsSuccess,
+  loadRlsRolesForUserSuccess,
   loadDashboardsSuccess,
   loadDashboardUsersPaginated,
   loadDashboardUsersPaginatedSuccess,
@@ -56,6 +58,7 @@ import {
   selectDataDomainRoleForEditedUser,
   setCommentPermissionsForUser,
   setDashboardGroupMembershipForUser,
+  setRlsRolesForUser,
   setSelectedDashboardForUser,
   showUserActionPopup,
   syncUsersSuccess,
@@ -361,6 +364,41 @@ export const usersManagementReducer = createReducer(
       ...state,
       selectedDashboardGroupIdsForUser: {
         ...state.selectedDashboardGroupIdsForUser,
+        [contextKey]: []
+      }
+    };
+  }),
+  on(loadRlsRolesForUserSuccess, (state: UsersManagementState, {
+    contextKey,
+    rlsRoles,
+    selectedRoleKeys
+  }): UsersManagementState => {
+    return {
+      ...state,
+      rlsRolesForUser: {
+        ...state.rlsRolesForUser,
+        [contextKey]: rlsRoles
+      },
+      selectedRlsRolesForUser: {
+        ...state.selectedRlsRolesForUser,
+        [contextKey]: selectedRoleKeys
+      }
+    };
+  }),
+  on(setRlsRolesForUser, (state: UsersManagementState, {contextKey, roleKeys}): UsersManagementState => {
+    return {
+      ...state,
+      selectedRlsRolesForUser: {
+        ...state.selectedRlsRolesForUser,
+        [contextKey]: [...roleKeys]
+      }
+    };
+  }),
+  on(clearRlsRolesForContext, (state: UsersManagementState, {contextKey}): UsersManagementState => {
+    return {
+      ...state,
+      selectedRlsRolesForUser: {
+        ...state.selectedRlsRolesForUser,
         [contextKey]: []
       }
     };

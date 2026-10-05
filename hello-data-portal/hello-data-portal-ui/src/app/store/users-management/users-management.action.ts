@@ -38,6 +38,7 @@ import {
   UserSubsystemRolesDto
 } from "./users-management.model";
 import {ContextResponse, Role} from "./context-role.model";
+import {RlsRole} from "../rls-roles/rls-roles.model";
 
 export enum UsersManagementActionType {
   LOAD_USERS = '[USERS MANAGEMENT] Load Users',
@@ -87,6 +88,10 @@ export enum UsersManagementActionType {
   LOAD_DASHBOARD_GROUP_MEMBERSHIPS_SUCCESS = '[USERS MANAGEMENT] Load dashboard group memberships SUCCESS',
   SET_DASHBOARD_GROUP_MEMBERSHIP_FOR_USER = '[USERS MANAGEMENT] Set dashboard group membership for user',
   CLEAR_DASHBOARD_GROUP_MEMBERSHIPS_FOR_CONTEXT = '[USERS MANAGEMENT] Clear dashboard group memberships for context',
+  LOAD_RLS_ROLES_FOR_USER = '[USERS MANAGEMENT] Load RLS roles for user',
+  LOAD_RLS_ROLES_FOR_USER_SUCCESS = '[USERS MANAGEMENT] Load RLS roles for user SUCCESS',
+  SET_RLS_ROLES_FOR_USER = '[USERS MANAGEMENT] Set RLS roles for user',
+  CLEAR_RLS_ROLES_FOR_CONTEXT = '[USERS MANAGEMENT] Clear RLS roles for context',
   LOAD_SUBSYSTEM_USERS_PAGINATED = '[USERS MANAGEMENT] Load Subsystem Users Paginated',
   LOAD_SUBSYSTEM_USERS_PAGINATED_SUCCESS = '[USERS MANAGEMENT] Load Subsystem Users Paginated SUCCESS',
   LOAD_DASHBOARD_USERS_PAGINATED = '[USERS MANAGEMENT] Load Dashboard Users Paginated',
@@ -307,6 +312,26 @@ export const setDashboardGroupMembershipForUser = createAction(
 
 export const clearDashboardGroupMembershipsForContext = createAction(
   UsersManagementActionType.CLEAR_DASHBOARD_GROUP_MEMBERSHIPS_FOR_CONTEXT,
+  props<{ contextKey: string }>()
+);
+
+export const loadRlsRolesForUser = createAction(
+  UsersManagementActionType.LOAD_RLS_ROLES_FOR_USER,
+  props<{ contextKey: string }>()
+);
+
+export const loadRlsRolesForUserSuccess = createAction(
+  UsersManagementActionType.LOAD_RLS_ROLES_FOR_USER_SUCCESS,
+  props<{ contextKey: string, rlsRoles: RlsRole[], selectedRoleKeys: string[] }>()
+);
+
+export const setRlsRolesForUser = createAction(
+  UsersManagementActionType.SET_RLS_ROLES_FOR_USER,
+  props<{ contextKey: string, roleKeys: string[] }>()
+);
+
+export const clearRlsRolesForContext = createAction(
+  UsersManagementActionType.CLEAR_RLS_ROLES_FOR_CONTEXT,
   props<{ contextKey: string }>()
 );
 

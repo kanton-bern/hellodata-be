@@ -169,6 +169,10 @@ export const naviElements: any = {
     path: 'dashboard-groups',
     label: '@Dashboard groups'
   },
+  rlsGroups: {
+    path: 'rls-groups',
+    label: '@RLS Groups'
+  },
   dashboardGroupsList: {
     path: 'list/:contextKey',
     label: '@List'

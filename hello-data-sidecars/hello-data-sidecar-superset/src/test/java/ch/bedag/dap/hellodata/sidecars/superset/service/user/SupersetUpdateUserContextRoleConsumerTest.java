@@ -2,6 +2,8 @@ package ch.bedag.dap.hellodata.sidecars.superset.service.user;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
@@ -18,6 +20,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRo
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -26,7 +29,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class SupersetUpdateUserContextRoleConsumerTest {
@@ -137,5 +142,104 @@ class SupersetUpdateUserContextRoleConsumerTest {
         expectedRolesUpdate.setRoles(List.of(6, 4, 5, 2));
         verify(supersetClient, times(1)).updateUserRoles(eq(expectedRolesUpdate), any(Integer.class));
         verify(userResourceProviderService, times(1)).publishUsers();
+    }
+
+    @Test
+    void shouldReplaceRlsRolesForViewer() throws URISyntaxException, IOException {
+        UserContextRoleUpdate update = rlsUserContextRoleUpdate(HdRoleName.DATA_DOMAIN_VIEWER, Map.of("dd01", List.of("RLS_02", "RLS_03")));
+        mockSupersetForRlsTest(List.of(3, 10));
+
+        consumer.subscribe(update);
+
+        assertThat(captureUpdatedRoles()).containsExactlyInAnyOrder(3, 11, 12);
+    }
+
+    @Test
+    void shouldRemoveAllRlsRolesForViewerWithEmptyRlsSelection() throws URISyntaxException, IOException {
+        UserContextRoleUpdate update = rlsUserContextRoleUpdate(HdRoleName.DATA_DOMAIN_VIEWER, Map.of("dd01", List.of()));
+        mockSupersetForRlsTest(List.of(3, 10, 11));
+
+        consumer.subscribe(update);
+
+        assertThat(captureUpdatedRoles()).containsExactly(3);
+    }
+
+    @Test
+    void shouldKeepRlsRolesIfPayloadHasNoRlsRolesForContext() throws URISyntaxException, IOException {
+        UserContextRoleUpdate update = rlsUserContextRoleUpdate(HdRoleName.DATA_DOMAIN_VIEWER, null);
+        mockSupersetForRlsTest(List.of(3, 10));
+
+        consumer.subscribe(update);
+
+        assertThat(captureUpdatedRoles()).containsExactlyInAnyOrder(3, 10);
+    }
+
+    @Test
+    void shouldNotAssignRlsRolesForEditor() throws URISyntaxException, IOException {
+        UserContextRoleUpdate update = rlsUserContextRoleUpdate(HdRoleName.DATA_DOMAIN_EDITOR, Map.of("dd01", List.of("RLS_02")));
+        mockSupersetForRlsTest(List.of(10));
+
+        consumer.subscribe(update);
+
+        assertThat(captureUpdatedRoles()).containsExactlyInAnyOrder(4, 6);
+    }
+
+    private UserContextRoleUpdate rlsUserContextRoleUpdate(HdRoleName roleName, Map<String, List<String>> rlsRolesPerContext) {
+        UserContextRoleUpdate.ContextRole contextRole = new UserContextRoleUpdate.ContextRole();
+        contextRole.setContextKey("dd01");
+        contextRole.setRoleName(roleName);
+        UserContextRoleUpdate update = new UserContextRoleUpdate();
+        update.setEmail("viewer@example.com");
+        update.setUsername("viewer@example.com");
+        update.setContextRoles(List.of(contextRole));
+        update.setDashboardsPerContext(Map.of("dd01", List.of()));
+        update.setRlsRolesPerContext(rlsRolesPerContext);
+        update.setSendBackUsersList(false);
+        return update;
+    }
+
+    private void mockSupersetForRlsTest(List<Integer> currentUserRoleIds) throws URISyntaxException, IOException {
+        HelloDataContextConfig.Context context = new HelloDataContextConfig.Context();
+        context.setType(HdContextType.DATA_DOMAIN.name());
+        context.setName("dd01");
+        context.setKey("dd01");
+        when(helloDataContextConfig.getContext()).thenReturn(context);
+
+        List<SubsystemRole> allRoles = List.of(role(1, "Public"), role(2, "Admin"), role(3, "BI_VIEWER"), role(4, "BI_EDITOR"),
+                role(5, "BI_ADMIN"), role(6, "sql_lab"), role(10, "RLS_01"), role(11, "RLS_02"), role(12, "RLS_03"));
+        SupersetRolesResponse supersetRolesResponse = new SupersetRolesResponse();
+        supersetRolesResponse.setResult(allRoles);
+        when(supersetClient.roles()).thenReturn(supersetRolesResponse);
+
+        SubsystemUser subsystemUser = new SubsystemUser();
+        subsystemUser.setId(1);
+        subsystemUser.setEmail("viewer@example.com");
+        subsystemUser.setRoles(allRoles.stream().filter(r -> currentUserRoleIds.contains(r.getId())).toList());
+        SupersetUsersResponse usersResponse = new SupersetUsersResponse();
+        usersResponse.setResult(List.of(subsystemUser));
+        when(supersetClient.getUser(anyString(), anyString())).thenReturn(usersResponse);
+
+        SupersetDashboardResponse dashboardResponse = new SupersetDashboardResponse();
+        dashboardResponse.setResult(List.of());
+        when(supersetClient.dashboards()).thenReturn(dashboardResponse);
+
+        SupersetUserUpdateResponse updateResponse = new SupersetUserUpdateResponse();
+        SubsystemUserUpdate result = new SubsystemUserUpdate();
+        result.setRoles(List.of());
+        updateResponse.setResult(result);
+        when(supersetClient.updateUserRoles(any(SupersetUserRolesUpdate.class), any(Integer.class))).thenReturn(updateResponse);
+    }
+
+    private List<Integer> captureUpdatedRoles() throws URISyntaxException, IOException {
+        ArgumentCaptor<SupersetUserRolesUpdate> captor = ArgumentCaptor.forClass(SupersetUserRolesUpdate.class);
+        verify(supersetClient).updateUserRoles(captor.capture(), any(Integer.class));
+        return captor.getValue().getRoles();
+    }
+
+    private static SubsystemRole role(int id, String name) {
+        SubsystemRole role = new SubsystemRole();
+        role.setId(id);
+        role.setName(name);
+        return role;
     }
 }

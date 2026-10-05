@@ -36,6 +36,7 @@ import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
+import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.*;
@@ -70,6 +71,7 @@ public class UserContextRoleService {
     private final DashboardCommentPermissionService dashboardCommentPermissionService;
     private final UserSelectedDashboardService userSelectedDashboardService;
     private final DashboardGroupService dashboardGroupService;
+    private final RlsRoleService rlsRoleService;
     private final ApplicationEventPublisher eventPublisher;
     private final HellodataAuthenticationConverter authenticationConverter;
     private final ModelMapper modelMapper;
@@ -111,6 +113,9 @@ public class UserContextRoleService {
 
         // Update dashboard group memberships
         dashboardGroupService.updateDashboardGroupMemberships(userId, updateContextRolesForUserDto.getSelectedDashboardGroupIdsForUser());
+
+        // Persist directly assigned RLS roles
+        persistRlsRoleSelections(userId, updateContextRolesForUserDto.getSelectedRlsRolesForUser());
 
         if (updateContextRolesForUserDto.getCommentPermissions() != null) {
             dashboardCommentPermissionService.updatePermissions(userId, updateContextRolesForUserDto.getCommentPermissions());
@@ -200,6 +205,7 @@ public class UserContextRoleService {
             dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), dataDomain.getContextKey());
         }
         userSelectedDashboardService.removeAllForUser(userId);
+        rlsRoleService.removeAllForUser(userId);
     }
 
     private void updateContextRoles(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
@@ -234,6 +240,7 @@ public class UserContextRoleService {
             String contextKey = dataDomainRoleForContextDto.getContext().getContextKey();
             dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
             userSelectedDashboardService.removeAllForUserInContext(userId, contextKey);
+            rlsRoleService.removeAllForUserInContext(userId, contextKey);
         }
     }
 
@@ -303,6 +310,23 @@ public class UserContextRoleService {
                     .map(d -> new UserSelectedDashboardService.DashboardSelection(d.getId(), d.getTitle(), d.getInstanceName()))
                     .toList();
             userSelectedDashboardService.saveSelectedDashboards(userId, contextKey, selections);
+        }
+    }
+
+    private void persistRlsRoleSelections(UUID userId, Map<String, List<String>> selectedRlsRolesForUser) {
+        if (selectedRlsRolesForUser == null || selectedRlsRolesForUser.isEmpty()) {
+            return;
+        }
+        Map<String, HdRoleName> contextToRole = getUserEntity(userId).getContextRoles().stream()
+                .collect(Collectors.toMap(UserContextRoleEntity::getContextKey, contextRole -> contextRole.getRole().getName(), (a, b) -> a));
+        for (Map.Entry<String, List<String>> entry : selectedRlsRolesForUser.entrySet()) {
+            String contextKey = entry.getKey();
+            if (RlsRoleService.isEligibleForRlsRoles(contextToRole.get(contextKey))) {
+                rlsRoleService.saveSelectedRlsRoles(userId, contextKey, entry.getValue());
+            } else {
+                log.warn("Skipping RLS roles update for user {} in context '{}' - role '{}' is not eligible", userId, contextKey, contextToRole.get(contextKey));
+                rlsRoleService.removeAllForUserInContext(userId, contextKey);
+            }
         }
     }
 

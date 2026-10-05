@@ -87,6 +87,10 @@
             <span class="mr-2" [ngClass]="icons.CONTENT_USERS.class"></span>
             {{ '@Users' | transloco }} ({{ selectedUserIds.size }})
           </p-tab>
+          <p-tab value="2">
+            <span class="mr-2" [ngClass]="icons.CONTENT_PERMISSIONS.class"></span>
+            {{ '@RLS Groups' | transloco }} ({{ selectedRlsRoleKeys.size }})
+          </p-tab>
         </p-tablist>
         <p-tabpanels>
           <!-- Dashboards Tab -->
@@ -193,6 +197,29 @@
                             style="width: 5.5rem"/>
                 </div>
               }
+            </div>
+          </p-tabpanel>
+
+          <!-- RLS Groups Tab -->
+          <p-tabpanel value="2">
+            <p class="text-sm text-gray-600 mb-3">{{ '@All members of the group are assigned to the selected RLS groups' | transloco }}</p>
+            <div class="border border-surface rounded-border p-2">
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
+                @for (rlsRole of rlsRoles; track rlsRole.roleKey) {
+                  <div class="flex items-start gap-2 p-1 hover:bg-surface-100 rounded-border">
+                    <p-checkbox class="mt-0.5" [ngModel]="isRlsRoleSelected(rlsRole.roleKey)"
+                                [ngModelOptions]="{standalone: true}"
+                                (ngModelChange)="onRlsRoleSelectionChange(rlsRole.roleKey, $event, editedDashboardGroup)"
+                                [binary]="true" [inputId]="'rls-' + rlsRole.roleKey"/>
+                    <label [for]="'rls-' + rlsRole.roleKey" class="cursor-pointer flex-1 text-sm leading-tight">
+                      <span class="block">{{ rlsRole.name }}</span>
+                      @if (rlsRole.name !== rlsRole.roleKey) {
+                        <span class="text-gray-500 text-xs block">{{ rlsRole.roleKey }}</span>
+                      }
+                    </label>
+                  </div>
+                }
+              </div>
             </div>
           </p-tabpanel>
         </p-tabpanels>

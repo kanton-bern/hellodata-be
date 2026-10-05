@@ -53,6 +53,8 @@ public class UserContextRoleUpdate implements Serializable {
     private List<ContextRole> contextRoles;
     private Map<String, List<ModuleRoleNames>> extraModuleRoles = new HashMap<>(); //NOSONAR
     private Map<String, List<DashboardForUserDto>> dashboardsPerContext; //NOSONAR
+    //CONTEXT -> RLS ROLE NAMES i.e. "Data Domain One" -> ["RLS_01", "RLS_03"]; null means: leave RLS roles untouched
+    private Map<String, List<String>> rlsRolesPerContext; //NOSONAR
     //technical - send user list pushback enabled by default
     private boolean sendBackUsersList = true;
 

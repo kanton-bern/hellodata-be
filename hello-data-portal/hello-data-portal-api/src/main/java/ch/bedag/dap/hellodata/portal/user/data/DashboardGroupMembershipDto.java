@@ -42,4 +42,5 @@ public class DashboardGroupMembershipDto {
     @JsonProperty("isMember")
     private boolean isMember;
     private List<String> dashboardTitles;
+    private List<String> rlsRoles;
 }

@@ -71,6 +71,9 @@ class DashboardGroupServiceTest {
     @Mock
     private UserContextRoleRepository userContextRoleRepository;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     @Test
     void testCreate() {
         // given
@@ -427,5 +430,40 @@ class DashboardGroupServiceTest {
 
         // then
         verify(dashboardGroupRepository, never()).save(any());
+    }
+
+    @Test
+    void testUpdate_rlsRolesChanged_syncsAllMembersAndDropsInvalidRoles() {
+        // given
+        UUID groupId = UUID.randomUUID();
+        String userId = UUID.randomUUID().toString();
+        DashboardGroupUserEntry member = new DashboardGroupUserEntry(userId, "viewer@example.com", "View", "Er", "DATA_DOMAIN_VIEWER");
+
+        DashboardGroupEntity existingEntity = new DashboardGroupEntity();
+        existingEntity.setId(groupId);
+        existingEntity.setUsers(new ArrayList<>(List.of(member)));
+        existingEntity.setRlsRoles(List.of("RLS_01"));
+        when(dashboardGroupRepository.findById(groupId)).thenReturn(Optional.of(existingEntity));
+
+        DashboardGroupUpdateDto updateDto = new DashboardGroupUpdateDto();
+        updateDto.setId(groupId);
+        updateDto.setName("Group");
+        updateDto.setContextKey("ctx1");
+        updateDto.setUsers(List.of(member));
+        updateDto.setRlsRoles(List.of("RLS_02", "RLS_01", "INVALID"));
+
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        try {
+            // when
+            dashboardGroupService.update(updateDto);
+            org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations()
+                    .forEach(org.springframework.transaction.support.TransactionSynchronization::afterCommit);
+        } finally {
+            org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization();
+        }
+
+        // then
+        assertEquals(List.of("RLS_01", "RLS_02"), existingEntity.getRlsRoles());
+        verify(eventPublisher).publishEvent(new ch.bedag.dap.hellodata.portal.user.event.UserDashboardSyncEvent(UUID.fromString(userId), "ctx1"));
     }
 }

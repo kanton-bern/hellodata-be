@@ -42,6 +42,7 @@ import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
+import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
@@ -145,6 +146,9 @@ public class BatchUsersInvitationService {
             // Resolve dashboard group names from CSV to group IDs
             Map<String, List<String>> resolvedGroupIds = resolveDashboardGroupNamesToIds(user);
             user.setSelectedDashboardGroupIdsForUser(resolvedGroupIds);
+
+            // Map RLS_* supersetRoles from CSV to the RLS roles managed by the portal
+            user.setSelectedRlsRolesForUser(mapSupersetRolesToRlsRoles(user));
 
             boolean isLast = i == users.size() - 1;
             userService.updateContextRolesForUserFromBatch(UUID.fromString(userId), user, isLast);
@@ -339,6 +343,34 @@ public class BatchUsersInvitationService {
                 .flatMap(moduleRoleNames -> moduleRoleNames.roleNames().stream())
                 .filter(roleName -> roleName.startsWith(SlugifyUtil.DASHBOARD_ROLE_PREFIX))
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * Maps supersetRoles from CSV (RLS_* roles) to RLS role selections per context.
+     * Every context of the CSV gets an entry (empty if no RLS role is set), as the CSV defines the complete set of superset roles.
+     * Eligibility (VIEWER or BUSINESS_SPECIALIST) is checked when the selection is persisted.
+     */
+    private Map<String, List<String>> mapSupersetRolesToRlsRoles(BatchUpdateContextRolesForUserDto user) {
+        Map<String, List<ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames>> contextToModuleRoles =
+                user.getContextToModuleRoleNamesMap();
+        Map<String, List<String>> selectedRlsRoles = new HashMap<>();
+        if (contextToModuleRoles == null) {
+            return selectedRlsRoles;
+        }
+        for (Map.Entry<String, List<ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames>> entry : contextToModuleRoles.entrySet()) {
+            if (entry.getKey() == null || entry.getKey().isEmpty()) {
+                continue;
+            }
+            List<String> rlsRoles = entry.getValue().stream()
+                    .filter(moduleRoleNames -> moduleRoleNames.moduleType() == ModuleType.SUPERSET)
+                    .flatMap(moduleRoleNames -> moduleRoleNames.roleNames().stream())
+                    .filter(RlsRoleService::isRlsRoleKey)
+                    .distinct()
+                    .sorted()
+                    .toList();
+            selectedRlsRoles.put(entry.getKey(), rlsRoles);
+        }
+        return selectedRlsRoles;
     }
 
     private boolean hasMatchingRole(SupersetDashboard dashboard, Set<String> supersetRoleNames) {
