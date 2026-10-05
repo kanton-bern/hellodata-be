@@ -37,7 +37,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,22 +56,21 @@ public class AirflowApiRequestBuilder {
     private static final String ROLES_API_ENDPOINT = "/auth/fab/v1/roles";
     private static final String PERMISSIONS_API_ENDPOINT = "/auth/fab/v1/permissions";
 
-    public static HttpUriRequest getDagsRequest(String host, int port, String bearerToken) throws URISyntaxException {
-        return get(buildUri(host, port, DAGS_API_ENDPOINT, Collections.emptyList()), bearerToken);
+    public static HttpUriRequest getDagsRequest(String host, int port, String bearerToken, int offset, int limit) throws URISyntaxException {
+        return get(buildUri(host, port, DAGS_API_ENDPOINT, pagingParams(offset, limit, "dag_id")), bearerToken);
     }
 
     public static HttpUriRequest getUsersRequest(String host, int port, String bearerToken, int offset, int limit) throws URISyntaxException {
-        URI apiUri = buildUri(host, port, USERS_API_ENDPOINT,
-                List.of(Pair.of("offset", Integer.toString(offset)), Pair.of("limit", Integer.toString(limit))));
-        return get(apiUri, bearerToken);
+        return get(buildUri(host, port, USERS_API_ENDPOINT, pagingParams(offset, limit, "id")), bearerToken);
     }
 
-    public static HttpUriRequest getRolesRequest(String host, int port, String bearerToken) throws URISyntaxException {
-        return get(buildUri(host, port, ROLES_API_ENDPOINT, Collections.emptyList()), bearerToken);
+    public static HttpUriRequest getRolesRequest(String host, int port, String bearerToken, int offset, int limit) throws URISyntaxException {
+        return get(buildUri(host, port, ROLES_API_ENDPOINT, pagingParams(offset, limit, "name")), bearerToken);
     }
 
-    public static HttpUriRequest getPermissionsRequest(String host, int port, String bearerToken) throws URISyntaxException {
-        return get(buildUri(host, port, PERMISSIONS_API_ENDPOINT, Collections.emptyList()), bearerToken);
+    // the FAB permissions endpoint takes no order_by
+    public static HttpUriRequest getPermissionsRequest(String host, int port, String bearerToken, int offset, int limit) throws URISyntaxException {
+        return get(buildUri(host, port, PERMISSIONS_API_ENDPOINT, pagingParams(offset, limit, null)), bearerToken);
     }
 
     public static HttpUriRequest getDagRunsRequest(String host, int port, String bearerToken, String dagId, String orderBy, String limit)
@@ -79,6 +78,16 @@ public class AirflowApiRequestBuilder {
         URI apiUri = buildUri(host, port, String.format(DAG_RUNS_API_ENDPOINT, dagId),
                 List.of(Pair.of("order_by", orderBy), Pair.of("limit", limit)));
         return get(apiUri, bearerToken);
+    }
+
+    private static List<Pair<String, String>> pagingParams(int offset, int limit, String orderBy) {
+        List<Pair<String, String>> params = new ArrayList<>();
+        params.add(Pair.of("offset", Integer.toString(offset)));
+        params.add(Pair.of("limit", Integer.toString(limit)));
+        if (orderBy != null) {
+            params.add(Pair.of("order_by", orderBy));
+        }
+        return params;
     }
 
     private static HttpUriRequest get(URI uri, String bearerToken) {
