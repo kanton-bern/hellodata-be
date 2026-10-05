@@ -49,6 +49,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -72,6 +73,7 @@ class QuerySynchronizerPagingTest {
 
     private static final String DATA_DOMAIN = "dd_one";
     private static final String OTHER_DATA_DOMAIN = "dd_two";
+    private static final DateTimeFormatter FILTER_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     private final LocalDateTime start = LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS).minusDays(2);
 
@@ -85,8 +87,11 @@ class QuerySynchronizerPagingTest {
 
     private final Map<String, List<SupersetQuery>> supersetQueries = new HashMap<>();
     private final Map<String, QueryEntity> storedQueries = new HashMap<>();
-    private final Set<Integer> failingPages = new HashSet<>();
+    private final Set<Integer> failingRequests = new HashSet<>();
     private final Set<String> unreachableDataDomains = new HashSet<>();
+    private final List<JsonNode> requests = new ArrayList<>();
+    private Runnable afterFirstRequest = () -> {
+    };
     private int nextQueryId = 1;
 
     private QuerySynchronizer synchronizer;
@@ -127,12 +132,62 @@ class QuerySynchronizerPagingTest {
     @Test
     void losesNothingWhenPageFailsPartway() {
         addQueries(DATA_DOMAIN, start, 2_500);
-        failingPages.add(1);
+        failingRequests.add(2);
 
         synchronizer.synchronizeQueriesFromSupersets();
         synchronizer.synchronizeQueriesFromSupersets();
 
         assertThat(queriesOf(DATA_DOMAIN)).hasSize(2_500);
+    }
+
+    @Test
+    void doesNotSkipQueriesWhenOneFinishesBetweenPages() {
+        addQueries(DATA_DOMAIN, start, 2_500);
+        // a query that was still running when page 1 was read finishes and moves to the end of the changed_on order -
+        // with offsets the query at the next page boundary would shift into the page that was already read
+        afterFirstRequest = () -> supersetQueries.get(DATA_DOMAIN).get(499).setChangedOn(start.plusSeconds(10_000));
+
+        synchronizer.synchronizeQueriesFromSupersets();
+
+        assertThat(queriesOf(DATA_DOMAIN)).hasSize(2_500);
+        assertThat(storedQueries.get(storageKey(DATA_DOMAIN, 500)).getChangedOn().toLocalDateTime()).isEqualTo(start.plusSeconds(10_000));
+    }
+
+    @Test
+    void requestsAlwaysTheFirstPageAfterTheNewestQueryRead() {
+        addQueries(DATA_DOMAIN, start, 2_500);
+
+        synchronizer.synchronizeQueriesFromSupersets();
+
+        List<JsonNode> dataDomainRequests = requestsFor(DATA_DOMAIN);
+        assertThat(dataDomainRequests).hasSize(3);
+        assertThat(dataDomainRequests).extracting(request -> request.get("page").asInt()).containsOnly(0);
+        // one millisecond before the newest changed_on of the previous page, so queries sharing it are not skipped
+        assertThat(dataDomainRequests.subList(1, dataDomainRequests.size())).extracting(request -> request.get("filters").get(0).get("value").asText()).containsExactly(
+                start.plusSeconds(1_000).minusNanos(1_000_000).format(FILTER_FORMAT),
+                start.plusSeconds(1_999).minusNanos(1_000_000).format(FILTER_FORMAT));
+    }
+
+    @Test
+    void doesNotSkipQueriesSharingChangedOnAcrossPageBoundary() {
+        addQueries(DATA_DOMAIN, start, 998);
+        addQueriesAt(DATA_DOMAIN, start.plusSeconds(5_000), 5);
+        addQueries(DATA_DOMAIN, start.plusSeconds(6_000), 500);
+
+        synchronizer.synchronizeQueriesFromSupersets();
+
+        assertThat(queriesOf(DATA_DOMAIN)).hasSize(1_503);
+    }
+
+    @Test
+    void stopsRunWhenMoreThanPageSizeQueriesShareChangedOn() {
+        addQueriesAt(DATA_DOMAIN, start.plusSeconds(1), 1_001);
+
+        synchronizer.synchronizeQueriesFromSupersets();
+
+        // the cursor cannot move past them, so the run stops instead of requesting the same page again and again
+        assertThat(requestsFor(DATA_DOMAIN)).hasSize(2);
+        assertThat(queriesOf(DATA_DOMAIN)).hasSize(1_000);
     }
 
     @Test
@@ -167,6 +222,21 @@ class QuerySynchronizerPagingTest {
         }
     }
 
+    private void addQueriesAt(String contextKey, LocalDateTime changedOn, int queries) {
+        for (int i = 1; i <= queries; i++) {
+            SupersetQuery query = new SupersetQuery();
+            query.setId(nextQueryId++);
+            query.setChangedOn(changedOn);
+            query.setSql("select " + i);
+            query.setStatus("success");
+            supersetQueries.computeIfAbsent(contextKey, key -> new ArrayList<>()).add(query);
+        }
+    }
+
+    private List<JsonNode> requestsFor(String contextKey) {
+        return requests.stream().filter(request -> contextKey.equals(request.get("contextKey").asText())).toList();
+    }
+
     private List<QueryEntity> queriesOf(String contextKey) {
         return storedQueries.values().stream().filter(query -> contextKey.equals(query.getContextKey())).toList();
     }
@@ -183,7 +253,12 @@ class QuerySynchronizerPagingTest {
         }
         JsonNode request = objectMapper.readTree(new String(body, StandardCharsets.UTF_8));
         int page = request.get("page").asInt();
-        if (failingPages.remove(page)) {
+        requests.add(((ObjectNode) request.deepCopy()).put("contextKey", contextKey));
+        int requestNumber = requestsFor(contextKey).size();
+        if (contextKey.equals(DATA_DOMAIN) && requestNumber == 2) {
+            afterFirstRequest.run();
+        }
+        if (contextKey.equals(DATA_DOMAIN) && failingRequests.remove(requestNumber)) {
             return reply("{\"error\":\"Read timed out\"}".getBytes(StandardCharsets.UTF_8));
         }
         int pageSize = request.get("pageSize").asInt();

@@ -28,8 +28,12 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -119,34 +123,58 @@ public class QuerySynchronizer {
             log.debug("[fetchQueries] Sending request to subject: {}", subject);
 
             // The first sync only goes back as far as the cleanup would keep the queries
-            OffsetDateTime changedOn = queryRepository.findFirstByContextKeyOrderByChangedOnDesc(contextKey)
+            OffsetDateTime cursor = queryRepository.findFirstByContextKeyOrderByChangedOnDesc(contextKey)
                     .map(QueryEntity::getChangedOn)
                     .orElseGet(() -> OffsetDateTime.now(ZoneOffset.UTC).minusDays(RETENTION_DAYS));
-            ObjectNode filterNode = objectMapper.createObjectNode();
-            ObjectNode changedOnFilter = objectMapper.createObjectNode();
-            changedOnFilter.put("col", "changed_on");
-            changedOnFilter.put("opr", "gt");
-            changedOnFilter.put("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
-            filterNode.putArray("filters").add(changedOnFilter);
 
-            List<SupersetQuery> allQueries = new ArrayList<>();
+            // Keyset paging: always the first page, after the newest changed_on read so far. Offsets would skip a query
+            // whenever another one finishes during the run, because its new changed_on moves it to the end of the list.
+            Map<Integer, SupersetQuery> allQueries = new LinkedHashMap<>();
             for (int page = 0; page < MAX_PAGES; page++) {
-                filterNode.put("page", page);
+                ObjectNode filterNode = objectMapper.createObjectNode();
+                filterNode.putArray("filters").add(changedOnAfterFilter(cursor));
+                filterNode.put("page", 0);
                 filterNode.put("pageSize", PAGE_SIZE);
                 List<SupersetQuery> pageResults = fetchQueriesPage(subject, filterNode, contextKey, page);
-                allQueries.addAll(pageResults);
+                // queries at the cursor are fetched again on purpose, keep the latest version of each
+                pageResults.forEach(query -> {
+                    allQueries.remove(query.getId());
+                    allQueries.put(query.getId(), query);
+                });
                 if (pageResults.size() < PAGE_SIZE) {
                     break;
                 }
+                OffsetDateTime newestChangedOn = pageResults.stream()
+                        .map(query -> query.getChangedOn().atOffset(ZoneOffset.UTC))
+                        .max(Comparator.naturalOrder())
+                        .orElse(cursor);
+                if (!newestChangedOn.isAfter(cursor)) {
+                    log.warn("[fetchQueries] More than {} queries share changed_on {} for contextKey={}, stopping this run", PAGE_SIZE, cursor, contextKey);
+                    break;
+                }
+                cursor = newestChangedOn;
             }
             log.debug("[fetchQueries] Fetched total of {} queries for contextKey={}", allQueries.size(), contextKey);
-            return allQueries;
+            return new ArrayList<>(allQueries.values());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Thread was interrupted when fetching queries from the superset instance " + contextKey, e); //NOSONAR
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error fetching queries from the superset instance " + contextKey, e); //NOSONAR
         }
+    }
+
+    /**
+     * Superset filters can only be combined with AND, so there is no (changed_on, id) tie-breaker. Starting one millisecond
+     * before the cursor fetches the queries sharing its changed_on again instead of skipping them, the upsert by
+     * subsystemId takes care of the duplicates.
+     */
+    private ObjectNode changedOnAfterFilter(OffsetDateTime cursor) {
+        ObjectNode changedOnFilter = objectMapper.createObjectNode();
+        changedOnFilter.put("col", "changed_on");
+        changedOnFilter.put("opr", "gt");
+        changedOnFilter.put("value", cursor.truncatedTo(ChronoUnit.MILLIS).minus(1, ChronoUnit.MILLIS).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
+        return changedOnFilter;
     }
 
     private List<SupersetQuery> fetchQueriesPage(String subject, ObjectNode filterNode, String contextKey, int page)
