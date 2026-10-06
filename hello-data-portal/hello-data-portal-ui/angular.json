@@ -52,7 +52,8 @@
               "src/favicon.ico",
               "src/assets",
               "src/config",
-              "src/silent-renew.html"
+              "src/silent-renew.html",
+              "src/hd-debug.js"
             ],
             "styles": [
               "node_modules/quill/dist/quill.core.css",
