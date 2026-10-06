@@ -420,8 +420,8 @@ public class SupersetClient implements Closeable {
         return getObjectMapper().readValue(bytes, SupersetQueryResponse.class);
     }
 
-    public SupersetQueryResponse queriesFiltered(JsonArray filters, int page, int pageSize) throws URISyntaxException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequestFiltered(host, port, authToken, filters, page, pageSize);
+    public SupersetQueryResponse queriesFiltered(JsonArray filters, int page, int pageSize, String orderColumn, String orderDirection) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequestFiltered(host, port, authToken, filters, page, pageSize, orderColumn, orderDirection);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("queriesFiltered() page {} response json \n{}", page, new String(bytes));
@@ -454,8 +454,8 @@ public class SupersetClient implements Closeable {
         return getObjectMapper().readValue(bytes, SupersetLogResponse.class);
     }
 
-    public SupersetLogResponse logsFiltered(JsonArray filters, int page, int pageSize) throws URISyntaxException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getLisLogsRequestFiltered(host, port, authToken, filters, page, pageSize);
+    public SupersetLogResponse logsFiltered(JsonArray filters, int page, int pageSize, String orderColumn, String orderDirection) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getLisLogsRequestFiltered(host, port, authToken, filters, page, pageSize, orderColumn, orderDirection);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("logsFiltered() page {} response json \n{}", page, new String(bytes));
@@ -540,6 +540,25 @@ public class SupersetClient implements Closeable {
     public void importCharts(File chartsFile, JsonElement password, boolean override) throws URISyntaxException, IOException {
         csrf();
         HttpUriRequest request = SupersetApiRequestBuilder.getImportChartsRequest(host, port, authToken, csrfToken, chartsFile, override, password, sessionCookie);
+        executeRequest(request);
+    }
+
+    /**
+     * Imports datasets from a dataset-export file. Like the chart importer - and unlike the dashboard
+     * importer, which imports nested datasets with {@code overwrite=False} and therefore never refreshes
+     * an existing dataset - the dataset importer honours {@code overwrite}: with {@code override=true} an
+     * existing dataset (matched by uuid) is updated <em>in place</em>, keeping its numeric id so that
+     * charts and permalinks referencing that dataset survive. This is what propagates changed virtual
+     * dataset SQL from the source instance to the target on re-import.
+     *
+     * @param datasetsFile a dataset-export zip ({@code datasets/}, {@code databases/} and a
+     *                     {@code metadata.yaml} of type {@code SqlaTable})
+     * @param password     A JSON format database password, e.g: {@code {"databases/database.yaml":"password"}}
+     * @param override     overwrite existing datasets
+     */
+    public void importDatasets(File datasetsFile, JsonElement password, boolean override) throws URISyntaxException, IOException {
+        csrf();
+        HttpUriRequest request = SupersetApiRequestBuilder.getImportDatasetsRequest(host, port, authToken, csrfToken, datasetsFile, override, password, sessionCookie);
         executeRequest(request);
     }
 

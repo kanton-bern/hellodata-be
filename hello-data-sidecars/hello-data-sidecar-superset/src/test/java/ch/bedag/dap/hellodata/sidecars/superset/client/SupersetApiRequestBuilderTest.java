@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.sidecars.superset.client;
 
+import com.google.gson.JsonArray;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.jupiter.api.Test;
 
@@ -86,6 +87,28 @@ class SupersetApiRequestBuilderTest {
         String query = decodedQuery(request);
         assertThat(query).contains("\"columns\":[\"id\",\"uuid\"]");
         assertThat(query).contains("\"value\":70");
+    }
+
+    @Test
+    void listLogsRequestCarriesPagingAndOrder() throws URISyntaxException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getLisLogsRequestFiltered(HOST, PORT, AUTH_TOKEN, new JsonArray(), 2, 1000, "dttm", "asc");
+
+        assertThat(request.getURI().getPath()).isEqualTo("/api/v1/log/");
+        String query = decodedQuery(request);
+        assertThat(query).contains("\"page\":2");
+        assertThat(query).contains("\"page_size\":1000");
+        assertThat(query).contains("\"order_column\":\"dttm\"");
+        assertThat(query).contains("\"order_direction\":\"asc\"");
+    }
+
+    @Test
+    void listQueriesRequestCarriesPagingAndOrder() throws URISyntaxException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequestFiltered(HOST, PORT, AUTH_TOKEN, new JsonArray(), 0, 1000, "changed_on", "asc");
+
+        assertThat(request.getURI().getPath()).isEqualTo("/api/v1/query/");
+        String query = decodedQuery(request);
+        assertThat(query).contains("\"order_column\":\"changed_on\"");
+        assertThat(query).contains("\"order_direction\":\"asc\"");
     }
 
     private static String decodedQuery(HttpUriRequest request) {

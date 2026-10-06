@@ -103,7 +103,7 @@ public class DashboardCommentEntity {
     @Column(name = "imported_from_id", length = 36)
     private String importedFromId;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("version ASC")
     @Builder.Default
     private List<DashboardCommentVersionEntity> history = new ArrayList<>();

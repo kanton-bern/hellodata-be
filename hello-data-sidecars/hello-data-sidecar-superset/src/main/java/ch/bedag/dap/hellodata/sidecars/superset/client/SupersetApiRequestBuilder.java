@@ -79,6 +79,7 @@ public class SupersetApiRequestBuilder {
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
     private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
     private static final String IMPORT_CHART_API_ENDPOINT = "/api/v1/chart/import/";
+    private static final String IMPORT_DATASET_API_ENDPOINT = "/api/v1/dataset/import/";
     private static final String LIST_DATABASE_API_ENDPOINT = "/api/v1/database/";
     private static final String DATABASE_API_ENDPOINT = "/api/v1/database/%d";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
@@ -190,8 +191,9 @@ public class SupersetApiRequestBuilder {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_QUERY_API_ENDPOINT);
     }
 
-    public static HttpUriRequest getListQueriesRequestFiltered(String host, int port, String authToken, JsonArray filters, int page, int pageSize) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_QUERY_API_ENDPOINT, page, pageSize);
+    public static HttpUriRequest getListQueriesRequestFiltered(String host, int port, String authToken, JsonArray filters, int page, int pageSize, String orderColumn, //NOSONAR
+                                                               String orderDirection) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_QUERY_API_ENDPOINT, page, pageSize, orderColumn, orderDirection);
     }
 
     public static HttpUriRequest getListQueriesRequestFiltered(String host, int port, String authToken, JsonArray columns, JsonArray filters, int page, int pageSize) throws URISyntaxException {
@@ -202,8 +204,9 @@ public class SupersetApiRequestBuilder {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_LOGS_API_ENDPOINT);
     }
 
-    public static HttpUriRequest getLisLogsRequestFiltered(String host, int port, String authToken, JsonArray filters, int page, int pageSize) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_LOGS_API_ENDPOINT, page, pageSize);
+    public static HttpUriRequest getLisLogsRequestFiltered(String host, int port, String authToken, JsonArray filters, int page, int pageSize, String orderColumn, //NOSONAR
+                                                           String orderDirection) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_LOGS_API_ENDPOINT, page, pageSize, orderColumn, orderDirection);
     }
 
     public static ObjectMapper getObjectMapper() {
@@ -219,6 +222,11 @@ public class SupersetApiRequestBuilder {
 
     private static HttpUriRequest getHttpUriRequestWithBasicParams(String host, int port, String authToken, JsonArray columns, JsonArray filters, String apiEndpoint, int page, int pageSize) throws //NOSONAR - params needed for API request construction
             URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, columns, filters, apiEndpoint, page, pageSize, null, null);
+    }
+
+    private static HttpUriRequest getHttpUriRequestWithBasicParams(String host, int port, String authToken, JsonArray columns, JsonArray filters, String apiEndpoint, int page, int pageSize, //NOSONAR - params needed for API request construction
+                                                                   String orderColumn, String orderDirection) throws URISyntaxException {
         JsonObject param = new JsonObject();
         param.addProperty("page", page);
         param.addProperty("page_size", pageSize);
@@ -227,6 +235,12 @@ public class SupersetApiRequestBuilder {
         }
         if (filters != null) {
             param.add("filters", filters);
+        }
+        if (orderColumn != null) {
+            param.addProperty("order_column", orderColumn);
+        }
+        if (orderDirection != null) {
+            param.addProperty("order_direction", orderDirection);
         }
 
         URI apiUri = buildUri(host, port, apiEndpoint, List.of(Pair.of("q", param.toString())));
@@ -259,6 +273,11 @@ public class SupersetApiRequestBuilder {
     public static HttpUriRequest getImportChartsRequest(String host, int port, String authToken, String csrfToken, File compressedChartsFile, boolean isOverride, //NOSONAR
                                                         JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
         return getImportRequest(host, port, authToken, csrfToken, IMPORT_CHART_API_ENDPOINT, compressedChartsFile, isOverride, passwords, sessionCookie);
+    }
+
+    public static HttpUriRequest getImportDatasetsRequest(String host, int port, String authToken, String csrfToken, File compressedDatasetsFile, boolean isOverride, //NOSONAR
+                                                          JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
+        return getImportRequest(host, port, authToken, csrfToken, IMPORT_DATASET_API_ENDPOINT, compressedDatasetsFile, isOverride, passwords, sessionCookie);
     }
 
     private static HttpUriRequest getImportRequest(String host, int port, String authToken, String csrfToken, String endpoint, File compressedFile, boolean isOverride, //NOSONAR

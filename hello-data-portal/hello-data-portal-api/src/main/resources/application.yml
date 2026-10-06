@@ -38,6 +38,16 @@ hello-data:
     admin-client-id: admin-cli
     admin-client-secret: LiLlI86eFxXNWXUWqov4eyG1ocgWwPEq
     sync-users-schedule-hours: 1
+  users-sync:
+    auto:
+      # start the users synchronization when a sidecar reports its subsystem or data domain roles are ready
+      enabled: true
+      # wait until no new request came in for this long, data domains show up one after another
+      quiet-period-seconds: 60
+      # but never wait longer than this after the first request
+      max-delay-seconds: 600
+      # minimum time between two automatic synchronizations, e.g. when a sidecar keeps restarting
+      min-interval-seconds: 600
   default-admin:
     email: admin@hellodata.ch
     username: admin

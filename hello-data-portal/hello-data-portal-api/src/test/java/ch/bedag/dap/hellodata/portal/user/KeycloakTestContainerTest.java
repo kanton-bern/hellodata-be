@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.portal.cache.service.CacheUpdateService;
 import ch.bedag.dap.hellodata.portal.initialize.service.RolesInitializer;
 import ch.bedag.dap.hellodata.portal.monitoring.service.StorageSizeService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
+import ch.bedag.dap.hellodata.portal.sync.service.UsersSyncRequestService;
 import ch.bedag.dap.hellodata.portal.user.service.BatchUsersCustomLogger;
 import ch.bedag.dap.hellodata.portalcommon.dashboard_access.repository.DashboardAccessRepository;
 import ch.bedag.dap.hellodata.portalcommon.query.repository.QueryRepository;
@@ -112,6 +113,8 @@ public abstract class KeycloakTestContainerTest {
     private NatsHealthIndicator natsHealthIndicator;
     @MockitoBean
     private CacheUpdateService cacheUpdateService;
+    @MockitoBean
+    private UsersSyncRequestService usersSyncRequestService;
     @MockitoBean
     private BatchUsersCustomLogger batchUsersCustomLogger;
     @MockitoBean

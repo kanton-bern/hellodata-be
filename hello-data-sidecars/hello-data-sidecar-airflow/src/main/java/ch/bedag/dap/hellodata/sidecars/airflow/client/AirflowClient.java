@@ -50,6 +50,10 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 @Log4j2
 public class AirflowClient implements Closeable {
@@ -62,6 +66,8 @@ public class AirflowClient implements Closeable {
     private final String password;
 
     private final CloseableHttpClient client;
+
+    private static final int PAGE_LIMIT = 100;
 
     public AirflowClient(String host, int port, String username, String password) {
         this.host = host;
@@ -92,20 +98,12 @@ public class AirflowClient implements Closeable {
      * Get List of users available in Airflow
      */
     public AirflowUsersResponse users() throws URISyntaxException, IOException {
-        int offset = 0;
-        int limit = 100;
-        AirflowUsersResponse airflowUsersResponse = getAirflowUsersResponse(offset, limit);
-        int totalEntries = airflowUsersResponse.getTotalEntries();
-        int fetchedEntries = airflowUsersResponse.getUsers().size();
-        log.info("Total Airflow-Users: {}", totalEntries);
-        while (fetchedEntries < totalEntries) {
-            offset += limit;
-            AirflowUsersResponse currentRequest = getAirflowUsersResponse(offset, limit);
-            airflowUsersResponse.getUsers().addAll(currentRequest.getUsers());
-            fetchedEntries += currentRequest.getUsers().size();
-            log.info("Fetched users: {}", fetchedEntries);
-        }
-        log.info("Finished loading users. {} out of {}", fetchedEntries, totalEntries);
+        AirflowUsersResponse airflowUsersResponse = new AirflowUsersResponse();
+        airflowUsersResponse.setUsers(fetchAllPages(
+                (offset, limit) -> fetchPage(AirflowApiRequestBuilder.getListUsersRequest(host, port, username, password, offset, limit), AirflowUsersResponse.class),
+                AirflowUsersResponse::getUsers, AirflowUsersResponse::getTotalEntries));
+        airflowUsersResponse.setTotalEntries(airflowUsersResponse.getUsers().size());
+        log.info("Finished loading users. {} fetched", airflowUsersResponse.getTotalEntries());
         return airflowUsersResponse;
     }
 
@@ -166,11 +164,12 @@ public class AirflowClient implements Closeable {
      * Get List of roles available in Airflow
      */
     public AirflowRolesResponse roles() throws URISyntaxException, IOException {
-        HttpUriRequest request = AirflowApiRequestBuilder.getListRolesRequest(host, port, username, password);
-        ApiResponse resp = executeRequest(request);
-        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
-        log.debug("roles({}) response json \n{}", username, new String(bytes));
-        return getObjectMapper().readValue(bytes, AirflowRolesResponse.class);
+        AirflowRolesResponse airflowRolesResponse = new AirflowRolesResponse();
+        airflowRolesResponse.setRoles(fetchAllPages(
+                (offset, limit) -> fetchPage(AirflowApiRequestBuilder.getListRolesRequest(host, port, username, password, offset, limit), AirflowRolesResponse.class),
+                AirflowRolesResponse::getRoles, AirflowRolesResponse::getTotalEntries));
+        airflowRolesResponse.setTotalEntries(airflowRolesResponse.getRoles().size());
+        return airflowRolesResponse;
     }
 
     /**
@@ -195,11 +194,12 @@ public class AirflowClient implements Closeable {
     }
 
     public AirflowDagsResponse dags() throws URISyntaxException, IOException {
-        HttpUriRequest request = AirflowApiRequestBuilder.getDagsRequest(host, port, username, password);
-        ApiResponse resp = executeRequest(request);
-        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
-        log.debug("dags({}) response json \n{}", username, new String(bytes));
-        return getObjectMapper().readValue(bytes, AirflowDagsResponse.class);
+        AirflowDagsResponse airflowDagsResponse = new AirflowDagsResponse();
+        airflowDagsResponse.setDags(fetchAllPages(
+                (offset, limit) -> fetchPage(AirflowApiRequestBuilder.getDagsRequest(host, port, username, password, offset, limit), AirflowDagsResponse.class),
+                AirflowDagsResponse::getDags, AirflowDagsResponse::getTotalEntries));
+        airflowDagsResponse.setTotalEntries(airflowDagsResponse.getDags().size());
+        return airflowDagsResponse;
     }
 
     public AirflowDagRunsResponse dagRuns(String dagId) throws URISyntaxException, IOException {
@@ -210,12 +210,35 @@ public class AirflowClient implements Closeable {
         return getObjectMapper().readValue(bytes, AirflowDagRunsResponse.class);
     }
 
-    private AirflowUsersResponse getAirflowUsersResponse(int offset, int limit) throws URISyntaxException, IOException {
-        HttpUriRequest request = AirflowApiRequestBuilder.getListUsersRequest(host, port, username, password, offset, limit);
+    /**
+     * Fetches all pages of an Airflow list endpoint. Airflow caps a page at maximum_page_limit (default 100),
+     * so a single request silently returns only the first page. Stops on an empty page or when total_entries is
+     * reached, so entries removed during paging cannot cause an endless loop.
+     */
+    static <R, T> List<T> fetchAllPages(PageFetcher<R> pageFetcher, Function<R, List<T>> itemsExtractor, ToIntFunction<R> totalExtractor)
+            throws URISyntaxException, IOException {
+        List<T> allItems = new ArrayList<>();
+        int offset = 0;
+        while (true) {
+            R page = pageFetcher.fetch(offset, PAGE_LIMIT);
+            List<T> items = itemsExtractor.apply(page);
+            if (items == null || items.isEmpty()) {
+                break;
+            }
+            allItems.addAll(items);
+            offset += items.size();
+            if (offset >= totalExtractor.applyAsInt(page)) {
+                break;
+            }
+        }
+        return allItems;
+    }
+
+    private <R> R fetchPage(HttpUriRequest request, Class<R> responseType) throws IOException {
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
-        log.debug("users() response json \n{}", new String(bytes));
-        return getObjectMapper().readValue(bytes, AirflowUsersResponse.class);
+        log.debug("{} response json \n{}", request.getURI(), new String(bytes));
+        return getObjectMapper().readValue(bytes, responseType);
     }
 
     private ApiResponse executeRequest(HttpUriRequest request) throws IOException {
@@ -238,5 +261,10 @@ public class AirflowClient implements Closeable {
     public static class ApiResponse {
         private int code;
         private String body;
+    }
+
+    @FunctionalInterface
+    interface PageFetcher<R> {
+        R fetch(int offset, int limit) throws URISyntaxException, IOException;
     }
 }

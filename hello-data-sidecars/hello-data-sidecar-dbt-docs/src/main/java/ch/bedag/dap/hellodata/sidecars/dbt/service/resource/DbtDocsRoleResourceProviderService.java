@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.sidecars.dbt.service.resource;
 
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
+import ch.bedag.dap.hellodata.commons.nats.service.UsersSyncTriggerService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePermissions;
@@ -54,6 +55,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_ROL
 public class DbtDocsRoleResourceProviderService {
     private final RoleRepository roleRepository;
     private final NatsSenderService natsSenderService;
+    private final UsersSyncTriggerService usersSyncTriggerService;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
@@ -64,6 +66,7 @@ public class DbtDocsRoleResourceProviderService {
 
         RoleResource roleResource = new RoleResource(this.instanceName, ModuleType.DBT_DOCS, data);
         natsSenderService.publishMessageToJetStream(PUBLISH_ROLE_RESOURCES, roleResource);
+        usersSyncTriggerService.subsystemReady(ModuleType.DBT_DOCS, this.instanceName);
     }
 
     private List<RolePermissions> getRolePermissions() {

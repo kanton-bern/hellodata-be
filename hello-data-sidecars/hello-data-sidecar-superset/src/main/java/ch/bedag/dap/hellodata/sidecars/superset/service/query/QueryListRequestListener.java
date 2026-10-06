@@ -30,6 +30,9 @@ import java.nio.charset.StandardCharsets;
 public class QueryListRequestListener {
 
     private static final int DEFAULT_PAGE_SIZE = 1000;
+    // Oldest first, so the portal watermark only moves over rows that were actually read
+    private static final String ORDER_COLUMN = "changed_on";
+    private static final String ORDER_DIRECTION = "asc";
 
     private final Connection natsConnection;
     private final SupersetClientProvider supersetClientProvider;
@@ -68,7 +71,7 @@ public class QueryListRequestListener {
                 }
 
                 try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
-                    SupersetQueryResponse queries = supersetClient.queriesFiltered(filter, page, pageSize);
+                    SupersetQueryResponse queries = supersetClient.queriesFiltered(filter, page, pageSize, ORDER_COLUMN, ORDER_DIRECTION);
 
                     ObjectNode responseNode = objectMapper.createObjectNode();
                     ArrayNode resultArray = objectMapper.valueToTree(queries.getResult());

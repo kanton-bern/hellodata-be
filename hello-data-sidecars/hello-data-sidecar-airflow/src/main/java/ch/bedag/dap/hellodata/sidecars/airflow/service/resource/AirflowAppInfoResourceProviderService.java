@@ -27,7 +27,7 @@
 package ch.bedag.dap.hellodata.sidecars.airflow.service.resource;
 
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfoFactory;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
@@ -60,26 +60,9 @@ public class AirflowAppInfoResourceProviderService {
         log.info("--> publishAppInfo()");
 
         AppInfoResource appInfoResource =
-                new AppInfoResource(createBusinessContextInfo(), this.instanceName, ModuleType.AIRFLOW, this.url);
+                new AppInfoResource(HdBusinessContextInfoFactory.createBusinessContextInfo(hellodataContextConfig, true), this.instanceName, ModuleType.AIRFLOW, this.url);
         natsSenderService.publishMessageToJetStream(PUBLISH_APP_INFO_RESOURCES, appInfoResource);
+        log.debug("--> Published app info resource {}", appInfoResource);
     }
 
-    private HdBusinessContextInfo createBusinessContextInfo() {
-        HdBusinessContextInfo businessContextInfo = new HdBusinessContextInfo();
-        HelloDataContextConfig.BusinessContext businessContext = hellodataContextConfig.getBusinessContext();
-        businessContextInfo.setType(businessContext.getType());
-        businessContextInfo.setName(businessContext.getName());
-        businessContextInfo.setKey(businessContext.getKey());
-        businessContextInfo.setExtra(false);
-        HelloDataContextConfig.Context context = hellodataContextConfig.getContext();
-        if (context != null) {
-            HdBusinessContextInfo subContext = new HdBusinessContextInfo();
-            businessContextInfo.setSubContext(subContext);
-            subContext.setType(context.getType());
-            subContext.setName(context.getName());
-            subContext.setKey(context.getKey());
-            subContext.setExtra(context.isExtra());
-        }
-        return businessContextInfo;
-    }
 }

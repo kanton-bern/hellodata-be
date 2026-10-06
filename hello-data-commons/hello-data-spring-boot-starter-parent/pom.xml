@@ -39,12 +39,22 @@
         <rest-assured.version>6.0.1</rest-assured.version>
         <!-- Boot 4.1.x is supported by Spring Cloud 2025.1.2+ (Oakwood); keep Boot and Cloud versions in lockstep per the compatibility matrix -->
         <spring-boot.version>4.1.1</spring-boot.version>
-        <!-- CVE-2026-42584 / CVE-2026-56816 (GHSA-hpcc-26xq-25fv) / CVE-2026-59901 (GHSA-558v-64gr-wgg4): remove once Spring Boot ships Netty >= 4.2.16.Final -->
-        <netty.version>4.2.17.Final</netty.version>
+        <!-- CVE-2026-42584 / CVE-2026-56816 (GHSA-hpcc-26xq-25fv) / CVE-2026-59901 (GHSA-558v-64gr-wgg4) / CVE-2026-93568 (BDSA-2026-33790) / CVE-2026-93569 (BDSA-2026-33768) / CVE-2026-93576 (BDSA-2026-33770): remove once Spring Boot ships Netty >= 4.2.18.Final -->
+        <netty.version>4.2.18.Final</netty.version>
         <!-- CVE-2026-41284 / BDSA-2026-10253: remove once Spring Boot ships Tomcat >= 11.0.22 -->
         <tomcat.version>11.0.25</tomcat.version>
         <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
         <bouncycastle.version>1.85.2</bouncycastle.version>
+        <!-- CVE-2026-8763 / CVE-2026-59650 (BDSA-2026-25365): remove once io.nats:jnats ships bcprov-lts8on >= 2.73.12 -->
+        <bouncycastle-lts.version>2.73.12</bouncycastle-lts.version>
+        <!-- CVE-2026-19880 (BDSA-2026-29974): no 1.5.x backport exists; remove once Spring Boot ships logback >= 1.6.3 -->
+        <logback.version>1.6.3</logback.version>
+        <!-- CVE-2026-53712: remove once org.postgresql:r2dbc-postgresql ships scram >= 3.3 -->
+        <scram.version>3.3</scram.version>
+        <!-- CVE-2026-19032 (BDSA-2026-30990): remove once Spring Boot ships Jackson 2.x >= 2.21.6 -->
+        <jackson-bom.version>2.21.6</jackson-bom.version>
+        <!-- CVE-2026-19032 (BDSA-2026-30990): remove once Spring Boot ships Jackson 3.x >= 3.1.6 -->
+        <jackson3-bom.version>3.1.6</jackson3-bom.version>
         <!-- CVE-2026-42198 / BDSA-2026-8637 / CVE-2026-54291 (GHSA-j92g-9f8w-j867): remove once Spring Boot ships postgresql >= 42.7.12 -->
         <postgresql.version>42.7.13</postgresql.version>
         <!-- spring-cloud 2025.0.x targets Boot 3.5.x; 2025.1.0/.1 target Boot 4.0.x; 2025.1.2+ adds Boot 4.1.x support -->
@@ -77,6 +87,34 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
+            </dependency>
+            <!-- CVE-2026-8763 / CVE-2026-59650 (BDSA-2026-25365): pulled in by io.nats:jnats; remove once jnats ships bcprov-lts8on >= 2.73.12 -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-lts8on</artifactId>
+                <version>${bouncycastle-lts.version}</version>
+            </dependency>
+            <!-- CVE-2026-19880 (BDSA-2026-29974): no 1.5.x backport exists; remove once Spring Boot ships logback >= 1.6.3 -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <!-- CVE-2026-53712: pulled in by org.postgresql:r2dbc-postgresql; remove once r2dbc-postgresql ships scram >= 3.3 -->
+            <dependency>
+                <groupId>com.ongres.scram</groupId>
+                <artifactId>scram-client</artifactId>
+                <version>${scram.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ongres.scram</groupId>
+                <artifactId>scram-common</artifactId>
+                <version>${scram.version}</version>
             </dependency>
             <!-- CVE-2026-41284 / BDSA-2026-10253: remove once Spring Boot ships Tomcat >= 11.0.22 -->
             <dependency>
@@ -253,6 +291,22 @@
                 <artifactId>netty-codec-native-quic</artifactId>
                 <version>${netty.version}</version>
                 <classifier>windows-x86_64</classifier>
+            </dependency>
+            <!-- CVE-2026-19032 (BDSA-2026-30990): pin whole Jackson family ahead of the Spring Boot BOM; remove once Spring Boot ships Jackson 2.x >= 2.21.6 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- CVE-2026-19032 (BDSA-2026-30990): remove once Spring Boot ships Jackson 3.x >= 3.1.6 -->
+            <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson3-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>

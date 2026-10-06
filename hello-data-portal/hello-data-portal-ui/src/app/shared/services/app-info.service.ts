@@ -29,7 +29,7 @@ import {inject, Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {ActuatorInfo} from "./interfaces/actuator-info";
 import {OidcSecurityService} from "angular-auth-oidc-client";
-import {Subscription} from 'rxjs';
+import {Subscription, switchMap} from 'rxjs';
 import {environment} from "../../../environments/environment";
 
 @Injectable()
@@ -46,13 +46,13 @@ export class AppInfoService implements OnDestroy {
   private _gitHash!: string;
 
   constructor() {
-    this.userData$ = this.oidcSecurityService.userData$.subscribe(u => {
-      this.http.get<ActuatorInfo>(this.baseUrl + `/actuator/info`).subscribe(actuatorInfo => {
-        this._branch = actuatorInfo.git.branch;
-        this._timestamp = actuatorInfo.git.commit.time;
-        this._gitHash = actuatorInfo.git.commit.id;
-        this._tag = actuatorInfo.git.tags;
-      });
+    this.userData$ = this.oidcSecurityService.userData$.pipe(
+      switchMap(() => this.http.get<ActuatorInfo>(this.baseUrl + `/actuator/info`))
+    ).subscribe(actuatorInfo => {
+      this._branch = actuatorInfo.git.branch;
+      this._timestamp = actuatorInfo.git.commit.time;
+      this._gitHash = actuatorInfo.git.commit.id;
+      this._tag = actuatorInfo.git.tags;
     });
   }
 

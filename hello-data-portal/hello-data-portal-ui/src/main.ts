@@ -37,6 +37,7 @@ import {AsyncPipe, CommonModule, JsonPipe, registerLocaleData, TitleCasePipe} fr
 import {providePrimeNG} from 'primeng/config';
 import {StoreModule} from '@ngrx/store';
 import {appReducers} from './app/store/app/app.reducer';
+import {hdDebugMetaReducer} from './app/shared/debug/hd-debug.meta-reducer';
 import {EffectsModule} from '@ngrx/effects';
 import {appEffects} from './app/store/app/app.effects';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
@@ -94,7 +95,7 @@ async function loadLocaleData(locale: string) {
   await bootstrapApplication(AppComponent, {
     providers: [
       importProvidersFrom(
-        StoreModule.forRoot(appReducers),
+        StoreModule.forRoot(appReducers, {metaReducers: [hdDebugMetaReducer]}),
         EffectsModule.forRoot(appEffects),
         StoreDevtoolsModule.instrument({maxAge: 25}),
         BrowserModule,

@@ -27,7 +27,7 @@
 package ch.bedag.dap.hellodata.sidecars.cloudbeaver.service.resource;
 
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfoFactory;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
@@ -59,17 +59,9 @@ public class CbAppInfoResourceProviderService {
     public void publishAppInfo() {
         log.info("--> publishAppInfo()");
 
-        AppInfoResource appInfoResource = new AppInfoResource(createBusinessContextInfo(), this.instanceName, ModuleType.CLOUDBEAVER, this.url);
+        AppInfoResource appInfoResource = new AppInfoResource(HdBusinessContextInfoFactory.createBusinessContextInfo(hellodataContextConfig, false), this.instanceName, ModuleType.CLOUDBEAVER, this.url);
         natsSenderService.publishMessageToJetStream(PUBLISH_APP_INFO_RESOURCES, appInfoResource);
+        log.debug("--> Published app info resource {}", appInfoResource);
     }
 
-    private HdBusinessContextInfo createBusinessContextInfo() {
-        HdBusinessContextInfo businessContextInfo = new HdBusinessContextInfo();
-        HelloDataContextConfig.BusinessContext businessContext = hellodataContextConfig.getBusinessContext();
-        businessContextInfo.setType(businessContext.getType());
-        businessContextInfo.setName(businessContext.getName());
-        businessContextInfo.setKey(businessContext.getKey());
-        businessContextInfo.setExtra(false);
-        return businessContextInfo;
-    }
 }

@@ -93,17 +93,16 @@ export const selectCurrentUserPermissionsLoaded = createSelector(
 );
 
 // True while the user is authenticated and their profile has been loaded, but the
-// backend has not yet attached any portal permissions - i.e. a brand-new user whose
-// account is still being provisioned. Every real user has at least the DASHBOARDS
-// permission, so an empty permission set after load means "not usable yet", which the
-// app must show as an onboarding state instead of a blank shell. Not gated on
-// firstLogin: the backend flips firstLogin to false after the very first profile call.
+// backend reports the portal account as not provisioned yet. Zero permissions alone is
+// not enough: an existing user without any role has no permissions either and must see
+// the "permission missing" page right away instead of the onboarding overlay.
 export const selectIsProvisioning = createSelector(
   authState,
   (state: AuthState) =>
     state.isLoggedIn &&
     state.permissionsLoaded &&
     !state.userDisabled &&
+    state.provisioning &&
     state.permissions.length === 0
 );
 

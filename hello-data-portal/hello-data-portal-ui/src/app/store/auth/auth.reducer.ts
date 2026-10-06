@@ -70,7 +70,8 @@ export const authReducer = createReducer(
       disableLogout: currentUserAuthData.disableLogout,
       userDisabled: currentUserAuthData.userDisabled,
       selectedLanguage: currentUserAuthData.selectedLanguage,
-      firstLogin: currentUserAuthData.firstLogin
+      firstLogin: currentUserAuthData.firstLogin,
+      provisioning: !!currentUserAuthData.provisioning
     };
   }),
   on(logout, (state: AuthState): AuthState => {
