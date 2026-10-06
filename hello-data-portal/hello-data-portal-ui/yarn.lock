@@ -205,15 +205,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/architect@npm:0.2102.24":
-  version: 0.2102.24
-  resolution: "@angular-devkit/architect@npm:0.2102.24"
+"@angular-devkit/architect@npm:0.2102.25":
+  version: 0.2102.25
+  resolution: "@angular-devkit/architect@npm:0.2102.25"
   dependencies:
-    "@angular-devkit/core": "npm:21.2.24"
+    "@angular-devkit/core": "npm:21.2.25"
     rxjs: "npm:7.8.2"
   bin:
     architect: bin/cli.js
-  checksum: 10c0/d12f2a498ae6a3ebbddf0e49bd56338bdd213306bc6f4380f92a28146b5c05d02df957e36d6021ad4e41d748cbe0217bf8845d9167b1ae66937f202594bffc80
+  checksum: 10c0/d39d7e34c4ce28023f4632480643f55d69b00724f6d3e24fe1b23a313e2bb35037603a6a1ad684aa1f5b301c16ad1c656f586b406fb445ec8720dafb8909a5d6
   languageName: node
   linkType: hard
 
@@ -230,14 +230,14 @@ __metadata:
   linkType: hard
 
 "@angular-devkit/build-angular@npm:^21.0.0":
-  version: 21.2.24
-  resolution: "@angular-devkit/build-angular@npm:21.2.24"
+  version: 21.2.25
+  resolution: "@angular-devkit/build-angular@npm:21.2.25"
   dependencies:
     "@ampproject/remapping": "npm:2.3.0"
-    "@angular-devkit/architect": "npm:0.2102.24"
-    "@angular-devkit/build-webpack": "npm:0.2102.24"
-    "@angular-devkit/core": "npm:21.2.24"
-    "@angular/build": "npm:21.2.24"
+    "@angular-devkit/architect": "npm:0.2102.25"
+    "@angular-devkit/build-webpack": "npm:0.2102.25"
+    "@angular-devkit/core": "npm:21.2.25"
+    "@angular/build": "npm:21.2.25"
     "@babel/core": "npm:7.29.7"
     "@babel/generator": "npm:7.29.1"
     "@babel/helper-annotate-as-pure": "npm:7.27.3"
@@ -248,7 +248,7 @@ __metadata:
     "@babel/preset-env": "npm:7.29.2"
     "@babel/runtime": "npm:7.29.2"
     "@discoveryjs/json-ext": "npm:0.6.3"
-    "@ngtools/webpack": "npm:21.2.24"
+    "@ngtools/webpack": "npm:21.2.25"
     ansi-colors: "npm:4.1.3"
     autoprefixer: "npm:10.4.27"
     babel-loader: "npm:10.0.0"
@@ -269,7 +269,7 @@ __metadata:
     open: "npm:11.0.0"
     ora: "npm:9.3.0"
     picomatch: "npm:4.0.4"
-    piscina: "npm:5.2.0"
+    piscina: "npm:5.3.2"
     postcss: "npm:8.5.23"
     postcss-loader: "npm:8.2.0"
     resolve-url-loader: "npm:5.0.0"
@@ -295,7 +295,7 @@ __metadata:
     "@angular/platform-browser": ^21.0.0
     "@angular/platform-server": ^21.0.0
     "@angular/service-worker": ^21.0.0
-    "@angular/ssr": ^21.2.24
+    "@angular/ssr": ^21.2.25
     "@web/test-runner": ^0.20.0
     browser-sync: ^3.0.2
     jest: ^30.2.0
@@ -337,26 +337,26 @@ __metadata:
       optional: true
     tailwindcss:
       optional: true
-  checksum: 10c0/12a251d25163d6d4bc76d8fcd56b57b82903916555accbf2ce00443b6c88b933c510f1513e42a19b04ab7fe45d6cc3bb3f35b98740cdd9e1845242e62936a149
+  checksum: 10c0/fb9bb15092587344cba1b574a2986c37f10d998ce0a3129c142e82710fe62b4f5243b41ee55781cb86f034feca527dfbea4c8283167b8eff2ef82563498f735f
   languageName: node
   linkType: hard
 
-"@angular-devkit/build-webpack@npm:0.2102.24":
-  version: 0.2102.24
-  resolution: "@angular-devkit/build-webpack@npm:0.2102.24"
+"@angular-devkit/build-webpack@npm:0.2102.25":
+  version: 0.2102.25
+  resolution: "@angular-devkit/build-webpack@npm:0.2102.25"
   dependencies:
-    "@angular-devkit/architect": "npm:0.2102.24"
+    "@angular-devkit/architect": "npm:0.2102.25"
     rxjs: "npm:7.8.2"
   peerDependencies:
     webpack: ^5.30.0
     webpack-dev-server: ^5.0.2
-  checksum: 10c0/68b9fc606a9e947ef7b2c47f53b8196b8571ab9488953461fbeffaa8382fb6a2e4862fea88fb37f0df5fa41856aea621b6f612ff5b0fd297effd6e24a9755f8d
+  checksum: 10c0/47d345fd1d0172804665115283616528f5fc1d32ef24c8ed0d5ae539a59f753bba20451590a6df085b06e7086afe651b348d1934bf137d4b1e4c55fd03a4111a
   languageName: node
   linkType: hard
 
-"@angular-devkit/core@npm:21.2.24":
-  version: 21.2.24
-  resolution: "@angular-devkit/core@npm:21.2.24"
+"@angular-devkit/core@npm:21.2.25":
+  version: 21.2.25
+  resolution: "@angular-devkit/core@npm:21.2.25"
   dependencies:
     ajv: "npm:8.18.0"
     ajv-formats: "npm:3.0.1"
@@ -369,7 +369,7 @@ __metadata:
   peerDependenciesMeta:
     chokidar:
       optional: true
-  checksum: 10c0/101a1df6a654168aa997ece38c74ee36a975d9c42d6f16329a41caf401e81e4a46e95591ee606c61c84768d555bfc7dcc5b8b4a410fcd2378c5a98bdc6adb69d
+  checksum: 10c0/2eab7919e545276ed389dd6e142b8c0af07bba7fcd8798bd561193838e321abb46e60fe23a828f96f7c1c880e17ae1adba665e3c9a32b2f67267b8407b841c36
   languageName: node
   linkType: hard
 
@@ -392,16 +392,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/schematics@npm:21.2.24":
-  version: 21.2.24
-  resolution: "@angular-devkit/schematics@npm:21.2.24"
+"@angular-devkit/schematics@npm:21.2.25":
+  version: 21.2.25
+  resolution: "@angular-devkit/schematics@npm:21.2.25"
   dependencies:
-    "@angular-devkit/core": "npm:21.2.24"
+    "@angular-devkit/core": "npm:21.2.25"
     jsonc-parser: "npm:3.3.1"
     magic-string: "npm:0.30.21"
     ora: "npm:9.3.0"
     rxjs: "npm:7.8.2"
-  checksum: 10c0/d1632f79f413d1cd12d87c1d1d8e6495f95ffd236b49313d15d01e1e295c8a464fdd4e916c9bca8734f1c2c2e2fc15b77a42526b2de40b89002885cf9e6f28f0
+  checksum: 10c0/8451fbb54e33e356c0069a62ea24fe3acd44ed1f1f9ae976133d0a19a044b0a25a43f7a6abfc19a9e53316dfd31af45fbb784b3382a3338b93c208592e00c93e
   languageName: node
   linkType: hard
 
@@ -526,12 +526,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/build@npm:21.2.24":
-  version: 21.2.24
-  resolution: "@angular/build@npm:21.2.24"
+"@angular/build@npm:21.2.25":
+  version: 21.2.25
+  resolution: "@angular/build@npm:21.2.25"
   dependencies:
     "@ampproject/remapping": "npm:2.3.0"
-    "@angular-devkit/architect": "npm:0.2102.24"
+    "@angular-devkit/architect": "npm:0.2102.25"
     "@babel/core": "npm:7.29.7"
     "@babel/helper-annotate-as-pure": "npm:7.27.3"
     "@babel/helper-split-export-declaration": "npm:7.24.7"
@@ -549,7 +549,7 @@ __metadata:
     mrmime: "npm:2.0.1"
     parse5-html-rewriting-stream: "npm:8.0.0"
     picomatch: "npm:4.0.4"
-    piscina: "npm:5.2.0"
+    piscina: "npm:5.3.2"
     rolldown: "npm:1.0.0-rc.4"
     sass: "npm:1.97.3"
     semver: "npm:7.7.4"
@@ -566,7 +566,7 @@ __metadata:
     "@angular/platform-browser": ^21.0.0
     "@angular/platform-server": ^21.0.0
     "@angular/service-worker": ^21.0.0
-    "@angular/ssr": ^21.2.24
+    "@angular/ssr": ^21.2.25
     karma: ^6.4.0
     less: ^4.2.0
     ng-packagr: ^21.0.0
@@ -603,7 +603,7 @@ __metadata:
       optional: true
     vitest:
       optional: true
-  checksum: 10c0/0804b1abbae3ead4d517828bb0f698c9ea23c758b530e6b9b6559b8b9bb6250a7f2a23554d791bac25c3080d1859389be12b197044b7c92e2c448aba672187bc
+  checksum: 10c0/d076c8ddf6ae21b0ab3fe59ff9c786ec6dadce65977f11f4d94e2631d82b03e2fcdfcbc077b38ec227db2e156a0fba69317250794c5f95b646e153102d0abced
   languageName: node
   linkType: hard
 
@@ -704,16 +704,16 @@ __metadata:
   linkType: hard
 
 "@angular/cli@npm:^21.0.0":
-  version: 21.2.24
-  resolution: "@angular/cli@npm:21.2.24"
+  version: 21.2.25
+  resolution: "@angular/cli@npm:21.2.25"
   dependencies:
-    "@angular-devkit/architect": "npm:0.2102.24"
-    "@angular-devkit/core": "npm:21.2.24"
-    "@angular-devkit/schematics": "npm:21.2.24"
+    "@angular-devkit/architect": "npm:0.2102.25"
+    "@angular-devkit/core": "npm:21.2.25"
+    "@angular-devkit/schematics": "npm:21.2.25"
     "@inquirer/prompts": "npm:7.10.1"
     "@listr2/prompt-adapter-inquirer": "npm:3.0.5"
     "@modelcontextprotocol/sdk": "npm:1.30.0"
-    "@schematics/angular": "npm:21.2.24"
+    "@schematics/angular": "npm:21.2.25"
     "@yarnpkg/lockfile": "npm:1.1.0"
     algoliasearch: "npm:5.48.1"
     ini: "npm:6.0.0"
@@ -727,7 +727,7 @@ __metadata:
     zod: "npm:4.3.6"
   bin:
     ng: bin/ng.js
-  checksum: 10c0/403e1ae8909c4b25e518c7594e298e0f9b52de3e00a8a802d55b37507c1aeeabf8647e6d349d123d212ce5f3cf957ddec24780c8a2e67e019ee700a3c5176f2f
+  checksum: 10c0/f17001b904f024f91906197a419f0377e2395bd41f21b653c2339b171fdaec3278157366e2e6896b0116fcc0e83b0e5dd293aa8ff08594037ffd7baff6b2ae1f
   languageName: node
   linkType: hard
 
@@ -4358,14 +4358,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ngtools/webpack@npm:21.2.24":
-  version: 21.2.24
-  resolution: "@ngtools/webpack@npm:21.2.24"
+"@ngtools/webpack@npm:21.2.25":
+  version: 21.2.25
+  resolution: "@ngtools/webpack@npm:21.2.25"
   peerDependencies:
     "@angular/compiler-cli": ^21.0.0
     typescript: ">=5.9 <6.0"
     webpack: ^5.54.0
-  checksum: 10c0/c402ea12028fbd6c997debdd76b5717b7dae6c6cd293f3e27f87ca94eb9fc15e7580be71ea5d9d4af43918901f1e9198a091bf0fac7ea94531dced90669e4c6b
+  checksum: 10c0/5415cc60c48a40f2ed6206aee4a9c8ff3a9f2da82d807badf8c2df09ee11757a64f22f13bb8ad33dbcc0c232362d853bc9ed945b8cdba8bccff71ec872f4c360
   languageName: node
   linkType: hard
 
@@ -5253,14 +5253,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@schematics/angular@npm:21.2.24":
-  version: 21.2.24
-  resolution: "@schematics/angular@npm:21.2.24"
+"@schematics/angular@npm:21.2.25":
+  version: 21.2.25
+  resolution: "@schematics/angular@npm:21.2.25"
   dependencies:
-    "@angular-devkit/core": "npm:21.2.24"
-    "@angular-devkit/schematics": "npm:21.2.24"
+    "@angular-devkit/core": "npm:21.2.25"
+    "@angular-devkit/schematics": "npm:21.2.25"
     jsonc-parser: "npm:3.3.1"
-  checksum: 10c0/2eb025f4dd0d78dcf9e1f656103616c0a1d4e17d424de32c0423a40cfa9674f540f392f807470c7446c7c44fc9809b164755fe1e3cf74204ebe7ccb259b8472a
+  checksum: 10c0/5ac57c8a197bd4d54983c7342d664754da5385f4aaef240e9f2965b8e56fc375b2332122a69625a600e987e91a9761978391b7070803ed6ffcd93d59334bbff8
   languageName: node
   linkType: hard
 
