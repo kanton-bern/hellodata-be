@@ -122,4 +122,45 @@ class MetaInfoUsersServiceTest {
         assertEquals(1, result.get(0).users().size());
     }
 
+    @Test
+    void getAllUsersWithRolesForDashboards_showsBiNoAccessRole() {
+        AppInfoResource appInfo = mock(AppInfoResource.class);
+        when(appInfo.getInstanceName()).thenReturn("instance1");
+        when(metaInfoResourceService.findAllByModuleTypeAndKind(eq(ModuleType.SUPERSET), any(), eq(AppInfoResource.class)))
+                .thenReturn(List.of(appInfo));
+        DashboardResource dashboardResource = mock(DashboardResource.class);
+        when(dashboardResource.getInstanceName()).thenReturn("instance1");
+        when(dashboardResource.getData()).thenReturn(List.of());
+        when(metaInfoResourceService.findAllByModuleTypeAndKind(eq(ModuleType.SUPERSET), any(), eq(DashboardResource.class)))
+                .thenReturn(List.of(dashboardResource));
+
+        UserWithBusinessRoleDto user = mock(UserWithBusinessRoleDto.class);
+        when(user.getEmail()).thenReturn("john.doe@example.com");
+        when(user.getEnabled()).thenReturn(true);
+        when(userService.getAllUsersWithBusinessDomainRole()).thenReturn(List.of(user));
+
+        SubsystemRole noAccessRole = mock(SubsystemRole.class);
+        when(noAccessRole.getName()).thenReturn("BI_NO_ACCESS");
+        SubsystemRole publicRole = mock(SubsystemRole.class);
+        when(publicRole.getName()).thenReturn("Public");
+        SubsystemUser subsystemUser = mock(SubsystemUser.class);
+        when(subsystemUser.getEmail()).thenReturn("john.doe@example.com");
+        when(subsystemUser.getRoles()).thenReturn(List.of(noAccessRole, publicRole));
+        HdResource metainfoResource = mock(HdResource.class);
+        when(metainfoResource.getData()).thenReturn(List.of(subsystemUser));
+        MetaInfoResourceEntity userPack = mock(MetaInfoResourceEntity.class);
+        when(userPack.getMetainfo()).thenReturn(metainfoResource);
+        when(userPack.getInstanceName()).thenReturn("instance1");
+        when(userPack.getContextKey()).thenReturn("ctx1");
+        when(metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_USERS)).thenReturn(List.of(userPack));
+        HdContextEntity contextEntity = mock(HdContextEntity.class);
+        when(contextEntity.getContextKey()).thenReturn("ctx1");
+        when(contextEntity.getName()).thenReturn("Context 1");
+        when(contextRepository.findAll()).thenReturn(List.of(contextEntity));
+
+        List<DashboardUsersResultDto> result = metaInfoUsersService.getAllUsersWithRolesForDashboards();
+
+        assertEquals(List.of("BI_NO_ACCESS"), result.get(0).users().get(0).roles());
+    }
+
 }
