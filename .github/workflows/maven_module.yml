@@ -97,13 +97,13 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: true
           TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
           DOCKER_HOST: unix:///var/run/docker.sock
-        run: mvn -B -pl ${{ github.event.inputs.module }} -am clean install
+        run: ./mvnw -B -pl ${{ github.event.inputs.module }} -am clean install
 
       - name: Publish Packages and Docker Images
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        run: mvn --batch-mode deploy -Pdocker -DskipTests -pl ${{ github.event.inputs.module }}
+        run: ./mvnw --batch-mode deploy -Pdocker -DskipTests -pl ${{ github.event.inputs.module }}
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
