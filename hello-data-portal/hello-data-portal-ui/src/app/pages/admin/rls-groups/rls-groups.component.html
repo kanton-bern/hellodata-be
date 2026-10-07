@@ -31,36 +31,46 @@
 
   @if (notManageable()) {
     <div class="text-gray-400 p-4 text-center text-sm">{{ '@You are not allowed to manage the RLS groups of this data domain' | transloco }}</div>
-  } @else if (!selectedDataDomain) {
-    <div class="text-gray-400 p-4 text-center text-sm">{{ '@Select a data domain in the header to manage its RLS groups' | transloco }}</div>
   } @else {
-
-    <p-table [value]="rlsRoles()" [loading]="loading()" dataKey="roleKey" styleClass="p-datatable-sm">
+    <p-table [value]="rows()" [loading]="loading()" styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>
+          @if (showAllDataDomains()) {
+            <th id="rlsDataDomainHeader" style="width:15rem">{{ '@Data domain' | transloco }}</th>
+          }
           <th id="rlsRoleKeyHeader" style="width:10rem">{{ '@RLS role ID' | transloco }}</th>
           <th id="rlsRoleNameHeader">{{ '@Name' | transloco }}</th>
           <th id="rlsRoleActionsHeader" style="width:5rem"></th>
         </tr>
       </ng-template>
-      <ng-template let-rlsRole pTemplate="body">
+      <ng-template let-row pTemplate="body">
         <tr>
-          <td class="font-medium">{{ rlsRole.roleKey }}</td>
+          @if (showAllDataDomains()) {
+            <td>{{ row.dataDomainName }}</td>
+          }
+          <td class="font-medium">{{ row.roleKey }}</td>
           <td>
             <input pInputText type="text" class="w-full"
-                   [(ngModel)]="rlsRole.name"
+                   [(ngModel)]="row.name"
                    [maxlength]="maxNameLength"
-                   [placeholder]="rlsRole.roleKey"
-                   [attr.aria-label]="rlsRole.roleKey"/>
-            @if (hasDuplicateName(rlsRole)) {
+                   [placeholder]="row.roleKey"
+                   [attr.aria-label]="row.dataDomainName + ' ' + row.roleKey"/>
+            @if (hasDuplicateName(row)) {
               <small class="p-error block">{{ '@RLS group name must be unique' | transloco }}</small>
             }
           </td>
           <td>
             <p-button [icon]="icons.ACTION_UNDO.class" [text]="true" severity="secondary" pRipple
-                      [disabled]="rlsRole.name === rlsRole.roleKey"
-                      (onClick)="resetName(rlsRole)"
+                      [disabled]="row.name === row.roleKey"
+                      (onClick)="resetName(row)"
                       [attr.aria-label]="'@Reset to default name' | transloco"/>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="showAllDataDomains() ? 4 : 3" class="text-gray-400 text-center text-sm">
+            {{ '@No data domains to manage' | transloco }}
           </td>
         </tr>
       </ng-template>
@@ -69,7 +79,7 @@
     <p-toolbar class="mt-4">
       <div class="p-toolbar-group-end">
         <p-button (onClick)="save()"
-                  [disabled]="!isValid() || saving() || !selectedDataDomain"
+                  [disabled]="!isValid() || saving() || rows().length === 0"
                   [loading]="saving()"
                   [icon]="icons.ACTION_SAVE.class"
                   [label]="'@Save' | transloco"

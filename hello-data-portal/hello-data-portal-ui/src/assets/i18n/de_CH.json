@@ -533,5 +533,5 @@
   "@Reset to default name": "Auf Standardnamen zurücksetzen",
   "@RLS group names saved": "Namen der RLS-Gruppen gespeichert",
   "@You are not allowed to manage the RLS groups of this data domain": "Sie dürfen die RLS-Gruppen dieser Datendomäne nicht verwalten",
-  "@Select a data domain in the header to manage its RLS groups": "Wählen Sie oben eine Datendomäne aus, um ihre RLS-Gruppen zu verwalten"
+  "@No data domains to manage": "Keine Datendomänen zum Verwalten"
 }

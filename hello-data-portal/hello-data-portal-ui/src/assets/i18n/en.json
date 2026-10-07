@@ -536,5 +536,5 @@
   "@Reset to default name": "Reset to default name",
   "@RLS group names saved": "RLS group names saved",
   "@You are not allowed to manage the RLS groups of this data domain": "You are not allowed to manage the RLS groups of this data domain",
-  "@Select a data domain in the header to manage its RLS groups": "Select a data domain in the header to manage its RLS groups"
+  "@No data domains to manage": "No data domains to manage"
 }
