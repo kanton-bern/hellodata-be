@@ -184,6 +184,27 @@ class SupersetUpdateUserContextRoleConsumerTest {
         assertThat(captureUpdatedRoles()).containsExactlyInAnyOrder(4, 6);
     }
 
+    @Test
+    void shouldAssignOnlyBiNoAccessForNone() throws URISyntaxException, IOException {
+        // user was a viewer with a dashboard and an RLS role before, NONE must drop all of them
+        UserContextRoleUpdate update = rlsUserContextRoleUpdate(HdRoleName.NONE, Map.of("dd01", List.of()));
+        mockSupersetForRlsTest(List.of(3, 8, 10));
+
+        consumer.subscribe(update);
+
+        assertThat(captureUpdatedRoles()).containsExactly(7);
+    }
+
+    @Test
+    void shouldReplaceBiNoAccessWithBiViewerForViewer() throws URISyntaxException, IOException {
+        UserContextRoleUpdate update = rlsUserContextRoleUpdate(HdRoleName.DATA_DOMAIN_VIEWER, null);
+        mockSupersetForRlsTest(List.of(7));
+
+        consumer.subscribe(update);
+
+        assertThat(captureUpdatedRoles()).containsExactly(3);
+    }
+
     private UserContextRoleUpdate rlsUserContextRoleUpdate(HdRoleName roleName, Map<String, List<String>> rlsRolesPerContext) {
         UserContextRoleUpdate.ContextRole contextRole = new UserContextRoleUpdate.ContextRole();
         contextRole.setContextKey("dd01");
@@ -206,7 +227,7 @@ class SupersetUpdateUserContextRoleConsumerTest {
         when(helloDataContextConfig.getContext()).thenReturn(context);
 
         List<SubsystemRole> allRoles = List.of(role(1, "Public"), role(2, "Admin"), role(3, "BI_VIEWER"), role(4, "BI_EDITOR"),
-                role(5, "BI_ADMIN"), role(6, "sql_lab"), role(10, "RLS_01"), role(11, "RLS_02"), role(12, "RLS_03"));
+                role(5, "BI_ADMIN"), role(6, "sql_lab"), role(7, "BI_NO_ACCESS"), role(8, "D_dashboard_1"), role(10, "RLS_01"), role(11, "RLS_02"), role(12, "RLS_03"));
         SupersetRolesResponse supersetRolesResponse = new SupersetRolesResponse();
         supersetRolesResponse.setResult(allRoles);
         when(supersetClient.roles()).thenReturn(supersetRolesResponse);

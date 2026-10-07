@@ -72,4 +72,7 @@
     <changeSet id="0011" author="hellodata" runAlways="true">
         <sqlFile path="changelogs/11_add_pdf_export_render_permissions_to_bi_viewer.sql" relativeToChangelogFile="true" splitStatements="false" />
     </changeSet>
+    <changeSet id="0012" author="hellodata" runAlways="true">
+        <sqlFile path="changelogs/12_add_bi_no_access_role.sql" relativeToChangelogFile="true" />
+    </changeSet>
 </databaseChangeLog>

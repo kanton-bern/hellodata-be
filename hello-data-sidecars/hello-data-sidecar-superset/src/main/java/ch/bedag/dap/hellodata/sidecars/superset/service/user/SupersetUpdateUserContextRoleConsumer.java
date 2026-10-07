@@ -123,7 +123,8 @@ public class SupersetUpdateUserContextRoleConsumer {
                     assignDashboardSpecificRoles(userContextRoleUpdate, allDashboards, allRoles, dataDomainKey, contextRole, supersetUser, supersetUserRolesUpdate);
                     assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 }
-                case NONE -> assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
+                // no data access at all, BI_VIEWER would grant all_datasource_access
+                case NONE -> assignRoleToUser(SlugifyUtil.BI_NO_ACCESS_ROLE_NAME, allRoles, supersetUserRolesUpdate);
 
                 default -> log.debug("Irrelevant role name? {}", contextRole.getRoleName());
             }
@@ -242,6 +243,7 @@ public class SupersetUpdateUserContextRoleConsumer {
         removeRoleFromUser(SlugifyUtil.BI_ADMIN_ROLE_NAME, allRoles, supersetUserRolesUpdate);
         removeRoleFromUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
         removeRoleFromUser(SlugifyUtil.BI_EDITOR_ROLE_NAME, allRoles, supersetUserRolesUpdate);
+        removeRoleFromUser(SlugifyUtil.BI_NO_ACCESS_ROLE_NAME, allRoles, supersetUserRolesUpdate);
         removeRoleFromUser(SQL_LAB_ROLE_NAME, allRoles, supersetUserRolesUpdate);
     }
 

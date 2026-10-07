@@ -143,7 +143,7 @@ Row Level Security settings on Superset level can be used to additionally restri
 |   |   |   |
 |---|---|---|
 |**System Role**|**Superset Role**|**Info**|
-|No Data Domain role|Public|User should not get access to Superset functions so he gets a role with no permissions.|
+|No Data Domain role (NONE)|BI_NO_ACCESS|User should not get access to Superset functions so he gets a role that only allows to log in and see an empty dashboard list, without any access to datasources, charts, datasets or SQL Lab. Public cannot be used as it is the role of anonymous requests.|
 |DATA_DOMAIN_VIEWER|BI_VIEWER plus roles for Dashboards he was granted access to i. e. the slugified dashboard names with prefix "D_"|Example: User is "DATA_DOMAIN_VIEWER" in a Data Domain. We grant the user access to the "Hello World" dashboard. Then user gets the role "BI_VIEWER" plus the role "D_hello_world" in Superset.|
 |DATA_DOMAIN_EDITOR|BI_EDITOR|Has access to all Dashboards as he is owner of the dashboards  plus he gets SQL Lab permissions.|
 |DATA_DOMAIN_ADMIN|BI_EDITOR plus BI_ADMIN|Has access to all Dashboards as he is owner of the dashboards  plus he gets SQL Lab permissions.|
