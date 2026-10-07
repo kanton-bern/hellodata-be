@@ -36,6 +36,7 @@ public class SlugifyUtil {
     public static final String BI_ADMIN_ROLE_NAME = "BI_ADMIN";
     public static final String BI_VIEWER_ROLE_NAME = "BI_VIEWER";
     public static final String BI_EDITOR_ROLE_NAME = "BI_EDITOR";//temporary name
+    public static final String BI_NO_ACCESS_ROLE_NAME = "BI_NO_ACCESS";
     public static final String DASHBOARD_ROLE_PREFIX = "D_";
     public static final String ADMIN_ROLE_NAME = "Admin";
 
