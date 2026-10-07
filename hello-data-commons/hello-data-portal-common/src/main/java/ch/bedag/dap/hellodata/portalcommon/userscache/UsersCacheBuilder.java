@@ -216,6 +216,7 @@ public class UsersCacheBuilder {
                 role.startsWith(DASHBOARD_ROLE_PREFIX) ||
                 role.equalsIgnoreCase(BI_ADMIN_ROLE_NAME) ||
                 role.equalsIgnoreCase(BI_VIEWER_ROLE_NAME) ||
+                role.equalsIgnoreCase(BI_NO_ACCESS_ROLE_NAME) ||
                 role.equalsIgnoreCase(BI_EDITOR_ROLE_NAME);
     }
 

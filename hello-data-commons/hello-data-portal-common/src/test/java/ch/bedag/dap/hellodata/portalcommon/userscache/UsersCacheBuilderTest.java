@@ -157,6 +157,42 @@ class UsersCacheBuilderTest {
         assertEquals(HdRoleName.BUSINESS_DOMAIN_ADMIN, user.businessDomainRole());
     }
 
+    @Test
+    void buildDashboardUsers_showsBiNoAccessRole() {
+        AppInfoResource appInfo = mock(AppInfoResource.class);
+        when(appInfo.getInstanceName()).thenReturn("instance1");
+        when(metaInfoResourceService.findAllByModuleTypeAndKind(eq(ModuleType.SUPERSET), any(), eq(AppInfoResource.class)))
+                .thenReturn(List.of(appInfo));
+        DashboardResource dashboardResource = mock(DashboardResource.class);
+        when(dashboardResource.getInstanceName()).thenReturn("instance1");
+        when(dashboardResource.getData()).thenReturn(List.of());
+        when(metaInfoResourceService.findAllByModuleTypeAndKind(eq(ModuleType.SUPERSET), any(), eq(DashboardResource.class)))
+                .thenReturn(List.of(dashboardResource));
+
+        when(userRepository.findAll()).thenReturn(List.of(portalUser()));
+
+        SubsystemRole noAccessRole = mock(SubsystemRole.class);
+        when(noAccessRole.getName()).thenReturn("BI_NO_ACCESS");
+        SubsystemRole publicRole = mock(SubsystemRole.class);
+        when(publicRole.getName()).thenReturn("Public");
+        SubsystemUser subsystemUser = mock(SubsystemUser.class);
+        when(subsystemUser.getEmail()).thenReturn("john.doe@example.com");
+        when(subsystemUser.getRoles()).thenReturn(List.of(noAccessRole, publicRole));
+        HdResource metainfoResource = mock(HdResource.class);
+        when(metainfoResource.getData()).thenReturn(List.of(subsystemUser));
+        MetaInfoResourceEntity userPack = mock(MetaInfoResourceEntity.class);
+        when(userPack.getMetainfo()).thenReturn(metainfoResource);
+        when(userPack.getInstanceName()).thenReturn("instance1");
+        when(userPack.getContextKey()).thenReturn("ctx1");
+        when(metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_USERS)).thenReturn(List.of(userPack));
+
+        when(contextRepository.findAll()).thenReturn(List.of(context("ctx1", "Context 1", HdContextType.DATA_DOMAIN)));
+
+        List<DashboardUsersResultDto> result = usersCacheBuilder.buildDashboardUsers();
+
+        assertEquals(List.of("BI_NO_ACCESS"), result.get(0).users().get(0).roles());
+    }
+
     private UserEntity portalUser() {
         UserEntity user = new UserEntity();
         user.setEmail("john.doe@example.com");
