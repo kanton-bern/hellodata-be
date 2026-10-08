@@ -17,6 +17,9 @@ there assigns the corresponding `RLS_xx` roles to the user in the Superset insta
 
 This is available to users with the **`USER_MANAGEMENT`** authority (HelloDATA admins and business domain admins).
 
+The bulk assignment wizard (`Massenänderungen`) offers the same RLS Group selection per Data Domain. It replaces the
+directly assigned RLS Groups of all selected users in that Data Domain.
+
 When the role of a user in a Data Domain is changed to a role other than viewer or business specialist, the RLS Group
 assignments of that Data Domain are removed.
 
