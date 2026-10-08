@@ -36,6 +36,13 @@
                         severity="secondary"
                         [outlined]="true"/>
             </div>
+            <div style="text-align: left">
+              <p-button (onClick)="toggleExpandAll()"
+                        [icon]="allExpanded ? icons.NAV_COLLAPSE.class : icons.NAV_EXPAND.class" pRipple
+                        label="{{ (allExpanded ? '@Collapse all' : '@Expand all') | transloco }}"
+                        severity="secondary"
+                        [outlined]="true"/>
+            </div>
             <div class="ml-auto flex items-center gap-2">
               <p-button
                 [label]="'@Clear' | transloco"
