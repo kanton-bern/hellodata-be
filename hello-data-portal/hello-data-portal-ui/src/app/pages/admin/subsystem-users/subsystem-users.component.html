@@ -15,6 +15,7 @@
           <li><strong>{{ '@Export for batch import' | transloco }}</strong> — {{ '@Batch export hint' | transloco }}</li>
           <li><strong>{{ '@Reload' | transloco }}</strong> — {{ '@Reload hint' | transloco }}</li>
           <li><strong>{{ '@Clear cache' | transloco }}</strong> — {{ '@Clear cache hint' | transloco }}</li>
+          <li><strong>{{ '@Expand all' | transloco }}</strong> — {{ '@Expand all hint' | transloco }}</li>
           <li><strong>{{ '@Search' | transloco }}</strong> — {{ '@Search hint' | transloco }}</li>
         </ul>
       </div>
@@ -58,6 +59,13 @@
               <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
                         [icon]="icons.ACTION_CANCEL.class" pRipple
                         label="{{ '@Clear cache' | transloco }}"
+                        severity="secondary"
+                        [outlined]="true"/>
+            </div>
+            <div style="text-align: left">
+              <p-button (onClick)="toggleExpandAll()"
+                        [icon]="allExpanded ? icons.NAV_COLLAPSE.class : icons.NAV_EXPAND.class" pRipple
+                        label="{{ (allExpanded ? '@Collapse all' : '@Expand all') | transloco }}"
                         severity="secondary"
                         [outlined]="true"/>
             </div>
