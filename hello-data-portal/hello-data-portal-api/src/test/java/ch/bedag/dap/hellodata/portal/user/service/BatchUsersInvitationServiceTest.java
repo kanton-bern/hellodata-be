@@ -807,6 +807,29 @@ class BatchUsersInvitationServiceTest {
     }
 
     @Test
+    void mapSupersetRolesToRlsRoles_shouldTakeOnlyRlsRolesPerContext() throws Exception {
+        // Arrange
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
+
+        BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
+        user.setEmail("test@example.com");
+        user.getContextToModuleRoleNamesMap().put("dd1", List.of(new ModuleRoleNames(ModuleType.SUPERSET,
+                List.of("D_dashboard_1", "RLS_03", "RLS_01", "BI_VIEWER", "RLS_99"))));
+        user.getContextToModuleRoleNamesMap().put("dd2", List.of(new ModuleRoleNames(ModuleType.SUPERSET, List.of())));
+
+        // Act
+        Method method = BatchUsersInvitationService.class.getDeclaredMethod(
+                "mapSupersetRolesToRlsRoles", BatchUpdateContextRolesForUserDto.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> result = (Map<String, List<String>>) method.invoke(service, user);
+
+        // Assert - every CSV context gets an entry, an empty one clears the RLS roles of that context
+        assertEquals(Map.of("dd1", List.of("RLS_01", "RLS_03"), "dd2", List.of()), result);
+    }
+
+    @Test
     void resolveDashboardGroupNamesToIds_shouldResolveCorrectly() throws Exception {
         // Arrange
         DashboardGroupEntity group1 = createDashboardGroupEntity("GroupA", "dd1");
