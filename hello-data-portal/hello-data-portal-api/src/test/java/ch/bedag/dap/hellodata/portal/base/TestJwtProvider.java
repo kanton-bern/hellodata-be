@@ -55,7 +55,8 @@ public class TestJwtProvider {
             return null;
         }
 
-        UUID userId = UUID.fromString(claims.get("userId", String.class));
+        String userIdClaim = claims.get("userId", String.class);
+        UUID userId = userIdClaim != null ? UUID.fromString(userIdClaim) : null;
         String email = claims.get("email", String.class);
         String firstName = claims.get("given_name", String.class);
         String lastName = claims.get("family_name", String.class);
