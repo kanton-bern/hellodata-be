@@ -459,10 +459,14 @@ export class MenuService {
       this._openedSubsystemsService.rememberOpenedSubsystem(metaInfoResource.data.url + 'logout');
       const supersetUrl = metaInfoResource.data.url;
       const supersetLogoutUrl = supersetUrl + 'logout';
-      // Superset's login view stores `lang` as the session locale, so the opened instance follows
-      // the portal language. The separator is encoded to stay inside the logout `redirect` value.
-      const langParam = selectedLanguage ? `lang=${selectedLanguage.slice(0, 2)}${encodeURIComponent('&')}` : '';
-      const supersetLoginUrl = supersetUrl + `login/keycloak?${langParam}next=${supersetUrl}`;
+      // Land on Superset's own /lang/<code> endpoint after login: it stores the session locale and
+      // redirects to the Superset home. The `lang` login param alone is not enough, it is dropped
+      // when the login falls back to the full Keycloak OAuth round trip. The separator is encoded
+      // to stay inside the logout `redirect` value.
+      const lang = selectedLanguage?.slice(0, 2);
+      const langParam = lang ? `lang=${lang}${encodeURIComponent('&')}` : '';
+      const next = lang ? `${supersetUrl}lang/${lang}` : supersetUrl;
+      const supersetLoginUrl = supersetUrl + `login/keycloak?${langParam}next=${next}`;
       return supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
     }
     return "#";
