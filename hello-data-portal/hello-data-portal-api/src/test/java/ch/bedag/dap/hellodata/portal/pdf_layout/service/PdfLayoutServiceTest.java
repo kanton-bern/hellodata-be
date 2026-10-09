@@ -399,11 +399,11 @@ class PdfLayoutServiceTest {
         // when
         List<PdfLayoutSummaryDto> result = pdfLayoutService.findLayouts(null);
 
-        // then - the shared layout is visible read-only, another user's orphan is not visible at all
+        // then - the shared layout is visible and editable, another user's orphan is not visible at all
         assertEquals(1, result.size());
         assertEquals("Monthly", result.get(0).getName());
         assertEquals("OTHER@EXAMPLE.COM", result.get(0).getCreatedBy());
-        assertFalse(result.get(0).isEditable());
+        assertTrue(result.get(0).isEditable());
         verifyNoInteractions(metaInfoResourceService);
     }
 
@@ -422,7 +422,7 @@ class PdfLayoutServiceTest {
 
         // then
         assertEquals(1, result.getItems().size());
-        assertFalse(result.isEditable());
+        assertTrue(result.isEditable());
     }
 
     @Test
@@ -442,7 +442,25 @@ class PdfLayoutServiceTest {
     }
 
     @Test
-    void updateLayout_ofAnotherUser_isForbidden() {
+    void updateLayout_ofAnotherUser_isAllowedWithDashboardAccess() {
+        // given
+        PdfLayoutEntity foreign = entity(List.of());
+        foreign.setUserId(OTHER_USER_ID);
+        when(pdfLayoutRepository.findById(foreign.getId())).thenReturn(Optional.of(foreign));
+        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
+        when(pdfLayoutRepository.saveAndFlush(any(PdfLayoutEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // when
+        PdfLayoutDto result = pdfLayoutService.updateLayout(foreign.getId(), saveDto("Monthly"));
+
+        // then - the layout keeps its creator
+        verify(pdfLayoutRepository).saveAndFlush(foreign);
+        assertEquals(OTHER_USER_ID, foreign.getUserId());
+        assertTrue(result.isEditable());
+    }
+
+    @Test
+    void deleteLayout_ofAnotherUser_isAllowedWithDashboardAccess() {
         // given
         PdfLayoutEntity foreign = entity(List.of());
         foreign.setUserId(OTHER_USER_ID);
@@ -450,19 +468,20 @@ class PdfLayoutServiceTest {
         when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
 
         // when
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.updateLayout(foreign.getId(), saveDto("Monthly")));
+        pdfLayoutService.deleteLayout(foreign.getId());
 
         // then
-        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
-        verify(pdfLayoutRepository, never()).saveAndFlush(any());
+        verify(pdfLayoutRepository).delete(foreign);
     }
 
     @Test
-    void deleteLayout_ofAnotherUser_isForbidden() {
+    void deleteLayout_ofAnotherUser_isForbiddenWithoutDashboardAccess() {
         // given
         PdfLayoutEntity foreign = entity(List.of());
         foreign.setUserId(OTHER_USER_ID);
         when(pdfLayoutRepository.findById(foreign.getId())).thenReturn(Optional.of(foreign));
+        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of());
+        dashboardStillExists(DASHBOARD_ID);
 
         // when
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.deleteLayout(foreign.getId()));

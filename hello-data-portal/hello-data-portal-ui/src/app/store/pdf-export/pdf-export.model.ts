@@ -84,7 +84,7 @@ export interface PdfSavedLayoutItem {
 }
 
 /** A saved layout as listed in the management table and the export page picker. Shared with
- *  everyone who may access its dashboard; only `editable` ones (own, for now) can be changed. */
+ *  everyone who may access its dashboard; only `editable` ones can be changed. */
 export interface PdfLayoutSummary {
   id: string;
   name: string;

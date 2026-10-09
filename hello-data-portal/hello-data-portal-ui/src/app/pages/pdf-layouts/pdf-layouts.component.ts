@@ -54,8 +54,8 @@ type LayoutRow = PdfLayoutSummary & {dataDomainName: string};
 
 /**
  * Management of saved PDF layouts: list, create, edit and delete. Layouts are shared with everyone
- * who may access their dashboard; only the creator may change or delete one (until a dedicated
- * permission exists). The PDF export page only picks these layouts.
+ * who may access their dashboard, and each of them may change or delete one. The PDF export page
+ * only picks these layouts.
  */
 @Component({
   selector: 'app-pdf-layouts',

@@ -63,8 +63,7 @@ import java.util.stream.Collectors;
  * accessible) even when the dashboard no longer exists or access to it was lost, so they can still delete
  * them; loading one reports "Dashboard X not found." or 403.
  * <p>
- * There are no dedicated permissions for this area yet: until there are, only the creator of a layout
- * may change or delete it.
+ * Everyone who may access the dashboard may also change or delete its layouts.
  */
 @Log4j2
 @Service
@@ -156,7 +155,6 @@ public class PdfLayoutService {
         UUID userId = currentUserId();
         PdfLayoutEntity entity = findLayout(id);
         SupersetDashboardDto dashboard = requireDashboardAccess(entity, userId);
-        assertCreator(entity, userId);
         validate(saveDto);
         if (!entity.getInstanceName().equalsIgnoreCase(saveDto.getInstanceName()) || entity.getDashboardId() != saveDto.getDashboardId()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The dashboard of a saved layout can't be changed.");
@@ -171,7 +169,9 @@ public class PdfLayoutService {
         UUID userId = currentUserId();
         PdfLayoutEntity entity = findLayout(id);
         // The creator may always clean up the layout, even when its dashboard was deleted or access to it was lost.
-        assertCreator(entity, userId);
+        if (!userId.equals(entity.getUserId())) {
+            requireDashboardAccess(entity, userId);
+        }
         pdfLayoutRepository.delete(entity);
     }
 
@@ -186,13 +186,6 @@ public class PdfLayoutService {
     private PdfLayoutEntity findLayout(UUID id) {
         return pdfLayoutRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PDF layout not found."));
-    }
-
-    /** Until a dedicated permission exists, only the creator may change or delete a layout. */
-    private static void assertCreator(PdfLayoutEntity entity, UUID userId) {
-        if (!userId.equals(entity.getUserId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the creator of the layout can change or delete it.");
-        }
     }
 
     /** The layout's dashboard if the current user may access it; 403 when it exists but is not
@@ -355,6 +348,7 @@ public class PdfLayoutService {
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setModifiedDate(entity.getModifiedDate());
         dto.setCreatedBy(entity.getCreatedBy());
-        dto.setEditable(userId.equals(entity.getUserId()));
+        // Listed layouts are either accessible (anyone may change them) or the user's own (they may delete them).
+        dto.setEditable(true);
     }
 }
