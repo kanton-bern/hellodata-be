@@ -69,4 +69,7 @@
     <changeSet id="0010" author="hellodata" runAlways="false">
         <sqlFile path="changelogs/10_update_usernames.sql" relativeToChangelogFile="true" splitStatements="false" />
     </changeSet>
+    <changeSet id="0012" author="hellodata" runAlways="true">
+        <sqlFile path="changelogs/12_add_bi_no_access_role.sql" relativeToChangelogFile="true" />
+    </changeSet>
 </databaseChangeLog>

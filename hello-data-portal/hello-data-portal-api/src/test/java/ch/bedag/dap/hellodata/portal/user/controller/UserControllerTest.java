@@ -223,6 +223,21 @@ class UserControllerTest extends HDControllerTest {
     }
 
     @Test
+    void getPermissionsForCurrentUser_notInvitedUser_isNotProvisioningWhenAutoProvisionDisabled() throws Exception {
+        // given
+        HelloDataContextConfig.BusinessContext businessContext = new HelloDataContextConfig.BusinessContext();
+        businessContext.setName("BusinessDomain");
+        businessContext.setKey("ContextKey");
+        when(helloDataContextConfig.getBusinessContext()).thenReturn(businessContext);
+        when(systemProperties.isAutoProvisionViewerOnLogin()).thenReturn(false);
+
+        // when then
+        mockMvc.perform(get("/users/current/profile").header("authorization", generateToken(null, Set.of())))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{'permissions':[], 'businessDomain':'BusinessDomain', 'firstLogin':false, 'provisioning':false}"));
+    }
+
+    @Test
     void deleteAndEnableAndDisableUserById() throws Exception {
         // given
         UUID userId = UUID.randomUUID();

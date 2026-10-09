@@ -72,6 +72,7 @@ import {ICON_REGISTRY} from '../../../shared/icons';
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
   protected readonly icons = ICON_REGISTRY;
   private static readonly FILTER_STORAGE_KEY = 'subsystem-users-filter-terms';
+  private static readonly EXPANDED_STORAGE_KEY = 'subsystem-users-all-expanded';
 
   users$: Observable<UserSubsystemRolesDto[]>;
   totalRecords$: Observable<number>;
@@ -80,6 +81,8 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   currentFilterInput = '';
   searchTerm = '';
   expandedRows: { [s: string]: boolean } = {};
+  allExpanded = false;
+  private currentUsers: UserSubsystemRolesDto[] = [];
   showInfoPanel = false;
   dynamicColumns: { field: string; header: string }[] = [];
 
@@ -101,6 +104,13 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     this.users$ = this.store.select(selectPaginatedSubsystemUsers);
     this.totalRecords$ = this.store.select(selectPaginatedSubsystemUsersTotalRecords);
     this.dataLoading$ = this.store.select(selectPaginatedSubsystemUsersLoading);
+    this.allExpanded = this.loadAllExpanded();
+    this.users$.pipe(takeUntil(this.destroy$)).subscribe(users => {
+      this.currentUsers = users ?? [];
+      if (this.allExpanded) {
+        this.expandAllRows();
+      }
+    });
     this.createBreadcrumbs();
     this.searchInput$.pipe(
       debounceTime(400),
@@ -197,6 +207,17 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
       });
   }
 
+  toggleExpandAll(): void {
+    this.allExpanded = !this.allExpanded;
+    this.saveAllExpanded();
+    if (this.allExpanded) {
+      this.expandAllRows();
+    } else {
+      this.expandedRows = {};
+      this.cdr.markForCheck();
+    }
+  }
+
   getSubsystemKeys(user: UserSubsystemRolesDto): string[] {
     return Object.keys(user.subsystemRoles || {});
   }
@@ -218,6 +239,27 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     if (JSON.stringify(newCols) !== JSON.stringify(this.dynamicColumns)) {
       this.dynamicColumns = newCols;
       this.cdr.markForCheck();
+    }
+  }
+
+  private expandAllRows(): void {
+    this.expandedRows = Object.fromEntries(this.currentUsers.map(user => [user.email, true]));
+    this.cdr.markForCheck();
+  }
+
+  private saveAllExpanded(): void {
+    try {
+      localStorage.setItem(SubsystemUsersComponent.EXPANDED_STORAGE_KEY, String(this.allExpanded));
+    } catch {
+      // storage not available, the state is only kept until the page is left
+    }
+  }
+
+  private loadAllExpanded(): boolean {
+    try {
+      return localStorage.getItem(SubsystemUsersComponent.EXPANDED_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
     }
   }
 

@@ -69,6 +69,7 @@ import {ICON_REGISTRY} from '../../../shared/icons';
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   protected readonly icons = ICON_REGISTRY;
   private static readonly FILTER_STORAGE_KEY = 'users-overview-filter-terms';
+  private static readonly EXPANDED_STORAGE_KEY = 'users-overview-all-expanded';
 
   users$: Observable<UserSubsystemRolesDto[]>;
   totalRecords$: Observable<number>;
@@ -77,6 +78,8 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   currentFilterInput = '';
   searchTerm = '';
   expandedRows: { [s: string]: boolean } = {};
+  allExpanded = false;
+  private currentUsers: UserSubsystemRolesDto[] = [];
   dynamicColumns: { field: string; header: string }[] = [];
 
   pageSize = 25;
@@ -97,6 +100,13 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     this.users$ = this.store.select(selectPaginatedDashboardUsers);
     this.totalRecords$ = this.store.select(selectPaginatedDashboardUsersTotalRecords);
     this.dataLoading$ = this.store.select(selectPaginatedDashboardUsersLoading);
+    this.allExpanded = this.loadAllExpanded();
+    this.users$.pipe(takeUntil(this.destroy$)).subscribe(users => {
+      this.currentUsers = users ?? [];
+      if (this.allExpanded) {
+        this.expandAllRows();
+      }
+    });
     this.createBreadcrumbs();
     this.searchInput$.pipe(
       debounceTime(400),
@@ -194,6 +204,17 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
       });
   }
 
+  toggleExpandAll(): void {
+    this.allExpanded = !this.allExpanded;
+    this.saveAllExpanded();
+    if (this.allExpanded) {
+      this.expandAllRows();
+    } else {
+      this.expandedRows = {};
+      this.cdr.markForCheck();
+    }
+  }
+
   getSubsystemKeys(user: UserSubsystemRolesDto): string[] {
     return Object.keys(user.subsystemRoles || {});
   }
@@ -209,6 +230,27 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     if (JSON.stringify(newCols) !== JSON.stringify(this.dynamicColumns)) {
       this.dynamicColumns = newCols;
       this.cdr.markForCheck();
+    }
+  }
+
+  private expandAllRows(): void {
+    this.expandedRows = Object.fromEntries(this.currentUsers.map(user => [user.email, true]));
+    this.cdr.markForCheck();
+  }
+
+  private saveAllExpanded(): void {
+    try {
+      localStorage.setItem(UsersOverviewComponent.EXPANDED_STORAGE_KEY, String(this.allExpanded));
+    } catch {
+      // storage not available, the state is only kept until the page is left
+    }
+  }
+
+  private loadAllExpanded(): boolean {
+    try {
+      return localStorage.getItem(UsersOverviewComponent.EXPANDED_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
     }
   }
 
