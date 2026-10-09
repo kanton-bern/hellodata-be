@@ -96,6 +96,26 @@ class DashboardServiceTest {
         SecurityContextHolder.getContext().setAuthentication(hellodataAuthenticationToken);
     }
 
+    @Test
+    void toUploadErrorMessage_keepsOnlyTheReasonsOfARejectedUpload() {
+        String sidecarReply = """
+                Python script validation error:\s
+                zipfile input:  /tmp/file9227763367937860550
+                export path:  /tmp/unzip_export
+                temporary export path dashboard:  /tmp/unzip_export/_tmp_file9227763367937860550
+                subfolders ['dashboard_export_20261009T085023']
+                export path dashboard extended due to existing subfolder after unzip /tmp/unzip_export/_tmp_file9227763367937860550/dashboard_export_20261009T085023
+                [ charts ] is missing in export zip file : import file don`t match the check pattern
+                [ datasets ] is missing in export zip file : import file don`t match the check pattern
+                """;
+
+        assertThat(DashboardService.toUploadErrorMessage(sidecarReply)).isEqualTo(
+                "The uploaded file could not be imported: "
+                        + "[ charts ] is missing in export zip file : import file don`t match the check pattern; "
+                        + "[ datasets ] is missing in export zip file : import file don`t match the check pattern");
+        assertThat(DashboardService.toUploadErrorMessage(null)).isEqualTo("The uploaded file could not be imported");
+    }
+
     @AfterEach
     public void clearSecurityContext() {
         SecurityContextHolder.clearContext();
