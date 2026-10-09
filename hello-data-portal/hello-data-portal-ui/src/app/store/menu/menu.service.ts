@@ -35,7 +35,8 @@ import {
   selectCurrentContextRolesFilterOffNone,
   selectCurrentUserCommentPermissions,
   selectCurrentUserPermissions,
-  selectCurrentUserPermissionsLoaded
+  selectCurrentUserPermissionsLoaded,
+  selectSelectedLanguage
 } from "../auth/auth.selector";
 import {
   selectAvailableDataDomainItems,
@@ -68,6 +69,7 @@ interface MenuProcessingContext {
   availableDomainItems: any[];
   selectedDataDomain: any;
   commentPermissions: Record<string, CommentPermissions>;
+  selectedLanguage: string | null;
 }
 
 @Injectable({
@@ -123,11 +125,12 @@ export class MenuService {
       this._store.select(selectCurrentContextRolesFilterOffNone),
       this._store.select(selectAvailableDataDomainItems),
       this._store.select(selectSelectedDataDomain),
-      this._store.select(selectCurrentUserCommentPermissions)
+      this._store.select(selectCurrentUserCommentPermissions),
+      this._store.select(selectSelectedLanguage)
     ]).pipe(
       debounceTime(50),
       map(([myDashboards, myDocs,
-             appInfos, contextRoles, contextRolesNotNone, availableDomainItems, selectedDataDomain, commentPermissions]) => {
+             appInfos, contextRoles, contextRolesNotNone, availableDomainItems, selectedDataDomain, commentPermissions, selectedLanguage]) => {
         // If user has no roles other than NONE, return empty menu
         if (!contextRolesNotNone || contextRolesNotNone.length === 0) {
           return [];
@@ -140,7 +143,8 @@ export class MenuService {
           contextRoles,
           availableDomainItems,
           selectedDataDomain,
-          commentPermissions
+          commentPermissions,
+          selectedLanguage: selectedLanguage?.code ?? null
         };
         return filteredNavigationElements.map((item) => {
           if (item.routerLink && !(item.routerLink.startsWith("/"))) {
@@ -157,7 +161,7 @@ export class MenuService {
   private processMenuItem(menuItem: any, ctx: MenuProcessingContext): void {
     switch (menuItem.label) {
       case '@Dashboards':
-        menuItem.items = this.createMyDashboardsSubNav(ctx.myDashboards, ctx.appInfos, ctx.contextRoles, ctx.commentPermissions, ctx.selectedDataDomain);
+        menuItem.items = this.createMyDashboardsSubNav(ctx.myDashboards, ctx.appInfos, ctx.contextRoles, ctx.commentPermissions, ctx.selectedDataDomain, ctx.selectedLanguage);
         break;
       case '@Lineage':
         menuItem.items = this.createLineageDocsSubNav(ctx.myDocs, ctx.availableDomainItems);
@@ -274,11 +278,11 @@ export class MenuService {
     return filteredNavigationElements;
   }
 
-  private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>, selectedDataDomain: any) {
+  private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>, selectedDataDomain: any, selectedLanguage: string | null) {
     const myDashboards: any[] = [];
     myDashboards.push({id: 'dashboardList', label: '@Dashboard List', routerLink: 'my-dashboards'});
-    this.groupAndInsertDashboardMenuItems(dashboards, contextRoles, appInfos, myDashboards, commentPermissions);
-    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles, commentPermissions, selectedDataDomain);
+    this.groupAndInsertDashboardMenuItems(dashboards, contextRoles, appInfos, myDashboards, commentPermissions, selectedLanguage);
+    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles, commentPermissions, selectedDataDomain, selectedLanguage);
     myDashboards.push({
       id: 'externalDashboards',
       label: '@External dashboards',
@@ -304,7 +308,7 @@ export class MenuService {
     return myDashboards;
   }
 
-  private groupAndInsertDashboardMenuItems(dashboards: SupersetDashboard[], contextRoles: any[], appInfos: MetaInfoResource[], myDashboards: any[], commentPermissions: Record<string, CommentPermissions>) {
+  private groupAndInsertDashboardMenuItems(dashboards: SupersetDashboard[], contextRoles: any[], appInfos: MetaInfoResource[], myDashboards: any[], commentPermissions: Record<string, CommentPermissions>, selectedLanguage: string | null) {
     const groupedByInstance: Map<string, SupersetDashboard[]> = new Map<string, SupersetDashboard[]>();
     dashboards.forEach(db => {
       const contextName = db.contextName;
@@ -322,7 +326,7 @@ export class MenuService {
       dashboardEntries = [];
       const contextKey = contextDashboards[0]?.contextKey || '';
       if (this.displaySupersetLink(contextName, contextRoles)) {
-        this.addLinkToOpenSuperset(dashboardEntries, contextName, appInfos);
+        this.addLinkToOpenSuperset(dashboardEntries, contextName, appInfos, selectedLanguage);
       }
       this.addLinkToDomainComments(dashboardEntries, contextName, contextKey, commentPermissions);
       contextDashboards.forEach((db: SupersetDashboard) => {
@@ -336,11 +340,11 @@ export class MenuService {
     }
   }
 
-  private addLinkToOpenSuperset(dashboardEntries: any[], contextName: string, appInfos: MetaInfoResource[]) {
+  private addLinkToOpenSuperset(dashboardEntries: any[], contextName: string, appInfos: MetaInfoResource[], selectedLanguage: string | null) {
     dashboardEntries.push({
       id: 'openSupersetInstance_' + contextName,
       label: "@Superset Instanz öffnen",
-      url: this.getSupersetInstanceLink(contextName, appInfos),
+      url: this.getSupersetInstanceLink(contextName, appInfos, selectedLanguage),
       target: "_blank",
       requiredPermissions: ['DATA_ENG']
     });
@@ -360,7 +364,7 @@ export class MenuService {
     });
   }
 
-  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>, selectedDataDomain: any) {
+  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>, selectedDataDomain: any, selectedLanguage: string | null) {
     let supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
     if (selectedDataDomain && selectedDataDomain.id !== '') {
       supersets = supersets.filter(superset => superset.businessContextInfo?.subContext?.key === selectedDataDomain?.key);
@@ -371,7 +375,7 @@ export class MenuService {
       if (this.displaySupersetLink(contextName, contextRoles)) {
         if (myDashboards.filter(item => item.label === contextName).length === 0) {
           const items: any[] = [];
-          this.addLinkToOpenSuperset(items, contextName, appInfos);
+          this.addLinkToOpenSuperset(items, contextName, appInfos, selectedLanguage);
           this.addLinkToDomainComments(items, contextName, contextKey, commentPermissions);
           myDashboards.push({label: contextName, items});
         }
@@ -448,14 +452,17 @@ export class MenuService {
     return `${MenuService.LINEAGE_DOCS_DETAIL}${lineageDoc.contextKey}/${lineageDoc.name}/${urlEncodedProjectPath}`;
   }
 
-  private getSupersetInstanceLink(instanceName: string, appInfos: MetaInfoResource[]) {
+  private getSupersetInstanceLink(instanceName: string, appInfos: MetaInfoResource[], selectedLanguage: string | null) {
     const metaInfoResource = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET')
       .find(appInfo => appInfo.businessContextInfo.subContext?.name === instanceName);
     if (metaInfoResource) {
       this._openedSubsystemsService.rememberOpenedSubsystem(metaInfoResource.data.url + 'logout');
       const supersetUrl = metaInfoResource.data.url;
       const supersetLogoutUrl = supersetUrl + 'logout';
-      const supersetLoginUrl = supersetUrl + `login/keycloak?next=${supersetUrl}`;
+      // Superset's login view stores `lang` as the session locale, so the opened instance follows
+      // the portal language. The separator is encoded to stay inside the logout `redirect` value.
+      const langParam = selectedLanguage ? `lang=${selectedLanguage.slice(0, 2)}${encodeURIComponent('&')}` : '';
+      const supersetLoginUrl = supersetUrl + `login/keycloak?${langParam}next=${supersetUrl}`;
       return supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
     }
     return "#";
