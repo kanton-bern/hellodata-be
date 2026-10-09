@@ -100,6 +100,10 @@ export class AppEffects {
     if (error?.error?.message) {
       message = error.error.message;
     }
+    // Angular HttpClient error with an RFC 7807 problem detail body
+    else if (error?.error?.detail) {
+      message = error.error.detail;
+    }
     // Direct message property
     else if (error?.message) {
       message = error.message;

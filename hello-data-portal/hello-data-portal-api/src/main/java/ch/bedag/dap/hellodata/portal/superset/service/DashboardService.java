@@ -277,7 +277,29 @@ public class DashboardService {
             log.debug("[uploadDashboardsFile] Response received: {}", new String(reply.getData()));
         } else {
             log.warn("Reply is NOK, please verify the uploaded file: {}", responseContent);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, responseContent);
+            // The sidecar rejected the uploaded file (e.g. it is not a complete Superset export), so
+            // this is a client error - return 400 with the reason instead of a generic server error.
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, toUploadErrorMessage(responseContent));
         }
+    }
+
+    /**
+     * Strips the sidecar's diagnostic lines (temporary paths, unzip details) from a rejected upload reply,
+     * keeping only the lines that tell the user what is wrong with the file.
+     */
+    static String toUploadErrorMessage(String sidecarReply) {
+        List<String> reasons = sidecarReply == null ? List.of() : sidecarReply.lines()
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .filter(line -> !line.endsWith("validation error:"))
+                .filter(line -> !line.startsWith("zipfile input:"))
+                .filter(line -> !line.startsWith("export path"))
+                .filter(line -> !line.startsWith("temporary export path"))
+                .filter(line -> !line.startsWith("subfolders"))
+                .toList();
+        if (reasons.isEmpty()) {
+            return "The uploaded file could not be imported";
+        }
+        return "The uploaded file could not be imported: " + String.join("; ", reasons);
     }
 }
