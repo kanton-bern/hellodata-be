@@ -66,6 +66,10 @@ public class PdfLayoutEntity extends BaseEntity {
     @Column(length = 500)
     private String dashboardTitle;
 
+    /** Title printed on the PDF; blank = the dashboard title. */
+    @Column(length = 500)
+    private String title;
+
     @Column(nullable = false, length = 50)
     private String template;
 

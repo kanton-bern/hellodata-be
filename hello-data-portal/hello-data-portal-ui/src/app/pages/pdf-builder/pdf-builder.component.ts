@@ -157,6 +157,8 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   dashboardPickerValue = linkedSignal(() => this.selectedDashboard());
   /** Name of the layout being created/edited (manage mode). */
   layoutName = signal('');
+  /** Title printed on the PDF; empty = the dashboard title. Saved with the layout. */
+  pdfTitle = signal('');
   saving = signal(false);
   loadingLayout = signal(false);
   templates = signal<PdfTemplateRef[]>(PDF_TEMPLATES);
@@ -318,6 +320,11 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
         this.persist();
       }
     });
+  }
+
+  onTitleChange(title: string): void {
+    this.pdfTitle.set(title);
+    this.persist();
   }
 
   onTemplateChange(id: string): void {
@@ -691,7 +698,7 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     const request: PdfLayoutRequest = {
       instanceName: dashboard.instanceName,
       dashboardId: dashboard.id,
-      title: dashboard.dashboardTitle,
+      title: this.pdfTitle().trim() || dashboard.dashboardTitle,
       template: this.selectedTemplate(),
       items,
       force: this.freshData(),
@@ -799,6 +806,7 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedDashboard.set(dashboard);
     this.pdfExport.getCharts(dashboard.instanceName, dashboard.id).subscribe(c => this.charts.set(c));
     this.selectedTemplate.set(layout.template);
+    this.pdfTitle.set(layout.title ?? '');
     this.cells.set(layout.items.map(item => ({...item} as Cell)));
     const maxCellPage = this.cells().reduce((m, c) => Math.max(m, c.page), 0);
     this.pageCount.set(Math.max(1, layout.pageCount, maxCellPage + 1));
@@ -833,6 +841,7 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
       name,
       instanceName: dashboard.instanceName,
       dashboardId: dashboard.id,
+      title: this.pdfTitle().trim(),
       template: this.selectedTemplate(),
       pageCount: this.pageCount(),
       items: this.layoutItems(),
@@ -859,7 +868,7 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   cancelManage(): void {
     const dirty = this.editId
       ? this.hasUnsavedChanges() || this.layoutName().trim() !== (this.currentLayout()?.name ?? '')
-      : this.cells().length > 0 || this.layoutName().trim() !== '';
+      : this.cells().length > 0 || this.layoutName().trim() !== '' || this.pdfTitle().trim() !== '';
     if (!dirty) {
       this.router.navigate(['pdf-layouts']);
       return;
@@ -912,7 +921,9 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Everything a save would store, for detecting unsaved changes. Gridster moves/resizes cells in
    *  place, so this is computed on demand rather than as a signal. */
   private snapshot(): string {
-    return JSON.stringify({template: this.selectedTemplate(), pageCount: this.pageCount(), items: this.layoutItems()});
+    // The title is only included when set, so snapshots stored before it existed still match.
+    const title = this.pdfTitle().trim();
+    return JSON.stringify({template: this.selectedTemplate(), pageCount: this.pageCount(), items: this.layoutItems(), ...(title ? {title} : {})});
   }
 
   /** True when the canvas differs from the loaded/saved layout. */
@@ -1012,6 +1023,7 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
       instanceName: dashboard?.instanceName ?? null,
       dashboardId: dashboard?.id ?? null,
       template: this.selectedTemplate(),
+      title: this.pdfTitle(),
       pageCount: this.pageCount(),
       currentPage: this.currentPage(),
       cells: this.cells(),
@@ -1032,6 +1044,7 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
         instanceName: string | null;
         dashboardId: number | null;
         template?: string | null;
+        title?: string | null;
         pageCount?: number | null;
         currentPage?: number | null;
         cells: (Cell & {page?: number})[];
@@ -1048,6 +1061,7 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
       if (state.template) {
         this.selectedTemplate.set(state.template);
       }
+      this.pdfTitle.set(state.title ?? '');
       // pageCount is at least 1 and must cover the furthest page any restored cell lives on.
       const maxCellPage = this.cells().reduce((m, c) => Math.max(m, c.page), 0);
       this.pageCount.set(Math.max(1, state.pageCount ?? 1, maxCellPage + 1));

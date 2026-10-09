@@ -46,6 +46,9 @@ public class PdfLayoutSaveDto {
     private String instanceName;
     @Min(1)
     private long dashboardId;
+    /** Title printed on the PDF; blank = the dashboard title. */
+    @Size(max = 500)
+    private String title;
     private String template;
     private int pageCount;
     private List<PdfLayoutItem> items;

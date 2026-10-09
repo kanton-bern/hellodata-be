@@ -72,6 +72,7 @@ import java.util.stream.Collectors;
 public class PdfLayoutService {
 
     static final int MAX_NAME_LENGTH = 255;
+    static final int MAX_TITLE_LENGTH = 500;
     static final int MAX_PAGES = 50;
     static final int MAX_TEXT_LENGTH = 100_000;
 
@@ -259,6 +260,7 @@ public class PdfLayoutService {
         entity.setInstanceName(dashboard.getInstanceName());
         entity.setDashboardId(saveDto.getDashboardId());
         entity.setDashboardTitle(dashboard.getDashboardTitle());
+        entity.setTitle(StringUtils.trimToNull(saveDto.getTitle()));
         entity.setTemplate(saveDto.getTemplate());
         entity.setPageCount(saveDto.getPageCount());
         entity.setGridCols(ReportTemplate.GRID_COLS);
@@ -273,6 +275,9 @@ public class PdfLayoutService {
             errors.add("Name is required");
         } else if (saveDto.getName().trim().length() > MAX_NAME_LENGTH) {
             errors.add("Name must not exceed " + MAX_NAME_LENGTH + " characters");
+        }
+        if (StringUtils.length(StringUtils.trim(saveDto.getTitle())) > MAX_TITLE_LENGTH) {
+            errors.add("Title must not exceed " + MAX_TITLE_LENGTH + " characters");
         }
         if (StringUtils.isBlank(saveDto.getInstanceName()) || saveDto.getDashboardId() <= 0) {
             errors.add("Dashboard is required");
@@ -345,6 +350,7 @@ public class PdfLayoutService {
         dto.setInstanceName(entity.getInstanceName());
         dto.setDashboardId(entity.getDashboardId());
         dto.setDashboardTitle(entity.getDashboardTitle());
+        dto.setTitle(entity.getTitle());
         dto.setTemplate(entity.getTemplate());
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setModifiedDate(entity.getModifiedDate());

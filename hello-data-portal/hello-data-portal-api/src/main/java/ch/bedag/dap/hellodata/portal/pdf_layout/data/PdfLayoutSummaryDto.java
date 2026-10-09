@@ -42,6 +42,8 @@ public class PdfLayoutSummaryDto {
     private String instanceName;
     private long dashboardId;
     private String dashboardTitle;
+    /** Title printed on the PDF; blank = the dashboard title. */
+    private String title;
     private String template;
     @JsonSerialize(using = LocalDateTimeToMillisSerializer.class)
     private LocalDateTime createdDate;

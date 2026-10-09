@@ -92,6 +92,8 @@ export interface PdfLayoutSummary {
   instanceName: string;
   dashboardId: number;
   dashboardTitle?: string;
+  /** Title printed on the PDF; empty = the dashboard title. */
+  title?: string;
   template: string;
   createdDate?: number;
   modifiedDate?: number;
@@ -116,6 +118,7 @@ export interface PdfLayoutSaveRequest {
   name: string;
   instanceName: string;
   dashboardId: number;
+  title?: string;
   template: string;
   pageCount: number;
   items: PdfSavedLayoutItem[];

@@ -210,6 +210,7 @@
   "@PDF export failed": "PDF export failed. It may have timed out — please try again.",
   "@Charts": "Charts",
   "@Blocks": "Blocks",
+  "@PDF title": "PDF title",
   "@Template": "Template",
   "@Choose a dashboard": "Choose a dashboard...",
   "@Drag a chart onto the grid": "Drag a chart onto the grid.",

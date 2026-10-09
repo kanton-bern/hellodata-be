@@ -207,6 +207,7 @@
   "@PDF export failed": "PDF-Export fehlgeschlagen. Möglicherweise ist eine Zeitüberschreitung aufgetreten – bitte erneut versuchen.",
   "@Charts": "Diagramme",
   "@Blocks": "Blöcke",
+  "@PDF title": "PDF-Titel",
   "@Template": "Vorlage",
   "@Choose a dashboard": "Dashboard auswählen...",
   "@Drag a chart onto the grid": "Ziehen Sie ein Diagramm auf das Raster.",

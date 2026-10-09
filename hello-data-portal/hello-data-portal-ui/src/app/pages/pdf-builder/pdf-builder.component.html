@@ -86,6 +86,12 @@
     </ul>
 
     <div class="actions">
+      <label class="field title-field">
+        <span>{{ '@PDF title' | transloco }}</span>
+        <input pInputText type="text" maxlength="500" [ngModel]="pdfTitle()" (ngModelChange)="onTitleChange($event)"
+               [placeholder]="selectedDashboard()?.dashboardTitle ?? ''"
+               [attr.aria-label]="'@PDF title' | transloco"/>
+      </label>
       <label class="field">
         <span>{{ '@Template' | transloco }}</span>
         <p-select

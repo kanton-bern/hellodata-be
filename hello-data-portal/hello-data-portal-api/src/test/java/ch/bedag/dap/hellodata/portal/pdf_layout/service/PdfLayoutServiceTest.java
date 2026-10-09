@@ -132,6 +132,40 @@ class PdfLayoutServiceTest {
     }
 
     @Test
+    void createLayout_storesTrimmedTitleAndBlankAsNone() {
+        // given
+        when(dashboardService.fetchMyDashboards()).thenReturn(Set.of(dashboard()));
+        when(pdfLayoutRepository.saveAndFlush(any(PdfLayoutEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        PdfLayoutSaveDto withTitle = saveDto("Monthly");
+        withTitle.setTitle("  Monthly sales report  ");
+        PdfLayoutSaveDto blankTitle = saveDto("Weekly");
+        blankTitle.setTitle("   ");
+
+        // when
+        PdfLayoutDto result = pdfLayoutService.createLayout(withTitle);
+        PdfLayoutDto blankResult = pdfLayoutService.createLayout(blankTitle);
+
+        // then
+        assertEquals("Monthly sales report", result.getTitle());
+        assertNull(blankResult.getTitle());
+    }
+
+    @Test
+    void createLayout_rejectsTooLongTitle() {
+        // given
+        PdfLayoutSaveDto dto = saveDto("Monthly");
+        dto.setTitle("x".repeat(PdfLayoutService.MAX_TITLE_LENGTH + 1));
+
+        // when
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> pdfLayoutService.createLayout(dto));
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertNotNull(ex.getReason());
+        assertTrue(ex.getReason().contains("Title must not exceed"));
+    }
+
+    @Test
     void createLayout_rejectsDuplicateName() {
         // given
         PdfLayoutEntity existing = entity(List.of());
