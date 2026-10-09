@@ -186,12 +186,13 @@ public class UserController {
                         firstLogin, false
                 );
             }
-            // Authenticated but still no portal account (auto-provisioning disabled): the frontend
-            // shows the onboarding state while provisioning is flagged. An existing account with no
-            // permissions is not provisioning - it gets the regular "permission missing" page.
+            // Authenticated but still no portal account. Only flag provisioning (onboarding overlay)
+            // when auto-provisioning is enabled - otherwise the user was not invited and will never be
+            // provisioned, so they must see the regular "permission missing" page with the admin list.
+            boolean provisioning = systemProperties.isAutoProvisionViewerOnLogin();
             return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), permissions, false,
                     helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
-                    false, Locale.ROOT, true, true);
+                    false, Locale.ROOT, provisioning, provisioning);
         } catch (ClientErrorException e) {
             log.error("Error on getting user sessions", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));
