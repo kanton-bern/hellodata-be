@@ -254,6 +254,8 @@
   "@and": "and",
   "@No layout": "No layout",
   "@Load the layout and discard your changes?": "Loading \"{{name}}\" replaces the canvas and discards your changes. Continue?",
+  "@Clear the export and discard your changes?": "Clearing the canvas discards your changes. Continue?",
+  "@Start an empty export": "Start an empty export",
   "@Switch the dashboard and discard your changes?": "Switching the dashboard clears the canvas and discards your changes. Continue?",
   "@Now editing your own layout": "You are now editing your own layout - \"{{name}}\" stays unchanged.",
   "@PDF layouts": "PDF layouts",

@@ -254,6 +254,8 @@
   "@and": "et",
   "@No layout": "Aucune mise en page",
   "@Load the layout and discard your changes?": "Charger \"{{name}}\" remplace la zone de travail et abandonne vos modifications. Continuer ?",
+  "@Clear the export and discard your changes?": "Vider la zone de travail abandonne vos modifications. Continuer ?",
+  "@Start an empty export": "Commencer un export vide",
   "@Switch the dashboard and discard your changes?": "Changer de tableau de bord vide la zone de travail et abandonne vos modifications. Continuer ?",
   "@Now editing your own layout": "Vous modifiez maintenant votre propre mise en page - \"{{name}}\" reste inchangée.",
   "@PDF layouts": "Mises en page PDF",

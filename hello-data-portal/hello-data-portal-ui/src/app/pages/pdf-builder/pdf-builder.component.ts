@@ -752,12 +752,12 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Load a saved layout onto the canvas. The backend refuses it when its dashboard no longer exists
    *  and drops charts that were removed from the dashboard (reported as a warning here). */
-  /** Layout picked by the user. "No layout" keeps the canvas as an own layout; loading a saved one
-   *  replaces the canvas, so confirm first when that would discard own changes. */
+  /** Layout picked by the user. "No layout" starts an empty export; loading a saved one replaces the
+   *  canvas. Either way confirm first when that would discard own changes. */
   onLayoutPick(id: string): void {
     if (id === NO_LAYOUT) {
-      this.detachLayout();
-      this.persist();
+      this.layoutPickerValue.set(NO_LAYOUT);
+      this.clearExport(() => this.layoutPickerValue.set(this.currentLayout()?.id ?? NO_LAYOUT));
       return;
     }
     if (id === this.currentLayout()?.id || !this.hasPendingChanges()) {
@@ -770,6 +770,25 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.confirmDiscard('@Load the layout and discard your changes?', {name},
       () => this.onSavedLayoutSelect(id),
       () => this.layoutPickerValue.set(previous));
+  }
+
+  /** True when there is anything to clear: tiles, extra pages, a title or a selected layout. */
+  canClearExport = computed(() => this.cells().length > 0 || this.pageCount() > 1 || this.pdfTitle().trim() !== ''
+    || this.currentLayout() !== null);
+
+  /** Export mode: back to an empty export without a layout, after confirming when own changes would be lost. */
+  clearExport(onCancel?: () => void): void {
+    const clear = () => {
+      this.detachLayout();
+      this.resetPages();
+      this.pdfTitle.set('');
+      this.persist();
+    };
+    if (!this.hasPendingChanges()) {
+      clear();
+      return;
+    }
+    this.confirmDiscard('@Clear the export and discard your changes?', {}, clear, onCancel);
   }
 
   onSavedLayoutSelect(id: string | null, onGone?: () => void): void {

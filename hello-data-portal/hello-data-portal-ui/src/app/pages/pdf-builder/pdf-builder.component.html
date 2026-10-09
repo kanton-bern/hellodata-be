@@ -30,6 +30,10 @@
         <p-button (click)="openLayoutManagement()" (keydown.enter)="openLayoutManagement()"
                   [icon]="icons.ACTION_EDIT.class" [label]="'@Manage layouts' | transloco"
                   severity="secondary" size="small" pRipple/>
+        <p-button (click)="clearExport()" (keydown.enter)="clearExport()" [disabled]="!canClearExport()"
+                  [icon]="icons.ACTION_FILTER_CLEAR.class" [label]="'@Clear' | transloco"
+                  [pTooltip]="'@Start an empty export' | transloco"
+                  severity="secondary" size="small" pRipple/>
       </div>
       @if (currentLayout()) {
         <p class="hint local-hint">{{ '@Changes here are only used for your export' | transloco }}</p>

@@ -251,6 +251,8 @@
   "@and": "und",
   "@No layout": "Kein Layout",
   "@Load the layout and discard your changes?": "Das Laden von \"{{name}}\" ersetzt die Arbeitsfläche und verwirft Ihre Änderungen. Fortfahren?",
+  "@Clear the export and discard your changes?": "Das Leeren der Arbeitsfläche verwirft Ihre Änderungen. Fortfahren?",
+  "@Start an empty export": "Leeren Export beginnen",
   "@Switch the dashboard and discard your changes?": "Der Wechsel des Dashboards leert die Arbeitsfläche und verwirft Ihre Änderungen. Fortfahren?",
   "@Now editing your own layout": "Sie bearbeiten jetzt Ihr eigenes Layout - \"{{name}}\" bleibt unverändert.",
   "@PDF layouts": "PDF-Layouts",
