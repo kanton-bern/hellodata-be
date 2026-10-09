@@ -234,7 +234,7 @@
     <label class="field name-field">
       <span>{{ '@Layout name' | transloco }}</span>
       @if (saveAsOpen()) {
-        <input pInputText type="text" maxlength="255" pAutoFocus [autofocus]="true" [ngModel]="saveAsName()" (ngModelChange)="saveAsName.set($event)"
+        <input pInputText type="text" maxlength="255" [pAutoFocus]="true" [ngModel]="saveAsName()" (ngModelChange)="saveAsName.set($event)"
                (keydown.enter)="saveAsLayout()" (keydown.escape)="closeSaveAs()"
                [attr.aria-label]="'@Layout name' | transloco"/>
       }
