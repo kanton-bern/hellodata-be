@@ -210,6 +210,8 @@
   "@PDF export failed": "Échec de l'export PDF. Le délai a peut-être été dépassé — veuillez réessayer.",
   "@Charts": "Graphiques",
   "@Blocks": "Blocs",
+  "@Save as layout": "Enregistrer comme mise en page",
+  "@Save as layout hint": "Enregistre le canevas actuel comme nouvelle mise en page, partagée avec toutes les personnes ayant accès à ce tableau de bord.",
   "@PDF title": "Titre du PDF",
   "@Template": "Modèle",
   "@Choose a dashboard": "Choisir un tableau de bord...",

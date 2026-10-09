@@ -207,6 +207,8 @@
   "@PDF export failed": "PDF-Export fehlgeschlagen. Möglicherweise ist eine Zeitüberschreitung aufgetreten – bitte erneut versuchen.",
   "@Charts": "Diagramme",
   "@Blocks": "Blöcke",
+  "@Save as layout": "Als Layout speichern",
+  "@Save as layout hint": "Speichert die aktuelle Arbeitsfläche als neues Layout, sichtbar für alle mit Zugriff auf dieses Dashboard.",
   "@PDF title": "PDF-Titel",
   "@Template": "Vorlage",
   "@Choose a dashboard": "Dashboard auswählen...",

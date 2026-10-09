@@ -210,6 +210,8 @@
   "@PDF export failed": "PDF export failed. It may have timed out — please try again.",
   "@Charts": "Charts",
   "@Blocks": "Blocks",
+  "@Save as layout": "Save as layout",
+  "@Save as layout hint": "Saves the current canvas as a new layout, shared with everyone who can access this dashboard.",
   "@PDF title": "PDF title",
   "@Template": "Template",
   "@Choose a dashboard": "Choose a dashboard...",

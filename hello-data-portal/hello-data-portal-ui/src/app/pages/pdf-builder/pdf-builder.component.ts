@@ -35,6 +35,7 @@ import {Ripple} from "primeng/ripple";
 import {Tooltip} from "primeng/tooltip";
 import {Editor} from "primeng/editor";
 import {InputText} from "primeng/inputtext";
+import {AutoFocus} from "primeng/autofocus";
 import {ConfirmationService, PrimeTemplate} from "primeng/api";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {TranslocoPipe, TranslocoService} from "@jsverse/transloco";
@@ -106,7 +107,7 @@ const PAGE_ROWS = 4;
 @Component({
   selector: 'app-pdf-builder',
   standalone: true,
-  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, PrimeTemplate, Editor, InputText, TranslocoPipe],
+  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, PrimeTemplate, Editor, InputText, AutoFocus, TranslocoPipe],
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
@@ -160,6 +161,9 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Title printed on the PDF; empty = the dashboard title. Saved with the layout. */
   pdfTitle = signal('');
   saving = signal(false);
+  /** Export mode: the "Save as layout" dialog and the name typed into it. */
+  saveAsOpen = signal(false);
+  saveAsName = signal('');
   loadingLayout = signal(false);
   templates = signal<PdfTemplateRef[]>(PDF_TEMPLATES);
   selectedTemplate = signal<string>('portrait');
@@ -859,6 +863,53 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: err => {
         this.saving.set(false);
+        this.store.dispatch(showError({error: err}));
+      },
+    });
+  }
+
+  /** Export mode: ask for a name to save the current canvas as a new shared layout. */
+  openSaveAs(): void {
+    if (this.mode !== 'export' || this.selectedDashboard() === null || this.cells().length === 0) {
+      return;
+    }
+    this.saveAsName.set('');
+    this.saveAsOpen.set(true);
+  }
+
+  closeSaveAs(): void {
+    this.saveAsOpen.set(false);
+  }
+
+  /** Export mode: save the canvas as a new layout and select it, so it is no longer an own canvas. */
+  saveAsLayout(): void {
+    const dashboard = this.selectedDashboard();
+    const name = this.saveAsName().trim();
+    if (this.mode !== 'export' || dashboard == null || !name || this.saving()) {
+      return;
+    }
+    const request: PdfLayoutSaveRequest = {
+      name,
+      instanceName: dashboard.instanceName,
+      dashboardId: dashboard.id,
+      title: this.pdfTitle().trim(),
+      template: this.selectedTemplate(),
+      pageCount: this.pageCount(),
+      items: this.layoutItems(),
+    };
+    this.saving.set(true);
+    this.pdfExport.createLayout(request).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: saved => {
+        this.saving.set(false);
+        this.saveAsOpen.set(false);
+        this.savedLayouts.update(layouts => [...layouts.filter(l => l.id !== saved.id), saved]
+          .sort((a, b) => a.name.localeCompare(b.name)));
+        this.attachLayout(saved);
+        this.persist();
+        this.store.dispatch(showSuccess({message: '@Layout saved', interpolateParams: {name: saved.name}}));
+      },
+      error: err => {
+        this.saving.set(false);   // keep the dialog open, e.g. to pick another name on a conflict
         this.store.dispatch(showError({error: err}));
       },
     });

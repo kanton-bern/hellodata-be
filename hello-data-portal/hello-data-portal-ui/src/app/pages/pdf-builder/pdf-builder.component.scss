@@ -343,6 +343,10 @@ gridster {
   box-sizing: border-box;
 }
 
+.save-as-dialog {
+  width: min(440px, 92vw);
+}
+
 .editor-dialog h3 {
   margin: 0 0 12px;
 }

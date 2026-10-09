@@ -125,6 +125,10 @@
                   [icon]="icons.ACTION_FILE_EXPORT.class"
                   [label]="(exporting() ? '@Exporting' : '@Export PDF') | transloco"
                   styleClass="w-full" pRipple/>
+        <p-button (click)="openSaveAs()" (keydown.enter)="openSaveAs()"
+                  [disabled]="selectedDashboard() === null || cells().length === 0 || saving()"
+                  [icon]="icons.ACTION_SAVE.class" [label]="'@Save as layout' | transloco"
+                  severity="secondary" styleClass="w-full" pRipple/>
         @if (anyPreviewLoading()) {
           <small class="export-hint">{{ '@Export is enabled once all chart previews have loaded' | transloco }}</small>
         }
@@ -222,6 +226,29 @@
               [icon]="icons.ACTION_UNDO.class" [label]="'@Discard changes' | transloco" severity="danger"/>
   </ng-template>
 </p-confirmDialog>
+
+<div class="editor-backdrop" [class.open]="saveAsOpen()">
+  <div class="editor-dialog save-as-dialog" role="dialog" aria-modal="true">
+    <h3>{{ '@Save as layout' | transloco }}</h3>
+    <p class="hint">{{ '@Save as layout hint' | transloco }}</p>
+    <label class="field name-field">
+      <span>{{ '@Layout name' | transloco }}</span>
+      @if (saveAsOpen()) {
+        <input pInputText type="text" maxlength="255" pAutoFocus [autofocus]="true" [ngModel]="saveAsName()" (ngModelChange)="saveAsName.set($event)"
+               (keydown.enter)="saveAsLayout()" (keydown.escape)="closeSaveAs()"
+               [attr.aria-label]="'@Layout name' | transloco"/>
+      }
+    </label>
+    <div class="editor-actions">
+      <p-button (click)="closeSaveAs()" (keydown.enter)="closeSaveAs()"
+                [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"
+                severity="secondary" pRipple/>
+      <p-button (click)="saveAsLayout()" (keydown.enter)="saveAsLayout()"
+                [disabled]="!saveAsName().trim() || saving()" [loading]="saving()"
+                [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco" pRipple/>
+    </div>
+  </div>
+</div>
 
 <div class="editor-backdrop" [class.open]="editorOpen()">
   <div class="editor-dialog">
