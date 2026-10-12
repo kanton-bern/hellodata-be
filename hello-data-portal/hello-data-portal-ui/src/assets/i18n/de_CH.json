@@ -210,6 +210,7 @@
   "@Save as layout": "Als Layout speichern",
   "@Save as layout hint": "Speichert die aktuelle Arbeitsfläche als neues Layout, sichtbar für alle mit Zugriff auf dieses Dashboard.",
   "@PDF title": "PDF-Titel",
+  "@PDF title tooltip": "Überschreibt den Standardtitel (den Dashboard-Namen) im exportierten PDF.",
   "@Template": "Vorlage",
   "@Choose a dashboard": "Dashboard auswählen...",
   "@Drag a chart onto the grid": "Ziehen Sie ein Diagramm auf das Raster.",

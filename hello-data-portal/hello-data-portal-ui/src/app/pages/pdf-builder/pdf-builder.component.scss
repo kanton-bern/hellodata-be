@@ -71,16 +71,36 @@
 
 .layout-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin: 8px 0 12px;
 }
 
-.layout-actions p-button:first-child {
-  flex: 1;
+// Let the buttons share the row and wrap onto a new line when the translated labels do not fit,
+// instead of overflowing into each other.
+.layout-actions p-button {
+  flex: 1 1 auto;
+  min-width: 0;
+
+  ::ng-deep .p-button {
+    width: 100%;
+    white-space: nowrap;
+  }
 }
 
-.layout-actions p-button {
-  white-space: nowrap;
+.title-field {
+  margin-top: 12px;
+}
+
+.field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field-info {
+  color: var(--p-text-muted-color);
+  cursor: help;
 }
 
 .name-field input,

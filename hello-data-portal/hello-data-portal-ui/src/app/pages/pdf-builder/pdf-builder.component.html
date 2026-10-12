@@ -54,6 +54,18 @@
         styleClass="w-full"/>
     </label>
 
+    <label class="field title-field">
+      <span class="field-label">
+        {{ '@PDF title' | transloco }}
+        <i [class]="icons.STATUS_INFO.class" class="field-info" aria-hidden="true"
+           [pTooltip]="'@PDF title tooltip' | transloco" tooltipPosition="right"></i>
+      </span>
+      <input pInputText type="text" maxlength="500" [ngModel]="pdfTitle()" (ngModelChange)="onTitleChange($event)"
+             [placeholder]="selectedDashboard()?.dashboardTitle ?? ''"
+             [attr.aria-label]="'@PDF title' | transloco"
+             [attr.aria-description]="'@PDF title tooltip' | transloco"/>
+    </label>
+
     <h3>
       <button type="button" class="section-toggle" (click)="toggleCharts()"
               [attr.aria-expanded]="chartsExpanded()" aria-controls="pdf-builder-charts">
@@ -90,12 +102,6 @@
     </ul>
 
     <div class="actions">
-      <label class="field title-field">
-        <span>{{ '@PDF title' | transloco }}</span>
-        <input pInputText type="text" maxlength="500" [ngModel]="pdfTitle()" (ngModelChange)="onTitleChange($event)"
-               [placeholder]="selectedDashboard()?.dashboardTitle ?? ''"
-               [attr.aria-label]="'@PDF title' | transloco"/>
-      </label>
       <label class="field">
         <span>{{ '@Template' | transloco }}</span>
         <p-select

@@ -213,6 +213,7 @@
   "@Save as layout": "Enregistrer comme mise en page",
   "@Save as layout hint": "Enregistre le canevas actuel comme nouvelle mise en page, partagée avec toutes les personnes ayant accès à ce tableau de bord.",
   "@PDF title": "Titre du PDF",
+  "@PDF title tooltip": "Remplace le titre par défaut (le nom du tableau de bord) dans le PDF exporté.",
   "@Template": "Modèle",
   "@Choose a dashboard": "Choisir un tableau de bord...",
   "@Drag a chart onto the grid": "Faites glisser un graphique sur la grille.",

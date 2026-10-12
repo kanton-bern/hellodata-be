@@ -213,6 +213,7 @@
   "@Save as layout": "Save as layout",
   "@Save as layout hint": "Saves the current canvas as a new layout, shared with everyone who can access this dashboard.",
   "@PDF title": "PDF title",
+  "@PDF title tooltip": "Overrides the default title (the dashboard name) shown in the exported PDF.",
   "@Template": "Template",
   "@Choose a dashboard": "Choose a dashboard...",
   "@Drag a chart onto the grid": "Drag a chart onto the grid.",
