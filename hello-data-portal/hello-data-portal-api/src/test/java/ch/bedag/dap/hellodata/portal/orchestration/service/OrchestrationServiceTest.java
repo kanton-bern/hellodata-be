@@ -37,21 +37,24 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineIns
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineInstanceState;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
 import ch.bedag.dap.hellodata.portal.orchestration.data.PipelineDto;
+import ch.bedag.dap.hellodata.portal.role.service.AirflowKeycloakRoleService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,7 +65,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class OrchestrationServiceTest {
 
-    @InjectMocks
     private OrchestrationService orchestrationService;
 
     @Mock
@@ -70,6 +72,14 @@ class OrchestrationServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private AirflowKeycloakRoleService airflowKeycloakRoleService;
+
+    @BeforeEach
+    void setUp() {
+        orchestrationService = new OrchestrationService(metaInfoResourceService, userRepository, airflowKeycloakRoleService, true, List.of("PROD"), List.of());
+    }
 
     @Test
     void testGetAllPipelines() {
@@ -184,5 +194,140 @@ class OrchestrationServiceTest {
         // then
         assertTrue(pipelines.isEmpty());
     }
-}
 
+    @Test
+    void testGetAllPipelinesShowsOnlyVisibleTagged() {
+        // given
+        UUID currentUserId = mockUserWithContextKeys(List.of("CONTEXT_KEY"));
+        mockAirflowPipelines(
+                pipeline("prod_dag", "/CONTEXT_KEY/", List.of("prod", "CONTEXT_KEY")),
+                pipeline("dev_dag", "/CONTEXT_KEY/", List.of("DEV", "CONTEXT_KEY")),
+                pipeline("untagged_dag", "/CONTEXT_KEY/", null));
+
+        // when
+        List<PipelineDto> pipelines = getAllPipelinesAs(currentUserId, true, List.of("PROD"), List.of());
+
+        // then
+        assertEquals(List.of("prod_dag"), pipelines.stream().map(PipelineDto::getId).toList());
+    }
+
+    @Test
+    void testGetAllPipelinesShowsAllWhenDataDomainHasNoVisibleTag() {
+        // given
+        UUID currentUserId = mockUserWithContextKeys(List.of("CONTEXT_KEY", "OTHER_KEY"));
+        mockAirflowPipelines(
+                pipeline("prod_dag", "/CONTEXT_KEY/", List.of("PROD")),
+                pipeline("dev_dag", "/CONTEXT_KEY/", List.of("DEV")),
+                pipeline("other_dag_1", "/OTHER_KEY/", List.of("DEV")),
+                pipeline("other_dag_2", "/OTHER_KEY/", null));
+
+        // when
+        List<PipelineDto> pipelines = getAllPipelinesAs(currentUserId, true, List.of("PROD"), List.of());
+
+        // then
+        assertEquals(List.of("prod_dag", "other_dag_1", "other_dag_2"), pipelines.stream().map(PipelineDto::getId).toList());
+    }
+
+    @Test
+    void testGetAllPipelinesHidesHiddenTagsEvenWithoutVisibleTags() {
+        // given
+        UUID currentUserId = mockUserWithContextKeys(List.of("CONTEXT_KEY"));
+        mockAirflowPipelines(
+                pipeline("prod_dag", "/CONTEXT_KEY/", List.of("PROD")),
+                pipeline("dev_dag", "/CONTEXT_KEY/", List.of("dev")),
+                pipeline("untagged_dag", "/CONTEXT_KEY/", null));
+
+        // when
+        List<PipelineDto> pipelines = getAllPipelinesAs(currentUserId, true, List.of(), List.of("DEV"));
+
+        // then
+        assertEquals(List.of("prod_dag", "untagged_dag"), pipelines.stream().map(PipelineDto::getId).toList());
+    }
+
+    @Test
+    void testGetAllPipelinesHiddenTagWinsOverVisibleTag() {
+        // given
+        UUID currentUserId = mockUserWithContextKeys(List.of("CONTEXT_KEY"));
+        mockAirflowPipelines(
+                pipeline("prod_dag", "/CONTEXT_KEY/", List.of("PROD")),
+                pipeline("prod_debug_dag", "/CONTEXT_KEY/", List.of("PROD", "DEBUG")),
+                pipeline("other_dag", "/CONTEXT_KEY/", List.of("SUSA")));
+
+        // when
+        List<PipelineDto> pipelines = getAllPipelinesAs(currentUserId, true, List.of("PROD", "PRODUCTION"), List.of("DEBUG"));
+
+        // then
+        assertEquals(List.of("prod_dag"), pipelines.stream().map(PipelineDto::getId).toList());
+    }
+
+    @Test
+    void testGetAllPipelinesShowsAllWhenNoTagsConfigured() {
+        // given
+        UUID currentUserId = mockUserWithContextKeys(List.of("CONTEXT_KEY"));
+        mockAirflowPipelines(
+                pipeline("prod_dag", "/CONTEXT_KEY/", List.of("PROD")),
+                pipeline("dev_dag", "/CONTEXT_KEY/", List.of("DEV")));
+
+        // when
+        List<PipelineDto> pipelines = getAllPipelinesAs(currentUserId, true, List.of(""), List.of());
+
+        // then
+        assertEquals(List.of("prod_dag", "dev_dag"), pipelines.stream().map(PipelineDto::getId).toList());
+    }
+
+    @Test
+    void testGetAllPipelinesShowsAllWhenTagFilterDisabled() {
+        // given
+        UUID currentUserId = mockUserWithContextKeys(List.of("CONTEXT_KEY"));
+        mockAirflowPipelines(
+                pipeline("prod_dag", "/CONTEXT_KEY/", List.of("PROD")),
+                pipeline("dev_dag", "/CONTEXT_KEY/", List.of("DEV")));
+
+        // when
+        List<PipelineDto> pipelines = getAllPipelinesAs(currentUserId, false, List.of("PROD"), List.of("DEV"));
+
+        // then
+        assertEquals(List.of("prod_dag", "dev_dag"), pipelines.stream().map(PipelineDto::getId).toList());
+    }
+
+    private UUID mockUserWithContextKeys(List<String> contextKeys) {
+        UUID currentUserId = UUID.randomUUID();
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(currentUserId);
+        Set<UserContextRoleEntity> contextRoles = new LinkedHashSet<>();
+        for (String contextKey : contextKeys) {
+            RoleEntity roleEntity = new RoleEntity();
+            roleEntity.setName(HdRoleName.DATA_DOMAIN_VIEWER);
+            roleEntity.setContextType(HdContextType.DATA_DOMAIN);
+            UserContextRoleEntity contextRoleEntity = new UserContextRoleEntity();
+            contextRoleEntity.setRole(roleEntity);
+            contextRoleEntity.setContextKey(contextKey);
+            contextRoles.add(contextRoleEntity);
+        }
+        userEntity.setContextRoles(contextRoles);
+        when(userRepository.getByIdOrAuthId(currentUserId.toString())).thenReturn(userEntity);
+        return currentUserId;
+    }
+
+    private void mockAirflowPipelines(Pipeline... pipelines) {
+        when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class)).thenReturn(
+                List.of(new PipelineResource("instanceName", List.of(pipelines))));
+    }
+
+    private Pipeline pipeline(String id, String fileLocation, List<String> tags) {
+        return Pipeline.builder()
+                .id(id)
+                .fileLocation(fileLocation)
+                .tags(tags)
+                .lastInstance(new PipelineInstance(id, "123", null, null, PipelineInstanceState.SUCCESS))
+                .build();
+    }
+
+    private List<PipelineDto> getAllPipelinesAs(UUID currentUserId, boolean tagFilterEnabled, List<String> visibleTags, List<String> hiddenTags) {
+        OrchestrationService service = new OrchestrationService(metaInfoResourceService, userRepository, airflowKeycloakRoleService, tagFilterEnabled, visibleTags, hiddenTags);
+        try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::getCurrentUserId).thenReturn(currentUserId);
+            return service.getAllPipelines();
+        }
+    }
+}

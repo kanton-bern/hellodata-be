@@ -31,28 +31,53 @@ import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.Pipeline;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
 import ch.bedag.dap.hellodata.portal.orchestration.data.PipelineDto;
 import ch.bedag.dap.hellodata.portal.role.service.AirflowKeycloakRoleService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 @Log4j2
-@AllArgsConstructor
 public class OrchestrationService {
     private final MetaInfoResourceService metaInfoResourceService;
     private final UserRepository userRepository;
     private final AirflowKeycloakRoleService airflowKeycloakRoleService;
+    // when false, all DAGs are shown in the sidebar status regardless of their tags
+    private final boolean tagFilterEnabled;
+    // DAG tags to show in the sidebar status (e.g. PROD); empty shows all DAGs
+    private final List<String> visibleTags;
+    // DAG tags to always hide from the sidebar status (e.g. DEV)
+    private final List<String> hiddenTags;
+
+    public OrchestrationService(MetaInfoResourceService metaInfoResourceService, UserRepository userRepository,
+                                AirflowKeycloakRoleService airflowKeycloakRoleService,
+                                @Value("${hello-data.pipelines.tag-filter.enabled:true}") boolean tagFilterEnabled,
+                                @Value("${hello-data.pipelines.tag-filter.visible-tags:PROD}") List<String> visibleTags,
+                                @Value("${hello-data.pipelines.tag-filter.hidden-tags:}") List<String> hiddenTags) {
+        this.metaInfoResourceService = metaInfoResourceService;
+        this.userRepository = userRepository;
+        this.airflowKeycloakRoleService = airflowKeycloakRoleService;
+        this.tagFilterEnabled = tagFilterEnabled;
+        this.visibleTags = normalizeTags(visibleTags);
+        this.hiddenTags = normalizeTags(hiddenTags);
+    }
+
+    private static List<String> normalizeTags(List<String> tags) {
+        return tags == null ? List.of() : tags.stream().filter(tag -> tag != null && !tag.isBlank()).map(String::trim).toList();
+    }
 
     /**
      * Synchronously reconcile the current user's Airflow-managed Keycloak roles. Called right before
@@ -86,13 +111,44 @@ public class OrchestrationService {
             List<PipelineResource> pipelines = new ArrayList<>();
             pipelines.addAll(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class));
             pipelines.addAll(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW3, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class));
-            return filterByPath(pipelines, contextKeysFromContextRoles);
+            return filterByTags(filterByPath(pipelines, contextKeysFromContextRoles));
         }
         return Collections.emptyList();
     }
 
-    private List<PipelineDto> filterByPath(List<PipelineResource> pipelines, List<String> contextKeysFromContextRoles) {
+    /**
+     * Filter the pipelines by their DAG tags, so e.g. DEV/debugging DAGs are not shown:
+     * DAGs with a hidden tag are always dropped; if visible tags are configured, only DAGs carrying one of them are kept.
+     * A data domain without any DAG carrying a visible tag keeps all of its (not hidden) DAGs,
+     * so domains that do not use the tags yet behave as before.
+     */
+    private List<PipelineDto> filterByTags(List<Map.Entry<PipelineDto, Pipeline>> pipelines) {
+        if (!tagFilterEnabled) {
+            return pipelines.stream().map(Map.Entry::getKey).toList();
+        }
+        Map<String, List<Map.Entry<PipelineDto, Pipeline>>> byContextKey = new LinkedHashMap<>();
+        for (var entry : pipelines) {
+            if (!hasAnyTag(entry.getValue(), hiddenTags)) {
+                byContextKey.computeIfAbsent(entry.getKey().getContextKey(), k -> new ArrayList<>()).add(entry);
+            }
+        }
         List<PipelineDto> result = new ArrayList<>();
+        for (var contextPipelines : byContextKey.values()) {
+            boolean usesVisibleTags = contextPipelines.stream().anyMatch(entry -> hasAnyTag(entry.getValue(), visibleTags));
+            contextPipelines.stream()
+                    .filter(entry -> !usesVisibleTags || hasAnyTag(entry.getValue(), visibleTags))
+                    .map(Map.Entry::getKey)
+                    .forEach(result::add);
+        }
+        return result;
+    }
+
+    private boolean hasAnyTag(Pipeline pipeline, List<String> tags) {
+        return pipeline.getTags() != null && pipeline.getTags().stream().anyMatch(dagTag -> tags.stream().anyMatch(dagTag::equalsIgnoreCase));
+    }
+
+    private List<Map.Entry<PipelineDto, Pipeline>> filterByPath(List<PipelineResource> pipelines, List<String> contextKeysFromContextRoles) {
+        List<Map.Entry<PipelineDto, Pipeline>> result = new ArrayList<>();
         for (PipelineResource pipelineResource : pipelines) {
             String moduleType = pipelineResource.getModuleType() == null ? null : pipelineResource.getModuleType().name();
             for (var pipeline : pipelineResource.getData()) {
@@ -103,7 +159,7 @@ public class OrchestrationService {
                         .orElse(null);
                 log.debug("Found context key for dag {}", contextKeyForDag);
                 if (contextKeyForDag != null) {
-                    result.add(PipelineDto.fromPipeline(pipeline, contextKeyForDag, moduleType));
+                    result.add(Map.entry(PipelineDto.fromPipeline(pipeline, contextKeyForDag, moduleType), pipeline));
                 }
             }
         }

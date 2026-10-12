@@ -48,6 +48,16 @@ hello-data:
       max-delay-seconds: 600
       # minimum time between two automatic synchronizations, e.g. when a sidecar keeps restarting
       min-interval-seconds: 600
+  pipelines:
+    # Filters the data pipelines shown in the sidebar status by their Airflow DAG tags (case-insensitive).
+    tag-filter:
+      # false = show all DAGs, e.g. for environments not using DAG tags
+      enabled: ${PIPELINES_TAG_FILTER_ENABLED:true}
+      # Comma-separated. Only DAGs with one of these tags are shown; a data domain without any DAG carrying one of them shows all its DAGs.
+      # Empty = show all DAGs.
+      visible-tags: ${PIPELINES_TAG_FILTER_VISIBLE_TAGS:PROD}
+      # Comma-separated. DAGs with one of these tags are never shown, e.g. DEV
+      hidden-tags: ${PIPELINES_TAG_FILTER_HIDDEN_TAGS:}
   airflow3:
     # When true, the portal mirrors each user's context roles into Keycloak realm roles
     # (airflow_*, DD_<domain>) that the Airflow 3 FAB OAuth login maps to FAB roles.
