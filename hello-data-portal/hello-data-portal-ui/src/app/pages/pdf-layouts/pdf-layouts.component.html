@@ -4,7 +4,7 @@
     #dt
     [value]="rows()"
     [loading]="loading()"
-    [globalFilterFields]="['name', 'dashboardTitle', 'dataDomainName', 'createdBy']"
+    [globalFilterFields]="['name', 'dashboardTitle', 'title', 'dataDomainName', 'createdBy']"
     [paginator]="true"
     [rows]="10"
     [rowsPerPageOptions]="[5, 10, 20]"
@@ -34,6 +34,9 @@
         <th id="dashboardHeader" pSortableColumn="dashboardTitle">{{ '@Dashboard' | transloco }}
           <p-sortIcon field="dashboardTitle"/>
         </th>
+        <th id="pdfTitleHeader" pSortableColumn="title">{{ '@PDF title' | transloco }}
+          <p-sortIcon field="title"/>
+        </th>
         <th id="dataDomainHeader" pSortableColumn="dataDomainName">{{ '@Data domain' | transloco }}
           <p-sortIcon field="dataDomainName"/>
         </th>
@@ -53,6 +56,12 @@
       <tr>
         <td>{{ layout.name }}</td>
         <td>{{ layout.dashboardTitle }}</td>
+        <!-- No own title: the PDF falls back to the dashboard title, shown muted. -->
+        @if (layout.title?.trim()) {
+          <td>{{ layout.title }}</td>
+        } @else {
+          <td class="text-muted-color italic">{{ layout.dashboardTitle }}</td>
+        }
         <td>{{ layout.dataDomainName }}</td>
         <td>{{ (layout.template === 'landscape' ? '@Landscape' : '@Portrait') | transloco }}</td>
         <td>{{ layout.createdBy | lowercase }}</td>
@@ -79,7 +88,7 @@
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7">{{ '@No saved layouts' | transloco }}</td>
+        <td colspan="8">{{ '@No saved layouts' | transloco }}</td>
       </tr>
     </ng-template>
   </p-table>
