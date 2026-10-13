@@ -103,6 +103,7 @@ class OrchestrationServiceTest {
         pipeline.setActive(true);
         pipeline.setPaused(false);
         pipeline.setFileLocation("/CONTEXT_KEY/");
+        pipeline.setTags(List.of("PROD"));
         pipeline.setLastInstance(new PipelineInstance("id", "123", null, null, PipelineInstanceState.SUCCESS));
         PipelineResource pipelineResource = new PipelineResource("instanceName", List.of(pipeline));
         when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class)).thenReturn(
@@ -212,7 +213,7 @@ class OrchestrationServiceTest {
     }
 
     @Test
-    void testGetAllPipelinesShowsAllWhenDataDomainHasNoVisibleTag() {
+    void testGetAllPipelinesHidesDataDomainWithoutVisibleTag() {
         // given
         UUID currentUserId = mockUserWithContextKeys(List.of("CONTEXT_KEY", "OTHER_KEY"));
         mockAirflowPipelines(
@@ -225,7 +226,7 @@ class OrchestrationServiceTest {
         List<PipelineDto> pipelines = getAllPipelinesAs(currentUserId, true, List.of("PROD"), List.of());
 
         // then
-        assertEquals(List.of("prod_dag", "other_dag_1", "other_dag_2"), pipelines.stream().map(PipelineDto::getId).toList());
+        assertEquals(List.of("prod_dag"), pipelines.stream().map(PipelineDto::getId).toList());
     }
 
     @Test

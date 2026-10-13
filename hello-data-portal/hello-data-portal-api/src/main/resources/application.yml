@@ -53,8 +53,7 @@ hello-data:
     tag-filter:
       # false = show all DAGs, e.g. for environments not using DAG tags
       enabled: ${PIPELINES_TAG_FILTER_ENABLED:true}
-      # Comma-separated. Only DAGs with one of these tags are shown; a data domain without any DAG carrying one of them shows all its DAGs.
-      # Empty = show all DAGs.
+      # Comma-separated. Only DAGs with one of these tags are shown. Empty = show all (not hidden) DAGs.
       visible-tags: ${PIPELINES_TAG_FILTER_VISIBLE_TAGS:PROD}
       # Comma-separated. DAGs with one of these tags are never shown, e.g. DEV
       hidden-tags: ${PIPELINES_TAG_FILTER_HIDDEN_TAGS:}

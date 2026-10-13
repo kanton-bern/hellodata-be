@@ -44,9 +44,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -111,55 +109,42 @@ public class OrchestrationService {
             List<PipelineResource> pipelines = new ArrayList<>();
             pipelines.addAll(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class));
             pipelines.addAll(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW3, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class));
-            return filterByTags(filterByPath(pipelines, contextKeysFromContextRoles));
+            return filterByPath(pipelines, contextKeysFromContextRoles);
         }
         return Collections.emptyList();
     }
 
     /**
-     * Filter the pipelines by their DAG tags, so e.g. DEV/debugging DAGs are not shown:
-     * DAGs with a hidden tag are always dropped; if visible tags are configured, only DAGs carrying one of them are kept.
-     * A data domain without any DAG carrying a visible tag keeps all of its (not hidden) DAGs,
-     * so domains that do not use the tags yet behave as before.
+     * Filter a pipeline by its DAG tags, so e.g. DEV/debugging DAGs are not shown:
+     * DAGs with a hidden tag are never shown; if visible tags are configured, only DAGs carrying one of them are shown.
      */
-    private List<PipelineDto> filterByTags(List<Map.Entry<PipelineDto, Pipeline>> pipelines) {
+    private boolean isShownByTags(Pipeline pipeline) {
         if (!tagFilterEnabled) {
-            return pipelines.stream().map(Map.Entry::getKey).toList();
+            return true;
         }
-        Map<String, List<Map.Entry<PipelineDto, Pipeline>>> byContextKey = new LinkedHashMap<>();
-        for (var entry : pipelines) {
-            if (!hasAnyTag(entry.getValue(), hiddenTags)) {
-                byContextKey.computeIfAbsent(entry.getKey().getContextKey(), k -> new ArrayList<>()).add(entry);
-            }
-        }
-        List<PipelineDto> result = new ArrayList<>();
-        for (var contextPipelines : byContextKey.values()) {
-            boolean usesVisibleTags = contextPipelines.stream().anyMatch(entry -> hasAnyTag(entry.getValue(), visibleTags));
-            contextPipelines.stream()
-                    .filter(entry -> !usesVisibleTags || hasAnyTag(entry.getValue(), visibleTags))
-                    .map(Map.Entry::getKey)
-                    .forEach(result::add);
-        }
-        return result;
+        return !hasAnyTag(pipeline, hiddenTags) && (visibleTags.isEmpty() || hasAnyTag(pipeline, visibleTags));
     }
 
     private boolean hasAnyTag(Pipeline pipeline, List<String> tags) {
         return pipeline.getTags() != null && pipeline.getTags().stream().anyMatch(dagTag -> tags.stream().anyMatch(dagTag::equalsIgnoreCase));
     }
 
-    private List<Map.Entry<PipelineDto, Pipeline>> filterByPath(List<PipelineResource> pipelines, List<String> contextKeysFromContextRoles) {
-        List<Map.Entry<PipelineDto, Pipeline>> result = new ArrayList<>();
+    private List<PipelineDto> filterByPath(List<PipelineResource> pipelines, List<String> contextKeysFromContextRoles) {
+        List<PipelineDto> result = new ArrayList<>();
         for (PipelineResource pipelineResource : pipelines) {
             String moduleType = pipelineResource.getModuleType() == null ? null : pipelineResource.getModuleType().name();
             for (var pipeline : pipelineResource.getData()) {
                 log.debug("Checking pipeline {}", pipeline);
+                if (!isShownByTags(pipeline)) {
+                    continue;
+                }
                 String contextKeyForDag = contextKeysFromContextRoles.stream()
                         .filter(contextKey -> pipeline.getFileLocation().toLowerCase().contains("/" + contextKey.toLowerCase() + "/"))
                         .findFirst()
                         .orElse(null);
                 log.debug("Found context key for dag {}", contextKeyForDag);
                 if (contextKeyForDag != null) {
-                    result.add(Map.entry(PipelineDto.fromPipeline(pipeline, contextKeyForDag, moduleType), pipeline));
+                    result.add(PipelineDto.fromPipeline(pipeline, contextKeyForDag, moduleType));
                 }
             }
         }
