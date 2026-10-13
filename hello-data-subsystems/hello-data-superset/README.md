@@ -2,7 +2,7 @@
 
 ## What's the difference to the official superset docker image?
 
-- Base image: `apache/superset:2.1.0`
+- Base image: `bedag/hellodata-superset:6-1-HD-rc1` (HelloDATA fork of Apache Superset 6.1, built from the `6.1-HD.rc1` branch of the superset-fork repo)
 - Added `firefox/geckodriver` to be able to create dashboard screenshots and send reports
 - Added `flower` to monitor the celery cluster.
 - Added custom database drivers

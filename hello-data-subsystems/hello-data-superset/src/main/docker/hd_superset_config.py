@@ -298,7 +298,6 @@ STATS_LOGGER = StatsdStatsLogger(host=os.getenv("STATSD_HOST", "localhost"), por
 FEATURE_FLAGS = {
   'ENABLE_JAVASCRIPT_CONTROLS': True,     # Allow for javascript controls components
   'ENABLE_TEMPLATE_PROCESSING': True,
-  'ENABLE_TEMPLATE_REMOVE_FILTERS': True,
   'DASHBOARD_RBAC': True,
   'ALERT_REPORTS': True,
   # HELLODATA-4067: enable the chart screenshot REST API (cache_screenshot) used by the
@@ -306,8 +305,6 @@ FEATURE_FLAGS = {
   'THUMBNAILS': True,
   'THUMBNAILS_SQLA_LISTENERS': True,
   'GLOBAL_ASYNC_QUERIES': False,
-  'HORIZONTAL_FILTER_BAR': True,
-  'GENERIC_CHART_AXES': True,             # Allow for a non-time x-axis in timeseries charts
 }
 GLOBAL_ASYNC_QUERIES_JWT_SECRET = env("REDIS_JWT_SECRET")
 GLOBAL_ASYNC_QUERIES_REDIS_CONFIG = {
@@ -435,8 +432,11 @@ FAB_INDEX_VIEW = f"{SupersetDashboardIndexView.__module__}.{SupersetDashboardInd
 # (RLS) filters apply; fall back to the selenium/thumbnail user for system renders. Paired with
 # an admin-only impersonation endpoint that mints a per-user Superset token for the portal PDF
 # export (called by the superset sidecar).
-from superset.tasks.types import ExecutorType
-THUMBNAIL_EXECUTE_AS = [ExecutorType.CURRENT_USER, ExecutorType.FIXED_USER]
+# Since Superset 5.0 the setting is THUMBNAIL_EXECUTORS (THUMBNAIL_EXECUTE_AS and
+# THUMBNAIL_SELENIUM_USER were removed, PR #31844) and the fixed user is given as a
+# FixedExecutor with the username, which is the email since HELLODATA-2183.
+from superset.tasks.types import ExecutorType, FixedExecutor
+THUMBNAIL_EXECUTORS = [ExecutorType.CURRENT_USER, FixedExecutor("techadmin@hellodatabedag.ch")]
 
 from flask import Blueprint, current_app, jsonify, request as _hd_request
 from flask_jwt_extended import create_access_token, current_user, verify_jwt_in_request
@@ -495,8 +495,6 @@ THUMBNAIL_CACHE_CONFIG: CacheConfig = {
     'CACHE_KEY_PREFIX': f'thumbnail_{DATA_DOMAIN_KEY}_',
     'CACHE_REDIS_URL': f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/1"
 }
-# Async selenium thumbnail task will use the following user
-THUMBNAIL_SELENIUM_USER = "techadmin"
 # HELLODATA-4067: Superset caches a FAILED screenshot render as status=Error and, by default,
 # refuses to re-render it for THUMBNAIL_ERROR_CACHE_TTL (Superset default: 1 day). A single
 # transient render failure would therefore poison a chart's PDF-export screenshot for a full

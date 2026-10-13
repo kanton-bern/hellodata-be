@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hellodata-superset:5-0-HD-rc3
+FROM bedag/hellodata-superset:6-1-HD-rc1
 
 # geckodriver 0.37.1 matches firefox-esr 140.* (0.34.0 logged a version-mismatch warning on every
 # chart screenshot render — see HELLODATA-4110). Bump when the bundled firefox-esr major changes.
@@ -40,8 +40,8 @@ USER root
 RUN apt-get update && \
     # deps for superset
     apt-get install --no-install-recommends -y firefox-esr wget gcc g++ && \
-    # deps for liquibase
-    apt-get install --no-install-recommends -y openjdk-17-jre-headless ca-certificates-java gnupg unzip postgresql-client
+    # deps for liquibase (Superset 6.1 base is Debian trixie, which ships Java 21, no 17)
+    apt-get install --no-install-recommends -y openjdk-21-jre-headless ca-certificates-java gnupg unzip postgresql-client
 
 ENV GECKODRIVER_VERSION=${GECKODRIVER_VERSION}
 RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
@@ -50,7 +50,7 @@ RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRI
     rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz
 
 # Install requirements for superset
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && uv pip install --no-cache authlib==1.5.2 psycopg2-binary==2.9.10 redis==5.2.1 jmespath==1.0.1 gevent
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && uv pip install --no-cache authlib==1.5.2 psycopg2-binary==2.9.10 jmespath==1.0.1 gevent
 
 # install additional drivers
 # Find which driver you need based on the analytics database you want to connect to here:

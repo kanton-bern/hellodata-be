@@ -112,7 +112,7 @@ class HdAuthOAuthView(AuthView):
     if provider not in self.appbuilder.sm.oauth_remotes:
       flash("Provider not supported.", "warning")
       log.warning("OAuth authorized got an unknown provider %s", provider)
-      return redirect(self.appbuilder.sm.get_url_for_login)
+      return redirect(self.appbuilder.get_url_for_login)
     try:
       resp = self.appbuilder.sm.oauth_remotes[provider].authorize_access_token()
     except Exception as e:

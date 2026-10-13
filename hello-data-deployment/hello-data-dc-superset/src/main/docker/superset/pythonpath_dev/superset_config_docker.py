@@ -74,13 +74,13 @@ from flask_appbuilder.views import expose
 from flask_login import login_user, logout_user
 from random import SystemRandom
 from superset.security import SupersetSecurityManager
-from superset.tasks.types import ExecutorType
+from superset.tasks.types import ExecutorType, FixedExecutor
 from typing import Optional
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 # HELLODATA-4067: render chart screenshots as the requesting user so their row-level-security (RLS)
-# filters apply; fall back to the selenium/thumbnail user for system renders.
-THUMBNAIL_EXECUTE_AS = [ExecutorType.CURRENT_USER, ExecutorType.FIXED_USER]
+# filters apply; fall back to the local admin user for system renders.
+THUMBNAIL_EXECUTORS = [ExecutorType.CURRENT_USER, FixedExecutor("admin@hellodata.ch")]
 
 log = logging.getLogger(__name__)
 logging.getLogger(__name__).setLevel(logging.DEBUG)
@@ -318,7 +318,7 @@ TALISMAN_CONFIG = {
 # --- HELLODATA-4067: per-user screenshot impersonation -----------------------------------------
 # Admin-only endpoint that mints a short-lived Superset access token for a given user, so the
 # portal PDF export can render chart screenshots as that user (their row-level-security filters
-# apply). Paired with THUMBNAIL_EXECUTE_AS = [CURRENT_USER, SELENIUM] above.
+# apply). Paired with THUMBNAIL_EXECUTORS = [CURRENT_USER, FixedExecutor] above.
 from flask import Blueprint, current_app, jsonify
 from flask_jwt_extended import create_access_token, current_user, verify_jwt_in_request
 
