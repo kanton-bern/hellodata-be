@@ -385,7 +385,9 @@ SQLALCHEMY_CUSTOM_PASSWORD_STORE = lookup_password
 # --- override_welcome_page ---
 import logging
 import pprint
-from flask import Flask, redirect
+from urllib.parse import urlparse
+from flask import Flask, abort, redirect, request, session
+from flask_babel import refresh
 from flask_appbuilder import expose, IndexView
 from superset.superset_typing import FlaskResponse
 from superset import security_manager
@@ -424,6 +426,22 @@ class SupersetDashboardIndexView(IndexView):
                 return redirect(WELCOME_PAGE_REDIRECT_BY_ROLE[role_name])
 
         return redirect(WELCOME_PAGE_REDIRECT_DEFAULT)
+
+  # Superset registers its /lang/<locale> handler on its own SupersetIndexView, which this
+  # class replaces, so without this FAB's LocaleView answers and redirects to the last
+  # server-rendered page in the session history (e.g. the legacy /users/list/ page).
+  # The portal's "open Superset" link lands here after the Keycloak login: always start on
+  # the dashboards then, but keep the current page for the in-app language switcher.
+  @expose("/lang/<string:locale>")
+  def patch_flask_locale(self, locale: str) -> FlaskResponse:
+    if locale not in self.appbuilder.bm.languages:
+        abort(404, description="Locale not supported.")
+    session["locale"] = locale
+    refresh()
+    referrer = request.headers.get("Referer")
+    if referrer and urlparse(referrer).netloc == request.host:
+        return redirect(referrer)
+    return redirect(self.appbuilder.get_url_for_index)
 
 FAB_INDEX_VIEW = f"{SupersetDashboardIndexView.__module__}.{SupersetDashboardIndexView.__name__}"
 
