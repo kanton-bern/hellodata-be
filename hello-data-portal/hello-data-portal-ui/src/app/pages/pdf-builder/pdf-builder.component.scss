@@ -275,15 +275,26 @@
 }
 
 gridster {
-  background: transparent;
+  background: #f0f0f0;
   width: 100%;
   height: 100%;
 }
 
-// Faint grid lines instead of gridster's white ones on grey.
-::ng-deep .pdf-page gridster .gridster-column,
+// Empty cells: grey with a white frame inset 4px on each side, so neighbouring cells show doubled lines
+// with a grey gap between them. The grid itself has no margins (tiles touch, as in the PDF), so the
+// frames are drawn inside each column and row instead of gridster's border on the cell edge.
+::ng-deep .pdf-page gridster .gridster-column {
+  border: 0;
+  background: linear-gradient(to right,
+    transparent 4px, #fff 4px, #fff 5px, transparent 5px,
+    transparent calc(100% - 5px), #fff calc(100% - 5px), #fff calc(100% - 4px), transparent calc(100% - 4px));
+}
+
 ::ng-deep .pdf-page gridster .gridster-row {
-  border-color: #f0f0f0;
+  border: 0;
+  background: linear-gradient(to bottom,
+    transparent 4px, #fff 4px, #fff 5px, transparent 5px,
+    transparent calc(100% - 5px), #fff calc(100% - 5px), #fff calc(100% - 4px), transparent calc(100% - 4px));
 }
 
 .cell {
