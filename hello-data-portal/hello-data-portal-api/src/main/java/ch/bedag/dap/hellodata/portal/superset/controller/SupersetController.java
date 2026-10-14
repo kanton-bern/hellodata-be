@@ -35,6 +35,7 @@ import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetada
 import ch.bedag.dap.hellodata.portal.superset.pdfexport.PaletteClient;
 import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfExportService;
 import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfLayoutRequest;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfTemplateDto;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardAccessService;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
@@ -150,6 +151,14 @@ public class SupersetController {
                 .cacheControl(CacheControl.noStore())
                 .contentType(MediaType.IMAGE_PNG)
                 .body(png);
+    }
+
+    /** The selectable PDF page templates with their page geometry, so the builder canvas can show
+     *  each page in the shape and scale the PDF will have. */
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    @GetMapping(value = "/dashboards/pdf/templates")
+    public List<PdfTemplateDto> pdfTemplates() {
+        return PdfTemplateDto.all();
     }
 
     /** Custom grid layout export designed in the Angular builder. */

@@ -169,53 +169,74 @@
                   severity="secondary" size="small" pRipple/>
       </div>
     </div>
-    <gridster [options]="options">
-      @for (cell of visibleCells(); track cell) {
-        <gridster-item [item]="cell" (itemChange)="onCellChange(cell)">
-          <div class="cell">
-            <div class="cell-head">
-              <span class="cell-type">{{ cell.type === 'chart' ? cell.name : ('@Markdown' | transloco) }}</span>
-              <span class="cell-actions">
-                @if (cell.type === 'chart') {
-                  <p-button (click)="refreshPreview(cell)" [disabled]="previewLoadingFor(cell)"
-                            [icon]="icons.ACTION_REFRESH.class"
-                            [text]="true" [rounded]="true" size="small" severity="secondary"
-                            [pTooltip]="'@Refresh preview with latest data' | transloco"
-                            [ariaLabel]="'@Refresh preview with latest data' | transloco"/>
-                }
-                @if (cell.type === 'markdown' && !cell.readonly) {
-                  <p-button (click)="editCell(cell)" [icon]="icons.ACTION_EDIT.class"
-                            [text]="true" [rounded]="true" size="small" severity="secondary"
-                            [ariaLabel]="'@Edit' | transloco"/>
-                }
-                <p-button (click)="removeCell(cell)" [icon]="icons.ACTION_DELETE.class"
-                          [text]="true" [rounded]="true" size="small" severity="danger"
-                          [ariaLabel]="'@Delete' | transloco"/>
-              </span>
-            </div>
-            <div class="cell-body" [class.center]="cell.type === 'chart'">
-              @if (cell.type === 'chart') {
-                @if (previewUrl(cell); as url) {
-                  <img class="preview" [src]="url" [alt]="cell.name"/>
-                } @else if (previewLoadingFor(cell)) {
-                  <div class="spinner" [attr.aria-label]="'@Loading preview' | transloco"></div>
-                } @else {
-                  <svg class="chart-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M3 3h2v18H3V3zm4 10h3v8H7v-8zm5-6h3v14h-3V7zm5 3h3v11h-3V10z"/>
-                  </svg>
-                }
-              } @else {
-                @if (cell.html || cell.markdown) {
-                  <div class="markdown" [innerHTML]="textHtml(cell)"></div>
-                } @else {
-                  <em>{{ '@empty markdown' | transloco }}</em>
-                }
-              }
-            </div>
-          </div>
-        </gridster-item>
+    <!-- The page grid in the PDF's shape and scale (see canvas()); tiles mirror the PDF's tiles. -->
+    <div class="page-area" #pageArea>
+      @if (canvas(); as page) {
+        <div class="pdf-page" [style.width.px]="page.width" [style.height.px]="page.height"
+             [style.--pdf-scale]="page.textScale">
+          <gridster [options]="options">
+            @for (cell of visibleCells(); track cell) {
+              <gridster-item [item]="cell" (itemChange)="onCellChange(cell)">
+                <div class="cell">
+                  <span class="cell-actions">
+                    @if (cell.type === 'chart') {
+                      <p-button (click)="refreshPreview(cell)" [disabled]="previewLoadingFor(cell)"
+                                [icon]="icons.ACTION_REFRESH.class"
+                                [text]="true" [rounded]="true" size="small" severity="secondary"
+                                [pTooltip]="'@Refresh preview with latest data' | transloco"
+                                [ariaLabel]="'@Refresh preview with latest data' | transloco"/>
+                    }
+                    @if (cell.type === 'markdown' && !cell.readonly) {
+                      <p-button (click)="editCell(cell)" [icon]="icons.ACTION_EDIT.class"
+                                [text]="true" [rounded]="true" size="small" severity="secondary"
+                                [ariaLabel]="'@Edit' | transloco"/>
+                    }
+                    <p-button (click)="removeCell(cell)" [icon]="icons.ACTION_DELETE.class"
+                              [text]="true" [rounded]="true" size="small" severity="danger"
+                              [ariaLabel]="'@Delete' | transloco"/>
+                  </span>
+                  @if (cell.type === 'chart') {
+                    <div class="pdf-tile">
+                      <div class="chart">
+                        <h3 class="chart-name">{{ cell.name }}</h3>
+                        <div class="chart-image" [class.placeholder]="!previewUrl(cell)"
+                             [style.height.px]="chartImageHeight(cell)">
+                          @if (previewUrl(cell); as url) {
+                            <img [src]="url" [alt]="cell.name" draggable="false"/>
+                          } @else if (previewLoadingFor(cell)) {
+                            <div class="spinner" [attr.aria-label]="'@Loading preview' | transloco"></div>
+                          } @else {
+                            <svg class="chart-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path d="M3 3h2v18H3V3zm4 10h3v8H7v-8zm5-6h3v14h-3V7zm5 3h3v11h-3V10z"/>
+                            </svg>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="pdf-tile" appClipWatch #clip="clipWatch">
+                      @if (cell.html || cell.markdown) {
+                        <div class="summary markdown" [innerHTML]="textHtml(cell)"></div>
+                      } @else {
+                        <div class="summary markdown"><em>{{ '@empty markdown' | transloco }}</em></div>
+                      }
+                    </div>
+                    @if (clip.clipped()) {
+                      <div class="clip-warning" role="status">
+                        <i [class]="icons.STATUS_WARNING.class" aria-hidden="true"></i>
+                        <span>{{ '@Text is cut off in the PDF' | transloco }}</span>
+                      </div>
+                    }
+                  }
+                </div>
+              </gridster-item>
+            }
+          </gridster>
+        </div>
+      } @else {
+        <div class="spinner" aria-hidden="true"></div>
       }
-    </gridster>
+    </div>
   </main>
 </div>
 

@@ -134,5 +134,20 @@ class SupersetControllerTest extends HDControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(updateDto))).andExpect(status().isOk());
     }
-}
 
+    @Test
+    void pdfTemplates() throws Exception {
+        mockMvc.perform(get("/superset/dashboards/pdf/templates").header("authorization",
+                        generateToken(Set.of(Permission.DASHBOARDS.name()))))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("""
+                        [
+                            {"id": "portrait", "name": "Portrait", "pageWidthMm": 210, "pageHeightMm": 297,
+                             "contentWidthMm": 178, "cellHeightMm": 64, "gridCols": 4, "gridRowsPerPage": 4, "chartOverheadMm": 15},
+                            {"id": "landscape", "name": "Landscape", "pageWidthMm": 297, "pageHeightMm": 210,
+                             "contentWidthMm": 265, "cellHeightMm": 42, "gridCols": 4, "gridRowsPerPage": 4, "chartOverheadMm": 15}
+                        ]
+                        """));
+    }
+}

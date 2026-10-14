@@ -129,6 +129,14 @@ public enum ReportTemplate {
         return templateFile;
     }
 
+    public int pageWidthMm() {
+        return pageWidthMm;
+    }
+
+    public int pageHeightMm() {
+        return pageHeightMm;
+    }
+
     /** CSS {@code @page size} value derived from the page dimensions, e.g. {@code 210mm 297mm}. */
     public String pageSize() {
         return pageWidthMm + "mm " + pageHeightMm + "mm";

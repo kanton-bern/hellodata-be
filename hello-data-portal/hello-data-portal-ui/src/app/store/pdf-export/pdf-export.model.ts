@@ -37,6 +37,23 @@ export interface PdfTemplateRef {
   name: string;
 }
 
+/** The page grid of a PDF template as the backend lays it out, in millimetres (see ReportTemplate):
+ *  `gridCols` columns of `contentWidthMm / gridCols` by `gridRowsPerPage` rows of `cellHeightMm`. */
+export interface PdfPageGeometry {
+  contentWidthMm: number;
+  cellHeightMm: number;
+  gridCols: number;
+  gridRowsPerPage: number;
+  /** Height a chart's heading and image frame take from its cells; the image gets the rest. */
+  chartOverheadMm: number;
+}
+
+/** A PDF template with its page geometry, as served by the backend. */
+export interface PdfTemplate extends PdfTemplateRef, PdfPageGeometry {
+  pageWidthMm: number;
+  pageHeightMm: number;
+}
+
 /** One positioned grid cell sent to the backend for the custom export. */
 export interface PdfLayoutItem {
   type: 'chart' | 'markdown';
@@ -62,7 +79,7 @@ export interface PdfLayoutRequest {
   force?: boolean;
 }
 
-/** The two fixed page templates — no backend round-trip needed. */
+/** The two fixed page templates, shown until the backend has sent them with their page geometry. */
 export const PDF_TEMPLATES: PdfTemplateRef[] = [
   {id: 'portrait', name: 'Portrait'},
   {id: 'landscape', name: 'Landscape'},

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, computed, inject, linkedSignal, signal, viewChild} from "@angular/core";
+import {AfterViewInit, Component, DestroyRef, ElementRef, OnDestroy, OnInit, computed, effect, inject, linkedSignal, signal, viewChild} from "@angular/core";
 import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -61,8 +61,11 @@ import {
   PdfLayoutSummary,
   PdfSavedLayout,
   PdfSavedLayoutItem,
+  PdfTemplate,
   PdfTemplateRef
 } from "../../store/pdf-export/pdf-export.model";
+import {chartImageHeight, collapseWhitespace, fitCanvas} from "./pdf-canvas";
+import {ClipWatchDirective} from "./clip-watch.directive";
 
 /** What a cell renders. Markdown from the dashboard is read-only; text blocks dropped from
  *  the palette are editable rich text (`html`). Older saved blocks may still carry `markdown`
@@ -107,7 +110,7 @@ const PAGE_ROWS = 4;
 @Component({
   selector: 'app-pdf-builder',
   standalone: true,
-  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, PrimeTemplate, Editor, InputText, AutoFocus, TranslocoPipe],
+  imports: [FormsModule, Gridster, GridsterItem, Select, Button, Ripple, Tooltip, ConfirmDialog, PrimeTemplate, Editor, InputText, AutoFocus, TranslocoPipe, ClipWatchDirective],
   templateUrl: './pdf-builder.component.html',
   styleUrl: './pdf-builder.component.scss',
 })
@@ -165,8 +168,23 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   saveAsOpen = signal(false);
   saveAsName = signal('');
   loadingLayout = signal(false);
-  templates = signal<PdfTemplateRef[]>(PDF_TEMPLATES);
+  /** Until the backend has sent the templates with their page geometry, only their names are known. */
+  templates = signal<(PdfTemplateRef | PdfTemplate)[]>(PDF_TEMPLATES);
   selectedTemplate = signal<string>('portrait');
+  /** Page geometry of the selected template; null until loaded from the backend. */
+  geometry = computed(() => {
+    const template = this.templates().find(t => t.id === this.selectedTemplate());
+    return template && 'contentWidthMm' in template ? template : null;
+  });
+  /** Room left for the page next to the palette and below the paginator (tracked on resize). */
+  private pageAreaSize = signal({width: 0, height: 0});
+  /** How the page is drawn: the selected template's grid at the largest scale that fits, so the canvas
+   *  has the PDF page's shape and its text wraps like in the PDF. Null while unknown (no canvas then). */
+  canvas = computed(() => {
+    const geometry = this.geometry();
+    const area = this.pageAreaSize();
+    return geometry ? fitCanvas(geometry, area.width, area.height) : null;
+  });
   charts = signal<PdfChartRef[]>([]);
   selectedDashboard = signal<SupersetDashboardWithMetadata | null>(null);
   cells = signal<Cell[]>([]);
@@ -237,18 +255,22 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   private dragPayload: PaletteItem | null = null;
 
   private grid = viewChild(Gridster);
+  private pageArea = viewChild<ElementRef<HTMLElement>>('pageArea');
+  private pageAreaObserver: ResizeObserver | null = null;
 
   options: GridsterConfig = {
-    // Fit: exactly PAGE_ROWS x PAGE_ROWS cells that fill the (bounded, see SCSS) page area — one page
-    // on screen at a time, no scrolling. VerticalFixed instead fills the container with fixed-height
-    // rows (many more than 4), which forced the user to scroll to find the paginator.
+    // Fit: exactly PAGE_ROWS x PAGE_ROWS cells that fill the page box, which the template sets to the
+    // PDF page grid's shape (see canvas) - one page on screen at a time, no scrolling. No margins: as in
+    // the PDF, the tiles touch and the gaps come from each tile's own padding.
     gridType: GridType.Fit,
     displayGrid: DisplayGrid.Always,
     minCols: PAGE_ROWS,
     maxCols: PAGE_ROWS,
     minRows: PAGE_ROWS,
     maxRows: PAGE_ROWS,
-    margin: 8,
+    margin: 0,
+    // A portrait page is narrow; never switch to gridster's stacked mobile layout.
+    mobileBreakpoint: 0,
     // Never rearrange the user's settled layout: moving/resizing a chart must not push others aside.
     pushItems: false,
     swap: false,
@@ -262,13 +284,30 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     defaultItemRows: 1,
     // A drop that doesn't fit where released should do nothing, rather than jumping to another slot.
     disableAutoPositionOnConflict: true,
-    draggable: {enabled: true, ignoreContentClass: 'cell-body'},
+    draggable: {enabled: true, ignoreContentClass: 'cell-actions'},
     resizable: {enabled: true},
     enableEmptyCellDrop: true,
     emptyCellDropCallback: (event: DragEvent, item: GridsterItemConfig) => this.onDrop(item),
   };
 
+  constructor() {
+    // The grid exists only once the page geometry is known (see canvas), so patch it when it appears.
+    effect(() => {
+      const grid = this.grid();
+      if (grid) {
+        this.growDropPreview(grid);
+      }
+    });
+    // Gridster measures its box only on window resizes; tell it when the page box was rescaled.
+    effect(() => {
+      if (this.canvas()) {
+        setTimeout(() => this.grid()?.api.resize());
+      }
+    });
+  }
+
   ngOnInit(): void {
+    this.pdfExport.getTemplates().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(templates => this.templates.set(templates));
     if (this.mode === 'manage') {
       this.store.dispatch(createBreadcrumbs({breadcrumbs: [
         {label: '@PDF layouts', routerLink: 'pdf-layouts'},
@@ -388,15 +427,21 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dragPayload = null;
   }
 
+  ngAfterViewInit(): void {
+    const area = this.pageArea()?.nativeElement;
+    if (!area || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+    this.pageAreaObserver = new ResizeObserver(([entry]) =>
+      this.pageAreaSize.set({width: entry.contentRect.width, height: entry.contentRect.height}));
+    this.pageAreaObserver.observe(area);
+  }
+
   /** Gridster highlights a 1x1 cell while a palette entry is dragged over the grid (defaultItemCols/
    *  Rows, see options), but onDrop grows the tile to fitFootprint(). Grow the highlighted preview the
    *  same way, so it shows the cells the tile will really take. Gridster builds a fresh preview item
    *  on every dragover, so adjusting it in place affects nothing else. */
-  ngAfterViewInit(): void {
-    const grid = this.grid();
-    if (!grid) {
-      return;
-    }
+  private growDropPreview(grid: Gridster): void {
     const previewStyle = grid.previewStyle.bind(grid);
     grid.previewStyle = (drag?: boolean) => {
       const item = grid.movingItem;
@@ -551,6 +596,7 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.pageAreaObserver?.disconnect();
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.clearPreviews();
   }
@@ -589,7 +635,7 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
    *  its margins) right away instead of only after the next drag/click. Deferred so the new
    *  gridster-item has registered before the reflow runs. */
   private reflowGrid(): void {
-    setTimeout(() => this.options['api']?.optionsChanged?.());
+    setTimeout(() => this.grid()?.api.calculateLayout());
   }
 
   onEditorInit(event: {editor: any}): void {
@@ -597,9 +643,17 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     disableEditorImageInsert(event.editor);
   }
 
-  /** Rendered preview of a text cell, so the canvas shows the formatting the exported PDF will have. */
+  /** Canvas height (px) of a chart tile's image frame, sized like in the PDF. */
+  chartImageHeight(cell: Cell): number {
+    const geometry = this.geometry();
+    const canvas = this.canvas();
+    return geometry && canvas ? chartImageHeight(geometry, canvas, cell.rows) : 0;
+  }
+
+  /** Rendered preview of a text cell, so the canvas shows the formatting the exported PDF will have
+   *  and breaks its lines where the PDF does. */
   textHtml(cell: Cell): string {
-    return cell.html ? sanitizeRichText(cell.html) : markdownToHtml(cell.markdown);
+    return collapseWhitespace(cell.html ? sanitizeRichText(cell.html) : markdownToHtml(cell.markdown));
   }
 
   closeEditor(): void {

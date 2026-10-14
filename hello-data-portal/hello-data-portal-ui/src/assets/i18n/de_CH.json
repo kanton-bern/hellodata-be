@@ -275,6 +275,7 @@
   "@Markdown": "Markdown",
   "@Markdown block": "Markdown-Block",
   "@empty markdown": "(leeres Markdown)",
+  "@Text is cut off in the PDF": "Text wird im PDF abgeschnitten",
   "@Failed to export comments": "Kommentare konnten nicht exportiert werden",
   "@Failed to import comments": "Kommentare konnten nicht importiert werden",
   "@Faq": "FAQ",

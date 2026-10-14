@@ -29,7 +29,7 @@ import {inject, Injectable} from "@angular/core";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {environment} from "../../../environments/environment";
-import {PdfChartRef, PdfLayoutRequest, PdfLayoutSaveRequest, PdfLayoutSummary, PdfSavedLayout} from "./pdf-export.model";
+import {PdfChartRef, PdfLayoutRequest, PdfLayoutSaveRequest, PdfLayoutSummary, PdfSavedLayout, PdfTemplate} from "./pdf-export.model";
 
 @Injectable({providedIn: 'root'})
 export class PdfExportService {
@@ -50,6 +50,11 @@ export class PdfExportService {
     return this.httpClient.get<string[]>(
       `${this.baseUrl}/${encodeURIComponent(instanceName)}/${dashboardId}/markdown`
     );
+  }
+
+  /** The PDF page templates with their page geometry, for the builder canvas. */
+  public getTemplates(): Observable<PdfTemplate[]> {
+    return this.httpClient.get<PdfTemplate[]>(`${this.baseUrl}/pdf/templates`);
   }
 
   /** Render the custom grid layout to a PDF (streamed as application/pdf). */

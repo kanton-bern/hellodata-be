@@ -184,16 +184,6 @@
   flex-direction: column;
 }
 
-gridster {
-  background: #f0f0f0;
-  position: relative;
-  /* Fill the height left after the paginator; GridType.Fit divides this area into exactly 4x4 cells,
-     so one page always fills the available space with no empty gap below and no scrolling. */
-  flex: 1 1 auto;
-  min-height: 0;
-  width: 100%;
-}
-
 .paginator {
   margin-bottom: 16px;
   display: flex;
@@ -252,78 +242,176 @@ gridster {
   font-weight: 600;
 }
 
-.cell {
-  height: 100%;
+/* Room for the page below the paginator; the page is centred in it at the PDF's aspect ratio. */
+.page-area {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
-  flex-direction: column;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/*
+ * PDF page grid, drawn at --pdf-scale screen px per CSS px of the PDF. The tiles below mirror the
+ * PDF's text and chart styles (hello-data-portal-api .../pdfexport/templates/fragments/pdf.html: body,
+ * .summary, .markdown, h3.chart-name, .chart-image, .grid-tile), every length scaled, so text breaks
+ * and is cut off where the PDF does. PdfTemplateDtoTest pins the PDF side; change both together.
+ */
+.pdf-page {
+  --pdf-scale: 1;
+  flex: 0 0 auto;
   background: #fff;
-  box-sizing: border-box;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  font-family: 'PdfRoboto', Arial, sans-serif;
+  color: #0a0a0a;
+  font-size: calc(10pt * var(--pdf-scale));
+  font-weight: 400;
+  line-height: 1.4;
 }
 
-.cell-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 6px;
-  background: #f3f3f3;
-  border-bottom: 1px solid #eee;
-  font-size: 11px;
-  color: #666;
+gridster {
+  background: transparent;
+  width: 100%;
+  height: 100%;
 }
 
+// Faint grid lines instead of gridster's white ones on grey.
+::ng-deep .pdf-page gridster .gridster-column,
+::ng-deep .pdf-page gridster .gridster-row {
+  border-color: #f0f0f0;
+}
+
+.cell {
+  position: relative;
+  height: 100%;
+  outline: 1px dashed transparent;
+  outline-offset: -1px;
+}
+
+gridster-item:hover .cell {
+  outline-color: #bbb;
+}
+
+/* Tile actions float over the top-right corner, so the tile itself is laid out exactly like the PDF's. */
 .cell-actions {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 2px;
+  padding: 1px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.15s;
 }
 
-.cell-body {
-  flex: 1;
-  padding: 8px;
-  overflow: auto;
-  font-size: 13px;
+gridster-item:hover .cell-actions,
+.cell-actions:focus-within {
+  opacity: 1;
 }
 
-.cell-body .markdown {
+/* .grid-page .grid-tile: the PDF clips a tile's content at its edge. */
+.pdf-tile {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 calc(6px * var(--pdf-scale)) calc(10pt * var(--pdf-scale));
+  overflow: hidden;
+}
+
+// The global stylesheet sets Poppins on every element (`*`), so inheriting the page font is not enough.
+.pdf-tile,
+.pdf-tile ::ng-deep * {
+  font-family: 'PdfRoboto', Arial, sans-serif;
+}
+
+// openhtmltopdf only breaks a line where the text and the space after it fit, so a space at the end of
+// a line takes room like with break-spaces (the HTML is whitespace-collapsed first, see textHtml). The
+// extra 1px of right padding absorbs its rounding of text widths, so a line never fits here but not there.
+.summary {
+  margin-top: calc(6pt * var(--pdf-scale));
+  padding: calc(8px * var(--pdf-scale)) calc(11px * var(--pdf-scale)) calc(8px * var(--pdf-scale)) calc(10px * var(--pdf-scale));
+  white-space: break-spaces;
+  border: calc(1px * var(--pdf-scale)) solid #dedede;
+  background-color: #faf1e3;
+  font-size: calc(9pt * var(--pdf-scale));
+}
+
+.summary.markdown {
   // The content comes in through [innerHTML], so it carries no component style-scope attribute:
-  // these rules need ::ng-deep to reach it.
+  // these rules need ::ng-deep to reach it. They also undo the global resets (Tailwind preflight).
   ::ng-deep {
-    > :first-child { margin-top: 0; }
-    > :last-child { margin-bottom: 0; }
-    p, ul, ol { margin: 0 0 6px; }
-    // Same text indent as the editor (Quill: 1.5em list + 1.5em item padding) and the PDF.
-    ul, ol { padding-left: 3em; }
-    // Global resets strip list markers; restore them so the preview matches the exported PDF.
+    h1 { font-size: calc(18pt * var(--pdf-scale)); font-weight: 300; line-height: 1.2; margin: 0 0 calc(8px * var(--pdf-scale)); }
+    h2 { font-size: calc(15pt * var(--pdf-scale)); font-weight: 300; line-height: 1.2; margin: 0 0 calc(6px * var(--pdf-scale)); }
+    h3 { font-size: calc(12pt * var(--pdf-scale)); font-weight: 500; margin: 0 0 calc(6px * var(--pdf-scale)); }
+    p { margin: 0 0 calc(6px * var(--pdf-scale)); }
+    ul, ol { margin: 0 0 calc(6px * var(--pdf-scale)) 3em; padding: 0; }
     ul { list-style: disc outside; }
     ol { list-style: decimal outside; }
     li { display: list-item; }
-    h1, h2, h3, h4, h5, h6 { margin: 8px 0 4px; line-height: 1.2; }
-    // Preview only - a click must not navigate away from the builder.
-    a { pointer-events: none; }
+    blockquote { margin: 1em calc(40px * var(--pdf-scale)); }
+    pre { margin: 1em 0; }
+    a { color: #0a0a0a; text-decoration: underline; pointer-events: none; }   // preview only - no navigation
   }
 }
 
-.cell-body .chart-icon {
-  width: 48px;
-  height: 48px;
-  color: #bbb;
-  margin: auto;
+.chart-name {
+  white-space: break-spaces;
+  font-size: calc(12pt * var(--pdf-scale));
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: calc(0.2px * var(--pdf-scale));
+  margin: 0 0 calc(8px * var(--pdf-scale));
+}
+
+.chart-image {
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: calc(6px * var(--pdf-scale));
+  border: calc(1px * var(--pdf-scale)) solid #dedede;
+  background-color: #fff;
+}
+
+.chart-image img {
+  width: 100%;
   display: block;
 }
 
-.cell-body.center {
+.chart-image.placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.cell-body .preview {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
+.chart-icon {
+  width: 48px;
+  height: 48px;
+  color: #bbb;
+}
+
+/* Shown on a text tile whose content the PDF would cut off. */
+.clip-warning {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #fff4e5;
+  border: 1px solid #f0a64a;
+  color: #8a4b00;
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1.3;
+  pointer-events: none;
 }
 
 .spinner {
