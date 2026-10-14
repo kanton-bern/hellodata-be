@@ -178,8 +178,15 @@ public class SupersetApiRequestBuilder {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_PERMISSIONS_API_ENDPOINT);
     }
 
+    /** Single-dashboard GET without a {@code q} parameter: since Superset 6.1 this endpoint parses
+     *  {@code q} as strict Rison (no JSON fallback), so the JSON paging params would fail with HTTP 400. */
     public static HttpUriRequest getDashboardRequest(int dashboardId, String host, int port, String authToken) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, String.format(DASHBOARD_API_ENDPOINT, dashboardId));
+        URI apiUri = buildUri(host, port, String.format(DASHBOARD_API_ENDPOINT, dashboardId), null);
+        return RequestBuilder.get() //
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
     }
 
     public static HttpUriRequest getListDashboardsRequest(String host, int port, String authToken) throws URISyntaxException {

@@ -90,6 +90,15 @@ class SupersetApiRequestBuilderTest {
     }
 
     @Test
+    void dashboardRequestHasNoQueryParameter() throws URISyntaxException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getDashboardRequest(39, HOST, PORT, AUTH_TOKEN);
+
+        assertThat(request.getMethod()).isEqualTo("GET");
+        assertThat(request.getURI().getPath()).isEqualTo("/api/v1/dashboard/39");
+        assertThat(request.getURI().getQuery()).isNull();
+    }
+
+    @Test
     void listLogsRequestCarriesPagingAndOrder() throws URISyntaxException {
         HttpUriRequest request = SupersetApiRequestBuilder.getLisLogsRequestFiltered(HOST, PORT, AUTH_TOKEN, new JsonArray(), 2, 1000, "dttm", "asc");
 
