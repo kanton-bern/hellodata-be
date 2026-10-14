@@ -36,7 +36,8 @@ export function markdownToHtml(markdown: string | null | undefined): string {
   const lines = escapeHtml(markdown ?? '').replace(/\r\n?/g, '\n').split('\n');
   const out: string[] = [];
   let paragraph: string[] = [];
-  let list: {tag: 'ul' | 'ol'; items: string[]} | null = null;
+  // Cast so TypeScript doesn't narrow `list` to null here: the flush closures below reassign it.
+  let list = null as {tag: 'ul' | 'ol'; items: string[]} | null;
 
   const flushParagraph = () => {
     if (paragraph.length) {
