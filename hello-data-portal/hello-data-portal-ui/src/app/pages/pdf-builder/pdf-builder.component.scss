@@ -242,14 +242,18 @@
   font-weight: 600;
 }
 
-/* Room for the page below the paginator; the page is centred in it at the PDF's aspect ratio. */
+/* Room for the page below the paginator; the page is centred in it at the PDF's aspect ratio and may be
+   taller than this area (see MAX_PAGE_HEIGHT_FACTOR), which then scrolls. The gutter stays reserved so a
+   scrollbar coming and going cannot change the width the page is sized from. */
 .page-area {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 /*

@@ -26,7 +26,7 @@
 ///
 
 import {describe, expect, it} from '@jest/globals';
-import {CSS_PX_PER_MM, chartImageHeight, collapseWhitespace, fitCanvas, isCutOff} from './pdf-canvas';
+import {CSS_PX_PER_MM, MAX_PAGE_HEIGHT_FACTOR, chartImageHeight, collapseWhitespace, fitCanvas, isCutOff} from './pdf-canvas';
 import {PdfPageGeometry} from '../../store/pdf-export/pdf-export.model';
 
 // The page grids the backend serves (ReportTemplate, pinned by PdfTemplateDtoTest).
@@ -35,7 +35,7 @@ const LANDSCAPE: PdfPageGeometry = {contentWidthMm: 265, cellHeightMm: 42, gridC
 
 describe('fitCanvas', () => {
   it('draws a portrait page tall and narrow, limited by the available height', () => {
-    const canvas = fitCanvas(PORTRAIT, 1200, 512)!;
+    const canvas = fitCanvas(PORTRAIT, 1200, 512, 1)!;
     expect(canvas.pxPerMm).toBeCloseTo(2);                    // 512 px / 256 mm
     expect(canvas.width).toBeCloseTo(356);
     expect(canvas.height).toBeCloseTo(512);
@@ -59,14 +59,26 @@ describe('fitCanvas', () => {
       const canvas = fitCanvas(PORTRAIT, w, h)!;
       expect(canvas.width / canvas.height).toBeCloseTo(178 / 256);
       expect(canvas.width).toBeLessThanOrEqual(w + 1e-9);
-      expect(canvas.height).toBeLessThanOrEqual(h + 1e-9);
+      expect(canvas.height).toBeLessThanOrEqual(MAX_PAGE_HEIGHT_FACTOR * h + 1e-9);
     }
   });
 
+  it('lets a landscape page use the full width, scrolling when it gets taller than the area', () => {
+    const canvas = fitCanvas(LANDSCAPE, 1550, 780)!;
+    expect(canvas.width).toBeCloseTo(1550);
+    expect(canvas.height).toBeGreaterThan(780);               // 1550 / 265 * 168 = 983 px: scrolls
+  });
+
+  it('draws a portrait page larger than the visible height, up to the height factor', () => {
+    const canvas = fitCanvas(PORTRAIT, 1550, 780)!;
+    expect(canvas.height).toBeCloseTo(MAX_PAGE_HEIGHT_FACTOR * 780);
+    expect(canvas.width).toBeCloseTo(MAX_PAGE_HEIGHT_FACTOR * 780 * 178 / 256);
+  });
+
   it('scales the PDF text by the same factor as the page', () => {
-    const canvas = fitCanvas(PORTRAIT, 1200, 512)!;
+    const canvas = fitCanvas(PORTRAIT, 1200, 512, 1)!;
     expect(canvas.textScale).toBeCloseTo(2 / CSS_PX_PER_MM);  // 2 px/mm on screen vs 3.78 CSS px/mm in the PDF
-    expect(fitCanvas(PORTRAIT, 10000, 256 * CSS_PX_PER_MM)!.textScale).toBeCloseTo(1);
+    expect(fitCanvas(PORTRAIT, 178 * CSS_PX_PER_MM, 10000)!.textScale).toBeCloseTo(1);
   });
 
   it('has no canvas while there is no room', () => {
@@ -77,7 +89,7 @@ describe('fitCanvas', () => {
 
 describe('chartImageHeight', () => {
   it('leaves the chart heading overhead out of the spanned rows, like the PDF', () => {
-    const canvas = fitCanvas(PORTRAIT, 1200, 512)!;
+    const canvas = fitCanvas(PORTRAIT, 1200, 512, 1)!;
     expect(chartImageHeight(PORTRAIT, canvas, 2)).toBeCloseTo((2 * 64 - 15) * 2);
     expect(chartImageHeight(PORTRAIT, canvas, 1)).toBeCloseTo((64 - 15) * 2);
   });

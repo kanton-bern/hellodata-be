@@ -42,14 +42,20 @@ export interface PdfCanvasMetrics {
 /** CSS pixels per millimetre (96 per inch), the unit openhtmltopdf lays the PDF's px and pt out in. */
 export const CSS_PX_PER_MM = 96 / 25.4;
 
-/** The largest drawing of the page grid that fits into the available area, keeping the PDF's aspect
- *  ratio; null while there is no room (e.g. before the canvas is laid out). */
-export function fitCanvas(geometry: PdfPageGeometry, availableWidth: number, availableHeight: number): PdfCanvasMetrics | null {
+/** How much taller than the visible area the page may get (the canvas then scrolls). Lets a landscape
+ *  page use the full width and draws a portrait page larger than one that fits without scrolling. */
+export const MAX_PAGE_HEIGHT_FACTOR = 1.6;
+
+/** The largest drawing of the page grid, keeping the PDF's aspect ratio, that fits the available width
+ *  and is at most `maxHeightFactor` times the available height; null while there is no room (e.g.
+ *  before the canvas is laid out). */
+export function fitCanvas(geometry: PdfPageGeometry, availableWidth: number, availableHeight: number,
+                          maxHeightFactor = MAX_PAGE_HEIGHT_FACTOR): PdfCanvasMetrics | null {
   const gridHeightMm = geometry.gridRowsPerPage * geometry.cellHeightMm;
   if (availableWidth <= 0 || availableHeight <= 0 || geometry.contentWidthMm <= 0 || gridHeightMm <= 0) {
     return null;
   }
-  const pxPerMm = Math.min(availableWidth / geometry.contentWidthMm, availableHeight / gridHeightMm);
+  const pxPerMm = Math.min(availableWidth / geometry.contentWidthMm, maxHeightFactor * availableHeight / gridHeightMm);
   const colWidth = (geometry.contentWidthMm / geometry.gridCols) * pxPerMm;
   const rowHeight = geometry.cellHeightMm * pxPerMm;
   return {

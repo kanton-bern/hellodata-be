@@ -178,8 +178,9 @@ export class PdfBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   });
   /** Room left for the page next to the palette and below the paginator (tracked on resize). */
   private pageAreaSize = signal({width: 0, height: 0});
-  /** How the page is drawn: the selected template's grid at the largest scale that fits, so the canvas
-   *  has the PDF page's shape and its text wraps like in the PDF. Null while unknown (no canvas then). */
+  /** How the page is drawn: the selected template's grid as large as the width allows (taller pages
+   *  scroll, see fitCanvas), so the canvas has the PDF page's shape and its text wraps like in the PDF.
+   *  Null while unknown (no canvas then). */
   canvas = computed(() => {
     const geometry = this.geometry();
     const area = this.pageAreaSize();
