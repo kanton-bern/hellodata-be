@@ -73,24 +73,42 @@ export class RlsRoleSelectionComponent implements OnInit {
       this.store.select(selectSelectedRlsRolesForUser)
     ]).pipe(
       map(([allRlsRoles, allSelected]) => ({
-        rlsRoles: allRlsRoles[this.context().contextKey] || [],
-        selectedRoleKeys: allSelected[this.context().contextKey] || []
+        rlsRoles: this.forContext(allRlsRoles),
+        selectedRoleKeys: this.forContext(allSelected)
       }))
     );
   }
 
   ngOnInit() {
-    this.store.dispatch(loadRlsRolesForUser({contextKey: this.context().contextKey}));
+    const contextKey = this.contextKey();
+    if (contextKey) {
+      this.store.dispatch(loadRlsRolesForUser({contextKey}));
+    }
   }
 
   onRlsRoleChange(roleKey: string, checked: boolean, selectedRoleKeys: string[]) {
+    const contextKey = this.contextKey();
+    if (!contextKey) {
+      return;
+    }
     const roleKeys = checked
       ? [...selectedRoleKeys.filter(key => key !== roleKey), roleKey]
       : selectedRoleKeys.filter(key => key !== roleKey);
     this.store.dispatch(setRlsRolesForUser({
-      contextKey: this.context().contextKey,
+      contextKey,
       roleKeys: roleKeys.sort((a, b) => a.localeCompare(b))
     }));
     this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
+  }
+
+  /** The data domain whose RLS roles are shown; optional on Context, so nothing is loaded without it. */
+  private contextKey(): string | undefined {
+    return this.context().contextKey;
+  }
+
+  /** This data domain's entry of a per-domain map; empty when the domain has none or no key. */
+  private forContext<T>(byContextKey: Record<string, T[]>): T[] {
+    const contextKey = this.contextKey();
+    return contextKey ? byContextKey[contextKey] || [] : [];
   }
 }
