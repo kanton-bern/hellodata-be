@@ -23,7 +23,6 @@ from flask_login import login_user, logout_user
 from random import SystemRandom
 from typing import Optional
 from werkzeug.wrappers import Response as WerkzeugResponse
-from datetime import timedelta
 import jwt
 import logging
 import os
@@ -42,6 +41,8 @@ log.setLevel(logging.DEBUG)
 
 WTF_CSRF_ENABLED = False
 AUTH_TYPE = AUTH_OAUTH
+# HELLODATA-4146: renamed so remember-me cookies issued before login stopped using them are ignored
+REMEMBER_COOKIE_NAME = "hd_remember_token"
 AUTH_ROLE_ADMIN = 'Admin'
 AUTH_USER_REGISTRATION_ROLE = "Public"
 AUTH_USER_REGISTRATION = True
@@ -104,7 +105,8 @@ class HdAuthOAuthView(AuthView):
               "last_name": decoded_token.get("family_name"),
           }
           decoded_token = ab_security_manager.auth_user_oauth(userinfo)
-          login_user(decoded_token, remember=True)
+          # HELLODATA-4146: no remember-me cookie, the session ends with [webserver] session_lifetime_minutes
+          login_user(decoded_token, remember=False)
           next = request.args.get('next')
           if next:
               return redirect(get_safe_redirect(next))
@@ -198,7 +200,6 @@ class HdAuthOAuthView(AuthView):
 
       login_user(user)
       session.permanent = True
-      app.permanent_session_lifetime = timedelta(hours=9)
       next_url = self.appbuilder.get_url_for_index
       # Check if there is a next url on state
       if "next" in state and len(state["next"]) > 0:

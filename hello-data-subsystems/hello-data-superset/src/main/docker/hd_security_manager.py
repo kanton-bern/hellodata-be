@@ -69,7 +69,8 @@ class HdAuthOAuthView(AuthView):
               "last_name": decoded_token.get("family_name"),
           }
           decoded_token = ab_security_manager.auth_user_oauth(userinfo)
-          login_user(decoded_token, remember=True)
+          # HELLODATA-4146: no remember-me cookie, the session ends with PERMANENT_SESSION_LIFETIME
+          login_user(decoded_token, remember=False)
           next = request.args.get('next')
           if next:
               return redirect(get_safe_redirect(next))

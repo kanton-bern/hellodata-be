@@ -485,7 +485,29 @@ def _hd_register_impersonation(app):
     except Exception:  # noqa: BLE001 - CSRF may be disabled; exemption is then unnecessary
         pass
 
-FLASK_APP_MUTATOR = _hd_register_impersonation
+# --- HELLODATA-4146: session lifetime -----------------------------------------------------------
+# End idle Superset sessions after the Keycloak SSO session maximum, so a tab left open overnight
+# does not stay logged in after the portal session expired. Superset itself keeps a browser-session
+# cookie plus a 365-day remember-me cookie; make the session permanent with a sliding expiry instead
+# (refreshed on every request, so only idle sessions end). The remember-me cookie gets a new name so
+# cookies issued before this change are ignored.
+from datetime import timedelta as _hd_timedelta
+from flask import session as _hd_session
+
+PERMANENT_SESSION_LIFETIME = _hd_timedelta(minutes=int(os.getenv("SUPERSET_SESSION_LIFETIME_MINUTES", "600")))
+REMEMBER_COOKIE_NAME = "hd_remember_token"
+REMEMBER_COOKIE_DURATION = PERMANENT_SESSION_LIFETIME
+
+
+def _hd_make_session_permanent():
+    _hd_session.permanent = True
+
+
+def _hd_app_mutator(app):
+    _hd_register_impersonation(app)
+    app.before_request(_hd_make_session_permanent)
+
+FLASK_APP_MUTATOR = _hd_app_mutator
 
 # --- secret_key ---
 SECRET_KEY=os.environ["SUPERSET_SECRET_KEY"]

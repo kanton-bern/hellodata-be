@@ -40,12 +40,14 @@ import {AuthService} from "../services";
 import {environment} from "../../../environments/environment";
 import {OidcSecurityService} from "angular-auth-oidc-client";
 import {Router} from "@angular/router";
+import {SubsystemLogoutService} from "../services/subsystem-logout.service";
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private readonly router = inject(Router);
+  private readonly subsystemLogoutService = inject(SubsystemLogoutService);
 
   private static readonly REDIRECT_TO_KEY = 'redirectTo';
 
@@ -191,11 +193,16 @@ export class TokenInterceptor implements HttpInterceptor {
     // Clear stale local auth state. The AutoLoginPartialRoutesGuard on /home
     // will trigger the OIDC authorize flow properly.
     this.oidcSecurityService.logoffLocal();
-    // Use setTimeout to avoid triggering navigation during change detection
-    setTimeout(() => {
-      this.isRedirectingToLogin = false;
-      this.router.navigate(['/home']);
-    }, 0);
+    // HELLODATA-4146: the portal session is gone (Keycloak refused the refresh), so also end the
+    // sessions of the subsystems opened from this tab - otherwise their tabs stay logged in.
+    // Navigate once their logout calls finished or timed out; the navigation itself still runs
+    // in a later task to avoid triggering it during change detection.
+    this.subsystemLogoutService.logoutOpenedSubsystems()
+      .catch(e => console.debug('[TokenInterceptor] subsystem logout failed', e))
+      .finally(() => {
+        this.isRedirectingToLogin = false;
+        this.router.navigate(['/home']);
+      });
   }
 
   private rememberCurrentRouteForRedirect(): void {
