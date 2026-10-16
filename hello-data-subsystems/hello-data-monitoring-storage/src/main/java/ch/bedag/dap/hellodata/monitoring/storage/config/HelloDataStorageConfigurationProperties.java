@@ -43,5 +43,4 @@ public class HelloDataStorageConfigurationProperties {
     private List<DataSourceConfigurationProperty> datasources;
     @Valid
     private List<StorageConfigurationProperty> storages;
-    private boolean createStorages;
 }
