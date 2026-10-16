@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
 import java.util.List;
@@ -40,12 +41,14 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -63,12 +66,15 @@ class StorageSizeServiceTest {
     @InjectMocks
     private StorageSizeService storageSizeService;
 
+    @TempDir
+    private Path tempDir;
+
     @Test
     void testCheckStorageSize() throws IOException {
         // given
         StorageConfigurationProperty storageProperty = new StorageConfigurationProperty();
         storageProperty.setName("Test Storage");
-        storageProperty.setPath("/test/path");
+        storageProperty.setPath(tempDir.toString());
         when(configProperties.getStorages()).thenReturn(List.of(storageProperty));
         File mockedFile1 = mock(File.class);
         try (MockedStatic<FileUtils> fileUtilsMockedStatic = Mockito.mockStatic(FileUtils.class); MockedStatic<Files> filesMockedStatic = Mockito.mockStatic(Files.class)) {
@@ -81,11 +87,27 @@ class StorageSizeServiceTest {
             assertEquals(1, result.size());
             StorageSize storageSize = result.get(0);
             assertEquals("Test Storage", storageSize.getName());
-            assertEquals("/test/path", storageSize.getPath());
+            assertEquals(tempDir.toString(), storageSize.getPath());
             assertEquals("1000", storageSize.getUsedBytes());
             assertEquals("1000000", storageSize.getFreeSpaceBytes());
             verify(configProperties, times(1)).getStorages();
         }
+    }
+
+    @Test
+    void testCheckStorageSizeSkipsMissingPath() {
+        // given
+        StorageConfigurationProperty storageProperty = new StorageConfigurationProperty();
+        storageProperty.setName("Missing Storage");
+        storageProperty.setPath(tempDir.resolve("missing").toString());
+        when(configProperties.getStorages()).thenReturn(List.of(storageProperty));
+
+        // when
+        List<StorageSize> result = storageSizeService.checkStorageSize();
+
+        // then
+        assertEquals(0, result.size());
+        assertFalse(Files.exists(tempDir.resolve("missing")));
     }
 
     private static class FileStoreMock extends FileStore {
