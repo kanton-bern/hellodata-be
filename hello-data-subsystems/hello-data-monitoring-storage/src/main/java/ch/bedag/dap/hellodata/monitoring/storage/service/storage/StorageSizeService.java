@@ -86,6 +86,10 @@ public class StorageSizeService {
             for (StorageConfigurationProperty storage : storages) {
                 String path = storage.getPath();
                 File folder = new File(path);
+                if (!folder.isDirectory()) {
+                    log.warn("Skipping storage {} [path: {}], folder does not exist", storage.getName(), path);
+                    continue;
+                }
                 String directorySize = "" + FileUtils.sizeOfDirectory(folder);
                 String freeSpace = "" + Files.getFileStore(folder.toPath()).getUsableSpace();
                 log.info("Readable folder {} [path: {}] size: {}, free space: {}", storage.getName(), path, directorySize, freeSpace);
