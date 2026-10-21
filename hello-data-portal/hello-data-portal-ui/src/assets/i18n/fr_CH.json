@@ -404,6 +404,7 @@
   "@Q3": "T3",
   "@Q4": "T4",
   "@Quarter": "Trimestre",
+  "@Relevant quarter (optional)": "Trimestre concerné (facultatif, par défaut : trimestre de la date de création)",
   "@Queries": "Requêtes",
   "@Read": "Lire",
   "@ready for review": "Prêt pour révision",

@@ -182,6 +182,26 @@
           <i [ngClass]="icons.ACTION_LINK.class"></i>
         </button>
 
+        <!-- Relevant quarter (optional, derived from creation date if not set) -->
+        <p-select [options]="newCommentQuarterOptions"
+                  [(ngModel)]="newCommentQuarter"
+                  optionLabel="label"
+                  optionValue="value"
+                  [showClear]="true"
+                  placeholder="{{ '@Quarter' | transloco }}"
+                  [pTooltip]="'@Relevant quarter (optional)' | transloco"
+                  tooltipPosition="top"
+                  class="quarter-select"
+                  size="small"
+                  appendTo="body">
+          <ng-template pTemplate="item" let-option>
+            {{ option.label | transloco }}
+          </ng-template>
+          <ng-template pTemplate="selectedItem" let-option>
+            {{ option.label | transloco }}
+          </ng-template>
+        </p-select>
+
         <!-- Pointer URL input (when expanded) -->
         @if (showPointerUrlInput) {
           <div class="flex-1">

@@ -45,6 +45,7 @@ public class PublishedComment implements Serializable {
     private String author;
     private String authorEmail;
     private Long createdDate;
+    private Integer quarter;
     private Long publishedDate;
     private String text;
     private String tags;

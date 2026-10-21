@@ -228,6 +228,11 @@
     font-size: 0.7rem;
   }
 
+  .quarter-select {
+    width: 6rem;
+    flex-shrink: 0;
+  }
+
   .action-toggle {
     background: none;
     border: none;

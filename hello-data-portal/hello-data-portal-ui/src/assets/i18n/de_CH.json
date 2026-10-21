@@ -401,6 +401,7 @@
   "@Q3": "Q3",
   "@Q4": "Q4",
   "@Quarter": "Quartal",
+  "@Relevant quarter (optional)": "Relevantes Quartal (optional, Standard: Quartal des Erstellungsdatums)",
   "@Queries": "Abfragen",
   "@Read": "Lesen",
   "@ready for review": "Zur Überprüfung bereit",

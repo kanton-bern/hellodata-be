@@ -168,3 +168,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/70_create_rls_role_tables.xml
   - include:
       file: db/changelog/changelogs/71_add_pdf_layout_title.xml
+  - include:
+      file: db/changelog/changelogs/68_add_quarter_to_dashboard_comment.xml
