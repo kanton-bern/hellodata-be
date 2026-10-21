@@ -229,7 +229,7 @@
   }
 
   .quarter-select {
-    width: 6rem;
+    width: 8rem;
     flex-shrink: 0;
   }
 
@@ -246,7 +246,8 @@
     border-radius: 4px;
 
     &:hover {
-      background-color: var(--surface-hover, #f0f0f0);
+      color: var(--hd-btn-primary-hover, #0b6969);
+      background-color: rgba(14, 124, 124, 0.08);
     }
   }
 
