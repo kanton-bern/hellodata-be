@@ -328,6 +328,7 @@
   "@Q3": "Q3",
   "@Q4": "Q4",
   "@Quarter": "Quarter",
+  "@Relevant quarter (optional)": "Relevant quarter (optional, default: quarter of creation date)",
   "@Queries": "Queries",
   "@Read": "Read",
   "@ready for review": "Ready for review",

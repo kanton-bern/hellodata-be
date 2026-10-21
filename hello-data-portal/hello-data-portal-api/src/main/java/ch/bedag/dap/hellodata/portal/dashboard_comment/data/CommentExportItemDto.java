@@ -46,6 +46,7 @@ public class CommentExportItemDto {
     private String author;
     private String authorEmail;
     private long createdDate;
+    private Integer quarter;
     private boolean deleted;
     private Long deletedDate;
     private String deletedBy;

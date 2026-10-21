@@ -87,6 +87,7 @@ export interface DashboardCommentEntry {
   author: string;
   authorEmail: string;
   createdDate: number;
+  quarter?: number; // Relevant quarter (1-4), set manually or derived from createdDate
   deleted: boolean;
   deletedDate?: number;
   deletedBy?: string;

@@ -159,6 +159,9 @@
         }
         <div><strong>{{ '@Version' | transloco }}:</strong> {{ comment().activeVersion }}</div>
         <div><strong>{{ '@Created date' | transloco }}:</strong> {{ comment().createdDate | date:'medium' }}</div>
+        @if (comment().quarter) {
+          <div><strong>{{ '@Quarter' | transloco }}:</strong> {{ '@Q' + comment().quarter | transloco }}</div>
+        }
         @if (activeVersion()?.publishedDate) {
           <div><strong>{{ '@Published' | transloco }}:</strong> {{ activeVersion()?.publishedDate | date:'medium' }}
             @if (activeVersion()?.publishedBy) {

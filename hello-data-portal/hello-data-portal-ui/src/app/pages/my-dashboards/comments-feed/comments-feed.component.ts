@@ -121,6 +121,9 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
     {label: '@Q3', value: 3},
     {label: '@Q4', value: 4}
   ];
+  // Relevant quarter for a new comment - null means derived from the creation date
+  newCommentQuarterOptions: FilterOption[] = this.quarterOptions.filter(option => option.value !== null);
+  newCommentQuarter: number | null = null;
   selectedYear: number | null = null;
   selectedQuarter: number | null = null;
   selectedStatus: DashboardCommentStatus | null = null;
@@ -424,6 +427,8 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
       const pointerUrl = this.showPointerUrlInput ? this.getNormalizedPointerUrl() : undefined;
       // Include tags if any are selected
       const tags = this.selectedTags.length > 0 ? this.selectedTags : undefined;
+      // Without a selected quarter the backend derives it from the creation date
+      const quarter = this.newCommentQuarter ?? undefined;
 
       this.store.dispatch(addComment({
         dashboardId: this.currentDashboardId,
@@ -431,7 +436,8 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
         dashboardUrl: this.currentDashboardUrl,
         text,
         pointerUrl,
-        tags
+        tags,
+        quarter
       }));
 
       // Re-enable auto-scroll to show the new comment
@@ -442,6 +448,7 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
     this.pointerUrl = '';
     this.showPointerUrlInput = false;
     this.selectedTags = [];
+    this.newCommentQuarter = null;
     this.tagsDialogVisible = false;
   }
 
@@ -513,14 +520,14 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
     return comments.filter(comment => {
       const commentDate = new Date(comment.createdDate);
       const commentYear = commentDate.getFullYear();
-      const commentQuarter = this.getQuarter(commentDate);
+      const commentQuarter = comment.quarter ?? this.getQuarter(commentDate);
 
       // Filter by year
       if (this.selectedYear !== null && commentYear !== this.selectedYear) {
         return false;
       }
 
-      // Filter by quarter (based on end date of quarter)
+      // Filter by quarter (manually set or derived from creation date)
       if (this.selectedQuarter !== null && commentQuarter !== this.selectedQuarter) {
         return false;
       }

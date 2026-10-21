@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentStat
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentVersionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.util.CommentQuarterUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -68,6 +69,7 @@ public class DashboardCommentMapper {
                 .author(entity.getAuthor())
                 .authorEmail(entity.getAuthorEmail())
                 .createdDate(entity.getCreatedDate())
+                .quarter(CommentQuarterUtil.resolveQuarter(entity.getQuarter(), entity.getCreatedDate()))
                 .deleted(entity.isDeleted())
                 .deletedDate(entity.getDeletedDate())
                 .deletedBy(entity.getDeletedBy())
@@ -94,6 +96,7 @@ public class DashboardCommentMapper {
                 .author(dto.getAuthor())
                 .authorEmail(dto.getAuthorEmail())
                 .createdDate(dto.getCreatedDate())
+                .quarter(dto.getQuarter())
                 .deleted(dto.isDeleted())
                 .deletedDate(dto.getDeletedDate())
                 .deletedBy(dto.getDeletedBy())

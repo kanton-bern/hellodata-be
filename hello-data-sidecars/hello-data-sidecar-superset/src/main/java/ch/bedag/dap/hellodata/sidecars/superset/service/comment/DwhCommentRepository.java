@@ -81,6 +81,7 @@ public class DwhCommentRepository {
                     author          VARCHAR(200),
                     author_email    VARCHAR(200),
                     created_date    BIGINT,
+                    quarter         SMALLINT,
                     published_date  BIGINT,
                     text            TEXT,
                     tags            TEXT,
@@ -90,6 +91,8 @@ public class DwhCommentRepository {
                 """.formatted(qualifiedTable);
 
         jdbcTemplate.execute(ddl);
+        // Tables created before the quarter column was introduced
+        jdbcTemplate.execute("ALTER TABLE " + qualifiedTable + " ADD COLUMN IF NOT EXISTS quarter SMALLINT");
 
         // Grant read access to all existing roles in the database so Superset users can query
         jdbcTemplate.execute("GRANT USAGE ON SCHEMA " + schema + " TO PUBLIC");
@@ -161,8 +164,8 @@ public class DwhCommentRepository {
 
         String insertSql = """
                 INSERT INTO %s (comment_id, dashboard_id, dashboard_title, dashboard_slug, context_key,
-                    author, author_email, created_date, published_date, text, tags, pointer_url, synced_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    author, author_email, created_date, quarter, published_date, text, tags, pointer_url, synced_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """.formatted(qualifiedTable);
 
         Timestamp now = Timestamp.from(Instant.now());
@@ -177,6 +180,7 @@ public class DwhCommentRepository {
                     comment.getAuthor(),
                     comment.getAuthorEmail(),
                     comment.getCreatedDate(),
+                    comment.getQuarter(),
                     comment.getPublishedDate(),
                     comment.getText(),
                     comment.getTags(),

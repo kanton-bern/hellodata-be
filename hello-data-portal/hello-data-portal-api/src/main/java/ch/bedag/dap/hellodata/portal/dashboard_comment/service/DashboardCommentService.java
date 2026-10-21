@@ -47,6 +47,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVe
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.util.CommentQuarterUtil;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -427,6 +428,10 @@ public class DashboardCommentService {
         // Validate and normalize tags
         List<String> normalizedTags = validateAndNormalizeTags(createDto.getTags());
 
+        // Use the manually selected quarter, otherwise derive it from the creation date
+        CommentQuarterUtil.validateQuarter(createDto.getQuarter());
+        int quarter = createDto.getQuarter() != null ? createDto.getQuarter() : CommentQuarterUtil.quarterOf(now);
+
         // Create comment entity
         DashboardCommentEntity comment = DashboardCommentEntity.builder()
                 .id(UUID.randomUUID().toString())
@@ -436,6 +441,7 @@ public class DashboardCommentService {
                 .author(authorFullName)
                 .authorEmail(authorEmail)
                 .createdDate(now)
+                .quarter(quarter)
                 .deleted(false)
                 .activeVersion(1)
                 .hasActiveDraft(false)
@@ -1166,6 +1172,7 @@ public class DashboardCommentService {
         domainDto.setAuthor(baseDto.getAuthor());
         domainDto.setAuthorEmail(baseDto.getAuthorEmail());
         domainDto.setCreatedDate(baseDto.getCreatedDate());
+        domainDto.setQuarter(baseDto.getQuarter());
         domainDto.setDeleted(baseDto.isDeleted());
         domainDto.setDeletedDate(baseDto.getDeletedDate());
         domainDto.setDeletedBy(baseDto.getDeletedBy());
@@ -1416,6 +1423,7 @@ public class DashboardCommentService {
                 .author(entity.getAuthor())
                 .authorEmail(entity.getAuthorEmail())
                 .createdDate(entity.getCreatedDate())
+                .quarter(CommentQuarterUtil.resolveQuarter(entity.getQuarter(), entity.getCreatedDate()))
                 .deleted(entity.isDeleted())
                 .deletedDate(entity.getDeletedDate())
                 .deletedBy(entity.getDeletedBy())
@@ -1705,6 +1713,10 @@ public class DashboardCommentService {
                 .forEach(v -> v.setStatus(DashboardCommentStatus.DELETED));
     }
 
+    private boolean isValidQuarter(Integer quarter) {
+        return quarter != null && quarter >= 1 && quarter <= 4;
+    }
+
     private void updateEntityMetadata(DashboardCommentEntity entity, CommentExportItemDto item,
                                       ImportVersionResult result) {
         int activeVersion = item.getActiveVersion() > 0 ? item.getActiveVersion() : result.maxVersion();
@@ -1714,6 +1726,9 @@ public class DashboardCommentService {
         entity.setDeletedDate(item.getDeletedDate());
         entity.setDeletedBy(item.getDeletedBy());
         entity.setDeletionReason(item.getDeletionReason());
+        if (isValidQuarter(item.getQuarter())) {
+            entity.setQuarter(item.getQuarter());
+        }
         entity.setEntityVersion(entity.getEntityVersion() + 1);
     }
 
@@ -1811,6 +1826,8 @@ public class DashboardCommentService {
     private DashboardCommentEntity buildImportedCommentEntity(ImportContext ctx, CommentExportItemDto item,
                                                               ImportVersionResult versionResult) {
         int activeVersion = item.getActiveVersion() > 0 ? item.getActiveVersion() : versionResult.maxVersion();
+        long createdDate = item.getCreatedDate() > 0 ? item.getCreatedDate() : ctx.now();
+        int quarter = isValidQuarter(item.getQuarter()) ? item.getQuarter() : CommentQuarterUtil.quarterOf(createdDate);
 
         return DashboardCommentEntity.builder()
                 .id(UUID.randomUUID().toString())
@@ -1820,7 +1837,8 @@ public class DashboardCommentService {
                 .importedFromId(item.getId())
                 .author(item.getAuthor() != null ? item.getAuthor() : ctx.importedBy())
                 .authorEmail(item.getAuthorEmail() != null ? item.getAuthorEmail() : ctx.importedByEmail())
-                .createdDate(item.getCreatedDate() > 0 ? item.getCreatedDate() : ctx.now())
+                .createdDate(createdDate)
+                .quarter(quarter)
                 .deleted(item.isDeleted())
                 .deletedDate(item.getDeletedDate())
                 .deletedBy(item.getDeletedBy())

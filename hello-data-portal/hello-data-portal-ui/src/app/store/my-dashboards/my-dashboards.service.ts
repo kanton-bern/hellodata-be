@@ -37,6 +37,7 @@ export interface CommentCreateRequest {
   pointerUrl?: string;
   text: string;
   tags?: string[];
+  quarter?: number;
 }
 
 export interface CommentUpdateRequest {
