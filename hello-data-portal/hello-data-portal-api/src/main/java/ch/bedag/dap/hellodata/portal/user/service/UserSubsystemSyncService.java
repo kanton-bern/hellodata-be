@@ -179,15 +179,20 @@ public class UserSubsystemSyncService {
         return partition;
     }
 
+    /**
+     * Synchronizes the user with the subsystems after a dashboard change in the given context.
+     * Dashboards are built for ALL contexts, not only the changed one: the message is broadcast to every
+     * Superset sidecar, and a sidecar treats the payload as the complete set - a context missing from it
+     * would lose its dashboard roles.
+     */
     @Transactional(readOnly = true)
     public void synchronizeUserWithDashboards(UUID userId, String contextKey) {
         UserEntity userEntity = getUserEntity(userId);
 
-        // Build dashboards for the given context
-        Map<String, List<DashboardForUserDto>> dashboardsPerContext = buildDashboardsForContext(userId, contextKey);
+        Map<String, List<DashboardForUserDto>> dashboardsPerContext = buildDashboardsForAllContexts(userId);
 
         synchronizeUser(userEntity, true, new HashMap<>(), dashboardsPerContext);
-        log.info("Synchronized user {} with dashboards for context {}", userId, contextKey);
+        log.info("Synchronized user {} with dashboards for all contexts (triggered by context {})", userId, contextKey);
     }
 
     private Map<String, List<DashboardForUserDto>> buildDashboardsForContext(UUID userId, String contextKey) {
