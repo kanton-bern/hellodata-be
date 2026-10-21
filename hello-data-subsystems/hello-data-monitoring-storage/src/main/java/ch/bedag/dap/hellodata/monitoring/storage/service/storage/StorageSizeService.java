@@ -29,7 +29,6 @@ package ch.bedag.dap.hellodata.monitoring.storage.service.storage;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage.StorageSize;
 import ch.bedag.dap.hellodata.monitoring.storage.config.HelloDataStorageConfigurationProperties;
 import ch.bedag.dap.hellodata.monitoring.storage.config.storage.StorageConfigurationProperty;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
@@ -38,45 +37,14 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class StorageSizeService {
     private final HelloDataStorageConfigurationProperties helloDataStorageConfigurationProperties;
-
-    private static final Set<PosixFilePermission> DIRECTORY_PERMISSIONS = PosixFilePermissions.fromString("rwxrwx---");
-
-    @PostConstruct
-    public void init() {
-        if (helloDataStorageConfigurationProperties.isCreateStorages()) {
-            List<StorageConfigurationProperty> storages = helloDataStorageConfigurationProperties.getStorages();
-            for (StorageConfigurationProperty storage : storages) {
-                String path = storage.getPath();
-                Path folderPath = Path.of(path);
-                if (!Files.exists(folderPath)) {
-                    try {
-                        Files.createDirectories(folderPath);
-                        // The mode passed to createDirectories is filtered by the process umask
-                        // (e.g. 0770 & ~022 = 0750), which silently drops group write. Set the
-                        // permissions explicitly afterwards - setPosixFilePermissions is not
-                        // umask-filtered - so other members of the storage group (e.g. the
-                        // dbt-docs generation pod) can write into the data-domain folder.
-                        Files.setPosixFilePermissions(folderPath, DIRECTORY_PERMISSIONS);
-                        log.info("Created folder {}", folderPath);
-                    } catch (IOException e) {
-                        log.error("Failed to create folder {}", folderPath, e);
-                    }
-                }
-            }
-        }
-    }
 
     public List<StorageSize> checkStorageSize() {
         log.info("^^^Checking storages size:");
@@ -86,6 +54,10 @@ public class StorageSizeService {
             for (StorageConfigurationProperty storage : storages) {
                 String path = storage.getPath();
                 File folder = new File(path);
+                if (!folder.isDirectory()) {
+                    log.warn("Configured storage {} [path: {}] does not exist, skipping", storage.getName(), path);
+                    continue;
+                }
                 String directorySize = "" + FileUtils.sizeOfDirectory(folder);
                 String freeSpace = "" + Files.getFileStore(folder.toPath()).getUsableSpace();
                 log.info("Readable folder {} [path: {}] size: {}, free space: {}", storage.getName(), path, directorySize, freeSpace);

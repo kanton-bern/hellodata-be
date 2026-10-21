@@ -68,6 +68,12 @@ public class DashboardCommentEntity {
     @Column(name = "created_date", nullable = false)
     private Long createdDate;
 
+    /**
+     * Quarter (1-4) the comment refers to. Set manually on creation or derived from {@link #createdDate}.
+     */
+    @Column(name = "quarter")
+    private Integer quarter;
+
     @Column(name = "deleted", nullable = false)
     @Builder.Default
     private boolean deleted = false;

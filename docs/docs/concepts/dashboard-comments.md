@@ -462,7 +462,7 @@ Returns all unique tags used in comments for a specific dashboard.
 Domain comments view supports filtering by:
 
 - Year
-- Quarter (based on comment creation date)
+- Quarter (selected when creating the comment, otherwise derived from the comment creation date)
 - Tag (if any comments have tags assigned)
 - Text search (searches comment text content)
 
@@ -484,6 +484,7 @@ CREATE TABLE dashboard_comment
     author           VARCHAR(255),
     author_email     VARCHAR(255),
     created_date     BIGINT,
+    quarter          SMALLINT,     -- Relevant quarter (1-4), set manually or derived from created_date
     deleted          BOOLEAN DEFAULT FALSE,
     deleted_date     BIGINT,
     deleted_by       VARCHAR(255),

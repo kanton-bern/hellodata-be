@@ -46,6 +46,7 @@ public class DashboardCommentDto {
     private String author;
     private String authorEmail;
     private Long createdDate;
+    private Integer quarter; // relevant quarter (1-4)
     private boolean deleted;
     private Long deletedDate;
     private String deletedBy;

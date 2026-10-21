@@ -143,7 +143,8 @@ export const addComment = createAction(
     dashboardUrl: string;
     text: string;
     pointerUrl?: string;
-    tags?: string[]
+    tags?: string[];
+    quarter?: number;
   }>()
 );
 

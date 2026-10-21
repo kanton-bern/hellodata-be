@@ -40,6 +40,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentStat
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.util.CommentQuarterUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -158,6 +159,7 @@ public class DashboardCommentDwhSyncService {
                 .author(entity.getAuthor())
                 .authorEmail(entity.getAuthorEmail())
                 .createdDate(entity.getCreatedDate())
+                .quarter(CommentQuarterUtil.resolveQuarter(entity.getQuarter(), entity.getCreatedDate()))
                 .publishedDate(activeVersion.getPublishedDate())
                 .text(activeVersion.getText())
                 .tags(activeVersion.getTags())

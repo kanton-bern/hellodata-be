@@ -186,12 +186,13 @@ export class MyDashboardsEffects {
   addComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(addComment),
-      switchMap(({dashboardId, contextKey, dashboardUrl, text, pointerUrl, tags}) => {
+      switchMap(({dashboardId, contextKey, dashboardUrl, text, pointerUrl, tags, quarter}) => {
         return this._myDashboardsService.createComment(contextKey, dashboardId, {
           dashboardUrl,
           pointerUrl,
           text,
-          tags
+          tags,
+          quarter
         }).pipe(
           switchMap(comment => scheduled([
             addCommentSuccess({comment}),

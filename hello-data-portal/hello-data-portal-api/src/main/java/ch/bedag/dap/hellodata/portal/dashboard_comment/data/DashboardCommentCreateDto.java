@@ -42,4 +42,5 @@ public class DashboardCommentCreateDto {
     private String pointerUrl;
     private String text;
     private List<String> tags;
+    private Integer quarter; // Optional - relevant quarter (1-4), derived from creation date if not set
 }

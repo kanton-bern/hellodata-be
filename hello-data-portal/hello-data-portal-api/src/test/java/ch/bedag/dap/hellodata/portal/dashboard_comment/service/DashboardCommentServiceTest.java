@@ -39,6 +39,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVe
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.util.CommentQuarterUtil;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -218,6 +219,7 @@ class DashboardCommentServiceTest {
                 .author(entity.getAuthor())
                 .authorEmail(entity.getAuthorEmail())
                 .createdDate(entity.getCreatedDate())
+                .quarter(entity.getQuarter())
                 .deleted(entity.isDeleted())
                 .deletedDate(entity.getDeletedDate())
                 .deletedBy(entity.getDeletedBy())
@@ -405,6 +407,60 @@ class DashboardCommentServiceTest {
             assertThat(version.getStatus()).isEqualTo(DashboardCommentStatus.DRAFT);
             assertThat(version.getEditedBy()).isEqualTo(TEST_USER_NAME);
             assertThat(version.isDeleted()).isFalse();
+        }
+    }
+
+    @Test
+    void createComment_shouldUseManuallySelectedQuarter() {
+        DashboardCommentDto result = createCommentAsWriter(DashboardCommentCreateDto.builder()
+                .text("Test comment")
+                .dashboardUrl(TEST_DASHBOARD_URL)
+                .quarter(2)
+                .build());
+
+        assertThat(result.getQuarter()).isEqualTo(2);
+    }
+
+    @Test
+    void createComment_shouldDeriveQuarterFromCreationDateWhenNotSet() {
+        DashboardCommentDto result = createCommentAsWriter(DashboardCommentCreateDto.builder()
+                .text("Test comment")
+                .dashboardUrl(TEST_DASHBOARD_URL)
+                .build());
+
+        assertThat(result.getQuarter()).isEqualTo(CommentQuarterUtil.quarterOf(result.getCreatedDate()));
+    }
+
+    @Test
+    void createComment_shouldRejectInvalidQuarter() {
+        DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                .text("Test comment")
+                .dashboardUrl(TEST_DASHBOARD_URL)
+                .quarter(5)
+                .build();
+
+        assertThatThrownBy(() -> createCommentAsWriter(createDto))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Quarter must be between 1 and 4");
+    }
+
+    private DashboardCommentDto createCommentAsWriter(DashboardCommentCreateDto createDto) {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(UUID.randomUUID());
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+
+            DashboardCommentPermissionEntity permission = new DashboardCommentPermissionEntity();
+            permission.setWriteComments(true);
+            when(commentPermissionRepository.findByUserIdAndContextKey(any(), eq(TEST_CONTEXT_KEY)))
+                    .thenReturn(Optional.of(permission));
+
+            return commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
         }
     }
 
