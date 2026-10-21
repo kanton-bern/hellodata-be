@@ -223,9 +223,3 @@ management:
       enabled: true
     os:
       enabled: true
-  metrics:
-    distribution:
-      percentiles-histogram:
-        spring.data.repository.invocations: true
-        http.server.requests: true
-        http.client.requests: true
