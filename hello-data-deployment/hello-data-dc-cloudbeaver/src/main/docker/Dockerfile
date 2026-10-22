@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM dbeaver/cloudbeaver:24.1.1
+FROM dbeaver/cloudbeaver:26.2.3
 
 ADD conf/cloudbeaver.conf /opt/cloudbeaver/conf/cloudbeaver.conf
 ADD conf/initial-data.conf /opt/cloudbeaver/conf/initial-data.conf
