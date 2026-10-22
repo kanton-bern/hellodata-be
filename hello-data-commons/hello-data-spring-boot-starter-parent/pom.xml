@@ -41,8 +41,8 @@
         <spring-boot.version>4.1.1</spring-boot.version>
         <!-- CVE-2026-42584 / CVE-2026-56816 (GHSA-hpcc-26xq-25fv) / CVE-2026-59901 (GHSA-558v-64gr-wgg4) / CVE-2026-93568 (BDSA-2026-33790) / CVE-2026-93569 (BDSA-2026-33768) / CVE-2026-93576 (BDSA-2026-33770): remove once Spring Boot ships Netty >= 4.2.18.Final -->
         <netty.version>4.2.18.Final</netty.version>
-        <!-- CVE-2026-41284 / BDSA-2026-10253: remove once Spring Boot ships Tomcat >= 11.0.22 -->
-        <tomcat.version>11.0.25</tomcat.version>
+        <!-- CVE-2026-41284 / BDSA-2026-10253 / CVE-2026-86248 (BDSA-2026-34305): remove once Spring Boot ships Tomcat >= 11.0.27 (Boot 4.1.2+) -->
+        <tomcat.version>11.0.27</tomcat.version>
         <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
         <bouncycastle.version>1.85.2</bouncycastle.version>
         <!-- CVE-2026-8763 / CVE-2026-59650 (BDSA-2026-25365): remove once io.nats:jnats ships bcprov-lts8on >= 2.73.12 -->
@@ -116,7 +116,7 @@
                 <artifactId>scram-common</artifactId>
                 <version>${scram.version}</version>
             </dependency>
-            <!-- CVE-2026-41284 / BDSA-2026-10253: remove once Spring Boot ships Tomcat >= 11.0.22 -->
+            <!-- CVE-2026-41284 / BDSA-2026-10253 / CVE-2026-86248 (BDSA-2026-34305): remove once Spring Boot ships Tomcat >= 11.0.27 (Boot 4.1.2+) -->
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
