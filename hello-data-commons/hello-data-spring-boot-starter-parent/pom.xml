@@ -44,8 +44,8 @@
         <netty.version>4.2.18.Final</netty.version>
         <!-- CVE-2026-41284 / BDSA-2026-10253 / CVE-2026-86248 (BDSA-2026-34305): remove once Spring Boot ships Tomcat >= 11.0.27 (Boot 4.1.2+) -->
         <tomcat.version>11.0.27</tomcat.version>
-        <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
-        <bouncycastle.version>1.85.2</bouncycastle.version>
+        <!-- BDSA-2026-7218 / CVE-2026-5588 / CVE-2026-58062: remove once Spring Cloud ships bcprov-jdk18on >= 1.86 -->
+        <bouncycastle.version>1.86</bouncycastle.version>
         <!-- CVE-2026-8763 / CVE-2026-59650 (BDSA-2026-25365): remove once io.nats:jnats ships bcprov-lts8on >= 2.73.12 -->
         <bouncycastle-lts.version>2.73.12</bouncycastle-lts.version>
         <!-- CVE-2026-19880 (BDSA-2026-29974): no 1.5.x backport exists; remove once Spring Boot ships logback >= 1.6.3 -->
@@ -83,7 +83,7 @@
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
             </dependency>
-            <!-- BDSA-2026-7218 / CVE-2026-5588: remove once Spring Cloud ships bcprov-jdk18on >= 1.82 -->
+            <!-- BDSA-2026-7218 / CVE-2026-5588 / CVE-2026-58062: remove once Spring Cloud ships bcprov-jdk18on >= 1.86 -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
