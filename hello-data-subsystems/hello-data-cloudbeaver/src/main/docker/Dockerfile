@@ -25,4 +25,4 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM dbeaver/cloudbeaver:25.2.4
+FROM dbeaver/cloudbeaver:26.2.3
