@@ -95,7 +95,7 @@
     "lodash": "^4.17.23",
     "lodash-es": "^4.17.23",
     "@modelcontextprotocol/sdk": "^1.26.0",
-    "webpack": "~5.111.1",
+    "webpack": "^5.112.1",
     "webpack-dev-server": "^5.2.4",
     "minimatch": "^10.2.3",
     "hono": "^4.13.11",
