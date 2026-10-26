@@ -174,19 +174,19 @@ public class UploadDashboardsFileListener {
                 FileOutputStream fos = new FileOutputStream(tempZip);
                 ZipOutputStream zos = new ZipOutputStream(fos, StandardCharsets.UTF_8)
         ) {
-            // First pass: find the source database name from the zip
-            String sourceDatabaseName = findSourceDatabaseName(zipFile);
-            if (sourceDatabaseName == null) {
+            // First pass: find the source database from the zip
+            SourceDatabase sourceDb = findSourceDatabase(zipFile);
+            if (sourceDb == null) {
                 log.warn("No database entry found in zip, skipping remapping");
                 return;
             }
 
-            if (sourceDatabaseName.equals(targetDb.name)) {
-                log.info("Source database name '{}' already matches target, skipping remapping", sourceDatabaseName);
+            if (sourceDb.name().equals(targetDb.name) && targetDb.uuid.equals(sourceDb.uuid())) {
+                log.info("Source database '{}' already matches target, skipping remapping", sourceDb.name());
                 return;
             }
 
-            log.info("Remapping database from '{}' to '{}'", sourceDatabaseName, targetDb.name);
+            log.info("Remapping database from '{}' (uuid {}) to '{}' (uuid {})", sourceDb.name(), sourceDb.uuid(), targetDb.name, targetDb.uuid);
 
             Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
             while (entries.hasMoreElements()) {
@@ -202,7 +202,7 @@ public class UploadDashboardsFileListener {
                         parsed.put("uuid", targetDb.uuid);
 
                         String updatedYaml = yamlMapper.writeValueAsString(parsed);
-                        String newEntryName = entryName.replace("/databases/" + sourceDatabaseName + ".yaml",
+                        String newEntryName = entryName.replace("/databases/" + sourceDb.fileName() + ".yaml",
                                 "/databases/" + targetDb.name + ".yaml");
                         log.info("Renaming database entry: {} -> {}", entryName, newEntryName);
 
@@ -210,8 +210,11 @@ public class UploadDashboardsFileListener {
                         zos.write(updatedYaml.getBytes(StandardCharsets.UTF_8));
                         zos.closeEntry();
 
-                    } else if (entryName.contains("/datasets/" + sourceDatabaseName + "/") && !entry.isDirectory()) {
-                        // Remap dataset: rename folder and update catalog field
+                    } else if (entryName.contains("/datasets/") && !entry.isDirectory()) {
+                        // Every database entry now carries the target uuid, so every dataset must point to it too -
+                        // otherwise Superset skips the dataset (and its charts) and fails on native filters
+                        // referencing it with a KeyError. The folder can't be used to match: Superset names it
+                        // after secure_filename(database_name), e.g. 'BI Editor' -> 'BI_Editor'.
                         String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                         Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
                         if (parsed.containsKey("catalog")) {
@@ -220,7 +223,7 @@ public class UploadDashboardsFileListener {
                         parsed.put("database_uuid", targetDb.uuid);
 
                         String updatedYaml = yamlMapper.writeValueAsString(parsed);
-                        String newEntryName = entryName.replace("/datasets/" + sourceDatabaseName + "/",
+                        String newEntryName = entryName.replace("/datasets/" + sourceDb.fileName() + "/",
                                 "/datasets/" + targetDb.name + "/");
                         log.info("Remapping dataset entry: {} -> {}", entryName, newEntryName);
 
@@ -240,23 +243,32 @@ public class UploadDashboardsFileListener {
         Files.move(tempZip.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private String findSourceDatabaseName(ZipFile zipFile) throws IOException {
+    private SourceDatabase findSourceDatabase(ZipFile zipFile) throws IOException {
         Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
-            if (entry.getName().contains("/databases/") && !entry.isDirectory()) {
+            String entryName = entry.getName();
+            if (entryName.contains("/databases/") && !entry.isDirectory()) {
                 try (InputStream inputStream = zipFile.getInputStream(entry)) {
                     String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                     Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
-                    Object name = parsed.get("database_name");
-                    if (name instanceof String) {
-                        return (String) name;
+                    if (parsed.get("database_name") instanceof String name) {
+                        String uuid = parsed.get("uuid") instanceof String u ? u : null;
+                        String fileName = StringUtils.removeEnd(entryName.substring(entryName.lastIndexOf('/') + 1), ".yaml");
+                        return new SourceDatabase(name, uuid, fileName);
                     }
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * @param fileName the export's file name of the database (without {@code .yaml}), which Superset also uses as
+     *                 the datasets folder name - it is {@code secure_filename(database_name)}, not the raw name.
+     */
+    private record SourceDatabase(String name, String uuid, String fileName) {
     }
 
     private TargetDatabase resolveTargetDatabase(SupersetClient supersetClient) {
