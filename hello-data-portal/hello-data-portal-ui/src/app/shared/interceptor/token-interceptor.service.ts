@@ -34,28 +34,16 @@ import {
   HttpRequest,
   HttpResponse
 } from "@angular/common/http";
-import {BehaviorSubject, map, Observable, switchMap, throwError} from "rxjs";
-import {catchError, filter, take} from "rxjs/operators";
+import {map, Observable, switchMap, throwError} from "rxjs";
+import {catchError} from "rxjs/operators";
 import {AuthService} from "../services";
 import {environment} from "../../../environments/environment";
-import {OidcSecurityService} from "angular-auth-oidc-client";
-import {Router} from "@angular/router";
-import {SubsystemLogoutService} from "../services/subsystem-logout.service";
+import {SessionRefreshService} from "../services/session-refresh.service";
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
-  private readonly oidcSecurityService = inject(OidcSecurityService);
-  private readonly router = inject(Router);
-  private readonly subsystemLogoutService = inject(SubsystemLogoutService);
-
-  private static readonly REDIRECT_TO_KEY = 'redirectTo';
-
-  private isRefreshing = false;
-  private isRedirectingToLogin = false;
-  // Not readonly: on a failed refresh we replace the (now errored) subject with a
-  // fresh one so subsequent refresh cycles can reuse it (see handle401Error).
-  private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  private readonly sessionRefreshService = inject(SessionRefreshService);
 
   intercept(
     req: HttpRequest<any>,
@@ -111,56 +99,15 @@ export class TokenInterceptor implements HttpInterceptor {
   }
 
   private handle401Error(req: HttpRequest<any>, next: HttpHandler, originalError: HttpErrorResponse): Observable<HttpEvent<any>> {
-    if (this.isRefreshing) {
-      // Another request is already refreshing the token, wait for it to broadcast
-      // the new token (or to error, so we don't hang here forever - "Waiting for...").
-      console.debug('[TokenInterceptor] Waiting for ongoing token refresh');
-      return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
-        take(1),
-        switchMap(token => next.handle(this.addTokenToRequest(req, token)))
-      );
-    }
-
-    this.isRefreshing = true;
-    // Capture the subject this refresh cycle owns. On failure we error THIS instance
-    // to unblock parked requests, then swap in a fresh one for future cycles.
-    const cycleSubject = this.refreshTokenSubject;
-    cycleSubject.next(null);
-
-    console.debug('[TokenInterceptor] Attempting token refresh for request:', req.url);
-
-    // Try to refresh the token using OIDC library
-    return this.oidcSecurityService.forceRefreshSession().pipe(
-      switchMap((result) => {
-        console.debug('[TokenInterceptor] Token refresh result:', result?.isAuthenticated ? 'authenticated' : 'not authenticated');
-        if (result?.isAuthenticated) {
-          return this.authService.accessToken.pipe(take(1));
-        }
-        // Refresh returned "not authenticated" - treat as a refresh failure below.
-        return throwError(() => originalError);
-      }),
+    console.debug('[TokenInterceptor] Refreshing token for request:', req.url);
+    // Concurrent 401s share one refresh; on failure the service already redirected to login.
+    return this.sessionRefreshService.refresh().pipe(
       // Refresh-failure boundary. Placed BEFORE the retry switchMap so that a failure
       // of the *retried* request (a fresh 401/500 after a SUCCESSFUL refresh) is NOT
       // mistaken for a refresh failure and does not trigger a spurious logout.
-      catchError((refreshError) => {
-        console.warn('[TokenInterceptor] Token refresh error, redirecting to login. Error:', refreshError, 'Original URL:', req.url);
-        this.isRefreshing = false;
-        // Unblock any requests parked on this cycle's subject so they error out
-        // instead of hanging forever, then replace the (now dead) errored subject.
-        this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
-        cycleSubject.error(refreshError ?? originalError);
-        this.redirectToLogin();
-        return throwError(() => originalError);
-      }),
-      switchMap((newToken: string | null) => {
+      catchError(() => throwError(() => originalError)),
+      switchMap(newToken => {
         console.debug('[TokenInterceptor] Retrying request with new token');
-        // Broadcast the new token to parked requests FIRST, then clear the flag.
-        // Resetting isRefreshing only after the broadcast closes the race window where
-        // a 401 arriving mid-refresh would start a SECOND forceRefreshSession() and be
-        // rejected by Keycloak's rotating refresh token, forcing a logout.
-        cycleSubject.next(newToken);
-        this.isRefreshing = false;
         return next.handle(this.addTokenToRequest(req, newToken));
       })
     );
@@ -175,51 +122,5 @@ export class TokenInterceptor implements HttpInterceptor {
       });
     }
     return req;
-  }
-
-  private redirectToLogin(): void {
-    if (this.isRedirectingToLogin) {
-      return; // Prevent multiple concurrent login redirects
-    }
-    this.isRedirectingToLogin = true;
-    // Remember where the user was so we can bring them back after re-authentication,
-    // instead of always dumping them on /home. Without this, a token expiry while the
-    // user sits in a subsystem iframe (CloudBeaver / Airflow / Superset) kicks them out
-    // to the portal home page. The AppComponent restores this from sessionStorage once
-    // auth completes. Note: only the Angular route is preserved, not the subsystem's
-    // internal (cross-origin) iframe location.
-    this.rememberCurrentRouteForRedirect();
-    console.warn('[TokenInterceptor] Clearing local auth state and navigating to /home for re-authentication');
-    // Clear stale local auth state. The AutoLoginPartialRoutesGuard on /home
-    // will trigger the OIDC authorize flow properly.
-    this.oidcSecurityService.logoffLocal();
-    // HELLODATA-4146: the portal session is gone (Keycloak refused the refresh), so also end the
-    // sessions of the subsystems opened from this tab - otherwise their tabs stay logged in.
-    // Navigate once their logout calls finished or timed out; the navigation itself still runs
-    // in a later task to avoid triggering it during change detection.
-    this.subsystemLogoutService.logoutOpenedSubsystems()
-      .catch(e => console.debug('[TokenInterceptor] subsystem logout failed', e))
-      .finally(() => {
-        this.isRedirectingToLogin = false;
-        this.router.navigate(['/home']);
-      });
-  }
-
-  private rememberCurrentRouteForRedirect(): void {
-    try {
-      const currentUrl = this.router.url;
-      // Skip routes that would create a redirect loop or aren't worth restoring.
-      if (!currentUrl || currentUrl === '/' || currentUrl.startsWith('/home') || currentUrl.includes('/callback')) {
-        return;
-      }
-      // Strip the leading slash: the AppComponent restore path dispatches
-      // navigate({url}) which router.navigate([url]) accepts either way, and the
-      // existing redirectTo links (menu.state/service) use the slash-less form.
-      const redirectTo = currentUrl.startsWith('/') ? currentUrl.substring(1) : currentUrl;
-      sessionStorage.setItem(TokenInterceptor.REDIRECT_TO_KEY, redirectTo);
-      console.debug('[TokenInterceptor] Saved redirect target for post-login restore:', redirectTo);
-    } catch (e) {
-      console.debug('[TokenInterceptor] Could not persist redirect target', e);
-    }
   }
 }

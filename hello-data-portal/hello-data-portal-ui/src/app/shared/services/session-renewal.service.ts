@@ -28,6 +28,7 @@
 import {inject, Injectable, NgZone} from '@angular/core';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
 import {EMPTY, switchMap, take} from 'rxjs';
+import {SessionRefreshService} from './session-refresh.service';
 
 /**
  * Proactively refreshes the OIDC access token when the tab regains focus/visibility.
@@ -41,14 +42,16 @@ import {EMPTY, switchMap, take} from 'rxjs';
  *
  * Renewing here, on focus and BEFORE the periodic pollers (profile / CloudBeaver
  * session) fire, turns the common "away 5-30 min" case into a silent refresh instead
- * of a 401 that the interceptor would recover from by redirecting to /home. It does
- * NOT help once the SSO session itself has expired (away > 30 min) - a full re-login
- * is unavoidable then; that is a Keycloak ssoSessionIdleTimeout matter, not client.
+ * of a 401 that the interceptor would recover from by redirecting to /home. Once the
+ * SSO session itself has expired (away > 30 min) a full re-login is unavoidable; the
+ * failed refresh (or a session the library already dropped) then sends the user to
+ * login right on wake, instead of leaving a stale portal with logged-out iframes.
  */
 @Injectable({providedIn: 'root'})
 export class SessionRenewalService {
   private readonly oidcSecurityService = inject(OidcSecurityService);
   private readonly zone = inject(NgZone);
+  private readonly sessionRefreshService = inject(SessionRefreshService);
 
   // Refresh when the access token expires within this window on focus.
   private static readonly RENEW_WITHIN_SECONDS = 60;
@@ -57,12 +60,21 @@ export class SessionRenewalService {
 
   private started = false;
   private lastAttemptMs = 0;
+  // Only a session this page actually had can "expire" - this keeps the wake check away
+  // from the bootstrap / OIDC callback phase, where the user is not authenticated yet.
+  private wasAuthenticated = false;
 
   start(): void {
     if (this.started || typeof document === 'undefined') {
       return;
     }
     this.started = true;
+
+    this.oidcSecurityService.isAuthenticated$.subscribe(({isAuthenticated}) => {
+      if (isAuthenticated) {
+        this.wasAuthenticated = true;
+      }
+    });
 
     // Page Lifecycle: if the browser evicted this tab from memory (Edge/Chrome tab
     // discard under memory pressure) it is now reloading from scratch. The normal
@@ -108,8 +120,13 @@ export class SessionRenewalService {
     this.oidcSecurityService.isAuthenticated().pipe(
       take(1),
       switchMap(isAuthenticated => {
-        // Logged out: let the guard / interceptor drive the (re-)login instead.
         if (!isAuthenticated) {
+          // The library dropped a session this page had (e.g. its own silent renew failed
+          // while the tab slept): re-login now rather than waiting for a 401.
+          if (this.wasAuthenticated) {
+            console.debug('[SessionRenewal] session lost while away, redirecting to login');
+            this.zone.run(() => this.sessionRefreshService.redirectToLogin());
+          }
           return EMPTY;
         }
         return this.oidcSecurityService.getPayloadFromAccessToken().pipe(take(1));
@@ -122,9 +139,10 @@ export class SessionRenewalService {
           return; // token is still fresh, nothing to do
         }
         this.zone.run(() => {
-          this.oidcSecurityService.forceRefreshSession().pipe(take(1)).subscribe({
-            next: result => console.debug('[SessionRenewal] refreshed on wake, authenticated:', result?.isAuthenticated),
-            error: e => console.warn('[SessionRenewal] wake refresh failed (will re-auth on next request):', e)
+          // Shares an in-flight interceptor refresh; redirects to login when it fails.
+          this.sessionRefreshService.refresh().subscribe({
+            next: () => console.debug('[SessionRenewal] refreshed on wake'),
+            error: e => console.warn('[SessionRenewal] wake refresh failed, re-authenticating:', e)
           });
         });
       },

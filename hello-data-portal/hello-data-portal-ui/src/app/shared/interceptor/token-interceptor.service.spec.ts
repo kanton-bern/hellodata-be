@@ -337,6 +337,29 @@ describe('TokenInterceptor', () => {
       });
     });
 
+    it('should refresh again after the request that started a refresh was cancelled', () => {
+      const {oidcMock, httpClient, httpMock} = setupTestBed(newMockToken);
+
+      // A poller (switchMap effect) cancels its request while the refresh is still running.
+      const refresh$ = new Subject<LoginResponse>();
+      oidcMock.forceRefreshSession.mockReturnValue(refresh$.asObservable());
+      const cancelled = httpClient.get(testUrl).subscribe();
+      httpMock.expectOne(testUrl).flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'});
+      cancelled.unsubscribe();
+      refresh$.next({isAuthenticated: true} as LoginResponse);
+
+      // The next 401 must trigger a fresh refresh and retry, not wait forever for the old one.
+      oidcMock.forceRefreshSession.mockReturnValue(of({isAuthenticated: true} as LoginResponse));
+      const result = jest.fn();
+      httpClient.get(testUrl).subscribe(result);
+      httpMock.expectOne(testUrl).flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'});
+      httpMock.expectOne(testUrl).flush({success: true});
+
+      expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(2);
+      expect(result).toHaveBeenCalledWith({success: true});
+      httpMock.verify();
+    });
+
     it('should remember the current route so the user returns after re-auth', (done) => {
       sessionStorage.clear();
       const {routerMock, oidcMock, httpClient, httpMock} = setupTestBed(mockToken);

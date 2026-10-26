@@ -283,7 +283,10 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   private startRefreshTimer(): void {
     this.stopRefreshTimer();
     this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
-      takeUntilDestroyed(this.destroyRef)
+      takeUntilDestroyed(this.destroyRef),
+      // Skip while the tab is hidden: the token may be stale (silent-renew is throttled in the
+      // background) and the poll would only collect 401s. SessionRenewalService refreshes on return.
+      filter(() => !document.hidden)
     ).subscribe(() => {
       if (this.contextKey) {
         this.loadComments(this.selectedStatus === DashboardCommentStatus.DELETED);

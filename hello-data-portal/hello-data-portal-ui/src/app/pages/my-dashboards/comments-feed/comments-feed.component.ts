@@ -572,6 +572,9 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
     this.stopRefreshTimer();
     this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
       takeUntilDestroyed(this.destroyRef),
+      // Skip while the tab is hidden: the token may be stale (silent-renew is throttled in the
+      // background) and the poll would only collect 401s. SessionRenewalService refreshes on return.
+      filter(() => !document.hidden),
       switchMap(() => combineLatest([
         this.store.select(selectCurrentDashboardId),
         this.store.select(selectCurrentDashboardContextKey),
