@@ -6,6 +6,16 @@ export const ADMIN = {
   email: process.env.E2E_ADMIN_EMAIL ?? 'admin@hellodata.ch',
 };
 
+export type User = {username: string, password: string};
+
+// example users created by the portal api's create-example-users profile (see ExampleUsersInitializer),
+// for the business domain and the default data domain of the docker compose installation
+export const BUSINESS_DOMAIN_ADMIN: User = {username: 'hellodata-product-development-admin@hellodata.ch', password: 'admin'};
+export const DATA_DOMAIN_ADMIN: User = {username: 'default-data-domain-admin@hellodata.ch', password: 'admin'};
+export const DATA_DOMAIN_EDITOR: User = {username: 'default-data-domain-editor@hellodata.ch', password: 'editor'};
+export const DATA_DOMAIN_BUSINESS_SPECIALIST: User = {username: 'default-data-domain-business_specialist@hellodata.ch', password: 'specialist'};
+export const DATA_DOMAIN_VIEWER: User = {username: 'default-data-domain-viewer@hellodata.ch', password: 'viewer'};
+
 /** Fills the Keycloak login form the portal redirects to. */
 export async function signIn(page: Page, username: string, password: string) {
   await page.locator('#username').fill(username);

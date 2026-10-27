@@ -50,8 +50,21 @@ docker compose -p hellodata-e2e down --volumes
 | `E2E_ADMIN_USERNAME`  | `admin`                                   | Keycloak admin user used by most tests              |
 | `E2E_ADMIN_PASSWORD`  | `admin`                                   | Its password                                        |
 | `E2E_ADMIN_EMAIL`     | `admin@hellodata.ch`                      | Its email, shown in the top bar and profile         |
-| `E2E_VIEWER_USERNAME` | `default-data-domain-viewer@hellodata.ch` | Example data domain viewer (no administration menu) |
-| `E2E_VIEWER_PASSWORD` | `viewer`                                  | Its password                                        |
+
+The other users are the example users created by the portal api's `create-example-users` profile (see
+`ExampleUsersInitializer`). `tests/roles.spec.ts` logs in as each of them and checks the menus and pages of its role:
+
+| Role                              | User                                                   | Password     |
+|-----------------------------------|--------------------------------------------------------|--------------|
+| `HELLODATA_ADMIN`                 | `admin`                                                | `admin`      |
+| `BUSINESS_DOMAIN_ADMIN`           | `hellodata-product-development-admin@hellodata.ch`     | `admin`      |
+| `DATA_DOMAIN_ADMIN`               | `default-data-domain-admin@hellodata.ch`               | `admin`      |
+| `DATA_DOMAIN_EDITOR`              | `default-data-domain-editor@hellodata.ch`              | `editor`     |
+| `DATA_DOMAIN_BUSINESS_SPECIALIST` | `default-data-domain-business_specialist@hellodata.ch` | `specialist` |
+| `DATA_DOMAIN_VIEWER`              | `default-data-domain-viewer@hellodata.ch`              | `viewer`     |
+
+The example users are created only once per data domain, so an existing installation that was started before the
+business specialist was added does not get that user. Use a fresh stack (`down --volumes`) to run the role tests.
 
 Pointing `E2E_BASE_URL` at another installation (e.g. a port-forwarded cluster) works as long as the Keycloak client
 accepts that URL as redirect URI.

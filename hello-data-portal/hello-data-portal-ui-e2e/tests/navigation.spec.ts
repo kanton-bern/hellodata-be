@@ -1,13 +1,7 @@
 import {ADMIN, errorToasts, expect, navigate, openPortalAs, test} from './fixtures';
 
+// which menu entries each role sees is covered by roles.spec.ts
 test.describe('Navigation', () => {
-  test('admin sees all main menu entries', async ({adminPage: page}) => {
-    const sidebar = page.locator('#appSidebar');
-    for (const menu of ['Dashboards', 'Lineage', 'Data Marts', 'Data Eng.', 'Administration', 'Monitoring', 'DevTools']) {
-      await expect(sidebar.getByRole('button', {name: menu, exact: true})).toBeVisible();
-    }
-  });
-
   const adminPages = [
     {item: 'User management', url: /\/user-management$/, heading: 'Users management'},
     {item: 'Portal role management', url: /\/roles-management$/, heading: 'Portal roles management'},
