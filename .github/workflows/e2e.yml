@@ -1,0 +1,96 @@
+name: E2E tests (docker compose)
+
+run-name: "E2E: ${{ inputs.version }}"
+
+# Runs the Playwright regression suite against the portal subset of the docker compose installation.
+# Called from maven.yml for release candidate tags (after the images are pushed) and can be started manually
+# for any published image tag.
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Docker image tag of the HelloDATA images to test'
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Docker image tag of the HelloDATA images to test (e.g. 1.7.0.rc1 or latest)'
+        required: true
+        default: 'latest'
+        type: string
+
+concurrency:
+  group: e2e-${{ inputs.version }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+
+    env:
+      HD_VERSION: ${{ inputs.version }}
+      COMPOSE_PROJECT_NAME: hellodata-e2e
+      COMPOSE_DIR: hello-data-deployment/docker-compose
+      E2E_DIR: hello-data-portal/hello-data-portal-ui-e2e
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+
+      - name: Pull images
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: docker compose pull --quiet --include-deps hello-data-portal-ui
+
+      - name: Start portal services
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: docker compose up -d --wait --wait-timeout 900 hello-data-portal-ui
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: ${{ env.E2E_DIR }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.E2E_DIR }}
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: ${{ env.E2E_DIR }}
+        run: npx playwright test
+
+      - name: Collect compose logs
+        if: ${{ !cancelled() }}
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: |
+          docker compose ps -a
+          docker compose logs --no-color > "${{ github.workspace }}/compose.log" 2>&1
+
+      - name: Upload test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: e2e-report-${{ inputs.version }}
+          path: |
+            ${{ env.E2E_DIR }}/playwright-report/
+            ${{ env.E2E_DIR }}/test-results/
+            compose.log
+          retention-days: 14
+
+      - name: Stop services
+        if: ${{ always() }}
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: docker compose down --volumes --remove-orphans

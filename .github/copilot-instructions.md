@@ -14,7 +14,6 @@ Useful module paths:
 
 - `hello-data-portal/hello-data-portal-api`
 - `hello-data-portal/hello-data-portal-ui`
-- `hello-data-portal/hello-data-portal-ui-e2e`
 - `hello-data-sidecars/<sidecar-module>`
 - `hello-data-subsystems/<subsystem-module>`
 
@@ -51,20 +50,20 @@ yarn build
 The Maven build for `hello-data-portal-ui` also installs Node/Yarn and runs `yarn lint` and `yarn build` through
 `frontend-maven-plugin`, but direct Yarn commands are faster when you are only working in the UI.
 
-E2E tests live in `hello-data-portal-ui-e2e` and use Cypress:
+E2E tests live in `hello-data-portal-ui-e2e` and use Playwright (npm, not part of the Maven build). They run against
+the portal subset of the docker compose installation:
 
 ```bash
-cd hello-data-portal/hello-data-portal-ui-e2e
-yarn install
-yarn test:run
-yarn test:open
+cd hello-data-deployment/docker-compose
+docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui
+cd ../../hello-data-portal/hello-data-portal-ui-e2e
+npm ci && npx playwright install chromium
+npx playwright test
 ```
 
-The Maven E2E path is Docker-based and uses the `e2e-tests` profile:
-
-```bash
-./mvnw -pl hello-data-portal/hello-data-portal-ui-e2e -Pe2e-tests verify
-```
+`.github/workflows/e2e.yml` runs the same suite for every release candidate tag (`*.rc*`, called from `maven.yml`
+after the images are pushed) and can be started manually for any image tag. The compose files pick the HelloDATA
+image tag from `HD_VERSION` (default `latest`).
 
 CI uses the same conventions:
 
@@ -81,7 +80,7 @@ The root `pom.xml` defines five top-level modules:
 - `hello-data-commons`: shared Java libraries, shared Spring Boot parent, common models, NATS integration, and portal
   persistence models.
 - `hello-data-portal`: the main product surface, split into `hello-data-portal-api`, `hello-data-portal-ui`, and
-  `hello-data-portal-ui-e2e`.
+  `hello-data-portal-ui-e2e` (Playwright, outside the Maven reactor).
 - `hello-data-sidecars`: integration services that react to platform events and synchronize external tools such as
   Superset, Airflow, CloudBeaver, dbt docs, JupyterHub, and SFTPGo.
 - `hello-data-subsystems`: subsystem applications and gateways that expose or wrap external tooling.

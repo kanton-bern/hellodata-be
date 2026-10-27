@@ -17,7 +17,6 @@
     <modules>
         <module>hello-data-portal-api</module>
         <module>hello-data-portal-ui</module>
-        <module>hello-data-portal-ui-e2e</module>
     </modules>
 
     <properties>

@@ -1,55 +1,58 @@
-# HelloDATA Portal UI E2E Tests Module
+# HelloDATA Portal UI E2E Tests
 
-This module contains Cypress E2E Infrastructure and Tests for the application.
+Basic regression suite for the portal, written with [Playwright](https://playwright.dev). It runs against the portal
+subset of the [docker compose installation](../../hello-data-deployment/docker-compose/README.md) and logs in through
+the real Keycloak login page.
 
-# Running with Maven
+## Running locally
 
-The Cypress Tests are integrated directly into the maven build with the `maven-failsafe-plugin`
-and `docker-maven-plugin`s. They ***require a local docker installation*** and are executed in
-the `docker` maven profile.
-
-```bash
-./mvnw clean verify -Pdocker
-```
-
-Test Results, including screenshots and video, are written to the `target/e2e/results` folder.
-
-# Running Manually
-
-Running the cypress tests manually is useful during development and when analysing failing tests.
-
-## Start Keycloak
-
-Start the keycloak docker container. See [Docker Compose README](../docker-compose/README.md)
-
-## Start Backend
-
-Start the backend. See [Backend README](../hellodata-portal-api/README.md)
-
-## Start Cypress
-
-Before you run cypress locally for the first time, you need to run `yarn install` in the `e2e`
-directory.
-
-### Single Run
+Start the portal and its dependencies (a separate compose project, so your own local data is not touched):
 
 ```bash
-yarn test:run 
+cd hello-data-deployment/docker-compose
+docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui
 ```
 
-### Interactive Cypress Test Runner
+Use `HD_VERSION=<tag>` in front of the command to test a specific release candidate instead of `latest`.
+
+Install and run the tests:
 
 ```bash
-yarn test:open 
+cd hello-data-portal/hello-data-portal-ui-e2e
+npm ci
+npx playwright install chromium
+npx playwright test          # headless
+npx playwright test --ui     # interactive runner
+npx playwright show-report   # open the last HTML report
 ```
 
-# Why are there custom Cypress Images?
+Stop and remove the test stack afterwards:
 
-Normally we could parameterize the official images directly, mounting any necessary Configuration
-during the build. Unfortunately, this does not work on our Bamboo build system. Here's why:
+```bash
+cd hello-data-deployment/docker-compose
+docker compose -p hellodata-e2e down --volumes
+```
 
-Each Bamboo Agent runs in a Docker Container that in turn can start other docker containers during
-the build. These Containers run on a Docker Daemon outside the Docker Agent Container where they
-were started. For this reason, Volume Mounts do not function as one would expect, since the Docker
-Host looks for them locally, and not on the Agent where they are actually located. The workaround is
-to bake any required external files into a custom image, so we don't need to mount anything.
+## Configuration
+
+| Variable              | Default                     | Description                      |
+|-----------------------|-----------------------------|----------------------------------|
+| `E2E_BASE_URL`        | `http://localhost:8080/app` | Portal URL                       |
+| `E2E_ADMIN_USERNAME`  | `admin`                     | Keycloak user used by the tests  |
+| `E2E_ADMIN_PASSWORD`  | `admin`                     | Its password                     |
+
+Pointing `E2E_BASE_URL` at another installation (e.g. a port-forwarded cluster) works as long as the Keycloak client
+accepts that URL as redirect URI.
+
+## CI
+
+`.github/workflows/e2e.yml` runs the suite for every release candidate tag (`*.rc*`) right after `maven.yml` pushed the
+images, and can be started manually (Actions -> "E2E tests (docker compose)") for any image tag. The HTML report,
+traces of failed tests and the compose logs are uploaded as a workflow artifact.
+
+## Writing tests
+
+- `tests/auth.setup.ts` logs in once and stores the Keycloak session in `.auth/`; every other test reuses it.
+- `tests/fixtures.ts` provides `openPortal()` which opens the portal and waits until the app shell is rendered.
+- Prefer element ids and roles over CSS structure, and use Playwright's auto-waiting assertions instead of fixed waits.
+- Tests share one portal instance, so data created by a test must have a unique name and be cleaned up by that test.

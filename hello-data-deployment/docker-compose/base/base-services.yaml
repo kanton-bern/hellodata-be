@@ -30,7 +30,7 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: bedag/hello-data-dc-airflow
+  image: bedag/hello-data-dc-airflow:${HD_VERSION:-latest}
   env_file: .env
   extra_hosts:
     - "host.docker.internal:host-gateway"
@@ -119,7 +119,7 @@ services:
 
   showcase-files-default-data-domain:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-showcase
+    image: bedag/hello-data-showcase:${HD_VERSION:-latest}
     env_file: .env
     environment:
       DESTINATION_PATH: /storage/airflow/dags/Default_Data_Domain
@@ -135,7 +135,7 @@ services:
 
   showcase-files-extra-data-domain:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-showcase
+    image: bedag/hello-data-showcase:${HD_VERSION:-latest}
     env_file: .env
     environment:
       DESTINATION_PATH: /storage/airflow/dags/Extra_Data_Domain
@@ -151,7 +151,7 @@ services:
 
   postgres:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-dc-postgres
+    image: bedag/hello-data-dc-postgres:${HD_VERSION:-latest}
     env_file: .env
     ports:
       - 35432:5432
@@ -167,7 +167,7 @@ services:
     restart: always
 
   keycloak:
-    image: bedag/hello-data-dc-keycloak
+    image: bedag/hello-data-dc-keycloak:${HD_VERSION:-latest}
     env_file: .env
     ports:
       - 38080:8080
@@ -262,7 +262,7 @@ services:
       - ServerOptions__HostName=smtp4dev
 
   cloudbeaver:
-    image: bedag/hello-data-dc-cloudbeaver
+    image: bedag/hello-data-dc-cloudbeaver:${HD_VERSION:-latest}
     env_file: .env
     restart: always
     extra_hosts:
@@ -284,7 +284,7 @@ services:
       - "8978:8978"
 
   hello-data-cloudbeaver-gateway:
-    image: bedag/hello-data-cloudbeaver-gateway
+    image: bedag/hello-data-cloudbeaver-gateway:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - HELLO_DATA_CLOUDBEAVER_UPSTREAM_URI=http://cloudbeaver:8978
@@ -316,7 +316,7 @@ services:
       - "keycloak.localhost:host-gateway"
 
   hello-data-sidecar-cloudbeaver:
-    image: bedag/hello-data-sidecar-cloudbeaver
+    image: bedag/hello-data-sidecar-cloudbeaver:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
@@ -388,7 +388,7 @@ services:
 
   hello-data-sftpgo-sidecar:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-sftpgo
+    image: bedag/hello-data-sidecar-sftpgo:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - HELLO_DATA_SFTPGO_BASE_URL=http://sftpgo:8080
@@ -429,7 +429,7 @@ services:
 
   hello-data-dbt-docs:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-dbt-docs
+    image: bedag/hello-data-dbt-docs:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_dbt_docs
@@ -460,7 +460,7 @@ services:
 
   hello-data-dbt-docs-sidecar:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-dbt-docs
+    image: bedag/hello-data-sidecar-dbt-docs:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_dbt_docs
@@ -667,7 +667,7 @@ services:
 
   hello-data-airflow-sidecar:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-airflow
+    image: bedag/hello-data-sidecar-airflow:${HD_VERSION:-latest}
     restart: always
     env_file: .env
     extra_hosts:
@@ -694,7 +694,7 @@ services:
 
   hello-data-monitoring-storage:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-monitoring-storage
+    image: bedag/hello-data-monitoring-storage:${HD_VERSION:-latest}
     restart: always
     env_file: .env
     extra_hosts:
@@ -708,7 +708,7 @@ services:
       - postgres
 
   hello-data-portal-ui:
-    image: bedag/hello-data-dc-portal
+    image: bedag/hello-data-dc-portal:${HD_VERSION:-latest}
     env_file: .env
     restart: on-failure
     extra_hosts:
@@ -726,7 +726,7 @@ services:
 
   hello-data-portal-api:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-portal-api
+    image: bedag/hello-data-portal-api:${HD_VERSION:-latest}
     env_file: .env
     restart: on-failure
     extra_hosts:
@@ -769,7 +769,7 @@ services:
 
   hello-data-portal-sidecar:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-portal
+    image: bedag/hello-data-sidecar-portal:${HD_VERSION:-latest}
     env_file: .env
     restart: on-failure
     extra_hosts:
