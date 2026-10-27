@@ -44,11 +44,14 @@ docker compose -p hellodata-e2e down --volumes
 
 ## Configuration
 
-| Variable              | Default                     | Description                      |
-|-----------------------|-----------------------------|----------------------------------|
-| `E2E_BASE_URL`        | `http://localhost:8080/app` | Portal URL                       |
-| `E2E_ADMIN_USERNAME`  | `admin`                     | Keycloak user used by the tests  |
-| `E2E_ADMIN_PASSWORD`  | `admin`                     | Its password                     |
+| Variable              | Default                                   | Description                                         |
+|-----------------------|-------------------------------------------|-----------------------------------------------------|
+| `E2E_BASE_URL`        | `http://localhost:8080/app`               | Portal URL                                          |
+| `E2E_ADMIN_USERNAME`  | `admin`                                   | Keycloak admin user used by most tests              |
+| `E2E_ADMIN_PASSWORD`  | `admin`                                   | Its password                                        |
+| `E2E_ADMIN_EMAIL`     | `admin@hellodata.ch`                      | Its email, shown in the top bar and profile         |
+| `E2E_VIEWER_USERNAME` | `default-data-domain-viewer@hellodata.ch` | Example data domain viewer (no administration menu) |
+| `E2E_VIEWER_PASSWORD` | `viewer`                                  | Its password                                        |
 
 Pointing `E2E_BASE_URL` at another installation (e.g. a port-forwarded cluster) works as long as the Keycloak client
 accepts that URL as redirect URI.
@@ -61,7 +64,11 @@ traces of failed tests and the compose logs are uploaded as a workflow artifact.
 
 ## Writing tests
 
-- `tests/auth.setup.ts` logs in once and stores the Keycloak session in `.auth/`; every other test reuses it.
-- `tests/fixtures.ts` provides `openPortal()` which opens the portal and waits until the app shell is rendered.
-- Prefer element ids and roles over CSS structure, and use Playwright's auto-waiting assertions instead of fixed waits.
+- Import `test` and `expect` from `./fixtures`, not from `@playwright/test`, so the custom fixtures are available.
+- Ask for the `adminPage` fixture to start logged in as admin on the home page. Use the plain `page` fixture when the
+  test controls the login itself (other user, wrong password, or listening for requests made during login).
+- Every test gets a fresh browser context and logs in on its own, so tests do not share a session.
+- `tests/fixtures.ts` also provides helpers: `openPortalAs()` (Keycloak login, waits for the home page and switches to
+  English), `signIn()`, `navigate()` / `openMenu()` for the left sidebar, `errorToasts()` and `dismissToasts()`.
+- Prefer roles and element ids over CSS structure, and use Playwright's auto-waiting assertions instead of fixed waits.
 - Tests share one portal instance, so data created by a test must have a unique name and be cleaned up by that test.
