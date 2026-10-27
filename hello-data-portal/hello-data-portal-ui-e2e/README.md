@@ -59,8 +59,11 @@ accepts that URL as redirect URI.
 ## CI
 
 `.github/workflows/e2e.yml` runs the suite for every release candidate tag (`*.rc*`) right after `maven.yml` pushed the
-images, and can be started manually (Actions -> "E2E tests (docker compose)") for any image tag. The HTML report,
-traces of failed tests and the compose logs are uploaded as a workflow artifact.
+images. It can also be started manually on any branch (Actions -> "E2E tests (docker compose)" -> Run workflow) with
+the image tag to test. The tests run from the selected branch, the images come from the given tag. Every push publishes
+images: `develop` as `latest`, and gitflow branches as `<name after the prefix>-SNAPSHOT` (e.g. `feature/my-change` ->
+`my-change-SNAPSHOT`), so a branch can be tested once its `maven.yml` run has finished. The HTML report, traces of
+failed tests and the compose logs are uploaded as a workflow artifact.
 
 ## Writing tests
 

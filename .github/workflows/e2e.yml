@@ -3,8 +3,9 @@ name: E2E tests (docker compose)
 run-name: "E2E: ${{ inputs.version }}"
 
 # Runs the Playwright regression suite against the portal subset of the docker compose installation.
-# Called from maven.yml for release candidate tags (after the images are pushed) and can be started manually
-# for any published image tag.
+# Called from maven.yml for release candidate tags (after the images are pushed) and can be started manually on any
+# branch for any published image tag. maven.yml publishes images for every push: develop as 'latest', and gitflow
+# branches as '<name after the prefix>-SNAPSHOT' (e.g. feature/my-change -> my-change-SNAPSHOT).
 on:
   workflow_call:
     inputs:
@@ -15,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Docker image tag of the HelloDATA images to test (e.g. 1.7.0.rc1 or latest)'
+        description: 'Docker image tag of the HelloDATA images to test (e.g. 1.7.0.rc1, latest or my-change-SNAPSHOT for feature/my-change)'
         required: true
         default: 'latest'
         type: string
