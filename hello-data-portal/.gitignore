@@ -41,5 +41,5 @@ target/
 ### yarn
 .pnp.loader.mjs
 .pnp.cjs
-.yarn
-.yarnrc.yml
+**/.yarn/*
+!**/.yarn/releases

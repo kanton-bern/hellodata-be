@@ -27,7 +27,8 @@
     <sonar.test.inclusions>src/app/**/*.spec.ts</sonar.test.inclusions>
     <frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
     <frontend-maven-plugin.nodeVersion>v24.10.0</frontend-maven-plugin.nodeVersion>
-    <frontend-maven-plugin.yarnVersion>v1.22.18</frontend-maven-plugin.yarnVersion>
+    <!-- Yarn 1 is only the bootstrap: it delegates to the Yarn 4 release in .yarn/releases via yarnPath in .yarnrc.yml -->
+    <frontend-maven-plugin.yarnVersion>v1.22.22</frontend-maven-plugin.yarnVersion>
     <frontend-maven-plugin.npmVersion>11.6.0</frontend-maven-plugin.npmVersion>
     <openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
     <main.class>YarnPackageFinder</main.class>
@@ -140,7 +141,8 @@
                   <goal>yarn</goal>
                 </goals>
                 <configuration>
-                  <arguments>install</arguments>
+                  <!-- fail instead of re-resolving when yarn.lock is out of date with package.json -->
+                  <arguments>install --immutable</arguments>
                 </configuration>
               </execution>
               <execution>
@@ -310,7 +312,8 @@
                   <goal>yarn</goal>
                 </goals>
                 <configuration>
-                  <arguments>install</arguments>
+                  <!-- fail instead of re-resolving when yarn.lock is out of date with package.json -->
+                  <arguments>install --immutable</arguments>
                 </configuration>
               </execution>
               <execution>
