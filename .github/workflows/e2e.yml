@@ -55,6 +55,23 @@ jobs:
         working-directory: ${{ env.COMPOSE_DIR }}
         run: docker compose up -d --wait --wait-timeout 900 hello-data-portal-ui
 
+      # sidecars publish their resources every 10 minutes, and on a fresh install the first round can be published
+      # before the portal sidecar subscribed - so wait until the portal knows the dbt docs instance
+      - name: Wait for sidecar resources
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: |
+          for i in $(seq 1 75); do
+            count=$(docker compose exec -T postgres psql -U postgres -d hd_metainfo -tAc \
+              "select count(*) from resource where kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS'")
+            if [ "${count:-0}" -gt 0 ]; then
+              echo "dbt docs app info available after $((i * 10))s"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "dbt docs app info was not published within 12.5 minutes"
+          exit 1
+
       - name: Set up Node
         uses: actions/setup-node@v5
         with:

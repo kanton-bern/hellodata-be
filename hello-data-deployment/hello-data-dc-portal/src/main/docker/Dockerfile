@@ -25,7 +25,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hello-data-portal-ui
+# the maven build passes its own docker tag, so the image wraps the matching base image build
+ARG BASE_IMAGE_TAG=latest
+FROM bedag/hello-data-portal-ui:${BASE_IMAGE_TAG}
 
 LABEL MAINTAINER="HelloDATA Team"
 

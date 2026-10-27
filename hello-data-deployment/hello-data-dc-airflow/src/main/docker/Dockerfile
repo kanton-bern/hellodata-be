@@ -25,7 +25,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hello-data-airflow
+# the maven build passes its own docker tag, so the image wraps the matching base image build
+ARG BASE_IMAGE_TAG=latest
+FROM bedag/hello-data-airflow:${BASE_IMAGE_TAG}
 
 ADD conf/airflow.cfg /opt/airflow/airflow.cfg
 ADD conf/webserver_config.py /opt/airflow/webserver_config.py

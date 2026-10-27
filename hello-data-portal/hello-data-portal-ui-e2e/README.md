@@ -15,6 +15,15 @@ docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui
 
 Use `HD_VERSION=<tag>` in front of the command to test a specific release candidate instead of `latest`.
 
+On a fresh stack the sidecars may publish their resources before the portal sidecar is listening. They republish
+every 10 minutes, so the lineage docs test can fail until then. Wait for the dbt docs app info first (this is what the
+CI workflow does):
+
+```bash
+docker compose -p hellodata-e2e exec -T postgres psql -U postgres -d hd_metainfo -tAc \
+  "select count(*) from resource where kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS'"
+```
+
 Install and run the tests:
 
 ```bash

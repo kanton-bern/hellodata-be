@@ -13,20 +13,31 @@ test.describe('FAQ management', () => {
     await navigate(page, 'Administration', 'FAQ management');
     await expect(page).toHaveURL(/\/faq-management$/);
 
+    const titleInput = page.locator('#title:visible');
+    const messageEditor = page.locator('#faqMessage:visible .ql-editor');
+    const save = page.getByRole('button', {name: 'Save', exact: true});
+
     // create - the form opens on the default language tab, which is the only required one
     await page.locator('#createFaqButton').click();
     await expect(page).toHaveURL(/\/faq-management\/create$/);
-    await page.locator('#title:visible').fill(title);
-    await page.locator('#faqMessage:visible .ql-editor').fill(created);
-    await page.getByRole('button', {name: 'Save', exact: true}).click();
+    // the form is rebuilt once the languages are loaded, which can wipe what was typed before
+    await expect(async () => {
+      await titleInput.fill(title);
+      await messageEditor.fill(created);
+      await expect(save).toBeEnabled({timeout: 1_000});
+      await expect(titleInput).toHaveValue(title, {timeout: 1_000});
+    }).toPass();
+    await save.click();
     await expect(page).toHaveURL(/\/faq-management$/);
     await expect(row).toHaveCount(1);
 
     // edit
     await row.locator('[id^="editFaq_"] button').click();
     await expect(page).toHaveURL(/\/faq-management\/edit\//);
-    await page.locator('#faqMessage:visible .ql-editor').fill(edited);
-    await page.getByRole('button', {name: 'Save', exact: true}).click();
+    // wait for the stored FAQ to be loaded into the form, otherwise it overwrites our change
+    await expect(messageEditor).toContainText(created);
+    await messageEditor.fill(edited);
+    await save.click();
     await expect(page).toHaveURL(/\/faq-management$/);
     await row.getByRole('button').first().click();
     await expect(page.getByText(edited)).toBeVisible();
