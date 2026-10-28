@@ -1,4 +1,4 @@
-import {ADMIN, dismissToasts, expect, openPortalAs, signIn, test} from './fixtures';
+import {ADMIN, dismissToasts, expect, openPortalAs, signIn, test} from '../fixtures';
 
 test.describe('Authentication', () => {
   test('admin logs in through Keycloak and lands on the home page', async ({page}) => {

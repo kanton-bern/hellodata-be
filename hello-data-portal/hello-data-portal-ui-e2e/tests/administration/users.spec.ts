@@ -1,4 +1,4 @@
-import {ADMIN, BUSINESS_DOMAIN_ADMIN, DATA_DOMAIN_BUSINESS_SPECIALIST, DATA_DOMAIN_VIEWER, expect, navigate, test} from './fixtures';
+import {ADMIN, BUSINESS_DOMAIN_ADMIN, DATA_DOMAIN_BUSINESS_SPECIALIST, DATA_DOMAIN_VIEWER, expect, navigate, test} from '../fixtures';
 
 // the menus and pages each role may open are covered by roles.spec.ts
 test.describe('Users and roles', () => {

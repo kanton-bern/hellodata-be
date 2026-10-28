@@ -10,7 +10,7 @@ import {
   openPortalAs,
   test,
   User,
-} from './fixtures';
+} from '../fixtures';
 
 const MAIN_MENUS = ['Dashboards', 'Lineage', 'Data Marts', 'Data Eng.', 'Administration', 'Monitoring', 'DevTools'];
 const ADMIN_ITEMS = ['User management', 'Portal role management', 'Notifications', 'FAQ management', 'Documentation management'];

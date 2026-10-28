@@ -112,6 +112,8 @@ services:
       - HELLO_DATA_SUPERSET_HOST=superset-app-default-data-domain
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      # how often dashboards, users and roles are published to the portal; the e2e tests lower it to see changes sooner
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_MINUTES=${HD_SUPERSET_PUBLISH_INTERVAL_MINUTES:-10}
       - HELLO_DATA_SUPERSET_ADMIN_USERNAME=admin@superset.com
       - HELLO_DATA_SUPERSET_ADMIN_PASSWORD=local-admin
     links:

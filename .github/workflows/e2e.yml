@@ -2,7 +2,8 @@ name: E2E tests (docker compose)
 
 run-name: "E2E: ${{ inputs.version }}"
 
-# Runs the Playwright regression suite against the portal subset of the docker compose installation.
+# Runs the Playwright regression suite against the portal and the default data domain's Superset of the docker compose
+# installation.
 # Called from maven.yml for release candidate tags (after the images are pushed) and can be started manually on any
 # branch for any published image tag. maven.yml publishes images for every push: develop as 'latest', and gitflow
 # branches as '<name after the prefix>-SNAPSHOT' (e.g. feature/my-change -> my-change-SNAPSHOT).
@@ -34,6 +35,8 @@ jobs:
 
     env:
       HD_VERSION: ${{ inputs.version }}
+      # the dashboard tests wait for changes made in Superset to reach the portal
+      HD_SUPERSET_PUBLISH_INTERVAL_MINUTES: 1
       COMPOSE_PROJECT_NAME: hellodata-e2e
       COMPOSE_DIR: hello-data-deployment/docker-compose
       E2E_DIR: hello-data-portal/hello-data-portal-ui-e2e
@@ -50,27 +53,30 @@ jobs:
 
       - name: Pull images
         working-directory: ${{ env.COMPOSE_DIR }}
-        run: docker compose pull --quiet --include-deps hello-data-portal-ui
+        run: docker compose pull --quiet --include-deps hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
 
-      - name: Start portal services
+      - name: Start portal and Superset services
         working-directory: ${{ env.COMPOSE_DIR }}
-        run: docker compose up -d --wait --wait-timeout 900 hello-data-portal-ui
+        run: docker compose up -d --wait --wait-timeout 900 hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
 
-      # sidecars publish their resources every 10 minutes, and on a fresh install the first round can be published
-      # before the portal sidecar subscribed - so wait until the portal knows the dbt docs instance
+      # sidecars publish their resources on an interval (10 minutes for dbt docs, 1 minute for Superset here), and on a
+      # fresh install the first round can be published before the portal sidecar subscribed - so wait until the portal
+      # knows the dbt docs instance and the Superset dashboards
       - name: Wait for sidecar resources
         working-directory: ${{ env.COMPOSE_DIR }}
         run: |
+          query="select count(distinct module_type) from resource
+                 where (kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS')
+                    or (kind = 'hellodata/Dashboards' and module_type = 'SUPERSET')"
           for i in $(seq 1 75); do
-            count=$(docker compose exec -T postgres psql -U postgres -d hd_metainfo -tAc \
-              "select count(*) from resource where kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS'")
-            if [ "${count:-0}" -gt 0 ]; then
-              echo "dbt docs app info available after $((i * 10))s"
+            count=$(docker compose exec -T postgres psql -U postgres -d hd_metainfo -tAc "$query")
+            if [ "${count:-0}" -ge 2 ]; then
+              echo "dbt docs app info and Superset dashboards available after $((i * 10))s"
               exit 0
             fi
             sleep 10
           done
-          echo "dbt docs app info was not published within 12.5 minutes"
+          echo "dbt docs app info or Superset dashboards were not published within 12.5 minutes"
           exit 1
 
       - name: Set up Node

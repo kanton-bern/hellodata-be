@@ -1,4 +1,4 @@
-import {expect, navigate, test} from './fixtures';
+import {expect, navigate, test} from '../fixtures';
 
 test.describe('FAQ management', () => {
   test('admin creates, edits and deletes a FAQ', async ({adminPage: page}) => {

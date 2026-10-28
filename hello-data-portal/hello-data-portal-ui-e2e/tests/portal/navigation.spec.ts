@@ -1,6 +1,6 @@
-import {ADMIN, errorToasts, expect, navigate, openPortalAs, test} from './fixtures';
+import {ADMIN, errorToasts, expect, navigate, openPortalAs, test} from '../fixtures';
 
-// which menu entries each role sees is covered by roles.spec.ts
+// which menu entries each role sees is covered by administration/roles.spec.ts
 test.describe('Navigation', () => {
   const adminPages = [
     {item: 'User management', url: /\/user-management$/, heading: 'Users management'},

@@ -51,11 +51,13 @@ The Maven build for `hello-data-portal-ui` also installs Node/Yarn and runs `yar
 `frontend-maven-plugin`, but direct Yarn commands are faster when you are only working in the UI.
 
 E2E tests live in `hello-data-portal-ui-e2e` and use Playwright (npm, not part of the Maven build). They run against
-the portal subset of the docker compose installation:
+the portal and default data domain Superset subset of the docker compose installation, with specs grouped in feature
+folders under `tests/` (`portal`, `administration`, `dashboards`, `superset`):
 
 ```bash
 cd hello-data-deployment/docker-compose
-docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui
+HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1 docker compose -p hellodata-e2e up -d --wait \
+  hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
 cd ../../hello-data-portal/hello-data-portal-ui-e2e
 npm ci && npx playwright install chromium
 npx playwright test

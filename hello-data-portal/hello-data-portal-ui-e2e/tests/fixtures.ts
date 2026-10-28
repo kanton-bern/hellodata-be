@@ -1,4 +1,4 @@
-import {expect, Page, test as base} from '@playwright/test';
+import {expect, Locator, Page, test as base} from '@playwright/test';
 
 export const ADMIN = {
   username: process.env.E2E_ADMIN_USERNAME ?? 'admin',
@@ -59,9 +59,21 @@ export async function openMenu(page: Page, menu: string) {
   return drawer;
 }
 
-/** Opens a first-level entry of the left sidebar and clicks one of its sub entries. */
-export async function navigate(page: Page, menu: string, item: string) {
+/** Expands a collapsible group of the sub navigation drawer (e.g. a data domain in the Dashboards menu). */
+export async function expandMenuGroup(drawer: Locator, group: string) {
+  const header = drawer.getByRole('button', {name: group, exact: true});
+  if (await header.getAttribute('aria-expanded') !== 'true') {
+    await header.click();
+  }
+  await expect(header).toHaveAttribute('aria-expanded', 'true');
+}
+
+/** Opens a first-level entry of the left sidebar and clicks one of its sub entries, optionally inside a group. */
+export async function navigate(page: Page, menu: string, item: string, group?: string) {
   const drawer = await openMenu(page, menu);
+  if (group) {
+    await expandMenuGroup(drawer, group);
+  }
   await drawer.getByRole('button', {name: item, exact: true}).click();
 }
 

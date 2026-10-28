@@ -1,27 +1,44 @@
 # HelloDATA Portal UI E2E Tests
 
 Basic regression suite for the portal, written with [Playwright](https://playwright.dev). It runs against the portal
-subset of the [docker compose installation](../../hello-data-deployment/docker-compose/README.md) and logs in through
-the real Keycloak login page.
+and the default data domain's Superset of the
+[docker compose installation](../../hello-data-deployment/docker-compose/README.md) and logs in through the real
+Keycloak login page.
+
+The specs are grouped by feature:
+
+| Folder                  | Covers                                                                                       |
+|-------------------------|----------------------------------------------------------------------------------------------|
+| `tests/portal/`         | Login, logout, navigation and the home page                                                  |
+| `tests/administration/` | Users, portal roles and FAQ management                                                       |
+| `tests/dashboards/`     | Superset dashboards in the portal: access, drafts, filters and metadata per role              |
+| `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases |
+
+Scenarios from Jira name their ticket (e.g. `HELLODATA-687`) in a comment above the test.
 
 ## Running locally
 
-Start the portal and its dependencies (a separate compose project, so your own local data is not touched):
+Start the portal, the default data domain's Superset and their dependencies (a separate compose project, so your own
+local data is not touched):
 
 ```bash
 cd hello-data-deployment/docker-compose
-docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui
+HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1 docker compose -p hellodata-e2e up -d --wait \
+  hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
 ```
 
 Use `HD_VERSION=<tag>` in front of the command to test a specific release candidate instead of `latest`.
+`HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1` makes the Superset sidecar publish dashboards, users and roles to the portal
+every minute instead of every 10 minutes; the draft dashboard test waits for that.
 
-On a fresh stack the sidecars may publish their resources before the portal sidecar is listening. They republish
-every 10 minutes, so the lineage docs test can fail until then. Wait for the dbt docs app info first (this is what the
-CI workflow does):
+On a fresh stack the sidecars may publish their resources before the portal sidecar is listening. The dbt docs sidecar
+republishes every 10 minutes, so the lineage docs test can fail until then. Wait for the dbt docs app info and the
+Superset dashboards first (this is what the CI workflow does, the query returns 2 when both are there):
 
 ```bash
 docker compose -p hellodata-e2e exec -T postgres psql -U postgres -d hd_metainfo -tAc \
-  "select count(*) from resource where kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS'"
+  "select count(distinct module_type) from resource where (kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS')
+   or (kind = 'hellodata/Dashboards' and module_type = 'SUPERSET')"
 ```
 
 Install and run the tests:
@@ -50,9 +67,14 @@ docker compose -p hellodata-e2e down --volumes
 | `E2E_ADMIN_USERNAME`  | `admin`                                   | Keycloak admin user used by most tests              |
 | `E2E_ADMIN_PASSWORD`  | `admin`                                   | Its password                                        |
 | `E2E_ADMIN_EMAIL`     | `admin@hellodata.ch`                      | Its email, shown in the top bar and profile         |
+| `E2E_DWH_HOST`        | `postgres`                                | Database the Superset connection test connects to, as reached from Superset |
+| `E2E_DWH_PORT`        | `5432`                                    | Its port                                            |
+| `E2E_DWH_DATABASE`    | `hellodata_product_development_default_data_domain_dwh` | Its database name                     |
+| `E2E_DWH_USERNAME`    | `postgres`                                | Its user                                            |
+| `E2E_DWH_PASSWORD`    | `postgres`                                | Its password                                        |
 
 The other users are the example users created by the portal api's `create-example-users` profile (see
-`ExampleUsersInitializer`). `tests/roles.spec.ts` logs in as each of them and checks the menus and pages of its role:
+`ExampleUsersInitializer`). `tests/administration/roles.spec.ts` logs in as each of them and checks the menus and pages of its role:
 
 | Role                              | User                                                   | Password     |
 |-----------------------------------|--------------------------------------------------------|--------------|
@@ -85,6 +107,14 @@ failed tests and the compose logs are uploaded as a workflow artifact.
   test controls the login itself (other user, wrong password, or listening for requests made during login).
 - Every test gets a fresh browser context and logs in on its own, so tests do not share a session.
 - `tests/fixtures.ts` also provides helpers: `openPortalAs()` (Keycloak login, waits for the home page and switches to
-  English), `signIn()`, `navigate()` / `openMenu()` for the left sidebar, `errorToasts()` and `dismissToasts()`.
+  English), `signIn()`, `navigate()` / `openMenu()` / `expandMenuGroup()` for the left sidebar, `errorToasts()` and
+  `dismissToasts()`.
+- `tests/superset.ts` has the helpers for dashboards and Superset: `changeDashboardAccessAsAdmin()` (gives a viewer or
+  business specialist access to the showcase dashboard in user management), `expectDashboardListed()` (reloads the
+  dashboard list until the sync with Superset is done), `openDashboard()` (returns the embedded dashboard as a frame),
+  `openSuperset()` (opens the Superset instance in a new tab), `setDashboardPublished()` and `withUser()` (runs a step
+  as another user in its own browser context).
+- Viewers and business specialists see no dashboard until an admin gives them access. Tests that need it give it in
+  `beforeAll` and take it away in `afterAll`.
 - Prefer roles and element ids over CSS structure, and use Playwright's auto-waiting assertions instead of fixed waits.
 - Tests share one portal instance, so data created by a test must have a unique name and be cleaned up by that test.
