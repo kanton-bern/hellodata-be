@@ -65,24 +65,33 @@ export async function setDashboardPublished(superset: Page, published: boolean, 
   await expect(wanted).toBeVisible();
 }
 
-/** Gives a viewer or business specialist access to a dashboard (or takes it away) in the admin's user management. */
-export async function setDashboardAccess(page: Page, user: User, granted: boolean, title = SHOWCASE_DASHBOARD) {
+/** Opens the edit page of a user in the admin's user management. */
+export async function openUserEdit(page: Page, user: User) {
   await navigate(page, 'Administration', 'User management');
   const userRow = page.getByRole('row').filter({has: page.getByRole('cell', {name: user.username, exact: true})});
   // the actions are icon buttons without a name: edit is the first one
   await userRow.locator('button').first().click();
   await expect(page).toHaveURL(/\/user-management\/edit\//);
+}
+
+/** Saves the user edit page: roles, dashboards and comment permissions are saved together. */
+export async function saveUserEdit(page: Page) {
+  const saved = page.waitForResponse(r => r.url().endsWith('/context-roles') && r.request().method() === 'PATCH');
+  await page.getByRole('button', {name: 'Save', exact: true}).first().click();
+  expect((await saved).ok(), 'saving the user failed').toBe(true);
+  await dismissToasts(page);
+}
+
+/** Gives a viewer or business specialist access to a dashboard (or takes it away) in the admin's user management. */
+export async function setDashboardAccess(page: Page, user: User, granted: boolean, title = SHOWCASE_DASHBOARD) {
+  await openUserEdit(page, user);
   const dashboard = page.getByRole('checkbox', {name: title, exact: true});
   await expect(dashboard).toBeVisible();
   if (await dashboard.isChecked() === granted) {
     return;
   }
   await dashboard.setChecked(granted);
-  // roles, dashboards and comment permissions are saved together
-  const saved = page.waitForResponse(r => r.url().endsWith('/context-roles') && r.request().method() === 'PATCH');
-  await page.getByRole('button', {name: 'Save', exact: true}).first().click();
-  expect((await saved).ok(), 'saving the dashboard access failed').toBe(true);
-  await dismissToasts(page);
+  await saveUserEdit(page);
 }
 
 /** Logs the admin in in a separate browser context and changes the dashboard access of a user. */

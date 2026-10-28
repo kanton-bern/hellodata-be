@@ -13,6 +13,7 @@ The specs are grouped by feature:
 | `tests/administration/` | Users, portal roles and FAQ management                                                       |
 | `tests/dashboards/`     | Superset dashboards in the portal: access, drafts, filters and metadata per role              |
 | `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases |
+| `tests/comments/`       | Dashboard comments: permissions per role, review workflow, filtering, deletion, versions     |
 
 Scenarios from Jira name their ticket (e.g. `HELLODATA-687`) in a comment above the test.
 
@@ -114,6 +115,13 @@ failed tests and the compose logs are uploaded as a workflow artifact.
   dashboard list until the sync with Superset is done), `openDashboard()` (returns the embedded dashboard as a frame),
   `openSuperset()` (opens the Superset instance in a new tab), `setDashboardPublished()` and `withUser()` (runs a step
   as another user in its own browser context).
+- `tests/comments.ts` has the helpers for dashboard comments: `changeCommentPermissionAsAdmin()` (sets the read, write
+  or review permission of a user in the default data domain, optionally together with the dashboard access),
+  `openComments()` (opens the showcase dashboard and its comments panel), `addComment()`, `sendForReview()`,
+  `publish()`, `decline()`, `editComment()`, `deleteComment()`, `filterComments()` and `showDetails()`.
+- Only the admin roles (`HELLODATA_ADMIN`, `BUSINESS_DOMAIN_ADMIN`, `DATA_DOMAIN_ADMIN`) can comment by default. Comment
+  tests give the other roles a comment permission in `beforeAll` and set it back to none in `afterAll`. A reviewer does
+  not see the drafts of other users, so a comment is cleaned up by its author.
 - Viewers and business specialists see no dashboard until an admin gives them access. Tests that need it give it in
   `beforeAll` and take it away in `afterAll`.
 - Prefer roles and element ids over CSS structure, and use Playwright's auto-waiting assertions instead of fixed waits.
