@@ -29,7 +29,8 @@ concurrency:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # the batch import tests wait for the portal's 30 second scan of the batch folder for every csv file
+    timeout-minutes: 75
     permissions:
       contents: read
 
