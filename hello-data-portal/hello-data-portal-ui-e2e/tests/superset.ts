@@ -68,6 +68,8 @@ export async function setDashboardPublished(superset: Page, published: boolean, 
 /** Opens the edit page of a user in the admin's user management. */
 export async function openUserEdit(page: Page, user: User) {
   await navigate(page, 'Administration', 'User management');
+  // the table shows 10 users per page, so filter it in case other tests added users
+  await page.getByPlaceholder('Search').fill(user.username);
   const userRow = page.getByRole('row').filter({has: page.getByRole('cell', {name: user.username, exact: true})});
   // the actions are icon buttons without a name: edit is the first one
   await userRow.locator('button').first().click();
