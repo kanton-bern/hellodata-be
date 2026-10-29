@@ -14,7 +14,7 @@ The specs are grouped by feature:
 | `tests/dashboards/`     | Superset dashboards in the portal: access, drafts, filters and metadata per role              |
 | `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases |
 | `tests/comments/`       | Dashboard comments: permissions per role, review workflow, filtering, deletion, versions     |
-| `tests/batch-import/`   | Batch import of users and roles from csv files: new users, existing users, last record wins, file validation |
+| `tests/batch-import/`   | Batch import of users and roles from csv files: new users, existing users, last record wins, dashboard groups, file validation |
 
 Scenarios from Jira name their ticket (e.g. `HELLODATA-687`) in a comment above the test.
 
@@ -125,9 +125,10 @@ failed tests and the compose logs are uploaded as a workflow artifact.
   from `/storage/batch-users-processing` every 30 seconds. `importCsv()` / `importInvalidCsv()` copy a file into the
   portal api container with `docker exec` and wait for the result in `users-output.log`. The result is checked in the
   databases: `portalRoles()`, `portalDashboards()`, `portalCommentPermission()` in the portal and `supersetRoles()` /
-  `expectSupersetRoles()` in Superset (`ab_user`, `ab_user_role`, `ab_role`). So these tests need the docker CLI and
-  the compose stack on the machine that runs Playwright. They create the Superset roles `RLS_E2E_A` and `RLS_E2E_B`
-  once and keep them, and delete the users they imported in `afterAll` (`deleteBatchUsers()`).
+  `expectSupersetRoles()` in Superset (`ab_user`, `ab_user_role`, `ab_role`). `createDashboardGroup()`,
+  `dashboardGroupMembers()` and `deleteDashboardGroup()` work on the dashboard groups of the portal. So these tests need
+  the docker CLI and the compose stack on the machine that runs Playwright. They create the Superset roles `RLS_E2E_A`
+  and `RLS_E2E_B` once and keep them, and delete the users and groups they created in `afterAll`.
 - Only the admin roles (`HELLODATA_ADMIN`, `BUSINESS_DOMAIN_ADMIN`, `DATA_DOMAIN_ADMIN`) can comment by default. Comment
   tests give the other roles a comment permission in `beforeAll` and set it back to none in `afterAll`. A reviewer does
   not see the drafts of other users, so a comment is cleaned up by its author.

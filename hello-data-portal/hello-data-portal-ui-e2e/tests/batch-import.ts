@@ -259,6 +259,34 @@ export async function ensureSupersetRoles(names: string[]) {
   }, {message: 'Superset roles not yet published to the portal', timeout: SUPERSET_SYNC_TIMEOUT, intervals: [5_000, 10_000]}).toEqual([]);
 }
 
+/**
+ * Creates a dashboard group in the default data domain that contains the showcase dashboard, the way the admin's
+ * dashboard group page stores it. Viewers in the group get the dashboard (and its D_ role in Superset) through it.
+ */
+export function createDashboardGroup(name: string) {
+  const [[dashboardId, title]] = sql(SUPERSET_DB, `select id, dashboard_title from dashboards where slug = ${literal(SHOWCASE_DASHBOARD_SLUG)}`);
+  const [[instanceName]] = sql(PORTAL_DB, `
+      select instance_name from resource
+      where module_type = 'SUPERSET' and kind = 'hellodata/Dashboards' and context_key = ${literal(CONTEXT_KEY)}`);
+  const entries = JSON.stringify([{dashboardId: Number(dashboardId), dashboardTitle: title, instanceName}]);
+  sql(PORTAL_DB, `
+      insert into dashboard_group (name, context_key, entries, users, created_date, created_by)
+      values (${literal(name)}, ${literal(CONTEXT_KEY)}, ${literal(entries)}::jsonb, '[]'::jsonb, now(), 'e2e')`);
+}
+
+export function deleteDashboardGroup(name: string) {
+  sql(PORTAL_DB, `delete from dashboard_group where name = ${literal(name)} and context_key = ${literal(CONTEXT_KEY)}`);
+}
+
+/** The emails of the members of a dashboard group of the default data domain. */
+export function dashboardGroupMembers(name: string) {
+  return sql(PORTAL_DB, `
+      select u ->> 'email'
+      from dashboard_group g, jsonb_array_elements(g.users) u
+      where g.name = ${literal(name)} and g.context_key = ${literal(CONTEXT_KEY)}
+      order by 1`).map(([email]) => email);
+}
+
 /** Deletes a user in the admin's user management, together with its accounts in Keycloak and the subsystems. */
 async function deleteUser(page: Page, email: string) {
   await navigate(page, 'Administration', 'User management');
