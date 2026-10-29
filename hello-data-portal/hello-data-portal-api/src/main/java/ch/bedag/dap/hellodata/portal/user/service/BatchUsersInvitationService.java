@@ -174,18 +174,20 @@ public class BatchUsersInvitationService {
      * Uses DashboardGroupService to look up groups by name and context key.
      */
     private Map<String, List<String>> resolveDashboardGroupNamesToIds(BatchUpdateContextRolesForUserDto user) {
-        Map<String, List<String>> dashboardGroupNamesMap = user.getDashboardGroupNamesFromCsv();
-        if (dashboardGroupNamesMap == null || dashboardGroupNamesMap.isEmpty()) {
-            return new HashMap<>();
-        }
+        Map<String, List<String>> dashboardGroupNamesMap = user.getDashboardGroupNamesFromCsv() == null
+                ? Map.of() : user.getDashboardGroupNamesFromCsv();
 
         Map<String, List<String>> resolvedGroupIds = new HashMap<>();
         for (Map.Entry<String, List<String>> entry : dashboardGroupNamesMap.entrySet()) {
             String contextKey = entry.getKey();
             List<String> groupNames = entry.getValue();
-            List<String> groupIds = resolveGroupNamesForContext(contextKey, groupNames, user.getEmail());
-            if (!groupIds.isEmpty()) {
-                resolvedGroupIds.put(contextKey, groupIds);
+            resolvedGroupIds.put(contextKey, resolveGroupNamesForContext(contextKey, groupNames, user.getEmail()));
+        }
+        // the file defines the complete state of the data domain, so a data domain without groups in the file
+        // removes the user from the groups it was in before (HELLODATA-2073 / HELLODATA-2074)
+        if (user.getDataDomainRoles() != null) {
+            for (UserContextRoleDto dataDomainRole : user.getDataDomainRoles()) {
+                resolvedGroupIds.putIfAbsent(dataDomainRole.getContext().getContextKey(), new ArrayList<>());
             }
         }
         return resolvedGroupIds;

@@ -923,6 +923,35 @@ class BatchUsersInvitationServiceTest {
     }
 
     @Test
+    void resolveDashboardGroupNamesToIds_dataDomainWithoutGroupsInTheFile_shouldClearGroupsOfTheContext() throws Exception {
+        // Arrange
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
+
+        BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
+        user.setEmail("test@example.com");
+        UserContextRoleDto ddRole = new UserContextRoleDto();
+        RoleDto viewerRole = new RoleDto();
+        viewerRole.setName("DATA_DOMAIN_VIEWER");
+        ddRole.setRole(viewerRole);
+        ContextDto ddContext = new ContextDto();
+        ddContext.setContextKey("dd1");
+        ddRole.setContext(ddContext);
+        user.setDataDomainRoles(List.of(ddRole));
+        // No dashboard groups in the file for dd1
+
+        // Act
+        Method method = BatchUsersInvitationService.class.getDeclaredMethod(
+                "resolveDashboardGroupNamesToIds", BatchUpdateContextRolesForUserDto.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> result = (Map<String, List<String>>) method.invoke(service, user);
+
+        // Assert - the context is present with no groups, which removes the user from the groups it was in before
+        assertEquals(Map.of("dd1", List.of()), result);
+    }
+
+    @Test
     void buildDefaultCommentPermissions_allRoles_shouldHaveCorrectPermissions() throws Exception {
         // This test verifies the complete permission matrix for all roles:
         // HELLODATA_ADMIN         -> read=true,  write=true,  review=true
