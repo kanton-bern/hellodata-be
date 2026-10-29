@@ -38,6 +38,10 @@ jobs:
       HD_VERSION: ${{ inputs.version }}
       # the dashboard tests wait for changes made in Superset to reach the portal
       HD_SUPERSET_PUBLISH_INTERVAL_MINUTES: 1
+      # the dbt docs sidecar publishes every 10 minutes by default, and the stack is only ready once it did
+      HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES: 1
+      # every batch import test waits for the next scan of the batch folder (30 seconds by default)
+      HD_BATCH_USERS_SCAN_INTERVAL_SECONDS: 5
       COMPOSE_PROJECT_NAME: hellodata-e2e
       COMPOSE_DIR: hello-data-deployment/docker-compose
       E2E_DIR: hello-data-portal/hello-data-portal-ui-e2e
@@ -60,7 +64,7 @@ jobs:
         working-directory: ${{ env.COMPOSE_DIR }}
         run: docker compose up -d --wait --wait-timeout 900 hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
 
-      # sidecars publish their resources on an interval (10 minutes for dbt docs, 1 minute for Superset here), and on a
+      # sidecars publish their resources on an interval (1 minute for dbt docs and Superset here), and on a
       # fresh install the first round can be published before the portal sidecar subscribed - so wait until the portal
       # knows the dbt docs instance and the Superset dashboards
       - name: Wait for sidecar resources

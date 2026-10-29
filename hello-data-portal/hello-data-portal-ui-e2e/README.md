@@ -25,16 +25,21 @@ local data is not touched):
 
 ```bash
 cd hello-data-deployment/docker-compose
-HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1 docker compose -p hellodata-e2e up -d --wait \
-  hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
+HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1 HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES=1 HD_BATCH_USERS_SCAN_INTERVAL_SECONDS=5 \
+  docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
 ```
 
 Use `HD_VERSION=<tag>` in front of the command to test a specific release candidate instead of `latest`.
-`HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1` makes the Superset sidecar publish dashboards, users and roles to the portal
-every minute instead of every 10 minutes; the draft dashboard test waits for that.
+The three variables shorten waits that only matter for the tests (all of them default to the normal values):
 
-On a fresh stack the sidecars may publish their resources before the portal sidecar is listening. The dbt docs sidecar
-republishes every 10 minutes, so the lineage docs test can fail until then. Wait for the dbt docs app info and the
+- `HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1` makes the Superset sidecar publish dashboards, users and roles to the portal
+  every minute instead of every 10 minutes; the draft dashboard test waits for that.
+- `HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES=1` does the same for the dbt docs sidecar.
+- `HD_BATCH_USERS_SCAN_INTERVAL_SECONDS=5` makes the portal api look for batch import csv files every 5 seconds instead
+  of every 30; every batch import test waits for that.
+
+On a fresh stack the sidecars may publish their resources before the portal sidecar is listening. They republish on
+their interval, so the lineage docs test can fail until then. Wait for the dbt docs app info and the
 Superset dashboards first (this is what the CI workflow does, the query returns 2 when both are there):
 
 ```bash
@@ -122,7 +127,7 @@ failed tests and the compose logs are uploaded as a workflow artifact.
   `openComments()` (opens the showcase dashboard and its comments panel), `addComment()`, `sendForReview()`,
   `publish()`, `decline()`, `editComment()`, `deleteComment()`, `filterComments()` and `showDetails()`.
 - `tests/batch-import.ts` has the helpers for the batch import. The import has no UI: the portal api picks up csv files
-  from `/storage/batch-users-processing` every 30 seconds. `importCsv()` / `importInvalidCsv()` copy a file into the
+  from `/storage/batch-users-processing` every 30 seconds (5 with the command above). `importCsv()` / `importInvalidCsv()` copy a file into the
   portal api container with `docker exec` and wait for the result in `users-output.log`. The result is checked in the
   databases: `portalRoles()`, `portalDashboards()`, `portalCommentPermission()` in the portal and `supersetRoles()` /
   `expectSupersetRoles()` in Superset (`ab_user`, `ab_user_role`, `ab_role`). `createDashboardGroup()`,

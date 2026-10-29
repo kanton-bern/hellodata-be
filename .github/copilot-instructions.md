@@ -56,8 +56,8 @@ folders under `tests/` (`portal`, `administration`, `dashboards`, `superset`):
 
 ```bash
 cd hello-data-deployment/docker-compose
-HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1 docker compose -p hellodata-e2e up -d --wait \
-  hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
+HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1 HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES=1 HD_BATCH_USERS_SCAN_INTERVAL_SECONDS=5 \
+  docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
 cd ../../hello-data-portal/hello-data-portal-ui-e2e
 npm ci && npx playwright install chromium
 npx playwright test
