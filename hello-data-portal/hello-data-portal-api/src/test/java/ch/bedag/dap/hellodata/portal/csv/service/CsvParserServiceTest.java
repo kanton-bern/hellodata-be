@@ -1,6 +1,9 @@
 package ch.bedag.dap.hellodata.portal.csv.service;
 
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
 import ch.bedag.dap.hellodata.portal.csv.data.CsvUserRole;
+import ch.bedag.dap.hellodata.portal.user.data.BatchUpdateContextRolesForUserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -326,6 +329,43 @@ class CsvParserServiceTest {
         assertEquals(1, result.size());
         CsvUserRole user = result.get(0);
         assertEquals(List.of("Group1", "Group2", "Group3"), user.dashboardGroups());
+    }
+
+    @Test
+    void transform_lastRowOfAUserForADataDomainWins() {
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole;dashboardGroup
+                user1@example.com;HELLODATA_ADMIN;context1;DATA_DOMAIN_VIEWER;D_dash1,RLS_a;Group1
+                user1@example.com;NONE;context1;DATA_DOMAIN_ADMIN;;
+                user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;RLS_b;
+                """;
+
+        List<BatchUpdateContextRolesForUserDto> result = csvParserService.transform(new ByteArrayInputStream(csvContent.getBytes()));
+
+        assertEquals(1, result.size());
+        BatchUpdateContextRolesForUserDto user = result.get(0);
+        assertEquals("NONE", user.getBusinessDomainRole().getName());
+        assertEquals(1, user.getDataDomainRoles().size());
+        assertEquals("DATA_DOMAIN_VIEWER", user.getDataDomainRoles().get(0).getRole().getName());
+        assertEquals(List.of(new ModuleRoleNames(ModuleType.SUPERSET, List.of("RLS_b"))), user.getContextToModuleRoleNamesMap().get("context1"));
+        assertFalse(user.getDashboardGroupNamesFromCsv().containsKey("context1"));
+    }
+
+    @Test
+    void transform_rowsForOtherDataDomainsAreKept() {
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole;dashboardGroup
+                user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;D_dash1;Group1
+                user1@example.com;NONE;context2;DATA_DOMAIN_EDITOR;;
+                """;
+
+        List<BatchUpdateContextRolesForUserDto> result = csvParserService.transform(new ByteArrayInputStream(csvContent.getBytes()));
+
+        BatchUpdateContextRolesForUserDto user = result.get(0);
+        assertEquals(2, user.getDataDomainRoles().size());
+        assertEquals(List.of(new ModuleRoleNames(ModuleType.SUPERSET, List.of("D_dash1"))), user.getContextToModuleRoleNamesMap().get("context1"));
+        assertEquals(List.of("Group1"), user.getDashboardGroupNamesFromCsv().get("context1"));
+        assertTrue(user.getContextToModuleRoleNamesMap().containsKey("context2"));
     }
 
     @Test

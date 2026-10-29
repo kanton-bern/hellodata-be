@@ -263,9 +263,9 @@ public class BatchUsersInvitationService {
             String contextKey = entry.getKey();
             List<DashboardForUserDto> matched = mapDashboardsForContext(
                     contextKey, entry.getValue(), contextToDataDomainRole, contextToDashboards, user.getEmail());
-            if (!matched.isEmpty()) {
-                selectedDashboards.put(contextKey, matched);
-            }
+            // the file defines the complete state of the data domain, so an empty list removes the dashboards
+            // an existing user was given before (HELLODATA-2073 / HELLODATA-2074)
+            selectedDashboards.put(contextKey, matched);
         }
         return selectedDashboards;
     }

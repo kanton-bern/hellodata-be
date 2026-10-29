@@ -752,7 +752,42 @@ class BatchUsersInvitationServiceTest {
                 (Map<String, List<DashboardForUserDto>>) method.invoke(service, user, contextToDashboards);
 
         // Assert - Admin should have empty dashboard assignments
-        assertTrue(result.isEmpty(), "DATA_DOMAIN_ADMIN should not get dashboard assignments via batch import");
+        assertEquals(List.of(), result.get("dd1"), "DATA_DOMAIN_ADMIN should not get dashboard assignments via batch import");
+    }
+
+    @Test
+    void mapSupersetRolesToDashboards_forViewerWithoutDashboardRoles_shouldClearDashboardsOfTheContext() throws Exception {
+        // Arrange
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
+
+        BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
+        user.setEmail("viewer@example.com");
+        UserContextRoleDto ddRole = new UserContextRoleDto();
+        RoleDto viewerRole = new RoleDto();
+        viewerRole.setName("DATA_DOMAIN_VIEWER");
+        ddRole.setRole(viewerRole);
+        ContextDto ddContext = new ContextDto();
+        ddContext.setContextKey("dd1");
+        ddRole.setContext(ddContext);
+        user.setDataDomainRoles(List.of(ddRole));
+
+        // only an RLS role in the file - the dashboards the user had before must be removed
+        Map<String, List<ModuleRoleNames>> contextToModuleRoles = new HashMap<>();
+        contextToModuleRoles.put("dd1", List.of(new ModuleRoleNames(ModuleType.SUPERSET, List.of("RLS_some_filter"))));
+        user.setContextToModuleRoleNamesMap(contextToModuleRoles);
+
+        // Act
+        Method method = BatchUsersInvitationService.class.getDeclaredMethod(
+                "mapSupersetRolesToDashboards", BatchUpdateContextRolesForUserDto.class, Map.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<String, List<DashboardForUserDto>> result =
+                (Map<String, List<DashboardForUserDto>>) method.invoke(service, user, new HashMap<>());
+
+        // Assert - the context is present with an empty selection, which clears the persisted dashboards
+        assertTrue(result.containsKey("dd1"));
+        assertEquals(List.of(), result.get("dd1"));
     }
 
     @Test

@@ -86,10 +86,12 @@ jobs:
   # regression check of every release candidate against its freshly pushed images
   e2e:
     needs: build
-    if: ${{ github.ref_type == 'tag' && contains(github.ref_name, '.rc') }}
+    # TEMPORARY (HELLODATA-4160): also for feature/e2e-playwright, since e2e.yml is not on develop yet and cannot be
+    # started manually - remove the branch condition and its version fallback before merging
+    if: ${{ (github.ref_type == 'tag' && contains(github.ref_name, '.rc')) || github.ref == 'refs/heads/feature/e2e-playwright' }}
     uses: ./.github/workflows/e2e.yml
     with:
-      version: ${{ github.ref_name }}
+      version: ${{ github.ref_type == 'tag' && github.ref_name || 'e2e-playwright-SNAPSHOT' }}
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
