@@ -1,6 +1,6 @@
 name: E2E tests (docker compose)
 
-run-name: "E2E: ${{ inputs.version }}"
+run-name: "E2E: ${{ inputs.version || 'e2e-playwright-SNAPSHOT' }}"
 
 # Runs the Playwright regression suite against the portal and the default data domain's Superset of the docker compose
 # installation.
@@ -8,6 +8,10 @@ run-name: "E2E: ${{ inputs.version }}"
 # branch for any published image tag. maven.yml publishes images for every push: develop as 'latest', and gitflow
 # branches as '<name after the prefix>-SNAPSHOT' (e.g. feature/my-change -> my-change-SNAPSHOT).
 on:
+  # TEMPORARY (HELLODATA-4160): e2e.yml is not on develop yet, so it cannot be started manually - remove before merging
+  push:
+    branches:
+      - 'feature/e2e-playwright'
   workflow_call:
     inputs:
       version:
@@ -23,7 +27,7 @@ on:
         type: string
 
 concurrency:
-  group: e2e-${{ inputs.version }}
+  group: e2e-${{ inputs.version || 'e2e-playwright-SNAPSHOT' }}
   cancel-in-progress: true
 
 jobs:
@@ -35,7 +39,7 @@ jobs:
       contents: read
 
     env:
-      HD_VERSION: ${{ inputs.version }}
+      HD_VERSION: ${{ inputs.version || 'e2e-playwright-SNAPSHOT' }}
       # the dashboard tests wait for changes made in Superset to reach the portal
       HD_SUPERSET_PUBLISH_INTERVAL_MINUTES: 1
       COMPOSE_PROJECT_NAME: hellodata-e2e
@@ -108,7 +112,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5
         with:
-          name: e2e-report-${{ inputs.version }}
+          name: e2e-report-${{ inputs.version || 'e2e-playwright-SNAPSHOT' }}
           path: |
             ${{ env.E2E_DIR }}/playwright-report/
             ${{ env.E2E_DIR }}/test-results/
