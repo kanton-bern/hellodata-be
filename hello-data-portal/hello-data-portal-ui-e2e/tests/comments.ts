@@ -1,6 +1,6 @@
 import {Browser, Locator, Page} from '@playwright/test';
 import {ADMIN, dismissToasts, expandMenuGroup, expect, openMenu, User} from './fixtures';
-import {DATA_DOMAIN, openDashboard, openUserEdit, saveUserEdit, setDashboardAccess, SHOWCASE_DASHBOARD, withUser} from './superset';
+import {DATA_DOMAIN, expectDashboardListed, openDashboard, openUserEdit, saveUserEdit, setDashboardAccess, SHOWCASE_DASHBOARD, withUser} from './superset';
 
 // the context key of the default data domain, used in the ids of the comment permission checkboxes
 export const CONTEXT_KEY = 'Default_Data_Domain';
@@ -66,6 +66,8 @@ export function commentsPanel(page: Page) {
 
 /** Opens the showcase dashboard and its comments panel, returns the comments feed. */
 export async function openComments(page: Page): Promise<Locator> {
+  // the dashboard is in the menu only after the user's access was synced with Superset
+  await expectDashboardListed(page, true);
   await openDashboard(page);
   // the closed panel is a vertical "Comments" tab on the right of the dashboard, the hidden feed has the same title
   await commentsPanel(page).getByText('Comments', {exact: true}).filter({visible: true}).click();
@@ -95,7 +97,9 @@ export async function commentResponse(page: Page, method: string, action = '') {
 /** Picks an option of a PrimeNG select, its options are appended to the body. */
 async function selectOption(select: Locator, option: string) {
   await select.click();
-  await select.page().getByRole('option', {name: option, exact: true}).click();
+  // the accessible name of an option is its untranslated label (e.g. "@deleted"), so match the shown text
+  const shown = new RegExp(`^\\s*${option.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
+  await select.page().getByRole('option').filter({hasText: shown}).click();
 }
 
 /** Writes a new comment, optionally with tags and a relevant quarter (Q1 - Q4), and returns its entry. */
@@ -107,9 +111,10 @@ export async function addComment(feed: Locator, text: string, options: {tags?: s
     // the action buttons have no name: tags is the first one, the pointer url the second
     await form.locator('button.action-toggle').first().click();
     const dialog = page.getByRole('dialog', {name: 'Add tags'});
+    const tagInput = dialog.getByRole('combobox');
     for (const tag of options.tags) {
-      await dialog.getByPlaceholder('Add tag (max 10 chars)').fill(tag);
-      await dialog.getByPlaceholder('Add tag (max 10 chars)').press('Enter');
+      await tagInput.fill(tag);
+      await tagInput.press('Enter');
     }
     await dialog.getByRole('button', {name: 'Done', exact: true}).click();
     await expect(dialog).toBeHidden();
@@ -225,6 +230,7 @@ export async function showDetails(entry: Locator) {
 
 /** The "All Dashboards Comments" entry of the data domain in the Dashboards menu, only there for reviewers. */
 export async function domainCommentsMenuEntry(page: Page) {
+  await expectDashboardListed(page, true);
   const drawer = await openMenu(page, 'Dashboards');
   await expandMenuGroup(drawer, DATA_DOMAIN);
   // wait for the dashboards of the group, the comments entry is added together with them

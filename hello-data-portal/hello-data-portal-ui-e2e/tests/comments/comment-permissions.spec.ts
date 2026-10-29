@@ -18,7 +18,7 @@ import {
   openComments,
   setCommentPermission,
 } from '../comments';
-import {openDashboard, openUserEdit, withUser} from '../superset';
+import {expectDashboardListed, openDashboard, openUserEdit, withUser} from '../superset';
 
 // the admins get read, write and review in their data domains by default (DashboardCommentPermissionService)
 const FULL_ACCESS_BY_DEFAULT: {role: string, user: User}[] = [
@@ -37,6 +37,9 @@ const NO_ACCESS_BY_DEFAULT: {role: string, user: User, dashboardAccess?: boolean
 
 // HELLODATA-4070
 test.describe('Commenting permissions', () => {
+  // a user's dashboards show up only after the sync with Superset
+  test.describe.configure({timeout: 3 * 60_000});
+
   for (const {role, user} of FULL_ACCESS_BY_DEFAULT) {
     test(`${role} can read and write comments`, async ({page}) => {
       await openPortalAs(page, user.username, user.password);
@@ -59,6 +62,7 @@ test.describe('Commenting permissions', () => {
 
       test('sees no comments without a comment permission', async ({page}) => {
         await openPortalAs(page, user.username, user.password);
+        await expectDashboardListed(page, true);
         await openDashboard(page);
         await expect(commentsPanel(page)).toHaveCount(0);
       });
@@ -136,7 +140,8 @@ test.describe('Edit commenting permissions', () => {
         await test.step('none: the comments panel is gone again', async () => {
           await withUser(browser, ADMIN, page => setCommentPermission(page, user, 'none'));
           await withUser(browser, user, async page => {
-            await openDashboard(page);
+            await expectDashboardListed(page, true);
+        await openDashboard(page);
             await expect(commentsPanel(page)).toHaveCount(0);
           });
         });

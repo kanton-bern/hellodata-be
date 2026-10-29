@@ -23,6 +23,9 @@ async function expectDomainCommentsPage(page: Page) {
 
 // HELLODATA-4072: the domain-wide comments overview is a review tool
 test.describe('All Dashboards Comments menu', () => {
+  // a user's dashboards show up only after the sync with Superset
+  test.describe.configure({timeout: 3 * 60_000});
+
   for (const {role, user} of [
     {role: 'HELLODATA_ADMIN', user: ADMIN},
     {role: 'BUSINESS_DOMAIN_ADMIN', user: BUSINESS_DOMAIN_ADMIN},
