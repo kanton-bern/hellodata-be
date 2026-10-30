@@ -30,7 +30,7 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: bedag/hello-data-dc-airflow
+  image: bedag/hello-data-dc-airflow:${HD_VERSION:-latest}
   env_file: .env
   extra_hosts:
     - "host.docker.internal:host-gateway"
@@ -53,6 +53,8 @@ x-airflow-common:
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: "${AIRFLOW__CORE__LOAD_EXAMPLES:-true}"
+    # how often the scheduler looks for new DAG files; the e2e tests lower it to see the DAGs they add sooner
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "${HD_AIRFLOW_DAG_DIR_LIST_INTERVAL_SECONDS:-300}"
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
     AIRFLOW__WEBSERVER__UPDATE_FAB_PERMS: 'False'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
@@ -119,7 +121,7 @@ services:
 
   showcase-files-default-data-domain:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-showcase
+    image: bedag/hello-data-showcase:${HD_VERSION:-latest}
     env_file: .env
     environment:
       DESTINATION_PATH: /storage/airflow/dags/Default_Data_Domain
@@ -135,7 +137,7 @@ services:
 
   showcase-files-extra-data-domain:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-showcase
+    image: bedag/hello-data-showcase:${HD_VERSION:-latest}
     env_file: .env
     environment:
       DESTINATION_PATH: /storage/airflow/dags/Extra_Data_Domain
@@ -151,7 +153,7 @@ services:
 
   postgres:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-dc-postgres
+    image: bedag/hello-data-dc-postgres:${HD_VERSION:-latest}
     env_file: .env
     ports:
       - 35432:5432
@@ -167,7 +169,7 @@ services:
     restart: always
 
   keycloak:
-    image: bedag/hello-data-dc-keycloak
+    image: bedag/hello-data-dc-keycloak:${HD_VERSION:-latest}
     env_file: .env
     ports:
       - 38080:8080
@@ -262,7 +264,7 @@ services:
       - ServerOptions__HostName=smtp4dev
 
   cloudbeaver:
-    image: bedag/hello-data-dc-cloudbeaver
+    image: bedag/hello-data-dc-cloudbeaver:${HD_VERSION:-latest}
     env_file: .env
     restart: always
     extra_hosts:
@@ -284,7 +286,7 @@ services:
       - "8978:8978"
 
   hello-data-cloudbeaver-gateway:
-    image: bedag/hello-data-cloudbeaver-gateway
+    image: bedag/hello-data-cloudbeaver-gateway:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - HELLO_DATA_CLOUDBEAVER_UPSTREAM_URI=http://cloudbeaver:8978
@@ -316,7 +318,7 @@ services:
       - "keycloak.localhost:host-gateway"
 
   hello-data-sidecar-cloudbeaver:
-    image: bedag/hello-data-sidecar-cloudbeaver
+    image: bedag/hello-data-sidecar-cloudbeaver:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
@@ -388,11 +390,15 @@ services:
 
   hello-data-sftpgo-sidecar:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-sftpgo
+    image: bedag/hello-data-sidecar-sftpgo:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - HELLO_DATA_SFTPGO_BASE_URL=http://sftpgo:8080
+      # the url the portal opens for Data Eng. -> Filebrowser
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8090
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      # how often the SFTPGo app info and users are published to the portal; the e2e tests lower it
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_MINUTES=${HD_SFTPGO_PUBLISH_INTERVAL_MINUTES:-10}
       - HELLADATA_S3_CONNECTIONS_0_ACCESS_KEY=minio
       - HELLADATA_S3_CONNECTIONS_0_ACCESS_SECRET=minio
       - HELLADATA_S3_CONNECTIONS_0_BUCKET=myminio/default-data-domain
@@ -429,7 +435,7 @@ services:
 
   hello-data-dbt-docs:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-dbt-docs
+    image: bedag/hello-data-dbt-docs:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_dbt_docs
@@ -460,12 +466,14 @@ services:
 
   hello-data-dbt-docs-sidecar:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-dbt-docs
+    image: bedag/hello-data-sidecar-dbt-docs:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_dbt_docs
       - HELLO_DATA_INSTANCE_URL=http://localhost:8086/dbt-docs/
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      # how often the dbt docs app info, users and roles are published to the portal; the e2e tests lower it to start sooner
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_MINUTES=${HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES:-10}
       - MANAGEMENT_SERVER_PORT=8082
     links:
       - nats
@@ -667,7 +675,7 @@ services:
 
   hello-data-airflow-sidecar:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-airflow
+    image: bedag/hello-data-sidecar-airflow:${HD_VERSION:-latest}
     restart: always
     env_file: .env
     extra_hosts:
@@ -677,8 +685,12 @@ services:
       - HELLO_DATA_INSTANCE_URL=http://localhost:28080/
       - HELLO_DATA_AIRFLOW_HOST=airflow-webserver
       - HELLO_DATA_AIRFLOW_PORT=8080
+      # the admin the airflow database of hello-data-dc-postgres is initialized with (6_airflow_init.sql)
+      - HELLO_DATA_AIRFLOW_ADMIN_USERNAME=airflowadmin@example.com
       - HELLO_DATA_BUSINESS_CONTEXT_NAME=
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      # how often the DAGs, users and roles are published to the portal; the e2e tests lower it
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_MINUTES=${HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES:-10}
     links:
       - nats
       - redis
@@ -694,7 +706,7 @@ services:
 
   hello-data-monitoring-storage:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-monitoring-storage
+    image: bedag/hello-data-monitoring-storage:${HD_VERSION:-latest}
     restart: always
     env_file: .env
     extra_hosts:
@@ -708,7 +720,7 @@ services:
       - postgres
 
   hello-data-portal-ui:
-    image: bedag/hello-data-dc-portal
+    image: bedag/hello-data-dc-portal:${HD_VERSION:-latest}
     env_file: .env
     restart: on-failure
     extra_hosts:
@@ -726,7 +738,7 @@ services:
 
   hello-data-portal-api:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-portal-api
+    image: bedag/hello-data-portal-api:${HD_VERSION:-latest}
     env_file: .env
     restart: on-failure
     extra_hosts:
@@ -734,6 +746,8 @@ services:
       - "keycloak.localhost:host-gateway"
     environment:
       - SPRING_PROFILES_ACTIVE=local-user-search,create-example-users
+      # how often the batch import scans /storage/batch-users-processing for csv files; the e2e tests lower it
+      - HELLO_DATA_BATCH_USERS_FILE_SCAN_INTERVAL_SECONDS=${HD_BATCH_USERS_SCAN_INTERVAL_SECONDS:-30}
       - SPRING_MAIL_HOST=smtp4dev
       - SPRING_MAIL_PORT=25
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
@@ -769,7 +783,7 @@ services:
 
   hello-data-portal-sidecar:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-portal
+    image: bedag/hello-data-sidecar-portal:${HD_VERSION:-latest}
     env_file: .env
     restart: on-failure
     extra_hosts:

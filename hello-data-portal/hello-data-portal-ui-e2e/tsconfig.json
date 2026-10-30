@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["es5", "dom"],
-    "types": ["cypress"]
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["node"]
   },
-  "include": [
-    "**/*.ts"
-  ]
+  "include": ["playwright.config.ts", "tests/**/*.ts"]
 }

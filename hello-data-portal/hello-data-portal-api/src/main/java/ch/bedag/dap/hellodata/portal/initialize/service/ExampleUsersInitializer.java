@@ -111,6 +111,8 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             createDataDomainUser(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles, HdRoleName.DATA_DOMAIN_ADMIN, "Admin", exampleUsersProperties.getDataDomainAdminPassword());
             createDataDomainUser(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles, HdRoleName.DATA_DOMAIN_EDITOR, "Editor", exampleUsersProperties.getDataDomainEditorPassword());
             createDataDomainUser(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles, HdRoleName.DATA_DOMAIN_VIEWER, "Viewer", exampleUsersProperties.getDataDomainViewerPassword());
+            createDataDomainUser(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles, HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST, "Business Specialist",
+                    exampleUsersProperties.getDataDomainBusinessSpecialistPassword());
             exampleUsersCreated = true;
         }
         if (exampleUsersCreated) {

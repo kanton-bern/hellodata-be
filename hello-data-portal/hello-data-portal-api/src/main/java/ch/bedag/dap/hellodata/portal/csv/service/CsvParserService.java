@@ -43,6 +43,11 @@ public class CsvParserService {
     private static final char CSV_DELIMITER = ';';
     private static final String ROLE_DELIMITER = ",";
 
+    /**
+     * Groups the csv rows by user. Rows are applied from top to bottom, so when a user has several rows for the same
+     * data domain, the last one wins (HELLODATA-2073 / HELLODATA-2074): it replaces the data domain role, the Superset
+     * roles and the dashboard groups given for that data domain by the rows above. Rows for other data domains are kept.
+     */
     @SneakyThrows
     public List<BatchUpdateContextRolesForUserDto> transform(InputStream csvStream) {
         List<CsvUserRole> parsedData = parseCsvFile(csvStream);
@@ -60,12 +65,14 @@ public class CsvParserService {
             BatchUpdateContextRolesForUserDto userDto = usersMap.get(email);
 
             Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = userDto.getContextToModuleRoleNamesMap();
-            contextToModuleRoleNamesMap.computeIfAbsent(dataDomain, k -> new ArrayList<>()).add(new ModuleRoleNames(ModuleType.SUPERSET, supersetRoles));
+            contextToModuleRoleNamesMap.put(dataDomain, new ArrayList<>(List.of(new ModuleRoleNames(ModuleType.SUPERSET, supersetRoles))));
 
             // Map dashboard group names per context
+            Map<String, List<String>> dashboardGroupNamesMap = userDto.getDashboardGroupNamesFromCsv();
             if (dashboardGroups != null && !dashboardGroups.isEmpty()) {
-                Map<String, List<String>> dashboardGroupNamesMap = userDto.getDashboardGroupNamesFromCsv();
-                dashboardGroupNamesMap.computeIfAbsent(dataDomain, k -> new ArrayList<>()).addAll(dashboardGroups);
+                dashboardGroupNamesMap.put(dataDomain, new ArrayList<>(dashboardGroups));
+            } else {
+                dashboardGroupNamesMap.remove(dataDomain);
             }
 
             userDto.setEmail(email);
@@ -75,9 +82,8 @@ public class CsvParserService {
             if (userDto.getDataDomainRoles() == null) {
                 userDto.setDataDomainRoles(new ArrayList<>());
             }
-            Optional<UserContextRoleDto> alreadyAdded = userDto.getDataDomainRoles().stream().filter(userContextRoleDto ->
-                    userContextRoleDto.getContext().getContextKey().equals(dataDomain) && userContextRoleDto.getRole().getName().equals(dataDomainRole)).findFirst();
-            if (dataDomain != null && !dataDomain.isEmpty() && dataDomainRole != null && !dataDomainRole.isEmpty() && alreadyAdded.isEmpty()) {
+            if (dataDomain != null && !dataDomain.isEmpty() && dataDomainRole != null && !dataDomainRole.isEmpty()) {
+                userDto.getDataDomainRoles().removeIf(userContextRoleDto -> userContextRoleDto.getContext().getContextKey().equals(dataDomain));
                 UserContextRoleDto userContextRole = new UserContextRoleDto();
                 userContextRole.setRole(new RoleDto());
                 userContextRole.getRole().setName(dataDomainRole);

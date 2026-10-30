@@ -1,0 +1,183 @@
+name: E2E tests (docker compose)
+
+run-name: "E2E: ${{ inputs.version }} (${{ inputs.browser || 'chromium' }})"
+
+# Runs the Playwright regression suite against the portal and the default data domain's Superset of the docker compose
+# installation.
+# Called from maven.yml for release candidate tags (after the images are pushed) and can be started manually on any
+# branch for any published image tag. maven.yml publishes images for every push: develop as 'latest', and gitflow
+# branches as '<name after the prefix>-SNAPSHOT' (e.g. feature/my-change -> my-change-SNAPSHOT).
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Docker image tag of the HelloDATA images to test'
+        required: true
+        type: string
+      browser:
+        description: 'Browser to run the tests in: chromium (bundled with Playwright) or msedge (Microsoft Edge)'
+        required: false
+        default: 'chromium'
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Docker image tag of the HelloDATA images to test (e.g. 1.7.0.rc1, latest or my-change-SNAPSHOT for feature/my-change)'
+        required: true
+        default: 'latest'
+        type: string
+      browser:
+        description: 'Browser to run the tests in'
+        required: true
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - msedge
+
+concurrency:
+  group: e2e-${{ inputs.version }}-${{ inputs.browser }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    # the batch import tests wait for the scan of the batch folder for every csv file, the data eng. tests for the
+    # Airflow and SFTPGo sidecars
+    timeout-minutes: 100
+    permissions:
+      contents: read
+
+    env:
+      HD_VERSION: ${{ inputs.version }}
+      # the dashboard tests wait for changes made in Superset to reach the portal
+      HD_SUPERSET_PUBLISH_INTERVAL_MINUTES: 1
+      # the dbt docs sidecar publishes every 10 minutes by default, and the stack is only ready once it did
+      HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES: 1
+      # every batch import test waits for the next scan of the batch folder (30 seconds by default)
+      HD_BATCH_USERS_SCAN_INTERVAL_SECONDS: 5
+      # the pipeline status tests add DAG files and wait for Airflow to parse them and for its sidecar to publish them
+      HD_AIRFLOW_DAG_DIR_LIST_INTERVAL_SECONDS: 30
+      HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES: 1
+      # the Filebrowser menu entry appears once the SFTPGo sidecar published its app info
+      HD_SFTPGO_PUBLISH_INTERVAL_MINUTES: 1
+      # the services the tests use, the others they depend on are started with them
+      E2E_SERVICES: >-
+        hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
+        airflow-webserver airflow-scheduler hello-data-airflow-sidecar hello-data-sftpgo-sidecar
+      # empty for the Chromium bundled with Playwright, msedge for Microsoft Edge
+      E2E_BROWSER_CHANNEL: ${{ inputs.browser == 'msedge' && 'msedge' || '' }}
+      COMPOSE_PROJECT_NAME: hellodata-e2e
+      COMPOSE_DIR: hello-data-deployment/docker-compose
+      E2E_DIR: hello-data-portal/hello-data-portal-ui-e2e
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+
+      # the compose files are listed in COMPOSE_FILE of the compose .env, the e2e override replaces unavailable images
+      - name: Add e2e compose override
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: echo "COMPOSE_FILE=$(grep '^COMPOSE_FILE=' .env | cut -d= -f2):${{ github.workspace }}/${{ env.E2E_DIR }}/compose-override.yaml" >> "$GITHUB_ENV"
+
+      - name: Pull images
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: docker compose pull --quiet --include-deps $E2E_SERVICES
+
+      - name: Start portal, Superset, Airflow and SFTPGo services
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: docker compose up -d --wait --wait-timeout 900 $E2E_SERVICES
+
+      # sidecars publish their resources on an interval (1 minute for dbt docs, Superset, Airflow and SFTPGo here), and
+      # on a fresh install the first round can be published before the portal sidecar subscribed - so wait until the
+      # portal knows the dbt docs instance, the Superset dashboards, the Airflow DAGs and the SFTPGo instance
+      - name: Wait for sidecar resources
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: |
+          query="select count(distinct module_type) from resource
+                 where (kind = 'hellodata/AppInfo' and module_type in ('DBT_DOCS', 'SFTPGO'))
+                    or (kind = 'hellodata/Dashboards' and module_type = 'SUPERSET')
+                    or (kind = 'hellodata/Pipelines' and module_type = 'AIRFLOW')"
+          for i in $(seq 1 75); do
+            count=$(docker compose exec -T postgres psql -U postgres -d hd_metainfo -tAc "$query")
+            if [ "${count:-0}" -ge 4 ]; then
+              echo "dbt docs, Superset, Airflow and SFTPGo resources available after $((i * 10))s"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "dbt docs, Superset, Airflow or SFTPGo resources were not published within 12.5 minutes"
+          exit 1
+
+      # The portal sidecar assigns the portal roles (the permissions) of a user when the portal api publishes its context
+      # roles. The api publishes the example users at startup, often before the portal sidecar is subscribed, so the
+      # step asks the api for a new synchronization of all users (like the "Synchronize users" button) and waits for it.
+      - name: Wait for the portal roles of the example users
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: |
+          psql() { docker compose exec -T postgres psql -U postgres -d hd_metainfo -tAc "$1"; }
+          query="select count(*) from user_ u
+                 where not exists (select 1 from user_portal_role p where p.user_id = u.id)
+                   and exists (select 1 from user_context_role c join role r on r.id = c.role_id
+                               where c.user_id = u.id and r.name <> 'NONE')"
+          if [ "$(psql "$query")" -eq 0 ]; then
+            echo "all users have their portal roles"
+            exit 0
+          fi
+          psql "update user_sync_lock set status = 'STARTED', modified_date = now()" > /dev/null
+          for i in $(seq 1 30); do
+            sleep 10
+            missing=$(psql "$query")
+            if [ "${missing:-1}" -eq 0 ]; then
+              echo "all users have their portal roles after $((i * 10))s"
+              exit 0
+            fi
+          done
+          echo "$missing users still have no portal roles after 5 minutes"
+          exit 1
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: ${{ env.E2E_DIR }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.E2E_DIR }}
+        run: |
+          npm ci
+          npx playwright install --with-deps ${{ inputs.browser == 'msedge' && 'msedge' || 'chromium' }}
+
+      - name: Run Playwright tests
+        working-directory: ${{ env.E2E_DIR }}
+        run: npx playwright test
+
+      - name: Collect compose logs
+        if: ${{ !cancelled() }}
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: |
+          docker compose ps -a
+          docker compose logs --no-color > "${{ github.workspace }}/compose.log" 2>&1
+
+      - name: Upload test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: e2e-report-${{ inputs.version }}-${{ inputs.browser || 'chromium' }}
+          path: |
+            ${{ env.E2E_DIR }}/playwright-report/
+            ${{ env.E2E_DIR }}/test-results/
+            compose.log
+          retention-days: 14
+
+      - name: Stop services
+        if: ${{ always() }}
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: docker compose down --volumes --remove-orphans

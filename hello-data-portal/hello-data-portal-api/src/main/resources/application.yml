@@ -59,6 +59,7 @@ hello-data:
     data-domain-admin-password: admin
     data-domain-editor-password: editor
     data-domain-viewer-password: viewer
+    data-domain-business-specialist-password: specialist
     email-postfix: hellodata.ch
   check-user-context-roles-in-minutes: 5
   dashboard-comments:
