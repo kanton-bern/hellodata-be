@@ -16,6 +16,8 @@ export default defineConfig({
     : [['list'], ['html', {open: 'never'}]],
   use: {
     ...devices['Desktop Chrome'],
+    // e.g. 'msedge' to run the suite in Microsoft Edge instead of the bundled Chromium
+    channel: process.env.E2E_BROWSER_CHANNEL || undefined,
     // trailing slash matters: page.goto('home') resolves to <base>/home
     baseURL: (process.env.E2E_BASE_URL ?? 'http://localhost:8080/app').replace(/\/?$/, '/'),
     viewport: {width: 1600, height: 1000},

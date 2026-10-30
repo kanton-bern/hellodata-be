@@ -1,6 +1,6 @@
 name: E2E tests (docker compose)
 
-run-name: "E2E: ${{ inputs.version }}"
+run-name: "E2E: ${{ inputs.version }} (${{ inputs.browser || 'chromium' }})"
 
 # Runs the Playwright regression suite against the portal and the default data domain's Superset of the docker compose
 # installation.
@@ -14,6 +14,11 @@ on:
         description: 'Docker image tag of the HelloDATA images to test'
         required: true
         type: string
+      browser:
+        description: 'Browser to run the tests in: chromium (bundled with Playwright) or msedge (Microsoft Edge)'
+        required: false
+        default: 'chromium'
+        type: string
   workflow_dispatch:
     inputs:
       version:
@@ -21,16 +26,25 @@ on:
         required: true
         default: 'latest'
         type: string
+      browser:
+        description: 'Browser to run the tests in'
+        required: true
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - msedge
 
 concurrency:
-  group: e2e-${{ inputs.version }}
+  group: e2e-${{ inputs.version }}-${{ inputs.browser }}
   cancel-in-progress: true
 
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    # the batch import tests wait for the portal's 30 second scan of the batch folder for every csv file
-    timeout-minutes: 75
+    # the batch import tests wait for the scan of the batch folder for every csv file, the data eng. tests for the
+    # Airflow and SFTPGo sidecars
+    timeout-minutes: 100
     permissions:
       contents: read
 
@@ -42,6 +56,17 @@ jobs:
       HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES: 1
       # every batch import test waits for the next scan of the batch folder (30 seconds by default)
       HD_BATCH_USERS_SCAN_INTERVAL_SECONDS: 5
+      # the pipeline status tests add DAG files and wait for Airflow to parse them and for its sidecar to publish them
+      HD_AIRFLOW_DAG_DIR_LIST_INTERVAL_SECONDS: 30
+      HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES: 1
+      # the Filebrowser menu entry appears once the SFTPGo sidecar published its app info
+      HD_SFTPGO_PUBLISH_INTERVAL_MINUTES: 1
+      # the services the tests use, the others they depend on are started with them
+      E2E_SERVICES: >-
+        hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
+        airflow-webserver airflow-scheduler hello-data-airflow-sidecar hello-data-sftpgo-sidecar
+      # empty for the Chromium bundled with Playwright, msedge for Microsoft Edge
+      E2E_BROWSER_CHANNEL: ${{ inputs.browser == 'msedge' && 'msedge' || '' }}
       COMPOSE_PROJECT_NAME: hellodata-e2e
       COMPOSE_DIR: hello-data-deployment/docker-compose
       E2E_DIR: hello-data-portal/hello-data-portal-ui-e2e
@@ -56,32 +81,38 @@ jobs:
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
 
+      # the compose files are listed in COMPOSE_FILE of the compose .env, the e2e override replaces unavailable images
+      - name: Add e2e compose override
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: echo "COMPOSE_FILE=$(grep '^COMPOSE_FILE=' .env | cut -d= -f2):${{ github.workspace }}/${{ env.E2E_DIR }}/compose-override.yaml" >> "$GITHUB_ENV"
+
       - name: Pull images
         working-directory: ${{ env.COMPOSE_DIR }}
-        run: docker compose pull --quiet --include-deps hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
+        run: docker compose pull --quiet --include-deps $E2E_SERVICES
 
-      - name: Start portal and Superset services
+      - name: Start portal, Superset, Airflow and SFTPGo services
         working-directory: ${{ env.COMPOSE_DIR }}
-        run: docker compose up -d --wait --wait-timeout 900 hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
+        run: docker compose up -d --wait --wait-timeout 900 $E2E_SERVICES
 
-      # sidecars publish their resources on an interval (1 minute for dbt docs and Superset here), and on a
-      # fresh install the first round can be published before the portal sidecar subscribed - so wait until the portal
-      # knows the dbt docs instance and the Superset dashboards
+      # sidecars publish their resources on an interval (1 minute for dbt docs, Superset, Airflow and SFTPGo here), and
+      # on a fresh install the first round can be published before the portal sidecar subscribed - so wait until the
+      # portal knows the dbt docs instance, the Superset dashboards, the Airflow DAGs and the SFTPGo instance
       - name: Wait for sidecar resources
         working-directory: ${{ env.COMPOSE_DIR }}
         run: |
           query="select count(distinct module_type) from resource
-                 where (kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS')
-                    or (kind = 'hellodata/Dashboards' and module_type = 'SUPERSET')"
+                 where (kind = 'hellodata/AppInfo' and module_type in ('DBT_DOCS', 'SFTPGO'))
+                    or (kind = 'hellodata/Dashboards' and module_type = 'SUPERSET')
+                    or (kind = 'hellodata/Pipelines' and module_type = 'AIRFLOW')"
           for i in $(seq 1 75); do
             count=$(docker compose exec -T postgres psql -U postgres -d hd_metainfo -tAc "$query")
-            if [ "${count:-0}" -ge 2 ]; then
-              echo "dbt docs app info and Superset dashboards available after $((i * 10))s"
+            if [ "${count:-0}" -ge 4 ]; then
+              echo "dbt docs, Superset, Airflow and SFTPGo resources available after $((i * 10))s"
               exit 0
             fi
             sleep 10
           done
-          echo "dbt docs app info or Superset dashboards were not published within 12.5 minutes"
+          echo "dbt docs, Superset, Airflow or SFTPGo resources were not published within 12.5 minutes"
           exit 1
 
       - name: Set up Node
@@ -95,7 +126,7 @@ jobs:
         working-directory: ${{ env.E2E_DIR }}
         run: |
           npm ci
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps ${{ inputs.browser == 'msedge' && 'msedge' || 'chromium' }}
 
       - name: Run Playwright tests
         working-directory: ${{ env.E2E_DIR }}
@@ -112,7 +143,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5
         with:
-          name: e2e-report-${{ inputs.version }}
+          name: e2e-report-${{ inputs.version }}-${{ inputs.browser || 'chromium' }}
           path: |
             ${{ env.E2E_DIR }}/playwright-report/
             ${{ env.E2E_DIR }}/test-results/

@@ -53,6 +53,8 @@ x-airflow-common:
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: "${AIRFLOW__CORE__LOAD_EXAMPLES:-true}"
+    # how often the scheduler looks for new DAG files; the e2e tests lower it to see the DAGs they add sooner
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "${HD_AIRFLOW_DAG_DIR_LIST_INTERVAL_SECONDS:-300}"
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
     AIRFLOW__WEBSERVER__UPDATE_FAB_PERMS: 'False'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
@@ -393,6 +395,8 @@ services:
     environment:
       - HELLO_DATA_SFTPGO_BASE_URL=http://sftpgo:8080
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      # how often the SFTPGo app info and users are published to the portal; the e2e tests lower it
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_MINUTES=${HD_SFTPGO_PUBLISH_INTERVAL_MINUTES:-10}
       - HELLADATA_S3_CONNECTIONS_0_ACCESS_KEY=minio
       - HELLADATA_S3_CONNECTIONS_0_ACCESS_SECRET=minio
       - HELLADATA_S3_CONNECTIONS_0_BUCKET=myminio/default-data-domain
@@ -679,8 +683,12 @@ services:
       - HELLO_DATA_INSTANCE_URL=http://localhost:28080/
       - HELLO_DATA_AIRFLOW_HOST=airflow-webserver
       - HELLO_DATA_AIRFLOW_PORT=8080
+      # the admin the airflow database of hello-data-dc-postgres is initialized with (6_airflow_init.sql)
+      - HELLO_DATA_AIRFLOW_ADMIN_USERNAME=airflowadmin@example.com
       - HELLO_DATA_BUSINESS_CONTEXT_NAME=
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      # how often the DAGs, users and roles are published to the portal; the e2e tests lower it
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_MINUTES=${HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES:-10}
     links:
       - nats
       - redis

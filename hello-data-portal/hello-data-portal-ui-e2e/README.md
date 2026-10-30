@@ -1,7 +1,7 @@
 # HelloDATA Portal UI E2E Tests
 
-Basic regression suite for the portal, written with [Playwright](https://playwright.dev). It runs against the portal
-and the default data domain's Superset of the
+Basic regression suite for the portal, written with [Playwright](https://playwright.dev). It runs against the portal,
+the default data domain's Superset, Airflow, CloudBeaver and SFTPGo of the
 [docker compose installation](../../hello-data-deployment/docker-compose/README.md) and logs in through the real
 Keycloak login page.
 
@@ -15,6 +15,7 @@ The specs are grouped by feature:
 | `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases |
 | `tests/comments/`       | Dashboard comments: permissions per role, review workflow, filtering, deletion, versions     |
 | `tests/batch-import/`   | Batch import of users and roles from csv files: new users, existing users, last record wins, dashboard groups, file validation |
+| `tests/data-eng/`       | The Data Eng. menu: Orchestration (Airflow) and its breadcrumb, DAG status per data domain, DWH Viewer (CloudBeaver), Filebrowser (SFTPGo) |
 
 Scenarios from Jira name their ticket (e.g. `HELLODATA-687`) in a comment above the test.
 
@@ -23,29 +24,44 @@ Scenarios from Jira name their ticket (e.g. `HELLODATA-687`) in a comment above 
 Start the portal, the default data domain's Superset and their dependencies (a separate compose project, so your own
 local data is not touched):
 
+`minio/minio` and `minio/mc` are no longer published on Docker Hub, so add the e2e override (it uses the bitnami
+builds for SFTPGo's S3 storage) to the compose files first:
+
 ```bash
 cd hello-data-deployment/docker-compose
+export COMPOSE_FILE="$(grep '^COMPOSE_FILE=' .env | cut -d= -f2):../../hello-data-portal/hello-data-portal-ui-e2e/compose-override.yaml"
 HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1 HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES=1 HD_BATCH_USERS_SCAN_INTERVAL_SECONDS=5 \
-  docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
+HD_AIRFLOW_DAG_DIR_LIST_INTERVAL_SECONDS=30 HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES=1 HD_SFTPGO_PUBLISH_INTERVAL_MINUTES=1 \
+  docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui hello-data-superset-sidecar-default-data-domain \
+  airflow-webserver airflow-scheduler hello-data-airflow-sidecar hello-data-sftpgo-sidecar
 ```
 
 Use `HD_VERSION=<tag>` in front of the command to test a specific release candidate instead of `latest`.
-The three variables shorten waits that only matter for the tests (all of them default to the normal values):
+The variables shorten waits that only matter for the tests (all of them default to the normal values):
 
 - `HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1` makes the Superset sidecar publish dashboards, users and roles to the portal
   every minute instead of every 10 minutes; the draft dashboard test waits for that.
 - `HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES=1` does the same for the dbt docs sidecar.
 - `HD_BATCH_USERS_SCAN_INTERVAL_SECONDS=5` makes the portal api look for batch import csv files every 5 seconds instead
   of every 30; every batch import test waits for that.
+- `HD_AIRFLOW_DAG_DIR_LIST_INTERVAL_SECONDS=30` makes Airflow look for new DAG files every 30 seconds instead of every 5
+  minutes, and `HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES=1` makes the Airflow sidecar publish the DAGs every minute; the
+  pipeline status test adds DAGs and waits for both.
+- `HD_SFTPGO_PUBLISH_INTERVAL_MINUTES=1` makes the SFTPGo sidecar publish its instance (the Filebrowser menu entry)
+  every minute.
+
+Airflow and SFTPGo need more memory than the rest of the subset; leave them out of the command when only other specs
+are run.
 
 On a fresh stack the sidecars may publish their resources before the portal sidecar is listening. They republish on
 their interval, so the lineage docs test can fail until then. Wait for the dbt docs app info and the
-Superset dashboards first (this is what the CI workflow does, the query returns 2 when both are there):
+Superset dashboards first (this is what the CI workflow does, the query returns 4 when the dbt docs, Superset, Airflow
+and SFTPGo resources are there):
 
 ```bash
 docker compose -p hellodata-e2e exec -T postgres psql -U postgres -d hd_metainfo -tAc \
-  "select count(distinct module_type) from resource where (kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS')
-   or (kind = 'hellodata/Dashboards' and module_type = 'SUPERSET')"
+  "select count(distinct module_type) from resource where (kind = 'hellodata/AppInfo' and module_type in ('DBT_DOCS', 'SFTPGO'))
+   or (kind = 'hellodata/Dashboards' and module_type = 'SUPERSET') or (kind = 'hellodata/Pipelines' and module_type = 'AIRFLOW')"
 ```
 
 Install and run the tests:
@@ -56,6 +72,8 @@ npm ci
 npx playwright install chromium
 npx playwright test          # headless
 npx playwright test --ui     # interactive runner
+npx playwright test tests/data-eng   # one folder only
+E2E_BROWSER_CHANNEL=msedge npx playwright test   # in Microsoft Edge (install it with: npx playwright install msedge)
 npx playwright show-report   # open the last HTML report
 ```
 
@@ -79,7 +97,9 @@ docker compose -p hellodata-e2e down --volumes
 | `E2E_DWH_DATABASE`    | `hellodata_product_development_default_data_domain_dwh` | Its database name                     |
 | `E2E_DWH_USERNAME`    | `postgres`                                | Its user                                            |
 | `E2E_DWH_PASSWORD`    | `postgres`                                | Its password                                        |
-| `E2E_COMPOSE_PROJECT` | `$COMPOSE_PROJECT_NAME` or `hellodata-e2e` | Compose project the batch import tests run `docker exec` in |
+| `E2E_COMPOSE_PROJECT` | `$COMPOSE_PROJECT_NAME` or `hellodata-e2e` | Compose project the batch import and pipeline status tests run `docker exec` in |
+| `E2E_BROWSER_CHANNEL` | empty (Chromium bundled with Playwright)  | Browser channel, e.g. `msedge` for Microsoft Edge |
+| `E2E_CLOUDBEAVER_URL` | `http://localhost:8087` if `E2E_BASE_URL` is not set, else empty | CloudBeaver gateway the DWH Viewer tests route `<portal>/cloudbeaver/` to; empty when the installation routes it itself (ingress) |
 
 The other users are the example users created by the portal api's `create-example-users` profile (see
 `ExampleUsersInitializer`). `tests/administration/roles.spec.ts` logs in as each of them and checks the menus and pages of its role:
@@ -103,7 +123,7 @@ accepts that URL as redirect URI.
 
 `.github/workflows/e2e.yml` runs the suite for every release candidate tag (`*.rc*`) right after `maven.yml` pushed the
 images. It can also be started manually on any branch (Actions -> "E2E tests (docker compose)" -> Run workflow) with
-the image tag to test. The tests run from the selected branch, the images come from the given tag. Every push publishes
+the image tag to test and the browser (Chromium or Microsoft Edge). The tests run from the selected branch, the images come from the given tag. Every push publishes
 images: `develop` as `latest`, and gitflow branches as `<name after the prefix>-SNAPSHOT` (e.g. `feature/my-change` ->
 `my-change-SNAPSHOT`), so a branch can be tested once its `maven.yml` run has finished. The HTML report, traces of
 failed tests and the compose logs are uploaded as a workflow artifact.
@@ -134,6 +154,13 @@ failed tests and the compose logs are uploaded as a workflow artifact.
   `dashboardGroupMembers()` and `deleteDashboardGroup()` work on the dashboard groups of the portal. So these tests need
   the docker CLI and the compose stack on the machine that runs Playwright. They create the Superset roles `RLS_E2E_A`
   and `RLS_E2E_B` once and keep them, and delete the users and groups they created in `afterAll`.
+- `tests/data-eng.ts` has the helpers for the Data Eng. menu: `openOrchestration()` (the embedded Airflow),
+  `breadcrumb()`, `addDag()` / `removeDag()` (write a DAG file into the dags folder of a data domain with `docker exec`),
+  `pipelineIds()` / `expectPipelines()` (the DAGs `/api/pipelines` reports to the logged in user), `openDwhViewer()` and
+  `routeCloudbeaver()` (the portal embeds `<portal>/cloudbeaver/`, which only an ingress serves, so the tests route it to
+  the gateway on port 8087; CloudBeaver's event web socket cannot be routed to another port and is answered by a silent
+  mock), `openFilebrowser()`, `openFolder()`, `createFolder()`, `renameFolder()`, `deleteFolder()` for SFTPGo and
+  `expectNoDataEngEntry()`. `tests/docker.ts` has the `docker exec` and SQL helpers shared with the batch import.
 - Only the admin roles (`HELLODATA_ADMIN`, `BUSINESS_DOMAIN_ADMIN`, `DATA_DOMAIN_ADMIN`) can comment by default. Comment
   tests give the other roles a comment permission in `beforeAll` and set it back to none in `afterAll`. A reviewer does
   not see the drafts of other users, so a comment is cleaned up by its author.

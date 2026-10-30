@@ -1,14 +1,15 @@
-import {execFileSync} from 'node:child_process';
 import {Browser, Page} from '@playwright/test';
 import {ADMIN, dismissToasts, expect, navigate} from './fixtures';
 import {SHOWCASE_DASHBOARD_SLUG, SUPERSET_SYNC_TIMEOUT, withUser} from './superset';
+import {exec, sql} from './docker';
+
+export {sql};
 
 // The batch import has no UI: the portal api scans a folder for *.csv files every 30 seconds
 // (hello-data.batch-users-file), processes them and writes its progress to users-output.log in the same folder.
 // The helpers below drop the files into the portal api container and check the result in the databases of the portal
 // and of Superset, so these tests need the docker CLI and the docker compose stack on the machine running Playwright.
 
-const COMPOSE_PROJECT = process.env.E2E_COMPOSE_PROJECT ?? process.env.COMPOSE_PROJECT_NAME ?? 'hellodata-e2e';
 const BATCH_DIR = '/storage/batch-users-processing';
 const BATCH_LOG = `${BATCH_DIR}/users-output.log`;
 const PORTAL_DB = 'hd_metainfo';
@@ -52,32 +53,6 @@ export function toCsv(rows: CsvRow[], {header = CSV_HEADER, bom = false} = {}) {
   return (bom ? '﻿' : '') + [header, ...lines].join('\n') + '\n';
 }
 
-const containers = new Map<string, string>();
-
-/** The id of the running container of a compose service. */
-function container(service: string) {
-  if (!containers.has(service)) {
-    const id = execFileSync('docker', ['ps', '-q',
-      '--filter', `label=com.docker.compose.project=${COMPOSE_PROJECT}`,
-      '--filter', `label=com.docker.compose.service=${service}`], {encoding: 'utf8'}).trim().split('\n')[0];
-    if (!id) {
-      throw new Error(`service ${service} of compose project ${COMPOSE_PROJECT} is not running (set E2E_COMPOSE_PROJECT)`);
-    }
-    containers.set(service, id);
-  }
-  return containers.get(service)!;
-}
-
-function exec(service: string, args: string[], input?: string) {
-  return execFileSync('docker', ['exec', '-i', container(service), ...args], {encoding: 'utf8', input});
-}
-
-/** Runs a query in the postgres container and returns its rows, each as a list of column values. */
-export function sql(database: string, query: string): string[][] {
-  const out = exec('postgres', ['psql', '-U', 'postgres', '-d', database, '-v', 'ON_ERROR_STOP=1', '-tA', '-F', '|', '-c', query]);
-  return out.split('\n').filter(line => line.length > 0).map(line => line.split('|'));
-}
-
 /** Quotes a value for a SQL statement. */
 function literal(value: string) {
   return `'${value.replaceAll("'", "''")}'`;
@@ -86,7 +61,7 @@ function literal(value: string) {
 /** Copies a csv file into the batch folder. It is written under another name first, so the scan never reads half a file. */
 function dropCsv(content: string) {
   const file = `${BATCH_DIR}/batchprocessing_user_roles_e2e_${Date.now()}.csv`;
-  exec('hello-data-portal-api', ['sh', '-c', 'mkdir -p "$(dirname "$1")" && cat > "$1.tmp" && mv "$1.tmp" "$1"', 'sh', file], content);
+  exec('hello-data-portal-api', ['sh', '-c', 'mkdir -p "$(dirname "$1")" && cat > "$1.tmp" && mv "$1.tmp" "$1"', 'sh', file], {input: content});
   return file;
 }
 

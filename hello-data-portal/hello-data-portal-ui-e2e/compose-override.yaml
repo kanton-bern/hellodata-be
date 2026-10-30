@@ -1,0 +1,14 @@
+# Added to the compose files of hello-data-deployment/docker-compose by the e2e workflow (COMPOSE_FILE).
+# minio/minio and minio/mc are no longer published on Docker Hub, so SFTPGo's S3 storage uses the bitnami builds.
+services:
+  minio:
+    image: bitnamilegacy/minio:latest
+    user: "0"
+    entrypoint: []
+    command: minio server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+  createbuckets:
+    image: bitnamilegacy/minio-client:latest
+    user: "0"
