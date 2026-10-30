@@ -51,19 +51,25 @@ public class UsersSyncService {
     @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
     public void synchronizeUsers() {
         if (Boolean.TRUE.equals(advisoryLockService.acquireLock(LOCK_ID))) {
-            UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
-            if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED) {
-                LocalDateTime startTime = LocalDateTime.now();
-                try {
-                    log.info("[syncAllUsers] Synchronize users started");
-                    eventPublisher.publishEvent(new SyncAllUsersEvent());
-                } finally {
-                    userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
-                    userSyncLockRepository.save(userSyncLockEntity);
-                    advisoryLockService.releaseStaleLock(LOCK_ID);
-                    Duration between = Duration.between(startTime, LocalDateTime.now());
-                    log.info("[syncAllUsers] Synchronize users completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
+            // the advisory lock belongs to the database session of this transaction, so it has to be released on every
+            // run, otherwise only this pooled connection could acquire it again and a requested synchronization would
+            // wait until the scheduler happens to get the same connection
+            try {
+                UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
+                if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED) {
+                    LocalDateTime startTime = LocalDateTime.now();
+                    try {
+                        log.info("[syncAllUsers] Synchronize users started");
+                        eventPublisher.publishEvent(new SyncAllUsersEvent());
+                    } finally {
+                        userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
+                        userSyncLockRepository.save(userSyncLockEntity);
+                        Duration between = Duration.between(startTime, LocalDateTime.now());
+                        log.info("[syncAllUsers] Synchronize users completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
+                    }
                 }
+            } finally {
+                advisoryLockService.releaseStaleLock(LOCK_ID);
             }
         } else {
             log.debug("[syncAllUsers] Another instance is already synchronizing users.");
