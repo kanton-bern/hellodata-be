@@ -115,6 +115,33 @@ jobs:
           echo "dbt docs, Superset, Airflow or SFTPGo resources were not published within 12.5 minutes"
           exit 1
 
+      # The portal sidecar assigns the portal roles (the permissions) of a user when the portal api publishes its context
+      # roles. The api publishes the example users at startup, often before the portal sidecar is subscribed, so the
+      # step asks the api for a new synchronization of all users (like the "Synchronize users" button) and waits for it.
+      - name: Wait for the portal roles of the example users
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: |
+          psql() { docker compose exec -T postgres psql -U postgres -d hd_metainfo -tAc "$1"; }
+          query="select count(*) from user_ u
+                 where not exists (select 1 from user_portal_role p where p.user_id = u.id)
+                   and exists (select 1 from user_context_role c join role r on r.id = c.role_id
+                               where c.user_id = u.id and r.name <> 'NONE')"
+          if [ "$(psql "$query")" -eq 0 ]; then
+            echo "all users have their portal roles"
+            exit 0
+          fi
+          psql "update user_sync_lock set status = 'STARTED', modified_date = now()" > /dev/null
+          for i in $(seq 1 30); do
+            sleep 10
+            missing=$(psql "$query")
+            if [ "${missing:-1}" -eq 0 ]; then
+              echo "all users have their portal roles after $((i * 10))s"
+              exit 0
+            fi
+          done
+          echo "$missing users still have no portal roles after 5 minutes"
+          exit 1
+
       - name: Set up Node
         uses: actions/setup-node@v5
         with:

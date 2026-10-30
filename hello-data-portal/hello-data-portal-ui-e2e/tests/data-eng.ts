@@ -167,8 +167,10 @@ export async function openFilebrowser(page: Page, user: User): Promise<Page> {
 export async function openFolder(filebrowser: Page, path: string) {
   await expect(async () => {
     await filebrowser.goto(new URL(`/web/client/files?path=${encodeURIComponent(path)}`, filebrowser.url()).toString());
-    // the data domain folder appears once the sidecar added the user to the group of the data domain
-    await expect(filebrowser.locator('#file_manager_list')).toBeVisible({timeout: 10_000});
+    // the data domain folder appears once the sidecar added the user to the group of the data domain; SFTPGo hides the
+    // file list of an empty folder and shows an upload hint instead
+    await expect(filebrowser.locator('#file_manager_list')
+      .or(filebrowser.getByText('This directory is empty', {exact: false}))).toBeVisible({timeout: 10_000});
   }).toPass({timeout: FILEBROWSER_SYNC_TIMEOUT, intervals: [10_000]});
 }
 

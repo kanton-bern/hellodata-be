@@ -64,6 +64,18 @@ docker compose -p hellodata-e2e exec -T postgres psql -U postgres -d hd_metainfo
    or (kind = 'hellodata/Dashboards' and module_type = 'SUPERSET') or (kind = 'hellodata/Pipelines' and module_type = 'AIRFLOW')"
 ```
 
+The portal sidecar can also miss the context roles the portal api publishes for the example users at startup. Those users
+then have no portal roles, see an empty menu and fail `tests/administration/roles.spec.ts`. Ask the api for a new
+synchronization of all users (it runs within 30 seconds) and wait until this query returns 0, as the CI workflow does:
+
+```bash
+docker compose -p hellodata-e2e exec -T postgres psql -U postgres -d hd_metainfo -tAc \
+  "update user_sync_lock set status = 'STARTED', modified_date = now()"
+docker compose -p hellodata-e2e exec -T postgres psql -U postgres -d hd_metainfo -tAc \
+  "select count(*) from user_ u where not exists (select 1 from user_portal_role p where p.user_id = u.id)
+   and exists (select 1 from user_context_role c join role r on r.id = c.role_id where c.user_id = u.id and r.name <> 'NONE')"
+```
+
 Install and run the tests:
 
 ```bash
