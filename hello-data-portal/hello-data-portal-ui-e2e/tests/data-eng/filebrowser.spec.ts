@@ -32,7 +32,7 @@ test.describe('Filebrowser', () => {
       test.setTimeout(2 * FILEBROWSER_SYNC_TIMEOUT);
       const folder = `e2e-folder-${RUN_ID}-${user === ADMIN ? 'admin' : 'dd-admin'}`;
       await openPortalAs(page, user.username, user.password);
-      const filebrowser = await openFilebrowser(page);
+      const filebrowser = await openFilebrowser(page, user);
       await openFolder(filebrowser, DATA_DOMAIN_FOLDER);
 
       await createFolder(filebrowser, folder);
@@ -48,7 +48,7 @@ test.describe('Filebrowser', () => {
     test.setTimeout(3 * FILEBROWSER_SYNC_TIMEOUT);
     const folder = `e2e-folder-${RUN_ID}-editor`;
     await openPortalAs(page, DATA_DOMAIN_EDITOR.username, DATA_DOMAIN_EDITOR.password);
-    const filebrowser = await openFilebrowser(page);
+    const filebrowser = await openFilebrowser(page, DATA_DOMAIN_EDITOR);
     await openFolder(filebrowser, DATA_DOMAIN_FOLDER);
     try {
       await createFolder(filebrowser, folder);
@@ -57,7 +57,7 @@ test.describe('Filebrowser', () => {
     } finally {
       // the editor cannot clean up, so the data domain admin deletes what is left
       await withUser(browser, DATA_DOMAIN_ADMIN, async adminPage => {
-        const adminFilebrowser = await openFilebrowser(adminPage);
+        const adminFilebrowser = await openFilebrowser(adminPage, DATA_DOMAIN_ADMIN);
         await openFolder(adminFilebrowser, DATA_DOMAIN_FOLDER);
         for (const name of [folder, `${folder}-renamed`]) {
           if (await fileRow(adminFilebrowser, name).count() > 0) {

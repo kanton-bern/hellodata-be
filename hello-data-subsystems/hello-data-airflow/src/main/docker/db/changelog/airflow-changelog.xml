@@ -51,5 +51,8 @@
     <changeSet id="0004" author="hellodata" runOnChange="true">
         <sqlFile path="changelogs/04_update_usernames.sql" relativeToChangelogFile="true" splitStatements="false"/>
     </changeSet>
+    <changeSet id="0005" author="hellodata" runOnChange="true">
+        <sqlFile path="changelogs/05_backfill_dag_permissions.sql" relativeToChangelogFile="true"/>
+    </changeSet>
 
 </databaseChangeLog>

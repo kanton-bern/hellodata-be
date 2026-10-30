@@ -44,7 +44,7 @@ test.describe('DWH Viewer', () => {
       await routeCloudbeaver(page.context(), new URL(page.url()).origin);
       const responses = cloudbeaverResponses(page);
 
-      const viewer = await openDwhViewer(page);
+      const viewer = await openDwhViewer(page, user);
       await expect(viewer.locator('#data-warehouse-component iframe')).toHaveAttribute('src', /\/cloudbeaver\/$/);
       await expectCloudbeaverUser(responses);
       // without the portal user CloudBeaver would ask for its own login

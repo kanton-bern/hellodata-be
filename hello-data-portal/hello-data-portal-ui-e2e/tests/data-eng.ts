@@ -1,5 +1,5 @@
 import {BrowserContext, FrameLocator, Page} from '@playwright/test';
-import {expect, navigate, openMenu} from './fixtures';
+import {expect, navigate, openMenu, signIn, User} from './fixtures';
 import {exec} from './docker';
 
 // The Data Eng. menu: Orchestration (Airflow embedded in the portal), DWH Viewer (CloudBeaver in a new tab) and
@@ -122,31 +122,44 @@ export async function routeCloudbeaver(context: BrowserContext, portalOrigin: st
   await context.routeWebSocket(url => url.href.startsWith(prefix.replace(/^http/, 'ws')), () => undefined);
 }
 
+/** Signs in on the Keycloak login form if a new tab shows it: on http the tab does not reuse the Keycloak session. */
+async function signInIfAsked(tab: Page, user: User) {
+  if (await tab.locator('#kc-login').isVisible()) {
+    await signIn(tab, user.username, user.password);
+  }
+}
+
 /** Opens Data Eng. -> DWH Viewer, which the portal opens in a new tab, and returns that tab once it shows the viewer. */
-export async function openDwhViewer(page: Page): Promise<Page> {
+export async function openDwhViewer(page: Page, user: User): Promise<Page> {
   const drawer = await openMenu(page, DATA_ENG_MENU);
   const viewerPage = page.context().waitForEvent('page');
   await drawer.getByRole('button', {name: 'DWH Viewer', exact: true}).click();
   const viewer = await viewerPage;
-  // the new tab starts at the portal root with ?redirectTo=..., logs in silently and then opens the viewer
-  await expect(viewer).toHaveURL(/\/data-warehouse-viewer$/, {timeout: 60_000});
+  // the new tab starts at the portal root with ?redirectTo=..., logs in and then opens the viewer
+  await expect(async () => {
+    await signInIfAsked(viewer, user);
+    await expect(viewer).toHaveURL(/\/data-warehouse-viewer$/, {timeout: 5_000});
+  }).toPass({timeout: 60_000, intervals: [1_000, 2_000]});
   return viewer;
 }
 
 /** Opens Data Eng. -> Filebrowser, which the portal opens in a new tab, and returns that tab once SFTPGo logged the user in. */
-export async function openFilebrowser(page: Page): Promise<Page> {
+export async function openFilebrowser(page: Page, user: User): Promise<Page> {
   const drawer = await openMenu(page, DATA_ENG_MENU);
   const filebrowserPage = page.context().waitForEvent('page');
+  const loginRequest = page.context().waitForEvent('request', r => r.url().includes('/web/client/oidclogin'));
   await drawer.getByRole('button', {name: 'Filebrowser', exact: true}).click();
   const filebrowser = await filebrowserPage;
-  const loginUrl = filebrowser.url();
+  const loginUrl = (await loginRequest).url();
   // SFTPGo logs in through Keycloak, but knows the user only after its sidecar created it
   await expect(async () => {
-    if (!/\/web\/client\/files/.test(filebrowser.url())) {
+    await signInIfAsked(filebrowser, user);
+    if (await filebrowser.locator('#kc-login').count() === 0 && !/\/web\/client\/files/.test(filebrowser.url())) {
       await filebrowser.goto(loginUrl);
+      await signInIfAsked(filebrowser, user);
     }
-    await expect(filebrowser).toHaveURL(/\/web\/client\/files/, {timeout: 15_000});
-  }).toPass({timeout: FILEBROWSER_SYNC_TIMEOUT, intervals: [10_000]});
+    await expect(filebrowser).toHaveURL(/\/web\/client\/files/, {timeout: 10_000});
+  }).toPass({timeout: FILEBROWSER_SYNC_TIMEOUT, intervals: [5_000, 10_000]});
   return filebrowser;
 }
 

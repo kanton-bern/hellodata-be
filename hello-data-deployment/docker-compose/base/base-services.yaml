@@ -394,6 +394,8 @@ services:
     env_file: .env
     environment:
       - HELLO_DATA_SFTPGO_BASE_URL=http://sftpgo:8080
+      # the url the portal opens for Data Eng. -> Filebrowser
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8090
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
       # how often the SFTPGo app info and users are published to the portal; the e2e tests lower it
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_MINUTES=${HD_SFTPGO_PUBLISH_INTERVAL_MINUTES:-10}
