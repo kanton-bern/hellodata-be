@@ -297,6 +297,9 @@ services:
       - HELLO_DATA_AUTH_SERVER_REALM=hellodata
       - HELLO_DATA_CORS_ALLOWED_ORIGINS=http://localhost:8080
       - MANAGEMENT_SERVER_PORT=8082
+      # no hex dumps of every request and response in the log
+      - SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_HTTPSERVER_WIRETAP=false
+      - SPRING_CLOUD_GATEWAY_SERVER_WEBFLUX_HTTPCLIENT_WIRETAP=false
     ports:
       - "8087:8087"
       - "8082:8082"
