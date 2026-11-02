@@ -13,8 +13,8 @@
                 [binary]="true"
                 [ngModel]="selectAll"
                 (onChange)="onSelectAllChange($event.checked)"
-                inputId="selectAll"/>
-              <label for="selectAll" class="text-sm">{{ '@Select all' | transloco }}</label>
+                [inputId]="'selectAll-' + context().contextKey"/>
+              <label [for]="'selectAll-' + context().contextKey" class="text-sm">{{ '@Select all' | transloco }}</label>
             </div>
             <div class="relative">
               <input
@@ -36,9 +36,9 @@
                 [binary]="true"
                 [(ngModel)]="dashboard.viewer"
                 (ngModelChange)="onDashboardSelectionChange(dashboard, $event)"
-                [inputId]="'dashboard-' + dashboard.id"/>
+                [inputId]="'dashboard-' + context().contextKey + '-' + dashboard.id"/>
               <label
-                [for]="'dashboard-' + dashboard.id"
+                [for]="'dashboard-' + context().contextKey + '-' + dashboard.id"
                 class="text-sm dashboard-label cursor-pointer">
                 {{ dashboard.title }}
               </label>
