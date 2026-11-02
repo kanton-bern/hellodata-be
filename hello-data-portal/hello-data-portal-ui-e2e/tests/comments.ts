@@ -96,10 +96,18 @@ export async function commentResponse(page: Page, method: string, action = '') {
 
 /** Picks an option of a PrimeNG select, its options are appended to the body. */
 async function selectOption(select: Locator, option: string) {
-  await select.click();
   // the accessible name of an option is its untranslated label (e.g. "@deleted"), so match the shown text
   const shown = new RegExp(`^\\s*${option.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
-  await select.page().getByRole('option').filter({hasText: shown}).click();
+  const optionEntry = select.page().getByRole('option').filter({hasText: shown});
+  // a click on the select while the overlay of the previous selection still closes can close the new one right away,
+  // so open it again until the option can be picked
+  await expect(async () => {
+    if (!await optionEntry.isVisible()) {
+      await select.click();
+    }
+    await optionEntry.click({timeout: 2_000});
+  }).toPass({timeout: 20_000});
+  await expect(select).toContainText(option);
 }
 
 /** Writes a new comment, optionally with tags and a relevant quarter (Q1 - Q4), and returns its entry. */
