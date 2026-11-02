@@ -4,7 +4,7 @@
     <h4 class="text-center">{{ '@Comments' | transloco }}</h4>
     <div class="header-actions">
       <!-- Export comments button (admin only) -->
-      @if (isAdmin$ | async) {
+      @if (canImportExportComments$ | async) {
         <button type="button"
                 class="action-btn export-btn"
                 (click)="exportComments()"
