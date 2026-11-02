@@ -135,11 +135,19 @@ export async function openDwhViewer(page: Page, user: User): Promise<Page> {
   const viewerPage = page.context().waitForEvent('page');
   await drawer.getByRole('button', {name: 'DWH Viewer', exact: true}).click();
   const viewer = await viewerPage;
-  // the new tab starts at the portal root with ?redirectTo=..., logs in and then opens the viewer
-  await expect(async () => {
-    await signInIfAsked(viewer, user);
-    await expect(viewer).toHaveURL(/\/data-warehouse-viewer$/, {timeout: 5_000});
-  }).toPass({timeout: 60_000, intervals: [1_000, 2_000]});
+  // the new tab starts at the portal root with ?redirectTo=..., goes through Keycloak and then opens the viewer; wait for
+  // either end of that redirect chain instead of checking a page that is still navigating
+  const login = viewer.locator('#kc-login');
+  await expect(login.or(viewer.locator('#data-warehouse-component'))).toBeVisible({timeout: 60_000});
+  if (await login.isVisible()) {
+    await signIn(viewer, user.username, user.password);
+    // after a login in the tab the portal can open home instead of the redirectTo page, open the viewer then
+    await expect(viewer).toHaveURL(/\/(home|data-warehouse-viewer)$/, {timeout: 30_000});
+    if (!viewer.url().endsWith('/data-warehouse-viewer')) {
+      await viewer.goto('data-warehouse-viewer');
+    }
+  }
+  await expect(viewer).toHaveURL(/\/data-warehouse-viewer$/, {timeout: 30_000});
   return viewer;
 }
 
@@ -169,8 +177,10 @@ export async function openFolder(filebrowser: Page, path: string) {
     await filebrowser.goto(new URL(`/web/client/files?path=${encodeURIComponent(path)}`, filebrowser.url()).toString());
     // the data domain folder appears once the sidecar added the user to the group of the data domain; SFTPGo hides the
     // file list of an empty folder and shows an upload hint instead
+    // (the hidden list stays in the page, so only the visible one of both counts)
     await expect(filebrowser.locator('#file_manager_list')
-      .or(filebrowser.getByText('This directory is empty', {exact: false}))).toBeVisible({timeout: 10_000});
+      .or(filebrowser.getByText('This directory is empty', {exact: false}))
+      .filter({visible: true}).first()).toBeVisible({timeout: 10_000});
   }).toPass({timeout: FILEBROWSER_SYNC_TIMEOUT, intervals: [10_000]});
 }
 

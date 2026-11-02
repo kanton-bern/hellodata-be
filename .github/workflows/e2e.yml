@@ -142,6 +142,25 @@ jobs:
           echo "$missing users still have no portal roles after 5 minutes"
           exit 1
 
+      # The CloudBeaver sidecar creates the teams of a data domain (e.g. DEFAULT_DATA_DOMAIN_READ_DWH) when a sidecar
+      # publishes the data domain. The gateway logs the user in with these teams, and CloudBeaver refuses the login of
+      # a user whose team is missing. The step does not fail the job, it prints what CloudBeaver has for the DWH tests.
+      - name: Wait for the CloudBeaver teams of the data domain
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: |
+          psql() { docker compose exec -T postgres psql -U postgres -d hd_cloudbeaver -tAc "$1"; }
+          for i in $(seq 1 18); do
+            if [ "$(psql "select count(*) from cb_team where team_id = 'DEFAULT_DATA_DOMAIN_READ_DWH'")" = "1" ]; then
+              echo "CloudBeaver teams available after $(((i - 1) * 10))s"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::warning::CloudBeaver has no team DEFAULT_DATA_DOMAIN_READ_DWH after 3 minutes"
+          psql "select team_id from cb_team"
+          psql "select u.email, string_agg(r.key, ',') from hd_user u left join hd_users_roles ur on ur.hd_user_id = u.id
+                left join hd_role r on r.id = ur.hd_role_id group by u.email"
+
       - name: Set up Node
         uses: actions/setup-node@v5
         with:
