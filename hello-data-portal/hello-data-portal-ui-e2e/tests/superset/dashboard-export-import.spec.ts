@@ -1,7 +1,12 @@
 import {writeFile} from 'fs/promises';
 import {Page} from '@playwright/test';
 import {expect, navigate, test} from '../fixtures';
-import {dashboardRow, expectDashboardListed} from '../superset';
+import {DATA_DOMAIN, dashboardRow, expectDashboardListed} from '../superset';
+
+/** The section of the import-export page for the default data domain; every data domain has its own buttons. */
+function dataDomainSection(page: Page) {
+  return page.locator('div:has(> h3)').filter({has: page.getByRole('heading', {name: DATA_DOMAIN, exact: true})});
+}
 
 /**
  * Exports the dashboard from the import-export page and returns the zip. The portal opens the Superset export url in a
@@ -11,9 +16,10 @@ import {dashboardRow, expectDashboardListed} from '../superset';
 async function exportDashboard(page: Page) {
   await navigate(page, 'Administration', 'Dashboards import-export');
   await expect(page).toHaveURL(/\/dashboard-import-export$/);
+  const section = dataDomainSection(page);
   await dashboardRow(page).getByRole('checkbox').check();
   const exportRequest = page.context().waitForEvent('request', r => r.url().includes('/api/v1/dashboard/export'));
-  await page.getByRole('button', {name: 'Export', exact: true}).click();
+  await section.getByRole('button', {name: 'Export', exact: true}).click();
   const response = await page.context().request.get((await exportRequest).url());
   expect(response.ok(), 'Superset export failed').toBe(true);
   expect(response.headers()['content-type']).toBe('application/zip');
@@ -33,8 +39,9 @@ test.describe('Dashboard export and import', () => {
     const file = testInfo.outputPath('dashboard_export.zip');
     await writeFile(file, await exportDashboard(page));
 
-    await page.getByRole('button', {name: 'Import', exact: true}).click();
-    const upload = page.locator('p-fileupload');
+    const section = dataDomainSection(page);
+    await section.getByRole('button', {name: 'Import', exact: true}).click();
+    const upload = section.locator('p-fileupload');
     await upload.locator('input[type=file]').first().setInputFiles(file);
     // without "Remove orphaned charts and datasets", so nothing else of the data domain is touched
     await expect(page.getByRole('checkbox', {name: 'Remove orphaned charts and datasets'})).not.toBeChecked();
