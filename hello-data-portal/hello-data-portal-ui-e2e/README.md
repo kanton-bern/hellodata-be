@@ -104,11 +104,6 @@ docker compose -p hellodata-e2e down --volumes
 | `E2E_ADMIN_USERNAME`  | `admin`                                   | Keycloak admin user used by most tests              |
 | `E2E_ADMIN_PASSWORD`  | `admin`                                   | Its password                                        |
 | `E2E_ADMIN_EMAIL`     | `admin@hellodata.ch`                      | Its email, shown in the top bar and profile         |
-| `E2E_DWH_HOST`        | `postgres`                                | Database the Superset connection test connects to, as reached from Superset |
-| `E2E_DWH_PORT`        | `5432`                                    | Its port                                            |
-| `E2E_DWH_DATABASE`    | `hellodata_product_development_default_data_domain_dwh` | Its database name                     |
-| `E2E_DWH_USERNAME`    | `postgres`                                | Its user                                            |
-| `E2E_DWH_PASSWORD`    | `postgres`                                | Its password                                        |
 | `E2E_COMPOSE_PROJECT` | `$COMPOSE_PROJECT_NAME` or `hellodata-e2e` | Compose project the batch import and pipeline status tests run `docker exec` in |
 | `E2E_BROWSER_CHANNEL` | empty (Chromium bundled with Playwright)  | Browser channel, e.g. `msedge` for Microsoft Edge |
 | `E2E_CLOUDBEAVER_URL` | `http://localhost:8087` if `E2E_BASE_URL` is not set, else empty | CloudBeaver gateway the DWH Viewer tests route `<portal>/cloudbeaver/` to; empty when the installation routes it itself (ingress) |

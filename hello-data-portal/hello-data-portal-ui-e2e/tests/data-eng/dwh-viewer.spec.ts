@@ -25,10 +25,12 @@ test.describe('DWH Viewer', () => {
       const viewer = await openDwhViewer(page, user);
       const iframe = viewer.locator('#data-warehouse-component iframe');
       await expect(iframe).toHaveAttribute('src', /\/cloudbeaver\/$/);
-      // the gateway logs the portal user in (reverse proxy authentication), who sees the shared DWH connection of the
-      // data domains; without the portal user CloudBeaver would ask for its own login
+      // the gateway logs the portal user in (reverse proxy authentication); CloudBeaver has no anonymous access, so it
+      // shows its navigator only to a logged-in user, with the shared DWH connection of the data domains if there is one
+      // (a fresh compose installation has none), and without the portal user it would ask for its own login
       const cloudbeaver = viewer.frameLocator('#data-warehouse-component iframe');
-      await expect(cloudbeaver.getByText('Shared', {exact: true})).toBeVisible({timeout: 60_000});
+      await expect(cloudbeaver.getByText('Shared', {exact: true})
+        .or(cloudbeaver.getByText('No Connections', {exact: false})).first()).toBeVisible({timeout: 60_000});
       await expect(cloudbeaver.getByText('User password', {exact: true})).toHaveCount(0);
     });
   }

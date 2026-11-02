@@ -219,7 +219,8 @@ export async function renameFolder(filebrowser: Page, name: string, newName: str
 export async function deleteFolder(filebrowser: Page, name: string) {
   await openRowActions(filebrowser, name);
   await rowAction(filebrowser, 'delete').click();
-  await filebrowser.locator('.swal2-confirm').click();
+  // SFTPGo asks in its own bootstrap modal (ModalAlert in base.html), not in a SweetAlert dialog
+  await filebrowser.locator('#modal_alert_ok').click();
   await expect(fileRow(filebrowser, name)).toHaveCount(0);
 }
 

@@ -368,7 +368,9 @@ services:
       SFTPGO_HTTPD__BINDINGS__0__OIDC__CLIENT_SECRET: "not needed"
       SFTPGO_HTTPD__BINDINGS__0__OIDC__CONFIG_URL: "http://keycloak.localhost:38080/realms/hellodata"
       SFTPGO_HTTPD__BINDINGS__0__OIDC__REDIRECT_BASE_URL: "http://localhost:8090"
-      SFTPGO_HTTPD__BINDINGS__0__OIDC__USERNAME_FIELD: "preferred_username"
+      # the sidecar creates the SFTPGo users with the portal username, which is the email (the Keycloak username of the
+      # example users is e.g. default-data-domain-admin, without the domain)
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__USERNAME_FIELD: "email"
     depends_on:
       postgres:
         condition: service_healthy
