@@ -47,7 +47,7 @@ import {
   selectCurrentDashboardUrl,
   selectVisibleComments
 } from "../../../store/my-dashboards/my-dashboards.selector";
-import {selectCurrentUserCommentPermissions} from "../../../store/auth/auth.selector";
+import {selectCurrentUserCommentPermissions, selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {AsyncPipe, NgClass} from '@angular/common';
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {PrimeTemplate} from "primeng/api";
@@ -152,8 +152,13 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
   currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
-  // Admin check for import/export functionality
-  isAdmin$ = this.store.select(canViewMetadataAndVersions);
+  // Import/export needs the review right for the domain and the portal permission checked by the backend
+  canImportExportComments$: Observable<boolean> = combineLatest([
+    this.store.select(canViewMetadataAndVersions),
+    this.store.select(selectCurrentUserPermissions)
+  ]).pipe(
+    map(([canReview, permissions]) => canReview && permissions.includes('DASHBOARD_COMMENTS_IMPORT_EXPORT'))
+  );
   // Write permission check for showing the comment form
   canWriteComments$: Observable<boolean> = combineLatest([
     this.store.select(selectCurrentDashboardContextKey),
