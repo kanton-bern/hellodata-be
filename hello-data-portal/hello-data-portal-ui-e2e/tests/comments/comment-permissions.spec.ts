@@ -128,12 +128,12 @@ test.describe('Edit commenting permissions', () => {
           });
         });
 
-        await test.step('review: can also export the comments', async () => {
+        await test.step('review: cannot export without the DASHBOARD_COMMENTS_IMPORT_EXPORT portal permission', async () => {
           await changeCommentPermissionAsAdmin(browser, user, 'review');
           await withUser(browser, user, async page => {
             const feed = await openComments(page);
             await expect(newCommentInput(feed)).toBeVisible();
-            await expect(feed.locator('.export-btn')).toBeVisible();
+            await expect(feed.locator('.export-btn')).toHaveCount(0);
           });
         });
 
