@@ -9,7 +9,7 @@ The specs are grouped by feature:
 
 | Folder                  | Covers                                                                                       |
 |-------------------------|----------------------------------------------------------------------------------------------|
-| `tests/portal/`         | Login, logout, navigation and the home page                                                  |
+| `tests/portal/`         | Login, logout, navigation, the home page and the data domain selector                        |
 | `tests/administration/` | Users, portal roles and FAQ management                                                       |
 | `tests/dashboards/`     | Superset dashboards in the portal: access, drafts, filters and metadata per role              |
 | `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases |
@@ -25,7 +25,8 @@ Start the portal, the default data domain's Superset and their dependencies (a s
 local data is not touched):
 
 `minio/minio` and `minio/mc` are no longer published on Docker Hub, so add the e2e override (it uses the bitnami
-builds for SFTPGo's S3 storage) to the compose files first:
+builds for SFTPGo's S3 storage, and gives the portal the second data domain `Extra Data Domain` the data domain selector
+tests need) to the compose files first:
 
 ```bash
 cd hello-data-deployment/docker-compose
