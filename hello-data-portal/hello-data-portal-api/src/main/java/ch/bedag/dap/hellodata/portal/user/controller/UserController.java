@@ -203,7 +203,8 @@ public class UserController {
     public List<UserContextRoleDto> getContextRolesForCurrentUser() {
         try {
             UUID currentUserId = SecurityUtils.getCurrentUserId();
-            if (currentUserId != null) {
+            // A disabled user keeps the role assignments in the database (restored on enable), but must not see them
+            if (currentUserId != null && !userService.isUserDisabled(currentUserId.toString())) {
                 return userService.getContextRolesForUser(currentUserId);
             }
             return new ArrayList<>();

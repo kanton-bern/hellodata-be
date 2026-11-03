@@ -162,7 +162,7 @@ export class AuthEffects {
           return scheduled([fetchPermissionSuccess({currentUserAuthData})], asyncScheduler)
         }
         console.error("!!! User disabled !!!");
-        return scheduled([userForbidden()], asyncScheduler);
+        return scheduled([userForbidden({currentUserAuthData})], asyncScheduler);
       }),
       catchError(e => scheduled([authError(e)], asyncScheduler))
     )

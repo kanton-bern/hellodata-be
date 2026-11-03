@@ -99,12 +99,19 @@ export const authReducer = createReducer(
       contextRoles: contextRoles
     };
   }),
-  on(userForbidden, (state: AuthState): AuthState => {
+  on(userForbidden, (state: AuthState, {currentUserAuthData}): AuthState => {
+    // The account is disabled in the portal (not in Keycloak, the realms are shared), so the login succeeds.
+    // Mark the permissions as loaded (none) so the home page renders the "permission missing" card
+    // with the list of admins to contact.
     return {
       ...state,
       contextRoles: [],
       permissions: [],
       isSuperuser: false,
+      permissionsLoaded: true,
+      businessDomain: currentUserAuthData?.businessDomain ?? state.businessDomain,
+      disableLogout: currentUserAuthData?.disableLogout ?? state.disableLogout,
+      provisioning: false,
       userDisabled: true
     };
   }),

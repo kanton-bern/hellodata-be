@@ -42,6 +42,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
+import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
@@ -94,6 +95,7 @@ public class UserService {
     private final UserPreferenceService userPreferenceService;
     private final UserContextRoleService userContextRoleService;
     private final SupportContactProperties supportContactProperties;
+    private final HellodataAuthenticationConverter authenticationConverter;
 
     @Transactional
     public String createUser(String email, String firstName, String lastName, AdUserOrigin origin) {
@@ -204,6 +206,8 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(false);
         userRepository.save(userEntity);
+        // Drop the cached user so the disabled state (no permissions) applies to the very next request
+        authenticationConverter.invalidateUserCache(userEntity.getEmail());
         // Access is revoked in the portal and in the subsystems (below); the auth provider (Keycloak)
         // is intentionally left untouched, as the realm can be shared across environments / federated with AD.
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
@@ -220,6 +224,7 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(true);
         userRepository.saveAndFlush(userEntity);
+        authenticationConverter.invalidateUserCache(userEntity.getEmail());
         // Access is restored in the portal and in the subsystems (below); the auth provider (Keycloak)
         // is intentionally left untouched, as the realm can be shared across environments / federated with AD.
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
