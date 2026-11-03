@@ -75,4 +75,7 @@
     <changeSet id="0012" author="hellodata" runAlways="true">
         <sqlFile path="changelogs/12_add_bi_no_access_role.sql" relativeToChangelogFile="true" />
     </changeSet>
+    <changeSet id="0013" author="hellodata" runAlways="true">
+        <sqlFile path="changelogs/13_add_can_language_pack_permission_to_bi_roles.sql" relativeToChangelogFile="true" splitStatements="false" />
+    </changeSet>
 </databaseChangeLog>
