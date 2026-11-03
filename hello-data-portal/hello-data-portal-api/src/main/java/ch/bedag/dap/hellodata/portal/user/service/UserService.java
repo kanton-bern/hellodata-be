@@ -210,6 +210,8 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(false);
         userRepository.save(userEntity);
+        // Drop the cached user so the disabled state (no permissions) applies to the very next request
+        authenticationConverter.invalidateUserCache(userEntity.getEmail());
         // Access is revoked in the portal and in the subsystems (below); the auth provider (Keycloak)
         // is intentionally left untouched, as the realm can be shared across environments / federated with AD.
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
@@ -226,6 +228,7 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(true);
         userRepository.saveAndFlush(userEntity);
+        authenticationConverter.invalidateUserCache(userEntity.getEmail());
         // Access is restored in the portal and in the subsystems (below); the auth provider (Keycloak)
         // is intentionally left untouched, as the realm can be shared across environments / federated with AD.
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());

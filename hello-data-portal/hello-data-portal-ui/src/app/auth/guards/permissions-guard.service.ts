@@ -28,10 +28,14 @@
 import {inject, Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
 import {Observable} from 'rxjs';
-import {filter, map, switchMap, take} from 'rxjs/operators';
+import {filter, map, switchMap, take, withLatestFrom} from 'rxjs/operators';
 import {Store} from '@ngrx/store';
 import {AppState} from "../../store/app/app.state";
-import {selectCurrentUserPermissions, selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
+import {
+  selectCurrentUserPermissions,
+  selectCurrentUserPermissionsLoaded,
+  selectIsUserDisabled
+} from "../../store/auth/auth.selector";
 import {navigate} from "../../store/app/app.action";
 
 @Injectable({
@@ -46,7 +50,15 @@ export class PermissionsGuard {
       take(1),
       switchMap(() => this.store.select(selectCurrentUserPermissions).pipe(
         take(1),
-        map((currentUserPermissions) => this.checkPermissions(next, state, currentUserPermissions))
+        withLatestFrom(this.store.select(selectIsUserDisabled)),
+        map(([currentUserPermissions, userDisabled]) => {
+          if (userDisabled) {
+            // A disabled user may only see the home page with the list of admins to contact
+            this.store.dispatch(navigate({url: '/home'}));
+            return false;
+          }
+          return this.checkPermissions(next, state, currentUserPermissions);
+        })
       ))
     );
   }
