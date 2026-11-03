@@ -10,7 +10,7 @@ The specs are grouped by feature:
 | Folder                  | Covers                                                                                       |
 |-------------------------|----------------------------------------------------------------------------------------------|
 | `tests/portal/`         | Login, logout, navigation, the home page and the data domain selector                        |
-| `tests/administration/` | Users, portal roles and FAQ management                                                       |
+| `tests/administration/` | Users, portal roles, FAQ management and which pages each role may open by url                |
 | `tests/dashboards/`     | Superset dashboards in the portal: access, drafts, filters and metadata per role              |
 | `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases |
 | `tests/comments/`       | Dashboard comments: permissions per role, review workflow, filtering, deletion, versions     |
