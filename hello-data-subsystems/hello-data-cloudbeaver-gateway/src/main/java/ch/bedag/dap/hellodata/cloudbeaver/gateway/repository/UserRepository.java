@@ -63,6 +63,7 @@ interface UserRepositoryInternal {
 class UserRepositoryInternalImpl implements UserRepositoryInternal {
 
     public static final String ROLE_FIELD_IDENTIFIER = "key";
+    public static final String TEAM_ID_FIELD_IDENTIFIER = "team_id";
 
     private final DatabaseClient db;
     private final R2dbcEntityTemplate r2dbcEntityTemplate; //NOSONAR
@@ -98,13 +99,29 @@ class UserRepositoryInternalImpl implements UserRepositoryInternal {
                 .all()
                 .collectList()
                 .filter(l -> !l.isEmpty())
-                .map(l -> mapUserWithAuthorities(l.get(0).getT1(), l));
+                .zipWith(findTeamIds())
+                .map(t -> mapUserWithAuthorities(t.getT1().get(0).getT1(), t.getT1(), t.getT2()));
     }
 
-    private User mapUserWithAuthorities(User user, List<Tuple2<User, Optional<String>>> tuples) {
+    /**
+     * The ids of the CloudBeaver teams, which live in the same database. Without them (e.g. CloudBeaver uses another
+     * schema) the role keys are sent upper-cased, as before.
+     */
+    private Mono<List<String>> findTeamIds() {
+        return db.sql("SELECT team_id FROM cb_team")
+                .map((row, metadata) -> row.get(TEAM_ID_FIELD_IDENTIFIER, String.class))
+                .all()
+                .collectList()
+                .onErrorResume(e -> {
+                    log.warn("Could not read the CloudBeaver teams, sending the upper-cased role keys: {}", e.getMessage());
+                    return Mono.just(Collections.emptyList());
+                });
+    }
+
+    private User mapUserWithAuthorities(User user, List<Tuple2<User, Optional<String>>> tuples, List<String> teamIds) {
         user.setAuthorities(tuples.stream()
                 .filter(t -> t.getT2().isPresent())
-                .map(t -> t.getT2().orElseThrow()).collect(Collectors.toSet()));
+                .map(t -> CbTeams.toTeamId(t.getT2().orElseThrow(), teamIds)).collect(Collectors.toSet()));
 
         return user;
     }

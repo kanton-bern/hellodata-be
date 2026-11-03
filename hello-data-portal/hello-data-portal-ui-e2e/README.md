@@ -15,7 +15,7 @@ The specs are grouped by feature:
 | `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases |
 | `tests/comments/`       | Dashboard comments: permissions per role, review workflow, filtering, deletion, versions     |
 | `tests/batch-import/`   | Batch import of users and roles from csv files: new users, existing users, last record wins, dashboard groups, file validation |
-| `tests/data-eng/`       | The Data Eng. menu: Orchestration (Airflow) and its breadcrumb, DAG status per data domain, DWH Viewer (CloudBeaver), Filebrowser (SFTPGo) |
+| `tests/data-eng/`       | The Data Eng. menu: Orchestration (Airflow) and its breadcrumb, DAG status per data domain, DWH and DataMarts Viewer (CloudBeaver connections per role), Filebrowser (SFTPGo) |
 
 Scenarios from Jira name their ticket (e.g. `HELLODATA-687`) in a comment above the test.
 
@@ -167,7 +167,9 @@ failed tests and the compose logs are uploaded as a workflow artifact.
   `pipelineIds()` / `expectPipelines()` (the DAGs `/api/pipelines` reports to the logged in user), `openDwhViewer()` and
   `routeCloudbeaver()` (the portal embeds `<portal>/cloudbeaver/`, which only an ingress serves, so the tests route it to
   the gateway on port 8087; CloudBeaver's event web socket cannot be routed to another port and is answered by a silent
-  mock), `openFilebrowser()`, `openFolder()`, `createFolder()`, `renameFolder()`, `deleteFolder()` for SFTPGo and
+  mock), `openDataMartsViewer()` (CloudBeaver embedded in the portal), `expandConnectionsFolder()` (expands the shared
+  connections folder, and presses CloudBeaver's Retry when it failed to load the connections of a new session) and
+  `cloudbeaverConnection()`, `openFilebrowser()`, `openFolder()`, `createFolder()`, `renameFolder()`, `deleteFolder()` for SFTPGo and
   `expectNoDataEngEntry()`. `tests/docker.ts` has the `docker exec` and SQL helpers shared with the batch import.
 - Only the admin roles (`HELLODATA_ADMIN`, `BUSINESS_DOMAIN_ADMIN`, `DATA_DOMAIN_ADMIN`) can comment by default. Comment
   tests give the other roles a comment permission in `beforeAll` and set it back to none in `afterAll`. A reviewer does

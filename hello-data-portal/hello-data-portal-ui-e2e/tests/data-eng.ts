@@ -151,6 +151,44 @@ export async function openDwhViewer(page: Page, user: User): Promise<Page> {
   return viewer;
 }
 
+// the folder of initial-data-sources.conf with the DataMarts and DWH connections of the data domains
+export const CLOUDBEAVER_FOLDER = 'HelloDATA Product Development DBs';
+export const DM_CONNECTION = 'Default Data Domain DataMarts';
+export const DWH_CONNECTION = 'Default Data Domain DWH';
+
+/** Opens Data Marts -> DataMarts Viewer, which embeds CloudBeaver in the portal, and returns CloudBeaver. */
+export async function openDataMartsViewer(page: Page): Promise<FrameLocator> {
+  await navigate(page, 'Data Marts', 'DataMarts Viewer');
+  await expect(page).toHaveURL(/\/embedded-dm-viewer$/);
+  return subsystemFrame(page);
+}
+
+/**
+ * Waits until CloudBeaver shows the shared connections folder and expands it. Right after the session of another user
+ * ended, CloudBeaver can fail to load the connections ("datasource registry is null after init"); its Retry button
+ * loads them again.
+ */
+export async function expandConnectionsFolder(cloudbeaver: FrameLocator) {
+  const folder = cloudbeaver.locator(`[title="${CLOUDBEAVER_FOLDER}"]`);
+  await expect(async () => {
+    const retry = cloudbeaver.getByRole('button', {name: /^retry$/i});
+    if (await retry.count() > 0) {
+      await retry.first().click();
+    }
+    await expect(folder).toBeVisible({timeout: 10_000});
+  }).toPass({timeout: 90_000, intervals: [2_000, 5_000]});
+  // the row of a navigator node holds its Expand button next to its name; nested elements come later in the document,
+  // so the last element with both is the row itself (and not the navigator, which holds the other folders too)
+  const expand = cloudbeaver.getByRole('button', {name: 'Expand', exact: true});
+  const row = cloudbeaver.locator('div').filter({has: folder}).filter({has: expand}).last();
+  await row.getByRole('button', {name: 'Expand', exact: true}).click();
+}
+
+/** A connection in the CloudBeaver navigator, by its name. */
+export function cloudbeaverConnection(cloudbeaver: FrameLocator, name: string) {
+  return cloudbeaver.locator(`[title="Name: ${name}"]`);
+}
+
 /** Opens Data Eng. -> Filebrowser, which the portal opens in a new tab, and returns that tab once SFTPGo logged the user in. */
 export async function openFilebrowser(page: Page, user: User): Promise<Page> {
   const drawer = await openMenu(page, DATA_ENG_MENU);
