@@ -113,6 +113,13 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
         UserDto userDto = getUserDto(email);
         if (userDto != null) { //NOSONAR
             userId = UUID.fromString(userDto.getId());
+            if (BooleanUtils.isFalse(userDto.getEnabled())) {
+                // The account is disabled in the portal only (Keycloak realms are shared, so the login itself
+                // still succeeds). Keep the id so the profile endpoint can report the user as disabled,
+                // but grant no authorities at all.
+                log.debug("User {} is disabled, granting no permissions", email);
+                return new HellodataAuthenticationToken(userId, givenName, familyName, email, keycloakUserId, false, permissions);
+            }
             isSuperuser = BooleanUtils.isTrue(userDto.getSuperuser());
             if (isSuperuser) {
                 permissions.addAll(Arrays.stream(Permission.values()).map(Enum::name).toList());

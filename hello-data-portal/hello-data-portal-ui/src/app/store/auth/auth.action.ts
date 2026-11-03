@@ -119,7 +119,8 @@ export const prolongCBSession = createAction(
 );
 
 export const userForbidden = createAction(
-  AuthActionType.USER_FORBIDDEN
+  AuthActionType.USER_FORBIDDEN,
+  props<{ currentUserAuthData: CurrentUserAuthData }>()
 );
 
 export const fetchCurrentUserCommentPermissions = createAction(

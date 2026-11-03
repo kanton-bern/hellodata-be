@@ -195,6 +195,8 @@ class UserServiceTest {
         // then: the portal disables the user locally and never touches the auth provider (Keycloak)
         assertFalse(userEntity.isEnabled());
         verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.DISABLE_USER), any());
+        // the cached permissions are dropped so the disabled user loses access on the next request
+        verify(authenticationConverter).invalidateUserCache("some_email@example.com");
         verifyNoInteractions(keycloakService);
     }
 
@@ -234,6 +236,7 @@ class UserServiceTest {
         // then: the portal enables the user locally and never touches the auth provider (Keycloak)
         assertTrue(userEntity.isEnabled());
         verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.ENABLE_USER), any());
+        verify(authenticationConverter).invalidateUserCache("some_email@example.com");
         verifyNoInteractions(keycloakService);
     }
 
