@@ -31,7 +31,7 @@
     <frontend-maven-plugin.npmVersion>11.6.0</frontend-maven-plugin.npmVersion>
     <openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
     <main.class>YarnPackageFinder</main.class>
-    <kotlin.version>2.4.20</kotlin.version>
+    <kotlin.version>2.4.21</kotlin.version>
     <classpathScope>compile</classpathScope>
   </properties>
 
@@ -198,7 +198,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.6.3</version>
+            <version>3.6.4</version>
             <executions>
               <execution>
                 <id>run-npm-checker</id>
