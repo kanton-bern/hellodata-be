@@ -72,12 +72,15 @@ test.describe('DWH Viewer', () => {
         }
       });
 
-      test(`${cloudbeaverAdmin ? 'can' : 'cannot'} create connections in CloudBeaver`, async ({page}) => {
-        const cloudbeaver = await openDataMartsViewer(page);
-        await expandConnectionsFolder(cloudbeaver);
-        // the admin team of CloudBeaver has the admin permission, which adds the connection management to the navigator
-        await expect(cloudbeaver.locator('[title="New Connection"]')).toHaveCount(cloudbeaverAdmin ? 1 : 0);
-      });
+      // the connections come from the deployment, CloudBeaver must not be used to create further ones; only the admin
+      // team has the admin permission, which adds the connection management to the navigator
+      if (!cloudbeaverAdmin) {
+        test('cannot create connections in CloudBeaver', async ({page}) => {
+          const cloudbeaver = await openDataMartsViewer(page);
+          await expandConnectionsFolder(cloudbeaver);
+          await expect(cloudbeaver.locator('[title="New Connection"]')).toHaveCount(0);
+        });
+      }
     });
   }
 

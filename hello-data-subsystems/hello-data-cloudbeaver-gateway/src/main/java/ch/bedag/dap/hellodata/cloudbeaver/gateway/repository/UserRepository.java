@@ -121,7 +121,7 @@ class UserRepositoryInternalImpl implements UserRepositoryInternal {
     private User mapUserWithAuthorities(User user, List<Tuple2<User, Optional<String>>> tuples, List<String> teamIds) {
         user.setAuthorities(tuples.stream()
                 .filter(t -> t.getT2().isPresent())
-                .map(t -> CbTeams.toTeamId(t.getT2().orElseThrow(), teamIds)).collect(Collectors.toSet()));
+                .flatMap(t -> CbTeams.toTeamIds(t.getT2().orElseThrow(), teamIds).stream()).collect(Collectors.toSet()));
 
         return user;
     }

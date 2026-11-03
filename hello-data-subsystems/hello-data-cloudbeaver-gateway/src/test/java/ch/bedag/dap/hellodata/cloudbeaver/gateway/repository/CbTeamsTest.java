@@ -36,22 +36,23 @@ class CbTeamsTest {
 
     @Test
     void usesTheLowerCasedAdminTeamOfAFreshDatabase() {
-        assertEquals("admin", CbTeams.toTeamId("admin", List.of("admin", "user", "default_data_domain_read_dwh")));
+        assertEquals(List.of("admin"), CbTeams.toTeamIds("admin", List.of("admin", "user", "default_data_domain_read_dwh")));
     }
 
     @Test
     void keepsTheUpperCasedAdminTeamOfAnOlderDatabase() {
-        assertEquals("ADMIN", CbTeams.toTeamId("admin", List.of("ADMIN", "user")));
+        assertEquals(List.of("ADMIN"), CbTeams.toTeamIds("admin", List.of("ADMIN", "user")));
     }
 
     @Test
-    void prefersTheUpperCasedTeamWhenBothExist() {
-        List<String> teamIds = List.of("default_data_domain_read_dwh", "DEFAULT_DATA_DOMAIN_READ_DWH");
-        assertEquals("DEFAULT_DATA_DOMAIN_READ_DWH", CbTeams.toTeamId("Default_Data_Domain_READ_DWH", teamIds));
+    void usesBothTeamsWhenTheyExistInBothCases() {
+        List<String> teamIds = List.of("default_data_domain_read_dwh", "DEFAULT_DATA_DOMAIN_READ_DWH", "default_data_domain_read_dm");
+        assertEquals(List.of("default_data_domain_read_dwh", "DEFAULT_DATA_DOMAIN_READ_DWH"),
+                CbTeams.toTeamIds("Default_Data_Domain_READ_DWH", teamIds));
     }
 
     @Test
     void upperCasesTheRoleKeyWithoutAMatchingTeam() {
-        assertEquals("EXTRA_DATA_DOMAIN_READ_DM", CbTeams.toTeamId("Extra_Data_Domain_READ_DM", List.of()));
+        assertEquals(List.of("EXTRA_DATA_DOMAIN_READ_DM"), CbTeams.toTeamIds("Extra_Data_Domain_READ_DM", List.of()));
     }
 }

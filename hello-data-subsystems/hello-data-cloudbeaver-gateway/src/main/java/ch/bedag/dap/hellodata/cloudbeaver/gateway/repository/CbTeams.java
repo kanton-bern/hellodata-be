@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.cloudbeaver.gateway.repository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -41,18 +42,17 @@ public final class CbTeams {
 
     /**
      * The upper-cased role key is the team id of the data domain teams (e.g. DEFAULT_DATA_DOMAIN_READ_DWH). Newer
-     * CloudBeaver versions lower-case the teams of initial-data.conf, so on a fresh database the admin team is called
-     * admin, while installations created before still have ADMIN. Therefore, the upper-cased key wins if such a team
-     * exists, otherwise a team with the same id in another case, and the upper-cased key if there is none at all.
+     * CloudBeaver versions lower-case the teams of initial-data.conf, so a fresh database has e.g. admin and
+     * default_data_domain_read_dwh, and the sidecar adds DEFAULT_DATA_DOMAIN_READ_DWH next to it, while installations
+     * created before only have the upper-cased teams. data-sources-permissions.json grants the connections to the teams
+     * of both cases, as CloudBeaver skips the ones that do not exist.
+     * Therefore, the user gets every team with the id of the role key in any case, and the upper-cased key if there is
+     * none at all.
      */
-    public static String toTeamId(String roleKey, Collection<String> teamIds) {
-        String upperCased = roleKey.toUpperCase(Locale.ENGLISH);
-        if (teamIds.contains(upperCased)) {
-            return upperCased;
-        }
-        return teamIds.stream()
+    public static List<String> toTeamIds(String roleKey, Collection<String> teamIds) {
+        List<String> matching = teamIds.stream()
                 .filter(teamId -> teamId.equalsIgnoreCase(roleKey))
-                .findFirst()
-                .orElse(upperCased);
+                .toList();
+        return matching.isEmpty() ? List.of(roleKey.toUpperCase(Locale.ENGLISH)) : matching;
     }
 }
