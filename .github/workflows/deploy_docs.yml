@@ -10,14 +10,26 @@ jobs:
   build:
     name: Deploy docs
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Build docs
+        run: |
+          pip install --quiet -r docs/requirements.txt
+          mkdocs build --config-file docs/mkdocs.yml
+
+      # gh-pages also holds the e2e test reports in e2e/ (published by e2e.yml), so the docs replace everything else
       - name: Deploy docs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REQUIREMENTS: docs/requirements.txt
-          CONFIG_FILE: docs/mkdocs.yml
+        run: >-
+          .github/scripts/update-gh-pages.sh "Deploy docs of ${GITHUB_SHA::8}"
+          bash -c 'rsync -a --delete --exclude=/e2e/ --exclude=/.git "$0/" . && touch .nojekyll'
+          "$GITHUB_WORKSPACE/docs/site"

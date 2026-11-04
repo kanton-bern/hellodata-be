@@ -19,10 +19,6 @@ on:
         required: false
         default: 'chromium'
         type: string
-    secrets:
-      # deploy key with write access to the reports repository (vars.E2E_REPORTS_REPOSITORY), see the publish job
-      E2E_REPORTS_DEPLOY_KEY:
-        required: false
   workflow_dispatch:
     inputs:
       version:
@@ -227,73 +223,49 @@ jobs:
         working-directory: ${{ env.COMPOSE_DIR }}
         run: docker compose down --volumes --remove-orphans
 
-  # Publishes the report to the reports repository, whose GitHub Pages serve it as
-  # https://<owner>.github.io/<repo>/reports/<version>/<browser>/<run id>-<attempt>/ with an index of all runs.
-  # Skipped until the repository variable E2E_REPORTS_REPOSITORY (e.g. kanton-bern/hellodata-e2e-reports) is set.
+  # Publishes the report to the e2e/ folder of the gh-pages branch, which GitHub Pages serve next to the docs:
+  # https://kanton-bern.github.io/hellodata-be/e2e/ lists all versions, e2e/<version>/ shows the runs of a version and
+  # what its latest run tested, and e2e/<version>/<browser>/<run id>-<attempt>/ each run. deploy_docs.yml replaces the rest of gh-pages and keeps e2e/.
   publish:
     needs: e2e
-    if: ${{ !cancelled() && needs.e2e.result != 'skipped' && vars.E2E_REPORTS_REPOSITORY != '' }}
+    if: ${{ !cancelled() && needs.e2e.result != 'skipped' }}
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     env:
       E2E_DIR: hello-data-portal/hello-data-portal-ui-e2e
 
     steps:
-      - name: Checkout scripts
+      - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          sparse-checkout: ${{ env.E2E_DIR }}/scripts
 
       - name: Download test report
         uses: actions/download-artifact@v5
         with:
           name: e2e-report-${{ inputs.version }}-${{ inputs.browser || 'chromium' }}
-          path: artifact
-
-      - name: Checkout reports repository
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ vars.E2E_REPORTS_REPOSITORY }}
-          ssh-key: ${{ secrets.E2E_REPORTS_DEPLOY_KEY }}
-          path: site
+          path: ${{ runner.temp }}/artifact
 
       - name: Set up Node
         uses: actions/setup-node@v5
         with:
           node-version: '24'
 
-      # Several runs (versions, browsers) can publish at the same time. The site is rebuilt from the summary.json files,
-      # so when the push is rejected the run is added again on top of the newer state and pushed again.
       - name: Publish report
-        working-directory: site
+        env:
+          ARTIFACT: ${{ runner.temp }}/artifact
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          version=$(jq -r .version ../artifact/summary.json)
-          browser=$(jq -r .browser ../artifact/summary.json)
-          status=$(jq -r .status ../artifact/summary.json)
-          for attempt in 1 2 3 4 5; do
-            node "../$E2E_DIR/scripts/build-reports-site.mjs" --site . \
-              --summary ../artifact/summary.json --report "../artifact/$E2E_DIR/playwright-report"
-            git add -A
-            git commit --quiet -m "E2E $version ($browser): $status - run $GITHUB_RUN_ID"
-            if git push --quiet; then
-              exit 0
-            fi
-            echo "push rejected, retrying on top of the newer reports"
-            git fetch --quiet origin
-            git reset --quiet --hard "origin/$(git rev-parse --abbrev-ref HEAD)"
-          done
-          exit 1
+          message=$(jq -r '"E2E \(.version) (\(.browser)): \(.status) - run \(.runId)"' "$ARTIFACT/summary.json")
+          .github/scripts/update-gh-pages.sh "$message" bash -c \
+            'node "$0" --site e2e --summary "$1" --report "$2" && touch .nojekyll' \
+            "$GITHUB_WORKSPACE/$E2E_DIR/scripts/build-reports-site.mjs" "$ARTIFACT/summary.json" \
+            "$ARTIFACT/$E2E_DIR/playwright-report"
 
       - name: Link the report
-        run: |
-          owner="${E2E_REPORTS_REPOSITORY%%/*}"
-          repo="${E2E_REPORTS_REPOSITORY#*/}"
-          path=$(jq -r '[.version, .browser, "\(.runId)-\(.runAttempt)"] | map(gsub("[^A-Za-z0-9._-]"; "_")) | join("/")' artifact/summary.json)
-          url="https://${owner,,}.github.io/$repo/reports/$path/"
-          echo "Report: $url"
-          echo "### [Published report]($url)" >> "$GITHUB_STEP_SUMMARY"
         env:
-          E2E_REPORTS_REPOSITORY: ${{ vars.E2E_REPORTS_REPOSITORY }}
+          ARTIFACT: ${{ runner.temp }}/artifact
+        run: |
+          read -r version run < <(jq -r '[.version, "\(.browser)/\(.runId)-\(.runAttempt)"] | map(gsub("[^A-Za-z0-9._/-]"; "_")) | join(" ")' "$ARTIFACT/summary.json")
+          owner="${GITHUB_REPOSITORY%%/*}"
+          base="https://${owner,,}.github.io/${GITHUB_REPOSITORY#*/}/e2e/$version"
+          echo "Report of $version: $base/ (this run: $base/$run/)"
+          echo "### Published report: [$version]($base/) ([this run]($base/$run/))" >> "$GITHUB_STEP_SUMMARY"

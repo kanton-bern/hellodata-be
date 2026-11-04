@@ -147,35 +147,30 @@ Every run is also summarized and published as a web page, so it can be shared wi
    with its feature folder, status (passed, failed, flaky, skipped), retries, error and Jira tickets. The tickets come
    from the `// HELLODATA-...` comments right above a test or its `test.describe`. The same summary is shown on the
    page of the workflow run. When the stack did not start, the summary has the status `error` and no tests.
-3. The `publish` job runs `scripts/build-reports-site.mjs` in a checkout of the reports repository and pushes it. Its
-   GitHub Pages serve:
-   - `index.html` - all tested versions and their runs, newest first
-   - `reports/<version>/<browser>/<run id>-<attempt>/` - what was tested in the run and the result
-   - `reports/<version>/<browser>/<run id>-<attempt>/report/` - the full Playwright HTML report
+3. The `publish` job runs `scripts/build-reports-site.mjs` in the `e2e/` folder of the `gh-pages` branch, which GitHub
+   Pages serve next to the docs at https://kanton-bern.github.io/hellodata-be/e2e/ (linked in the docs under More):
+   - `e2e/` - all tested versions and their runs, newest first
+   - `e2e/<version>/` - the runs of a version and what its latest run tested, e.g.
+     https://kanton-bern.github.io/hellodata-be/e2e/e2e-playwright-SNAPSHOT/
+   - `e2e/<version>/<browser>/<run id>-<attempt>/` - what was tested in a run and the result
+   - `e2e/<version>/<browser>/<run id>-<attempt>/report/` - the full Playwright HTML report
 
-   The pages are rebuilt from the `summary.json` files every time, and only the last 5 runs per version and browser
-   and the last 50 versions are kept. Compose logs are not published, they stay in the workflow artifact.
+   The pages are rebuilt from the `summary.json` files every time, and only the last 3 runs per version and browser
+   and the last 30 versions are kept. Compose logs are not published, they stay in the workflow artifact.
+
+`.github/workflows/deploy_docs.yml` also writes to `gh-pages`: it replaces the docs and keeps `e2e/`. Both use
+`.github/scripts/update-gh-pages.sh`, which pushes the branch as a single commit without history (so old reports do not
+stay in every clone of the repository) and runs the change again when the other workflow pushed in the meantime.
 
 The reports are public. They contain screenshots, videos and traces of the test stack (example users only).
-
-One-time setup:
-
-1. Create the reports repository (e.g. `kanton-bern/hellodata-e2e-reports`) with a first commit (e.g. a README), and
-   turn on GitHub Pages for its default branch (Settings -> Pages -> Deploy from a branch, `/ (root)`).
-2. Create a key pair (`ssh-keygen -t ed25519 -N "" -f e2e-reports`) and add `e2e-reports.pub` as a deploy key with
-   write access to the reports repository (Settings -> Deploy keys).
-3. In this repository add the private key `e2e-reports` as the secret `E2E_REPORTS_DEPLOY_KEY` and the variable
-   `E2E_REPORTS_REPOSITORY` with the name of the reports repository (Settings -> Secrets and variables -> Actions).
-
-Until the variable is set the `publish` job is skipped.
 
 To try the scripts locally after a run (`CI=1` adds the JSON reporter):
 
 ```bash
 CI=1 npx playwright test tests/portal
 HD_VERSION=local node scripts/summarize.mjs --out summary.json
-node scripts/build-reports-site.mjs --site /tmp/e2e-site --summary summary.json --report playwright-report
-open /tmp/e2e-site/index.html
+node scripts/build-reports-site.mjs --site /tmp/e2e-site/e2e --summary summary.json --report playwright-report
+open /tmp/e2e-site/e2e/index.html
 ```
 
 ## Writing tests

@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-// Adds the report of an e2e run to the static reports site (a checkout of the reports repository, served by GitHub
-// Pages) and rebuilds its pages. Run pages and the index are always rebuilt from the summary.json files in the site, so
-// a run can be added again (re-run of a workflow), runs can be removed by hand, and a new page layout applies to all.
+// Adds the report of an e2e run to the static reports site (the e2e/ folder of the gh-pages branch, served by GitHub
+// Pages next to the docs) and rebuilds its pages. The pages are always rebuilt from the summary.json files in the site,
+// so a run can be added again (re-run of a workflow), runs can be removed by hand, and a new layout applies to all.
 //
-// node scripts/build-reports-site.mjs --site <checkout> [--summary summary.json --report playwright-report]
+// node scripts/build-reports-site.mjs --site <dir> [--summary summary.json --report playwright-report]
 //
-// <site>/index.html                                      all versions and their runs
-// <site>/index.json                                      the same as data (the summaries without their tests)
-// <site>/reports/<version>/<browser>/<run>/index.html    what was tested in the run and its result
-// <site>/reports/<version>/<browser>/<run>/report/       the Playwright HTML report of the run
+// <site>/index.html                               all versions and their runs
+// <site>/index.json                               the same as data (the summaries without their tests)
+// <site>/<version>/index.html                     the runs of a version and what its latest run tested
+// <site>/<version>/<browser>/<run>/index.html     what was tested in a run and its result
+// <site>/<version>/<browser>/<run>/report/        the Playwright HTML report of the run
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -20,27 +21,28 @@ const {values: args} = parseArgs({
     summary: {type: 'string'},
     report: {type: 'string'},
     // runs kept per version and browser, and versions kept in all; older ones are deleted from the site
-    'keep-runs': {type: 'string', default: '5'},
-    'keep-versions': {type: 'string', default: '50'},
+    'keep-runs': {type: 'string', default: '3'},
+    'keep-versions': {type: 'string', default: '30'},
   },
 });
 if (!args.site) throw new Error('--site is required');
 
-const reportsDir = path.join(args.site, 'reports');
+const site = args.site;
 const safe = name => String(name).replace(/[^A-Za-z0-9._-]/g, '_');
 
 if (args.summary) addRun(JSON.parse(fs.readFileSync(args.summary, 'utf8')), args.report);
 const runs = prune(loadRuns());
-for (const run of runs) fs.writeFileSync(path.join(reportsDir, run.path, 'index.html'), runPage(run));
-fs.writeFileSync(path.join(args.site, 'index.html'), indexPage(runs));
-fs.writeFileSync(path.join(args.site, 'index.json'),
-  JSON.stringify(runs.map(({tests, ...run}) => run), null, 2));
-// without it GitHub Pages runs Jekyll, which drops the files of the Playwright report that start with an underscore
-fs.writeFileSync(path.join(args.site, '.nojekyll'), '');
-console.log(`${runs.length} runs in ${args.site}`);
+removeEmptyFolders();
+for (const run of runs) fs.writeFileSync(path.join(site, run.path, 'index.html'), runPage(run));
+for (const versionRuns of Object.values(Object.groupBy(runs, run => run.versionDir))) {
+  fs.writeFileSync(path.join(site, versionRuns[0].versionDir, 'index.html'), versionPage(versionRuns));
+}
+fs.writeFileSync(path.join(site, 'index.html'), indexPage(runs));
+fs.writeFileSync(path.join(site, 'index.json'), JSON.stringify(runs.map(({tests, ...run}) => run), null, 2));
+console.log(`${runs.length} runs in ${site}`);
 
 function addRun(summary, report) {
-  const dir = path.join(reportsDir, safe(summary.version), safe(summary.browser),
+  const dir = path.join(site, safe(summary.version), safe(summary.browser),
     safe(`${summary.runId}-${summary.runAttempt}`));
   fs.rmSync(dir, {recursive: true, force: true});
   fs.mkdirSync(dir, {recursive: true});
@@ -48,17 +50,18 @@ function addRun(summary, report) {
   if (report && fs.existsSync(path.join(report, 'index.html'))) {
     fs.cpSync(report, path.join(dir, 'report'), {recursive: true});
   }
-  console.log(`added ${path.relative(args.site, dir)}`);
+  console.log(`added ${path.relative(site, dir)}`);
 }
 
 function loadRuns() {
   const runs = [];
-  for (const file of fs.globSync('*/*/*/summary.json', {cwd: reportsDir})) {
-    const dir = path.dirname(file);
+  for (const file of fs.globSync('*/*/*/summary.json', {cwd: site})) {
+    const dir = path.dirname(file).split(path.sep);
     runs.push({
-      ...JSON.parse(fs.readFileSync(path.join(reportsDir, file), 'utf8')),
-      path: dir.split(path.sep).join('/'),
-      hasReport: fs.existsSync(path.join(reportsDir, dir, 'report', 'index.html')),
+      ...JSON.parse(fs.readFileSync(path.join(site, file), 'utf8')),
+      path: dir.join('/'),
+      versionDir: dir[0],
+      hasReport: fs.existsSync(path.join(site, ...dir, 'report', 'index.html')),
     });
   }
   return runs.sort((a, b) => b.startedAt.localeCompare(a.startedAt));
@@ -74,40 +77,31 @@ function prune(runs) {
     const key = `${run.version}/${run.browser}`;
     seen.set(key, (seen.get(key) ?? 0) + 1);
     if (versions.includes(run.version) && seen.get(key) <= keepRuns) return true;
-    fs.rmSync(path.join(reportsDir, run.path), {recursive: true, force: true});
+    fs.rmSync(path.join(site, run.path), {recursive: true, force: true});
     console.log(`pruned ${run.path}`);
     return false;
   });
 }
 
+// the folders of pruned versions and browsers still hold their index.html
+function removeEmptyFolders() {
+  for (const dir of fs.globSync('*/', {cwd: site})) {
+    if (!fs.globSync('*/*/summary.json', {cwd: path.join(site, dir)}).length) {
+      fs.rmSync(path.join(site, dir), {recursive: true, force: true});
+    }
+  }
+}
+
 // --- pages ----------------------------------------------------------------------------------------------------------
 
 function indexPage(runs) {
-  const byVersion = Object.groupBy(runs, run => run.version);
-  const sections = Object.entries(byVersion).map(([version, versionRuns]) => `
+  const sections = Object.values(Object.groupBy(runs, run => run.versionDir)).map(versionRuns => `
     <section>
-      <h2>${esc(version)}</h2>
-      <div class="table"><table>
-        <thead><tr><th>Status</th><th>Browser</th><th>Started</th><th class="num">Passed</th><th class="num">Failed</th>
-          <th class="num">Flaky</th><th class="num">Skipped</th><th>Commit</th><th>Links</th></tr></thead>
-        <tbody>${versionRuns.map(run => `
-          <tr>
-            <td>${badge(run.status)}</td>
-            <td>${esc(run.browser)}</td>
-            <td>${date(run.startedAt)}</td>
-            <td class="num">${run.stats.passed}</td>
-            <td class="num">${run.stats.failed}</td>
-            <td class="num">${run.stats.flaky}</td>
-            <td class="num">${run.stats.skipped}</td>
-            <td>${commitLink(run)}</td>
-            <td class="links"><a href="reports/${run.path}/">Summary</a>
-              ${run.hasReport ? `<a href="reports/${run.path}/report/">Full report</a>` : ''}
-              ${workflowLink(run)}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>
+      <h2><a href="${esc(versionRuns[0].versionDir)}/">${esc(versionRuns[0].version)}</a></h2>
+      ${runsTable(versionRuns, '')}
     </section>`).join('');
   return page('HelloDATA E2E Reports', `
+    <nav><a href="../">← HelloDATA docs</a></nav>
     <header>
       <h1>HelloDATA E2E Reports</h1>
       <p class="muted">Playwright regression runs of the portal against the docker compose installation, grouped by the
@@ -116,7 +110,51 @@ function indexPage(runs) {
     ${sections || '<p>No runs yet.</p>'}`);
 }
 
+// the latest run of the version, with all its runs on top
+function versionPage(versionRuns) {
+  const [latest] = versionRuns;
+  return page(`E2E ${latest.version}`, `
+    <nav><a href="../">← All versions</a></nav>
+    <header><h1>${esc(latest.version)}</h1></header>
+    <h2>Runs</h2>
+    ${runsTable(versionRuns, '../')}
+    <h2>Latest run <span class="muted">${esc(latest.browser)}, ${date(latest.startedAt)}</span></h2>
+    ${runDetails(latest, `${latest.path.slice(latest.versionDir.length + 1)}/`)}`);
+}
+
 function runPage(run) {
+  return page(`E2E ${run.version} ${run.browser}`, `
+    <nav class="links"><a href="../../">← ${esc(run.version)}</a><a href="../../../">All versions</a></nav>
+    <header><h1>${esc(run.version)} <span class="muted">${esc(run.browser)}</span> ${badge(run.status)}</h1></header>
+    ${runDetails(run, '')}`);
+}
+
+// links of the table are relative to the site, after the prefix
+function runsTable(runs, prefix) {
+  return `
+    <div class="table"><table>
+      <thead><tr><th>Status</th><th>Browser</th><th>Started</th><th class="num">Passed</th><th class="num">Failed</th>
+        <th class="num">Flaky</th><th class="num">Skipped</th><th>Commit</th><th>Links</th></tr></thead>
+      <tbody>${runs.map(run => `
+        <tr>
+          <td>${badge(run.status)}</td>
+          <td>${esc(run.browser)}</td>
+          <td>${date(run.startedAt)}</td>
+          <td class="num">${run.stats.passed}</td>
+          <td class="num">${run.stats.failed}</td>
+          <td class="num">${run.stats.flaky}</td>
+          <td class="num">${run.stats.skipped}</td>
+          <td>${commitLink(run)}</td>
+          <td class="links"><a href="${esc(prefix + run.path)}/">Summary</a>
+            ${run.hasReport ? `<a href="${esc(prefix + run.path)}/report/">Full report</a>` : ''}
+            ${workflowLink(run)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+// what the run tested; the links to its files are relative to the run folder, after the prefix
+function runDetails(run, prefix) {
   const groups = Object.groupBy(run.tests, test => test.feature);
   const features = run.features.map(f => `
     <tr><td><a href="#${esc(f.name)}">${esc(f.name)}</a></td><td class="num">${f.passed}</td>
@@ -141,19 +179,17 @@ function runPage(run) {
     <tr><td>${esc(image.image)}</td><td><code>${esc(image.digest.split('@')[1] ?? image.digest)}</code></td></tr>`)
     .join('');
   const errors = run.errors.map(error => `<pre class="error">${esc(error)}</pre>`).join('');
-  return page(`E2E ${run.version} ${run.browser}`, `
-    <nav><a href="../../../../">← All reports</a></nav>
-    <header>
-      <h1>${esc(run.version)} <span class="muted">${esc(run.browser)}</span> ${badge(run.status)}</h1>
-      <dl>
-        <dt>Started</dt><dd>${date(run.startedAt)} (${Math.round(run.durationMs / 60_000)} min)</dd>
-        <dt>Tests</dt><dd>${run.stats.total}: ${run.stats.passed} passed, ${run.stats.failed} failed,
-          ${run.stats.flaky} flaky, ${run.stats.skipped} skipped</dd>
-        <dt>Tests from</dt><dd>${esc(run.ref ?? '')} ${commitLink(run)}</dd>
-        <dt>Links</dt><dd class="links">${run.hasReport ? '<a href="report/">Full Playwright report</a>' : ''}
-          ${workflowLink(run, 'Workflow run (logs, traces)')}</dd>
-      </dl>
-    </header>
+  return `
+    <dl>
+      <dt>Status</dt><dd>${badge(run.status)}</dd>
+      <dt>Started</dt><dd>${date(run.startedAt)} (${Math.round(run.durationMs / 60_000)} min)</dd>
+      <dt>Tests</dt><dd>${run.stats.total}: ${run.stats.passed} passed, ${run.stats.failed} failed,
+        ${run.stats.flaky} flaky, ${run.stats.skipped} skipped</dd>
+      <dt>Tests from</dt><dd>${esc(run.ref ?? '')} ${commitLink(run)}</dd>
+      <dt>Links</dt><dd class="links">${run.hasReport ? `<a href="${esc(prefix)}report/">Full Playwright report</a>` : ''}
+        ${prefix ? `<a href="${esc(prefix)}">Permalink of this run</a>` : ''}
+        ${workflowLink(run, 'Workflow run (logs, traces)')}</dd>
+    </dl>
     ${errors}
     <h2>Features</h2>
     <div class="table"><table>
@@ -167,7 +203,7 @@ function runPage(run) {
     <div class="table"><table>
       <thead><tr><th>Image</th><th>Digest</th></tr></thead>
       <tbody>${images || '<tr><td colspan="2">Not recorded</td></tr>'}</tbody>
-    </table></div>`);
+    </table></div>`;
 }
 
 function page(title, body) {

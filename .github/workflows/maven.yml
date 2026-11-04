@@ -90,8 +90,9 @@ jobs:
     # started manually - remove the branch condition and its version fallback before merging
     if: ${{ (github.ref_type == 'tag' && contains(github.ref_name, '.rc')) || github.ref == 'refs/heads/feature/e2e-playwright' }}
     uses: ./.github/workflows/e2e.yml
-    # E2E_REPORTS_DEPLOY_KEY, to publish the report
-    secrets: inherit
+    # write: the e2e workflow publishes its report to the gh-pages branch
+    permissions:
+      contents: write
     with:
       version: ${{ github.ref_type == 'tag' && github.ref_name || 'e2e-playwright-SNAPSHOT' }}
 
