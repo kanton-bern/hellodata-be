@@ -89,7 +89,7 @@ does; the copy keeps the dbt docs url, and the SFTPGo sidecar creates the groups
 appinfo=$(docker compose -p hellodata-e2e exec -T postgres psql -U postgres -d hd_metainfo -tAc \
   "select metainfo from resource where kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS' limit 1")
 message=$(jq -c '.instanceName += "-extra-data-domain"
-  | .businessContextInfo.subContext += {key: "Extra_Data_Domain", name: "Extra Data Domain", extra: true}' <<< "$appinfo")
+  | .businessContextInfo.subContext += {type: "Data Domain", key: "Extra_Data_Domain", name: "Extra Data Domain", extra: true}' <<< "$appinfo")
 docker compose -p hellodata-e2e run --rm -T --entrypoint nats nats-box --server nats:4222 pub publish_resources.app_info "$message"
 ```
 
