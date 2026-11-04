@@ -89,15 +89,19 @@ test.describe('Data domain isolation', () => {
       // the data domain admin opens the pipelines status; the DAGs of its data domain are listed, not of the other
       // data domain
       test(`${admin.username} sees only the DAGs of its data domain`, async ({page}) => {
+        // the DAGs were published before (beforeAll), but the Airflow sidecar republishes them every minute
+        test.setTimeout(PIPELINE_SYNC_TIMEOUT + 60_000);
         await openPortalAs(page, admin.username, admin.password);
-        await expectPipelines(page, {listed: ownDags, notListed: foreignDags}, 30_000);
+        await expectPipelines(page, {listed: ownDags, notListed: foreignDags});
       });
 
       // the data domain viewer opens the pipelines status; the DAGs of its data domain are listed, not of the other
       // data domain
       test(`${viewer.username} sees only the DAGs of its data domain`, async ({page}) => {
+        // the DAGs were published before (beforeAll), but the Airflow sidecar republishes them every minute
+        test.setTimeout(PIPELINE_SYNC_TIMEOUT + 60_000);
         await openPortalAs(page, viewer.username, viewer.password);
-        await expectPipelines(page, {listed: ownDags, notListed: foreignDags}, 30_000);
+        await expectPipelines(page, {listed: ownDags, notListed: foreignDags});
       });
 
       // the data domain admin opens the Data Marts viewer (CloudBeaver); the connections of its data domain are listed,

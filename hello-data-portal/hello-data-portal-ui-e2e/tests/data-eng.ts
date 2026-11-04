@@ -92,13 +92,18 @@ export async function pipelineIds(page: Page): Promise<string[]> {
 /** Reloads the portal until the api reports the expected DAGs (and none of the unexpected ones) to the current user. */
 export async function expectPipelines(page: Page, {listed = [], notListed = []}: {listed?: string[], notListed?: string[]},
                                       timeout = PIPELINE_SYNC_TIMEOUT) {
+  // toPass reports only its timeout, so keep the last answer of the api for the error
+  let ids: string[] = [];
   await expect(async () => {
-    const ids = await pipelineIds(page);
+    ids = await pipelineIds(page);
     expect(ids).toEqual(expect.arrayContaining(listed));
     for (const id of notListed) {
       expect(ids, `${id} must not be listed`).not.toContain(id);
     }
-  }).toPass({timeout, intervals: [10_000, 15_000]});
+  }).toPass({timeout, intervals: [10_000, 15_000]}).catch(error => {
+    throw new Error(`expected the DAGs ${listed.join(', ')} and none of ${notListed.join(', ') || '-'}, `
+      + `the api reported: ${ids.join(', ') || 'none'}\n${error.message}`);
+  });
 }
 
 // The DWH Viewer embeds <portal origin>/cloudbeaver/, which an ingress routes to the CloudBeaver gateway on Kubernetes.
@@ -115,8 +120,16 @@ export async function routeCloudbeaver(context: BrowserContext, portalOrigin: st
   await context.route(url => url.href.startsWith(prefix), async route => {
     const url = new URL(route.request().url());
     // the gateway reads the portal's access token from the auth.access_token cookie, which is sent to every port of the host
-    const response = await route.fetch({url: CLOUDBEAVER_URL + url.pathname + url.search});
-    await route.fulfill({response});
+    try {
+      const response = await route.fetch({url: CLOUDBEAVER_URL + url.pathname + url.search});
+      await route.fulfill({response});
+    } catch (error) {
+      // CloudBeaver cancels requests it no longer needs (and the page may be closed at the end of a test); the route
+      // of such a request cannot be fulfilled any more, which must not fail the test
+      if (!/disposed|closed|cancel/i.test(String(error))) {
+        throw error;
+      }
+    }
   });
   // a web socket cannot be routed to another port, so CloudBeaver's event socket is answered by a silent mock
   await context.routeWebSocket(url => url.href.startsWith(prefix.replace(/^http/, 'ws')), () => undefined);

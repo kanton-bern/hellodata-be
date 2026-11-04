@@ -1,5 +1,5 @@
 import {writeFile} from 'fs/promises';
-import {Page} from '@playwright/test';
+import {APIResponse, Page} from '@playwright/test';
 import {expect, navigate, test} from '../fixtures';
 import {DATA_DOMAIN, dashboardRow, expectDashboardListed} from '../superset';
 
@@ -20,11 +20,17 @@ async function exportDashboard(page: Page) {
   await dashboardRow(page).getByRole('checkbox').check();
   const exportRequest = page.context().waitForEvent('request', r => r.url().includes('/api/v1/dashboard/export'));
   await section.getByRole('button', {name: 'Export', exact: true}).click();
-  const response = await page.context().request.get((await exportRequest).url());
-  expect(response.ok(), 'Superset export failed').toBe(true);
-  expect(response.headers()['content-type']).toBe('application/zip');
-  expect(response.headers()['content-disposition']).toMatch(/attachment; filename=dashboard_export_.*\.zip/);
-  return response.body();
+  const url = (await exportRequest).url();
+  // the browser context gets its Superset session in the background after the login, so the first requests of a fresh
+  // context can still be refused with 401
+  let response: APIResponse | undefined;
+  await expect(async () => {
+    response = await page.context().request.get(url);
+    expect(response.status(), 'Superset export failed').toBe(200);
+  }).toPass({timeout: 30_000, intervals: [2_000, 5_000]});
+  expect(response!.headers()['content-type']).toBe('application/zip');
+  expect(response!.headers()['content-disposition']).toMatch(/attachment; filename=dashboard_export_.*\.zip/);
+  return response!.body();
 }
 
 // exporting a dashboard as zip from the import-export page and importing it again
