@@ -80,6 +80,19 @@ docker compose -p hellodata-e2e exec -T postgres psql -U postgres -d hd_metainfo
    and exists (select 1 from user_context_role c join role r on r.id = c.role_id where c.user_id = u.id and r.name <> 'NONE')"
 ```
 
+The Extra Data Domain has no subsystem, so no sidecar publishes it and the CloudBeaver sidecar never creates its teams
+(`EXTRA_DATA_DOMAIN_READ_DM`, `EXTRA_DATA_DOMAIN_READ_DWH`): its users then see no connections in the DataMarts Viewer.
+Publish a copy of the dbt docs app info for it, as a sidecar of that data domain would (this is what the CI workflow
+does; the copy keeps the dbt docs url, and the SFTPGo sidecar creates the groups of the data domain as well):
+
+```bash
+appinfo=$(docker compose -p hellodata-e2e exec -T postgres psql -U postgres -d hd_metainfo -tAc \
+  "select metainfo from resource where kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS' limit 1")
+message=$(jq -c '.instanceName += "-extra-data-domain"
+  | .businessContextInfo.subContext += {key: "Extra_Data_Domain", name: "Extra Data Domain", extra: true}' <<< "$appinfo")
+docker compose -p hellodata-e2e run --rm -T --entrypoint nats nats-box --server nats:4222 pub publish_resources.app_info "$message"
+```
+
 Install and run the tests:
 
 ```bash

@@ -136,6 +136,21 @@ jobs:
           echo "dbt docs, Superset, Airflow or SFTPGo resources were not published within 12.5 minutes"
           exit 1
 
+      # The CloudBeaver sidecar creates the roles and teams of a data domain (e.g. EXTRA_DATA_DOMAIN_READ_DWH) when a
+      # subsystem sidecar publishes its app info for that data domain. The Extra Data Domain of the e2e override has no
+      # subsystem, so the step publishes a copy of the dbt docs app info for it, as a sidecar of that data domain would:
+      # the CloudBeaver sidecar then creates its teams and the SFTPGo sidecar its groups. The copy keeps the url of the
+      # dbt docs, so the portal's lineage page works the same whichever of the two it uses.
+      - name: Publish the Extra Data Domain to the sidecars
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: |
+          appinfo=$(docker compose exec -T postgres psql -U postgres -d hd_metainfo -tAc \
+            "select metainfo from resource where kind = 'hellodata/AppInfo' and module_type = 'DBT_DOCS' limit 1")
+          message=$(jq -c '.instanceName += "-extra-data-domain"
+            | .businessContextInfo.subContext += {key: "Extra_Data_Domain", name: "Extra Data Domain", extra: true}' <<< "$appinfo")
+          echo "$message"
+          docker compose run --rm -T --entrypoint nats nats-box --server nats:4222 pub publish_resources.app_info "$message"
+
       # The portal sidecar assigns the portal roles (the permissions) of a user when the portal api publishes its context
       # roles. The api publishes the example users at startup, often before the portal sidecar is subscribed, so the
       # step asks the api for a new synchronization of all users (like the "Synchronize users" button) and waits for it.
@@ -166,18 +181,19 @@ jobs:
       # The CloudBeaver sidecar creates the teams of a data domain (e.g. DEFAULT_DATA_DOMAIN_READ_DWH) when a sidecar
       # publishes the data domain. The gateway logs the user in with these teams, and CloudBeaver refuses the login of
       # a user whose team is missing. The step does not fail the job, it prints what CloudBeaver has for the DWH tests.
-      - name: Wait for the CloudBeaver teams of the data domain
+      - name: Wait for the CloudBeaver teams of the data domains
         working-directory: ${{ env.COMPOSE_DIR }}
         run: |
           psql() { docker compose exec -T postgres psql -U postgres -d hd_cloudbeaver -tAc "$1"; }
+          teams="select count(*) from cb_team where team_id in ('DEFAULT_DATA_DOMAIN_READ_DWH', 'EXTRA_DATA_DOMAIN_READ_DWH')"
           for i in $(seq 1 18); do
-            if [ "$(psql "select count(*) from cb_team where team_id = 'DEFAULT_DATA_DOMAIN_READ_DWH'")" = "1" ]; then
+            if [ "$(psql "$teams")" = "2" ]; then
               echo "CloudBeaver teams available after $(((i - 1) * 10))s"
               exit 0
             fi
             sleep 10
           done
-          echo "::warning::CloudBeaver has no team DEFAULT_DATA_DOMAIN_READ_DWH after 3 minutes"
+          echo "::warning::CloudBeaver has not the READ_DWH teams of both data domains after 3 minutes"
           psql "select team_id from cb_team"
           psql "select u.email, string_agg(r.key, ',') from hd_user u left join hd_users_roles ur on ur.hd_user_id = u.id
                 left join hd_role r on r.id = ur.hd_role_id group by u.email"
