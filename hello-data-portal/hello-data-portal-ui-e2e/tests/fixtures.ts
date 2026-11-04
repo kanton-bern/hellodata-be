@@ -15,6 +15,9 @@ export const DATA_DOMAIN_ADMIN: User = {username: 'default-data-domain-admin@hel
 export const DATA_DOMAIN_EDITOR: User = {username: 'default-data-domain-editor@hellodata.ch', password: 'editor'};
 export const DATA_DOMAIN_BUSINESS_SPECIALIST: User = {username: 'default-data-domain-business_specialist@hellodata.ch', password: 'specialist'};
 export const DATA_DOMAIN_VIEWER: User = {username: 'default-data-domain-viewer@hellodata.ch', password: 'viewer'};
+// the second data domain exists only in the e2e installation (compose-override.yaml), which creates its example users too
+export const EXTRA_DATA_DOMAIN_ADMIN: User = {username: 'extra-data-domain-admin@hellodata.ch', password: 'admin'};
+export const EXTRA_DATA_DOMAIN_VIEWER: User = {username: 'extra-data-domain-viewer@hellodata.ch', password: 'viewer'};
 
 /** Fills the Keycloak login form the portal redirects to. */
 export async function signIn(page: Page, username: string, password: string) {
@@ -83,6 +86,22 @@ export async function navigate(page: Page, menu: string, item: string, group?: s
     await expandMenuGroup(drawer, group);
   }
   await drawer.getByRole('button', {name: item, exact: true}).click();
+}
+
+/** Picks an option of a PrimeNG select, its options are appended to the body. */
+export async function selectOption(select: Locator, option: string) {
+  // the accessible name of an option is its untranslated label (e.g. "@deleted"), so match the shown text
+  const shown = new RegExp(`^\\s*${option.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
+  const optionEntry = select.page().getByRole('option').filter({hasText: shown});
+  // a click on the select while the overlay of the previous selection still closes can close the new one right away,
+  // so open it again until the option can be picked
+  await expect(async () => {
+    if (!await optionEntry.isVisible()) {
+      await select.click();
+    }
+    await optionEntry.click({timeout: 2_000});
+  }).toPass({timeout: 20_000});
+  await expect(select).toContainText(option);
 }
 
 type Fixtures = {

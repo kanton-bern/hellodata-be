@@ -9,9 +9,9 @@ The specs are grouped by feature:
 
 | Folder                  | Covers                                                                                       |
 |-------------------------|----------------------------------------------------------------------------------------------|
-| `tests/portal/`         | Login, logout, navigation, the home page and the data domain selector                        |
-| `tests/administration/` | Users, portal roles, FAQ management, which pages each role may open by url and users disabled in the portal |
-| `tests/dashboards/`     | Superset dashboards in the portal: access, drafts, filters and metadata per role              |
+| `tests/portal/`         | Login, logout, navigation, the home page, the data domain selector and the isolation of the data domains (selector, DAGs, CloudBeaver connections, dashboards) |
+| `tests/administration/` | Users (invite, role, delete), portal roles, FAQ management, which pages each role may open by url and users disabled in the portal |
+| `tests/dashboards/`     | Superset dashboards in the portal: access, drafts, filters and metadata per role, dashboard groups and the dashboard access log |
 | `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases, its UI in the portal language |
 | `tests/comments/`       | Dashboard comments: permissions per role, review workflow, filtering, deletion, versions     |
 | `tests/batch-import/`   | Batch import of users and roles from csv files: new users, existing users, last record wins, dashboard groups, file validation |
@@ -105,7 +105,7 @@ docker compose -p hellodata-e2e down --volumes
 | `E2E_ADMIN_USERNAME`  | `admin`                                   | Keycloak admin user used by most tests              |
 | `E2E_ADMIN_PASSWORD`  | `admin`                                   | Its password                                        |
 | `E2E_ADMIN_EMAIL`     | `admin@hellodata.ch`                      | Its email, shown in the top bar and profile         |
-| `E2E_COMPOSE_PROJECT` | `$COMPOSE_PROJECT_NAME` or `hellodata-e2e` | Compose project the batch import and pipeline status tests run `docker exec` in |
+| `E2E_COMPOSE_PROJECT` | `$COMPOSE_PROJECT_NAME` or `hellodata-e2e` | Compose project the tests that read the databases or write files (batch import, pipelines, users, dashboard groups) run `docker exec` in; `hellodata` for the everyday stack |
 | `E2E_BROWSER_CHANNEL` | empty (Chromium bundled with Playwright)  | Browser channel, e.g. `msedge` for Microsoft Edge |
 | `E2E_CLOUDBEAVER_URL` | `http://localhost:8087` if `E2E_BASE_URL` is not set, else empty | CloudBeaver gateway the DWH Viewer tests route `<portal>/cloudbeaver/` to; empty when the installation routes it itself (ingress) |
 
@@ -143,7 +143,7 @@ failed tests and the compose logs are uploaded as a workflow artifact.
   test controls the login itself (other user, wrong password, or listening for requests made during login).
 - Every test gets a fresh browser context and logs in on its own, so tests do not share a session.
 - `tests/fixtures.ts` also provides helpers: `openPortalAs()` (Keycloak login, waits for the home page and switches to
-  English), `signIn()`, `selectLanguage()` (switches the language in the top bar and waits until the portal saved it),
+  English), `signIn()`, `selectOption()` (picks an option of a PrimeNG select), `selectLanguage()` (switches the language in the top bar and waits until the portal saved it),
   `navigate()` / `openMenu()` / `expandMenuGroup()` for the left sidebar, `errorToasts()` and
   `dismissToasts()`.
 - `tests/superset.ts` has the helpers for dashboards and Superset: `changeDashboardAccessAsAdmin()` (gives a viewer or

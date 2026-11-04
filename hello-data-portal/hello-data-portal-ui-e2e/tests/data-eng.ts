@@ -155,6 +155,8 @@ export async function openDwhViewer(page: Page, user: User): Promise<Page> {
 export const CLOUDBEAVER_FOLDER = 'HelloDATA Product Development DBs';
 export const DM_CONNECTION = 'Default Data Domain DataMarts';
 export const DWH_CONNECTION = 'Default Data Domain DWH';
+export const EXTRA_DM_CONNECTION = 'Extra Data Domain DataMarts';
+export const EXTRA_DWH_CONNECTION = 'Extra Data Domain DWH';
 
 /** Opens Data Marts -> DataMarts Viewer, which embeds CloudBeaver in the portal, and returns CloudBeaver. */
 export async function openDataMartsViewer(page: Page): Promise<FrameLocator> {

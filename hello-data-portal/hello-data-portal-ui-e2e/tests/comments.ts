@@ -1,5 +1,5 @@
 import {Browser, Locator, Page} from '@playwright/test';
-import {ADMIN, dismissToasts, expandMenuGroup, expect, openMenu, User} from './fixtures';
+import {ADMIN, dismissToasts, expandMenuGroup, expect, openMenu, selectOption, User} from './fixtures';
 import {DATA_DOMAIN, expectDashboardListed, openDashboard, openUserEdit, saveUserEdit, setDashboardAccess, SHOWCASE_DASHBOARD, withUser} from './superset';
 
 // the context key of the default data domain, used in the ids of the comment permission checkboxes
@@ -92,22 +92,6 @@ export async function commentResponse(page: Page, method: string, action = '') {
   const response = await page.waitForResponse(r => url.test(new URL(r.url()).pathname) && r.request().method() === method);
   expect(response.ok(), `${method} ${action || 'comment'} failed`).toBe(true);
   return response;
-}
-
-/** Picks an option of a PrimeNG select, its options are appended to the body. */
-async function selectOption(select: Locator, option: string) {
-  // the accessible name of an option is its untranslated label (e.g. "@deleted"), so match the shown text
-  const shown = new RegExp(`^\\s*${option.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
-  const optionEntry = select.page().getByRole('option').filter({hasText: shown});
-  // a click on the select while the overlay of the previous selection still closes can close the new one right away,
-  // so open it again until the option can be picked
-  await expect(async () => {
-    if (!await optionEntry.isVisible()) {
-      await select.click();
-    }
-    await optionEntry.click({timeout: 2_000});
-  }).toPass({timeout: 20_000});
-  await expect(select).toContainText(option);
 }
 
 /** Writes a new comment, optionally with tags and a relevant quarter (Q1 - Q4), and returns its entry. */

@@ -18,3 +18,7 @@ services:
   hello-data-portal-api:
     environment:
       - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
+  # the dashboard access page lists the dashboard views the portal sidecar copies from Superset every 60 minutes by default
+  hello-data-portal-sidecar:
+    environment:
+      - HELLO_DATA_SYNCHRONIZE_DASHBOARD_ACCESS_IN_MINUTES=1

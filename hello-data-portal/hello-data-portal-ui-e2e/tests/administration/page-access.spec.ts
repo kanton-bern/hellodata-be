@@ -17,8 +17,9 @@ const CONTEXT_KEY = 'Default_Data_Domain';
 const ALL = ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN', 'DATA_DOMAIN_ADMIN', 'DATA_DOMAIN_EDITOR',
   'DATA_DOMAIN_BUSINESS_SPECIALIST', 'DATA_DOMAIN_VIEWER'];
 
-// pages no other spec opens, with the roles whose default permissions (SystemDefaultPortalRoleName) satisfy the
-// requiredPermissions of their route in app-routing.module.ts; every other role is sent to the forbidden page
+// pages whose access depends on the role (some are opened by other specs too), with the roles whose default permissions
+// (SystemDefaultPortalRoleName) satisfy the requiredPermissions of their route in app-routing.module.ts;
+// every other role is sent to the forbidden page
 const PAGES: {url: string, permission: string, allowed: string[]}[] = [
   {url: 'published-announcements', permission: 'DASHBOARDS', allowed: ALL},
   {url: 'external-dashboards', permission: '-', allowed: ALL},
@@ -38,6 +39,20 @@ const PAGES: {url: string, permission: string, allowed: string[]}[] = [
   {url: 'subsystem-users', permission: 'USER_MANAGEMENT', allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']},
   {url: 'bulk-assignments', permission: 'USER_MANAGEMENT', allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']},
   {url: 'workspaces', permission: 'WORKSPACES', allowed: ['HELLODATA_ADMIN']},
+  {url: 'announcements-management', permission: 'ANNOUNCEMENT_MANAGEMENT', allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']},
+  {url: 'announcements-management/create', permission: 'ANNOUNCEMENT_MANAGEMENT', allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']},
+  {url: 'faq-management', permission: 'FAQ_MANAGEMENT', allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']},
+  {url: 'faq-management/create', permission: 'FAQ_MANAGEMENT', allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']},
+  {url: 'documentation-management', permission: 'DOCUMENTATION_MANAGEMENT', allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']},
+  {url: 'roles-management', permission: 'ROLE_MANAGEMENT', allowed: ['HELLODATA_ADMIN']},
+  {url: 'roles-management/create', permission: 'ROLE_MANAGEMENT', allowed: ['HELLODATA_ADMIN']},
+  {url: 'user-management', permission: 'USER_MANAGEMENT', allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']},
+  {
+    url: 'embedded-orchestration', permission: 'DATA_ENG',
+    allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN', 'DATA_DOMAIN_ADMIN'],
+  },
+  {url: 'lineage-docs/list', permission: 'DATA_LINEAGE', allowed: ALL},
+  {url: 'my-dashboards', permission: '-', allowed: ALL},
   {url: `queries/list/${CONTEXT_KEY}`, permission: 'QUERIES', allowed: ['HELLODATA_ADMIN']},
 ];
 
