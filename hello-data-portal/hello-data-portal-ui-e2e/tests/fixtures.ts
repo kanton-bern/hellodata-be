@@ -30,11 +30,19 @@ export async function openPortalAs(page: Page, username: string, password: strin
   await expect(page).toHaveURL(/\/home$/);
   await expect(page.locator('#userMenu')).toBeVisible();
   // the selected language is a per-user setting, so a previous run may have left another one active
-  const english = page.locator('#topbar-language-selector a', {hasText: 'EN'});
-  if (!(await english.getAttribute('class'))?.includes('selected-language')) {
-    await english.click();
+  await selectLanguage(page, 'EN');
+}
+
+/** Selects a language in the top bar (EN, DE, FR, ...), which the portal saves for the user. */
+export async function selectLanguage(page: Page, language: string) {
+  const link = page.locator('#topbar-language-selector a', {hasText: language});
+  if (!(await link.getAttribute('class'))?.includes('selected-language')) {
+    // the portal saves the language of the user, wait for it so a reload keeps it
+    const saved = page.waitForResponse(r => r.url().includes('/set-selected-lang/') && r.request().method() === 'PATCH');
+    await link.click();
+    expect((await saved).ok(), `selecting ${language} failed`).toBe(true);
   }
-  await expect(english).toHaveClass(/selected-language/);
+  await expect(link).toHaveClass(/selected-language/);
 }
 
 /** Error notifications shown by the portal (PrimeNG toast). */

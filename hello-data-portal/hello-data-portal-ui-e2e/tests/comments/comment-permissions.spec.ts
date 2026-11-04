@@ -45,8 +45,10 @@ test.describe('Commenting permissions', () => {
       await openPortalAs(page, user.username, user.password);
       const feed = await openComments(page);
       await expect(newCommentInput(feed)).toBeVisible();
-      // reviewers can export and import the comments of a dashboard
+      // reviewers with the portal permission DASHBOARD_COMMENTS_IMPORT_EXPORT can export and import the comments of a
+      // dashboard (HELLODATA-4156)
       await expect(feed.locator('.export-btn')).toBeVisible();
+      await expect(feed.locator('.import-btn')).toBeVisible();
     });
   }
 
@@ -119,21 +121,23 @@ test.describe('Edit commenting permissions', () => {
           });
         });
 
-        await test.step('write: can write comments, cannot export them', async () => {
+        await test.step('write: can write comments, cannot export or import them', async () => {
           await changeCommentPermissionAsAdmin(browser, user, 'write');
           await withUser(browser, user, async page => {
             const feed = await openComments(page);
             await expect(newCommentInput(feed)).toBeVisible();
             await expect(feed.locator('.export-btn')).toHaveCount(0);
+            await expect(feed.locator('.import-btn')).toHaveCount(0);
           });
         });
 
-        await test.step('review: cannot export without the DASHBOARD_COMMENTS_IMPORT_EXPORT portal permission', async () => {
+        await test.step('review: cannot export or import without the DASHBOARD_COMMENTS_IMPORT_EXPORT portal permission', async () => {
           await changeCommentPermissionAsAdmin(browser, user, 'review');
           await withUser(browser, user, async page => {
             const feed = await openComments(page);
             await expect(newCommentInput(feed)).toBeVisible();
             await expect(feed.locator('.export-btn')).toHaveCount(0);
+            await expect(feed.locator('.import-btn')).toHaveCount(0);
           });
         });
 

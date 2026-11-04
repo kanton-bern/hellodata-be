@@ -10,9 +10,9 @@ The specs are grouped by feature:
 | Folder                  | Covers                                                                                       |
 |-------------------------|----------------------------------------------------------------------------------------------|
 | `tests/portal/`         | Login, logout, navigation, the home page and the data domain selector                        |
-| `tests/administration/` | Users, portal roles, FAQ management and which pages each role may open by url                |
+| `tests/administration/` | Users, portal roles, FAQ management, which pages each role may open by url and users disabled in the portal |
 | `tests/dashboards/`     | Superset dashboards in the portal: access, drafts, filters and metadata per role              |
-| `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases |
+| `tests/superset/`       | The Superset instance itself: opening it from the portal, dashboard export/import, databases, its UI in the portal language |
 | `tests/comments/`       | Dashboard comments: permissions per role, review workflow, filtering, deletion, versions     |
 | `tests/batch-import/`   | Batch import of users and roles from csv files: new users, existing users, last record wins, dashboard groups, file validation |
 | `tests/data-eng/`       | The Data Eng. menu: Orchestration (Airflow) and its breadcrumb, DAG status per data domain, DWH and DataMarts Viewer (CloudBeaver connections per role), Filebrowser (SFTPGo) |
@@ -143,7 +143,8 @@ failed tests and the compose logs are uploaded as a workflow artifact.
   test controls the login itself (other user, wrong password, or listening for requests made during login).
 - Every test gets a fresh browser context and logs in on its own, so tests do not share a session.
 - `tests/fixtures.ts` also provides helpers: `openPortalAs()` (Keycloak login, waits for the home page and switches to
-  English), `signIn()`, `navigate()` / `openMenu()` / `expandMenuGroup()` for the left sidebar, `errorToasts()` and
+  English), `signIn()`, `selectLanguage()` (switches the language in the top bar and waits until the portal saved it),
+  `navigate()` / `openMenu()` / `expandMenuGroup()` for the left sidebar, `errorToasts()` and
   `dismissToasts()`.
 - `tests/superset.ts` has the helpers for dashboards and Superset: `changeDashboardAccessAsAdmin()` (gives a viewer or
   business specialist access to the showcase dashboard in user management), `expectDashboardListed()` (reloads the
