@@ -19,6 +19,10 @@ on:
         required: false
         default: 'chromium'
         type: string
+    secrets:
+      # deploy key with write access to the reports repository (vars.E2E_REPORTS_REPOSITORY), see the publish job
+      E2E_REPORTS_DEPLOY_KEY:
+        required: false
   workflow_dispatch:
     inputs:
       version:
@@ -75,6 +79,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      # first, so the results can be summarized also when the stack did not start
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: ${{ env.E2E_DIR }}/package-lock.json
+
       - name: Free disk space
         run: |
           sudo rm -rf /usr/local/lib/android
@@ -89,6 +101,15 @@ jobs:
       - name: Pull images
         working-directory: ${{ env.COMPOSE_DIR }}
         run: docker compose pull --quiet --include-deps $E2E_SERVICES
+
+      # a tag like latest or *-SNAPSHOT moves, the digests say which images were really tested (shown in the report)
+      - name: Record image digests
+        working-directory: ${{ env.COMPOSE_DIR }}
+        run: |
+          docker compose config --images | sort -u | while read -r image; do
+            digest=$(docker image inspect --format '{{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' "$image" 2>/dev/null || true)
+            jq -n --arg image "$image" --arg digest "$digest" '{image: $image, digest: $digest}'
+          done | jq -s . > "$GITHUB_WORKSPACE/images.json"
 
       - name: Start portal, Superset, Airflow and SFTPGo services
         working-directory: ${{ env.COMPOSE_DIR }}
@@ -161,13 +182,6 @@ jobs:
           psql "select u.email, string_agg(r.key, ',') from hd_user u left join hd_users_roles ur on ur.hd_user_id = u.id
                 left join hd_role r on r.id = ur.hd_role_id group by u.email"
 
-      - name: Set up Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: '24'
-          cache: npm
-          cache-dependency-path: ${{ env.E2E_DIR }}/package-lock.json
-
       - name: Install dependencies
         working-directory: ${{ env.E2E_DIR }}
         run: |
@@ -177,6 +191,17 @@ jobs:
       - name: Run Playwright tests
         working-directory: ${{ env.E2E_DIR }}
         run: npx playwright test
+
+      # summary.json (what was tested and its result) for the published report, and the same as the job summary; also
+      # when the stack did not start, then with the status 'error'
+      - name: Summarize test results
+        if: ${{ !cancelled() }}
+        working-directory: ${{ env.E2E_DIR }}
+        env:
+          E2E_BROWSER: ${{ inputs.browser || 'chromium' }}
+        run: >-
+          node scripts/summarize.mjs --results test-results/results.json
+          --images "$GITHUB_WORKSPACE/images.json" --out "$GITHUB_WORKSPACE/summary.json"
 
       - name: Collect compose logs
         if: ${{ !cancelled() }}
@@ -194,9 +219,81 @@ jobs:
             ${{ env.E2E_DIR }}/playwright-report/
             ${{ env.E2E_DIR }}/test-results/
             compose.log
+            summary.json
           retention-days: 14
 
       - name: Stop services
         if: ${{ always() }}
         working-directory: ${{ env.COMPOSE_DIR }}
         run: docker compose down --volumes --remove-orphans
+
+  # Publishes the report to the reports repository, whose GitHub Pages serve it as
+  # https://<owner>.github.io/<repo>/reports/<version>/<browser>/<run id>-<attempt>/ with an index of all runs.
+  # Skipped until the repository variable E2E_REPORTS_REPOSITORY (e.g. kanton-bern/hellodata-e2e-reports) is set.
+  publish:
+    needs: e2e
+    if: ${{ !cancelled() && needs.e2e.result != 'skipped' && vars.E2E_REPORTS_REPOSITORY != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      E2E_DIR: hello-data-portal/hello-data-portal-ui-e2e
+
+    steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: ${{ env.E2E_DIR }}/scripts
+
+      - name: Download test report
+        uses: actions/download-artifact@v5
+        with:
+          name: e2e-report-${{ inputs.version }}-${{ inputs.browser || 'chromium' }}
+          path: artifact
+
+      - name: Checkout reports repository
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ vars.E2E_REPORTS_REPOSITORY }}
+          ssh-key: ${{ secrets.E2E_REPORTS_DEPLOY_KEY }}
+          path: site
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      # Several runs (versions, browsers) can publish at the same time. The site is rebuilt from the summary.json files,
+      # so when the push is rejected the run is added again on top of the newer state and pushed again.
+      - name: Publish report
+        working-directory: site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          version=$(jq -r .version ../artifact/summary.json)
+          browser=$(jq -r .browser ../artifact/summary.json)
+          status=$(jq -r .status ../artifact/summary.json)
+          for attempt in 1 2 3 4 5; do
+            node "../$E2E_DIR/scripts/build-reports-site.mjs" --site . \
+              --summary ../artifact/summary.json --report "../artifact/$E2E_DIR/playwright-report"
+            git add -A
+            git commit --quiet -m "E2E $version ($browser): $status - run $GITHUB_RUN_ID"
+            if git push --quiet; then
+              exit 0
+            fi
+            echo "push rejected, retrying on top of the newer reports"
+            git fetch --quiet origin
+            git reset --quiet --hard "origin/$(git rev-parse --abbrev-ref HEAD)"
+          done
+          exit 1
+
+      - name: Link the report
+        run: |
+          owner="${E2E_REPORTS_REPOSITORY%%/*}"
+          repo="${E2E_REPORTS_REPOSITORY#*/}"
+          path=$(jq -r '[.version, .browser, "\(.runId)-\(.runAttempt)"] | map(gsub("[^A-Za-z0-9._-]"; "_")) | join("/")' artifact/summary.json)
+          url="https://${owner,,}.github.io/$repo/reports/$path/"
+          echo "Report: $url"
+          echo "### [Published report]($url)" >> "$GITHUB_STEP_SUMMARY"
+        env:
+          E2E_REPORTS_REPOSITORY: ${{ vars.E2E_REPORTS_REPOSITORY }}

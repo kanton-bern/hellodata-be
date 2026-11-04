@@ -12,7 +12,9 @@ export default defineConfig({
   timeout: 60_000,
   expect: {timeout: 15_000},
   reporter: isCI
-    ? [['list'], ['html', {open: 'never'}], ['junit', {outputFile: 'test-results/junit.xml'}]]
+    // results.json is the input of scripts/summarize.mjs, which builds the summary of the published report
+    ? [['list'], ['html', {open: 'never'}], ['junit', {outputFile: 'test-results/junit.xml'}],
+      ['json', {outputFile: 'test-results/results.json'}]]
     : [['list'], ['html', {open: 'never'}]],
   use: {
     ...devices['Desktop Chrome'],

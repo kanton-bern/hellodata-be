@@ -136,6 +136,48 @@ images: `develop` as `latest`, and gitflow branches as `<name after the prefix>-
 `my-change-SNAPSHOT`), so a branch can be tested once its `maven.yml` run has finished. The HTML report, traces of
 failed tests and the compose logs are uploaded as a workflow artifact.
 
+### Published reports
+
+Every run is also summarized and published as a web page, so it can be shared without downloading the artifact:
+
+1. `Record image digests` writes `images.json`, the digests of the images that were pulled. Tags like `latest` or
+   `*-SNAPSHOT` move, so the digests show which images were really tested.
+2. `Summarize test results` runs `scripts/summarize.mjs`. It reads the JSON report of Playwright
+   (`test-results/results.json`, CI only) and writes `summary.json`: the version, browser, commit, images and every test
+   with its feature folder, status (passed, failed, flaky, skipped), retries, error and Jira tickets. The tickets come
+   from the `// HELLODATA-...` comments right above a test or its `test.describe`. The same summary is shown on the
+   page of the workflow run. When the stack did not start, the summary has the status `error` and no tests.
+3. The `publish` job runs `scripts/build-reports-site.mjs` in a checkout of the reports repository and pushes it. Its
+   GitHub Pages serve:
+   - `index.html` - all tested versions and their runs, newest first
+   - `reports/<version>/<browser>/<run id>-<attempt>/` - what was tested in the run and the result
+   - `reports/<version>/<browser>/<run id>-<attempt>/report/` - the full Playwright HTML report
+
+   The pages are rebuilt from the `summary.json` files every time, and only the last 5 runs per version and browser
+   and the last 50 versions are kept. Compose logs are not published, they stay in the workflow artifact.
+
+The reports are public. They contain screenshots, videos and traces of the test stack (example users only).
+
+One-time setup:
+
+1. Create the reports repository (e.g. `kanton-bern/hellodata-e2e-reports`) with a first commit (e.g. a README), and
+   turn on GitHub Pages for its default branch (Settings -> Pages -> Deploy from a branch, `/ (root)`).
+2. Create a key pair (`ssh-keygen -t ed25519 -N "" -f e2e-reports`) and add `e2e-reports.pub` as a deploy key with
+   write access to the reports repository (Settings -> Deploy keys).
+3. In this repository add the private key `e2e-reports` as the secret `E2E_REPORTS_DEPLOY_KEY` and the variable
+   `E2E_REPORTS_REPOSITORY` with the name of the reports repository (Settings -> Secrets and variables -> Actions).
+
+Until the variable is set the `publish` job is skipped.
+
+To try the scripts locally after a run (`CI=1` adds the JSON reporter):
+
+```bash
+CI=1 npx playwright test tests/portal
+HD_VERSION=local node scripts/summarize.mjs --out summary.json
+node scripts/build-reports-site.mjs --site /tmp/e2e-site --summary summary.json --report playwright-report
+open /tmp/e2e-site/index.html
+```
+
 ## Writing tests
 
 - Import `test` and `expect` from `./fixtures`, not from `@playwright/test`, so the custom fixtures are available.
