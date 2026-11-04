@@ -28,6 +28,8 @@ test.describe('Filebrowser', () => {
   const RUN_ID = Date.now().toString(36);
 
   for (const user of [ADMIN, DATA_DOMAIN_ADMIN]) {
+    // the user opens the Filebrowser, creates a folder in the data domain folder, renames it, sees it after reopening
+    // the folder and deletes it
     test(`${user.username} creates, renames and deletes a folder`, async ({page}) => {
       test.setTimeout(2 * FILEBROWSER_SYNC_TIMEOUT);
       const folder = `e2e-folder-${RUN_ID}-${user === ADMIN ? 'admin' : 'dd-admin'}`;
@@ -44,6 +46,8 @@ test.describe('Filebrowser', () => {
     });
   }
 
+  // the data domain editor creates and renames a folder in the Filebrowser but has no delete action; the data domain
+  // admin removes the left over folders afterwards
   test(`${DATA_DOMAIN_EDITOR.username} creates and renames a folder, but cannot delete it`, async ({page, browser}) => {
     test.setTimeout(3 * FILEBROWSER_SYNC_TIMEOUT);
     const folder = `e2e-folder-${RUN_ID}-editor`;
@@ -70,6 +74,7 @@ test.describe('Filebrowser', () => {
 
   // the Filebrowser needs the DATA_FILEBROWSER permission, which viewers and business specialists do not have
   for (const user of [DATA_DOMAIN_BUSINESS_SPECIALIST, DATA_DOMAIN_VIEWER]) {
+    // the user has no Filebrowser entry in the menu
     test(`${user.username} has no Filebrowser`, async ({page}) => {
       await openPortalAs(page, user.username, user.password);
       await expectNoDataEngEntry(page, 'Filebrowser');

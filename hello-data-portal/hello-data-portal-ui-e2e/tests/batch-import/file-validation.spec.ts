@@ -89,6 +89,8 @@ test.describe('Batch import - file validation', () => {
   ];
 
   for (const {name, csv, error} of rejected) {
+    // a file with this kind of error (see the test title) is rejected: the error is written to the import log
+    // and no user is created in the portal
     test(`rejects a file with ${name}`, async () => {
       test.setTimeout(BATCH_TIMEOUT + 30_000);
       const log = await importInvalidCsv(csv());
@@ -98,6 +100,8 @@ test.describe('Batch import - file validation', () => {
     });
   }
 
+  // a file with one valid and one invalid row is rejected as a whole: the error of the invalid row is logged
+  // and neither of the two users is created
   test('rejects the whole file when one of its rows is invalid', async () => {
     test.setTimeout(BATCH_TIMEOUT + 30_000);
     const log = await importInvalidCsv(toCsv([
@@ -110,6 +114,8 @@ test.describe('Batch import - file validation', () => {
     expect(portalUser(invalid)).toBeUndefined();
   });
 
+  // a file with the old header without the dashboardGroup column is still accepted; the user gets the viewer role in
+  // the portal and the BI_VIEWER and RLS roles in Superset
   test('accepts a file in the old format without the dashboardGroup column', async () => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     await importCsv(`${OLD_HEADER}\n${oldFormat};NONE;${CONTEXT_KEY};DATA_DOMAIN_VIEWER;${RLS_A}\n`);

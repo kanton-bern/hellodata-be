@@ -31,6 +31,8 @@ test.describe('Dashboard groups', () => {
     deleteDashboardGroup(GROUP);
   });
 
+  // the admin creates a dashboard group with the showcase dashboard and the viewer as member, then sees it in the list
+  // with the dashboard and one user
   test('admin creates a group with a dashboard and a viewer', async ({adminPage: page}) => {
     await openDashboardGroups(page);
     await page.getByRole('button', {name: 'Create', exact: true}).click();
@@ -53,10 +55,12 @@ test.describe('Dashboard groups', () => {
     await expect(row.getByRole('cell').nth(2)).toHaveText('1');
   });
 
+  // the viewer, who has no direct access, sees the showcase dashboard through the dashboard group
   test('the viewer sees the dashboard of its group', async ({browser}) => {
     await withUser(browser, USER, page => expectDashboardListed(page, true));
   });
 
+  // the admin deletes the dashboard group, it disappears from the list and the viewer no longer sees the dashboard
   test('admin deletes the group and the viewer loses the dashboard', async ({adminPage: page, browser}) => {
     await openDashboardGroups(page);
     const row = groupRow(page, GROUP);

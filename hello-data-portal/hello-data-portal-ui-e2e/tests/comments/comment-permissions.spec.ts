@@ -35,12 +35,15 @@ const NO_ACCESS_BY_DEFAULT: {role: string, user: User, dashboardAccess?: boolean
   {role: 'DATA_DOMAIN_BUSINESS_SPECIALIST', user: DATA_DOMAIN_BUSINESS_SPECIALIST, dashboardAccess: true},
 ];
 
+// which roles can see and write comments, by default and after an admin changed the permission
 // HELLODATA-4070
 test.describe('Commenting permissions', () => {
   // a user's dashboards show up only after the sync with Superset
   test.describe.configure({timeout: 3 * 60_000});
 
   for (const {role, user} of FULL_ACCESS_BY_DEFAULT) {
+    // a HELLODATA, business domain or data domain admin opens the comments of a dashboard and sees the new comment
+    // input and the export and import buttons
     test(`${role} can read and write comments`, async ({page}) => {
       await openPortalAs(page, user.username, user.password);
       const feed = await openComments(page);
@@ -53,6 +56,7 @@ test.describe('Commenting permissions', () => {
   }
 
   for (const {role, user, dashboardAccess} of NO_ACCESS_BY_DEFAULT) {
+    // a role without comment permission by default
     test.describe(role, () => {
       test.beforeAll(async ({browser}) => {
         await changeCommentPermissionAsAdmin(browser, user, 'none', dashboardAccess);
@@ -62,6 +66,7 @@ test.describe('Commenting permissions', () => {
         await changeCommentPermissionAsAdmin(browser, user, 'none', dashboardAccess ? false : undefined);
       });
 
+      // the user opens a dashboard and sees no comments panel as long as no comment permission was granted
       test('sees no comments without a comment permission', async ({page}) => {
         await openPortalAs(page, user.username, user.password);
         await expectDashboardListed(page, true);
@@ -72,8 +77,11 @@ test.describe('Commenting permissions', () => {
   }
 });
 
+// the admin edits the comment permission of users
 // HELLODATA-4071
 test.describe('Edit commenting permissions', () => {
+  // in the user edit page of the editor, ticking review also ticks write and read, which can then not be unticked
+  // (nothing is saved)
   test('review includes write and read', async ({adminPage}) => {
     await openUserEdit(adminPage, DATA_DOMAIN_EDITOR);
     const [read, write, review] = (['read', 'write', 'review'] as const).map(level => commentPermissionCheckbox(adminPage, level));
@@ -88,6 +96,7 @@ test.describe('Edit commenting permissions', () => {
     // nothing is saved, the editor keeps its permission
   });
 
+  // in the user edit page of a business domain admin read, write and review are ticked and cannot be changed
   test('the comment permissions of a business domain admin cannot be changed', async ({adminPage}) => {
     await openUserEdit(adminPage, BUSINESS_DOMAIN_ADMIN);
     for (const level of ['read', 'write', 'review'] as const) {
@@ -98,6 +107,7 @@ test.describe('Edit commenting permissions', () => {
   });
 
   for (const {role, user, dashboardAccess} of NO_ACCESS_BY_DEFAULT) {
+    // a role whose comment access an admin changes step by step
     test.describe(role, () => {
       // every step changes the permission as admin and logs the user in again
       test.describe.configure({timeout: 4 * 60_000});
@@ -112,6 +122,8 @@ test.describe('Edit commenting permissions', () => {
         await changeCommentPermissionAsAdmin(browser, user, 'none', dashboardAccess ? false : undefined);
       });
 
+      // an admin grants read, write, review and finally none to the user, who then sees: comments without writing,
+      // writing without export and import, the same with review, and no comments panel at the end
       test('gets the comment access an admin grants', async ({browser}) => {
         await test.step('read: sees the comments, cannot write', async () => {
           await changeCommentPermissionAsAdmin(browser, user, 'read');

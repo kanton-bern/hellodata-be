@@ -33,7 +33,10 @@ async function openPortalWithAllDataDomains(page: Page, user: User) {
   await expect(selectedDataDomain(page)).toHaveText(ALL_DATA_DOMAINS);
 }
 
+// the data domain selector in the top bar: choosable data domains, filtering of dashboards, keeping the selection
 test.describe('Data domain selector', () => {
+  // the admin starts with all data domains; the selector menu lists the other data domains and never the selected one,
+  // and after choosing the Default Data Domain the menu offers all data domains again
   test('admin chooses between all data domains', async ({page}) => {
     await openPortalWithAllDataDomains(page, ADMIN);
     await openDataDomainMenu(page);
@@ -50,6 +53,7 @@ test.describe('Data domain selector', () => {
     await expect(dataDomainEntry(page, DATA_DOMAIN)).toHaveCount(0);
   });
 
+  // the data domain admin opens the selector; it offers its own data domain but not the Extra Data Domain
   test(`${DATA_DOMAIN_ADMIN.username} chooses only its own data domain`, async ({page}) => {
     await openPortalWithAllDataDomains(page, DATA_DOMAIN_ADMIN);
     await openDataDomainMenu(page);
@@ -57,6 +61,8 @@ test.describe('Data domain selector', () => {
     await expect(dataDomainEntry(page, EXTRA_DATA_DOMAIN)).toHaveCount(0);
   });
 
+  // the admin selects the Extra Data Domain, which has no dashboards: the list says no dashboards found and the
+  // Dashboards menu is empty; selecting the Default Data Domain shows the dashboards again
   test('the selected data domain filters the dashboards', async ({page}) => {
     await openPortalWithAllDataDomains(page, ADMIN);
     await expectDashboardListed(page, true);
@@ -79,6 +85,8 @@ test.describe('Data domain selector', () => {
     await expect(dashboardRow(page)).toBeVisible();
   });
 
+  // the data domain admin selects a data domain and then all data domains; after each page reload the selector still
+  // shows that choice
   test('the selected data domain is kept after a reload', async ({page}) => {
     await openPortalWithAllDataDomains(page, DATA_DOMAIN_ADMIN);
     await selectDataDomain(page, DATA_DOMAIN);

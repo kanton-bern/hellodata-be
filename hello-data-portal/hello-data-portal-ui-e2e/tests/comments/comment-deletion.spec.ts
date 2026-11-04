@@ -17,6 +17,7 @@ import {withUser} from '../superset';
 const WRITER = DATA_DOMAIN_EDITOR;
 const READER = DATA_DOMAIN_VIEWER;
 
+// deleting dashboard comments as author and as reviewer
 test.describe('Delete comments', () => {
   test.describe.configure({timeout: 3 * 60_000});
 
@@ -30,6 +31,8 @@ test.describe('Delete comments', () => {
     await changeCommentPermissionAsAdmin(browser, READER, 'none', false);
   });
 
+  // an editor writes a comment and deletes it with a reason: it leaves the feed, but the author still finds it among
+  // the deleted comments, where it cannot be deleted again
   // HELLODATA-2932
   test('an author deletes its own draft', async ({page}) => {
     const text = `e2e draft to delete ${Date.now()}`;
@@ -52,6 +55,8 @@ test.describe('Delete comments', () => {
     }
   });
 
+  // a reviewer edits a published comment and deletes the new version: the first published version is shown again, and
+  // other users (editor, viewer) cannot delete the comment
   // HELLODATA-2932
   test('a reviewer deletes the active version and the last published one is shown again', async ({adminPage, browser}) => {
     const token = `e2e versioned ${Date.now()}`;
@@ -83,6 +88,8 @@ test.describe('Delete comments', () => {
     }
   });
 
+  // a reviewer deletes a comment with all its versions: nothing is left in the feed, and the deleted comment shows the
+  // reason and both versions in its history
   // HELLODATA-2931
   test('a reviewer deletes a comment with all its versions', async ({adminPage}) => {
     const token = `e2e delete all versions ${Date.now()}`;

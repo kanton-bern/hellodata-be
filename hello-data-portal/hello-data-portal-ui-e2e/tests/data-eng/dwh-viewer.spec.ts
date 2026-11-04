@@ -35,8 +35,10 @@ const ROLES: {role: string, user: User, dwhViewer: boolean, connections: string[
 
 const ALL_CONNECTIONS = [DM_CONNECTION, DWH_CONNECTION];
 
+// the DWH Viewer and the DataMarts Viewer (CloudBeaver) of each role: who gets them, which connections are visible
 test.describe('DWH Viewer', () => {
   for (const {role, user, dwhViewer, connections, cloudbeaverAdmin} of ROLES) {
+    // the CloudBeaver access of this role
     test.describe(role, () => {
       test.beforeEach(async ({page}) => {
         await openPortalAs(page, user.username, user.password);
@@ -44,6 +46,8 @@ test.describe('DWH Viewer', () => {
       });
 
       if (dwhViewer) {
+        // the user opens the DWH Viewer; CloudBeaver is shown in its iframe and the user is already logged in,
+        // without a login prompt of CloudBeaver
         // HELLODATA-855
         test('opens CloudBeaver logged in from the DWH Viewer', async ({page}) => {
           const viewer = await openDwhViewer(page, user);
@@ -56,6 +60,7 @@ test.describe('DWH Viewer', () => {
           await expect(cloudbeaver.getByText('User password', {exact: true})).toHaveCount(0);
         });
       } else {
+        // the user has no DWH Viewer entry in the menu and the page of the DWH Viewer redirects to the forbidden page
         test('has no DWH Viewer', async ({page}) => {
           await expectNoDataEngEntry(page, 'DWH Viewer');
           await page.goto('data-warehouse-viewer');
@@ -63,6 +68,7 @@ test.describe('DWH Viewer', () => {
         });
       }
 
+      // the user opens the DataMarts Viewer and sees exactly the CloudBeaver connections of its role, no other ones
       test('sees only the connections of its role in the DataMarts Viewer', async ({page}) => {
         const cloudbeaver = await openDataMartsViewer(page);
         await expandConnectionsFolder(cloudbeaver);
@@ -75,6 +81,7 @@ test.describe('DWH Viewer', () => {
       // the connections come from the deployment, CloudBeaver must not be used to create further ones; only the admin
       // team has the admin permission, which adds the connection management to the navigator
       if (!cloudbeaverAdmin) {
+        // the user opens the DataMarts Viewer and cannot create a connection, the New Connection button is not there
         test('cannot create connections in CloudBeaver', async ({page}) => {
           const cloudbeaver = await openDataMartsViewer(page);
           await expandConnectionsFolder(cloudbeaver);
@@ -86,6 +93,7 @@ test.describe('DWH Viewer', () => {
 
   // the viewer has neither DATA_DWH nor DATA_MARTS (page-access.spec.ts checks the urls of both)
   test.describe('DATA_DOMAIN_VIEWER', () => {
+    // the data domain viewer has no DWH Viewer entry in the menu and its page redirects to the forbidden page
     test('has no DWH Viewer', async ({page}) => {
       await openPortalAs(page, DATA_DOMAIN_VIEWER.username, DATA_DOMAIN_VIEWER.password);
       await expectNoDataEngEntry(page, 'DWH Viewer');

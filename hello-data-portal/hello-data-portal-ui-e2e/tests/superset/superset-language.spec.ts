@@ -9,8 +9,10 @@ const ROLES: {role: string, user: User, dashboardAccess?: boolean}[] = [
   {role: 'DATA_DOMAIN_VIEWER (BI_VIEWER)', user: DATA_DOMAIN_VIEWER, dashboardAccess: true},
 ];
 
+// the embedded Superset dashboard is shown in the language chosen in the portal, for the BI roles
 test.describe('Superset language', () => {
   for (const {role, user, dashboardAccess} of ROLES) {
+    // the dashboard language checked with a user of this role
     test.describe(role, () => {
       test.beforeAll(async ({browser}) => {
         if (dashboardAccess) {
@@ -24,6 +26,8 @@ test.describe('Superset language', () => {
         }
       });
 
+      // the user opens the dashboard and switches the portal to German; after reloading, Superset shows its
+      // German texts (Filter anwenden, not Apply filters) and all language pack requests succeed
       test('sees the dashboard in the language of the portal', async ({page}) => {
         test.setTimeout(3 * 60_000);
         await openPortalAs(page, user.username, user.password);

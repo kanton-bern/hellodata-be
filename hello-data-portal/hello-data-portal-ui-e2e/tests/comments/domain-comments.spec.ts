@@ -31,6 +31,8 @@ test.describe('All Dashboards Comments menu', () => {
     {role: 'BUSINESS_DOMAIN_ADMIN', user: BUSINESS_DOMAIN_ADMIN},
     {role: 'DATA_DOMAIN_ADMIN', user: DATA_DOMAIN_ADMIN},
   ]) {
+    // the user opens the domain comments page (menu entry All Dashboards Comments) and sees its heading and Dashboard
+    // column
     test(`is available to ${role}`, async ({page}) => {
       await openPortalAs(page, user.username, user.password);
       await expectDomainCommentsPage(page);
@@ -42,6 +44,7 @@ test.describe('All Dashboards Comments menu', () => {
     {role: 'DATA_DOMAIN_VIEWER', user: DATA_DOMAIN_VIEWER, dashboardAccess: true},
     {role: 'DATA_DOMAIN_BUSINESS_SPECIALIST', user: DATA_DOMAIN_BUSINESS_SPECIALIST, dashboardAccess: true},
   ] as {role: string, user: User, dashboardAccess?: boolean}[]) {
+    // a role that gets the domain comments page only with the review permission
     test.describe(role, () => {
       test.describe.configure({timeout: 3 * 60_000});
 
@@ -49,6 +52,8 @@ test.describe('All Dashboards Comments menu', () => {
         await changeCommentPermissionAsAdmin(browser, user, 'none', dashboardAccess ? false : undefined);
       });
 
+      // with write permission the user has no domain comments menu entry, with review permission the entry and page are
+      // there
       test('gets the menu only with the review permission', async ({browser}) => {
         await test.step('write: no menu', async () => {
           await changeCommentPermissionAsAdmin(browser, user, 'write', dashboardAccess);

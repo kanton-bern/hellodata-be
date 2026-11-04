@@ -15,6 +15,8 @@ async function accessLogRow(page: Page, username: string) {
 
 // HELLODATA admins see who opened which dashboard of a data domain, and when, in Administration -> Dashboard access
 test.describe('Dashboard access log', () => {
+  // an editor opens a dashboard, then the admin finds a row with that user and dashboard in the dashboard access list
+  // (the list is filled by a sync, so the test retries for a few minutes)
   test('lists a user who opened a dashboard', async ({adminPage: page, browser}) => {
     test.setTimeout(ACCESS_LOG_TIMEOUT + 2 * 60_000);
     await withUser(browser, DATA_DOMAIN_EDITOR, async editorPage => {

@@ -36,6 +36,8 @@ test.describe('Batch import - dashboard groups', () => {
     deleteDashboardGroup(group);
   });
 
+  // an admin-imported viewer is put into the dashboard group named in the file; a second import without the group
+  // removes the viewer from that group again and the viewer keeps only the BI_VIEWER and RLS Superset roles
   test('adds a viewer to the groups of the file and removes it from groups no longer listed', async () => {
     test.setTimeout(3 * BATCH_TIMEOUT);
     await importCsv(toCsv([{email: user, dataDomainRole: 'DATA_DOMAIN_VIEWER', supersetRoles: [RLS_A], dashboardGroups: [group]}]));

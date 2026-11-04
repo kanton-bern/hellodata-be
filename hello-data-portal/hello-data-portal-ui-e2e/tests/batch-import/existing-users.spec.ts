@@ -38,6 +38,8 @@ test.describe('Batch import - existing users', () => {
     await deleteBatchUsers(browser, [user]);
   });
 
+  // a second import for an existing viewer lists another RLS role; the viewer ends up with the new RLS role only,
+  // the dashboard role stays and the showcase dashboard is still assigned in the portal
   test('replaces the RLS roles of a viewer with the ones of the file', async () => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     await importCsv(toCsv([{email: user, dataDomainRole: 'DATA_DOMAIN_VIEWER', supersetRoles: [dashboardRole, RLS_B]}]));
@@ -46,6 +48,8 @@ test.describe('Batch import - existing users', () => {
     expect(portalDashboards(user)).toEqual([SHOWCASE_DASHBOARD]);
   });
 
+  // an RLS role added directly in Superset and the dashboard role missing in the next file are both removed;
+  // the viewer keeps only the RLS role of the file and has no portal dashboards left
   test('removes roles that were given in Superset directly and dashboards that are no longer in the file', async () => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     addSupersetRole(user, RLS_A);
@@ -57,6 +61,8 @@ test.describe('Batch import - existing users', () => {
     expect(portalDashboards(user)).toEqual([]);
   });
 
+  // the file turns the viewer into a data domain editor; the portal role changes and in Superset the user gets
+  // BI_EDITOR and sql_lab instead of the viewer roles
   test('changes the data domain role and drops the roles only a viewer has', async () => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     await importCsv(toCsv([{email: user, dataDomainRole: 'DATA_DOMAIN_EDITOR'}]));
@@ -65,6 +71,8 @@ test.describe('Batch import - existing users', () => {
     await expectSupersetRoles(user, ['BI_EDITOR', 'sql_lab']);
   });
 
+  // the role NONE takes all data domain access away; the user stays enabled in the portal and has only BI_NO_ACCESS
+  // in Superset
   test('takes all access to the data domain away with the role NONE', async () => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     await importCsv(toCsv([{email: user, dataDomainRole: 'NONE'}]));
@@ -74,6 +82,8 @@ test.describe('Batch import - existing users', () => {
     await expectSupersetRoles(user, ['BI_NO_ACCESS']);
   });
 
+  // a file makes the user HelloDATA admin (superuser, Admin and BI_ADMIN roles in Superset); a following file makes the
+  // user a plain viewer again and the superuser flag and the admin roles are gone
   test('promotes a user to HelloDATA admin and back', async () => {
     test.setTimeout(3 * BATCH_TIMEOUT);
     await importCsv(toCsv([{email: user, businessDomainRole: 'HELLODATA_ADMIN', dataDomainRole: 'DATA_DOMAIN_ADMIN'}]));

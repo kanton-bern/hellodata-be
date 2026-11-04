@@ -40,12 +40,16 @@ test.describe('Pipeline status', () => {
   });
 
   for (const user of [ADMIN, BUSINESS_DOMAIN_ADMIN, DATA_DOMAIN_ADMIN, DATA_DOMAIN_EDITOR, DATA_DOMAIN_VIEWER]) {
+    // the user sees the showcase DAG and the DAG of its own data domain in the pipeline status, but not the DAG
+    // of a data domain it has no role in
     test(`${user.username} sees only the DAGs of its data domain`, async ({page}) => {
       await openPortalAs(page, user.username, user.password);
       await expectPipelines(page, {listed: [SHOWCASE_DAG, OWN_DAG], notListed: [FOREIGN_DAG]}, 30_000);
     });
   }
 
+  // the admin opens the summary page and the status panel Data pipelines lists the DAG of the data domain but not
+  // the DAG of the foreign data domain
   test('status panel lists the DAGs of the data domain', async ({adminPage: page}) => {
     await page.goto('summary');
     const status = page.locator('#statusHeader');

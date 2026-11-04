@@ -164,14 +164,11 @@ function runDetails(run, prefix) {
       <h3>${esc(feature)}</h3>
       <div class="table"><table>
         <thead><tr><th>Status</th><th>Test</th><th>Jira</th><th class="num">Duration</th></tr></thead>
-        <tbody>${featureTests.map(test => `
-          <tr>
-            <td>${badge(test.status)}${test.retries ? ` <span class="muted">${test.retries}× retried</span>` : ''}</td>
-            <td>${esc(test.title)}<div class="muted small">${esc(test.file)}:${test.line}</div>
-              ${test.error ? `<pre>${esc(test.error)}</pre>` : ''}</td>
-            <td class="nowrap">${test.jira.map(esc).join('<br>')}</td>
-            <td class="num">${(test.durationMs / 1000).toFixed(1)} s</td>
-          </tr>`).join('')}
+        <tbody>${Object.values(Object.groupBy(featureTests, test => `${test.file} ${test.group}`)).map(groupTests => `
+          ${groupTests[0].group ? `<tr class="group"><td colspan="4"><strong>${esc(groupTests[0].group)}</strong>
+            ${groupTests[0].groupDescription ? `<div class="muted">${esc(groupTests[0].groupDescription)}</div>` : ''}
+          </td></tr>` : ''}
+          ${groupTests.map(test => testRow(test, run, prefix)).join('')}`).join('')}
         </tbody>
       </table></div>
     </section>`).join('');
@@ -206,6 +203,24 @@ function runDetails(run, prefix) {
     </table></div>`;
 }
 
+function testRow(test, run, prefix) {
+  // the HTML report shows every action of the test (clicks, navigations, assertions) and its trace
+  const details = run.hasReport && test.id ? `<a href="${esc(`${prefix}report/#?testId=${test.id}`)}">all actions in the report</a>` : '';
+  const steps = test.steps?.length ? `<ol class="steps small">${test.steps.map(step =>
+    `<li${step.failed ? ' class="failed"' : ''}>${esc(step.title)}</li>`).join('')}</ol>` : '';
+  return `
+    <tr>
+      <td>${badge(test.status)}${test.retries ? ` <span class="muted">${test.retries}× retried</span>` : ''}</td>
+      <td><div class="title">${esc(test.title)}</div>
+        ${test.description ? `<div class="description">${esc(test.description)}</div>` : ''}
+        ${steps}
+        <div class="muted small links">${esc(test.file)}:${test.line} ${details}</div>
+        ${test.error ? `<pre>${esc(test.error)}</pre>` : ''}</td>
+      <td class="nowrap">${test.jira.map(esc).join('<br>')}</td>
+      <td class="num">${(test.durationMs / 1000).toFixed(1)} s</td>
+    </tr>`;
+}
+
 function page(title, body) {
   return `<!doctype html>
 <html lang="en">
@@ -231,6 +246,10 @@ function page(title, body) {
   th { font-size: 12px; color: var(--muted); font-weight: 600; } tbody tr:hover { background: var(--row); }
   .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .links a { margin-right: 12px; white-space: nowrap; }
+  .links.small a { margin: 0 0 0 8px; }
+  tr.group td { background: var(--row); border-bottom: 1px solid var(--border); padding-top: 10px; }
+  .title { font-weight: 600; } .description { margin: 2px 0; max-width: 75ch; }
+  .steps { margin: 4px 0; padding-left: 20px; color: var(--muted); } .steps .failed { color: var(--failed); }
   .badge { display: inline-block; padding: 0 8px; border-radius: 10px; font-size: 12px; font-weight: 600;
     color: var(--bg); background: var(--status); }
   pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; background: var(--row); padding: 8px;

@@ -1,6 +1,9 @@
 import {expect, navigate, test} from '../fixtures';
 
+// the admin manages the FAQ entries of the portal
 test.describe('FAQ management', () => {
+  // the admin creates a FAQ in the FAQ management, edits its text and deletes it; after each step the list and the
+  // FAQ content show the change
   test('admin creates, edits and deletes a FAQ', async ({adminPage: page}) => {
     const id = Date.now();
     const title = `E2E FAQ ${id}`;

@@ -17,6 +17,7 @@ const AUTHOR = DATA_DOMAIN_EDITOR;
 const READER = DATA_DOMAIN_VIEWER;
 const REVIEWER = DATA_DOMAIN_ADMIN;
 
+// the review of comments between an editor (author), a data domain admin (reviewer) and a viewer (reader)
 test.describe('Comment review', () => {
   // the tests switch between the author, the reviewer and the reader, each in its own browser context
   test.describe.configure({timeout: 4 * 60_000});
@@ -41,6 +42,8 @@ test.describe('Comment review', () => {
     await withUser(browser, AUTHOR, async page => deleteCommentIfPresent(await openComments(page), text));
   }
 
+  // an editor writes a draft: only the author sees it and cannot publish it, after sending it for review it is locked
+  // for the author, the reviewer can publish or decline it and the reader still does not see it
   // HELLODATA-2933
   test('an author sends a draft for review', async ({page, browser}) => {
     const text = `e2e draft for review ${Date.now()}`;
@@ -84,6 +87,7 @@ test.describe('Comment review', () => {
     }
   });
 
+  // a reviewer publishes a comment sent for review, then the reader sees it, but cannot edit, publish or delete it
   // HELLODATA-2946
   test('a reviewer publishes a comment', async ({page, browser}) => {
     const text = `e2e comment to publish ${Date.now()}`;
@@ -109,6 +113,8 @@ test.describe('Comment review', () => {
     }
   });
 
+  // a reviewer declines a comment with a reason: the author sees the reason and can edit it again, the reader does not
+  // see the comment
   // HELLODATA-2946
   test('a reviewer declines a comment with a reason', async ({page, browser}) => {
     const text = `e2e comment to decline ${Date.now()}`;

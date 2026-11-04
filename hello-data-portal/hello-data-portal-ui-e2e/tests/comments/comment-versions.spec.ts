@@ -16,6 +16,7 @@ import {withUser} from '../superset';
 const REVIEWER = BUSINESS_DOMAIN_ADMIN;
 const WRITER = DATA_DOMAIN_EDITOR;
 
+// restoring an earlier version of a comment
 // HELLODATA-2947
 test.describe('Restore a comment version', () => {
   test.describe.configure({timeout: 3 * 60_000});
@@ -28,6 +29,8 @@ test.describe('Restore a comment version', () => {
     await changeCommentPermissionAsAdmin(browser, WRITER, 'none');
   });
 
+  // a reviewer publishes a second version of a comment and restores the first one: it is active again and the second
+  // stays in the history, a writer who is not the author sees neither details nor versions
   test('a reviewer restores an earlier published version', async ({page, browser}) => {
     const token = `e2e restore ${Date.now()}`;
     await openPortalAs(page, REVIEWER.username, REVIEWER.password);

@@ -76,7 +76,9 @@ test.describe('Data domain isolation', () => {
   ];
 
   for (const {name, admin, viewer, ownDags, foreignDags, ownConnections, foreignConnections, foreignDataDomain} of DOMAINS) {
+    // checks that the admin and the viewer of this data domain see only its own data and nothing of the other one
     test.describe(name, () => {
+      // the data domain admin opens the data domain selector; it offers its own data domain but not the other one
       test(`${admin.username} cannot choose the ${foreignDataDomain}`, async ({page}) => {
         await openPortalAs(page, admin.username, admin.password);
         await page.locator('.data-domain-selector .data-domain-name').click();
@@ -84,16 +86,22 @@ test.describe('Data domain isolation', () => {
         await expect(page.getByRole('menuitem', {name: foreignDataDomain, exact: true})).toHaveCount(0);
       });
 
+      // the data domain admin opens the pipelines status; the DAGs of its data domain are listed, not of the other
+      // data domain
       test(`${admin.username} sees only the DAGs of its data domain`, async ({page}) => {
         await openPortalAs(page, admin.username, admin.password);
         await expectPipelines(page, {listed: ownDags, notListed: foreignDags}, 30_000);
       });
 
+      // the data domain viewer opens the pipelines status; the DAGs of its data domain are listed, not of the other
+      // data domain
       test(`${viewer.username} sees only the DAGs of its data domain`, async ({page}) => {
         await openPortalAs(page, viewer.username, viewer.password);
         await expectPipelines(page, {listed: ownDags, notListed: foreignDags}, 30_000);
       });
 
+      // the data domain admin opens the Data Marts viewer (CloudBeaver); the connections of its data domain are listed,
+      // the ones of the other data domain are not
       test(`${admin.username} sees only the CloudBeaver connections of its data domain`, async ({page}) => {
         await openPortalAs(page, admin.username, admin.password);
         await routeCloudbeaver(page.context(), new URL(page.url()).origin);

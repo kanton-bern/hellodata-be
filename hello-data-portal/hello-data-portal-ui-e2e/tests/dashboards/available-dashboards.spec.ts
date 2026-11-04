@@ -6,6 +6,7 @@ for (const {role, user} of [
   {role: 'DATA_DOMAIN_VIEWER', user: DATA_DOMAIN_VIEWER},
   {role: 'DATA_DOMAIN_BUSINESS_SPECIALIST', user: DATA_DOMAIN_BUSINESS_SPECIALIST},
 ]) {
+  // a viewer or business specialist only sees the dashboards an admin gave them access to
   test.describe(`Available dashboards - ${role}`, () => {
     // both tests change the access of the same user
     test.describe.configure({mode: 'serial'});
@@ -18,6 +19,7 @@ for (const {role, user} of [
       await changeDashboardAccessAsAdmin(browser, user, false);
     });
 
+    // without dashboard access the user sees no dashboard in the Dashboards menu and no link to the Superset instance
     test('sees no dashboard without access', async ({page, browser}) => {
       await changeDashboardAccessAsAdmin(browser, user, false);
       await expectDashboardListed(page, false);
@@ -27,6 +29,8 @@ for (const {role, user} of [
       await expect(drawer.getByRole('button', {name: 'Open Superset Instance', exact: true})).toHaveCount(0);
     });
 
+    // after an admin gave access the user sees the dashboard in the list and menu and can open it with its content
+    // visible
     test('sees and opens a dashboard after the admin gave access', async ({page, browser}) => {
       await changeDashboardAccessAsAdmin(browser, user, true);
       await expectDashboardListed(page, true);

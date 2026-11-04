@@ -22,6 +22,8 @@ test.describe('Draft dashboards', () => {
     await changeDashboardAccessAsAdmin(browser, DATA_DOMAIN_VIEWER, false);
   });
 
+  // a viewer sees the dashboard, then an editor turns it into a draft in Superset: after the sync the dashboard is gone
+  // from the viewer's list and Dashboards menu (it is published again at the end)
   test('are not available to a viewer', async ({page, browser}) => {
     await openPortalAs(page, DATA_DOMAIN_VIEWER.username, DATA_DOMAIN_VIEWER.password);
     await expectDashboardListed(page, true);

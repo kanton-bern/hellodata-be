@@ -59,21 +59,28 @@ console.log(`${summary.status}: ${JSON.stringify(summary.stats)} -> ${args.out}`
 // Suites are nested: file -> describe -> describe ...; specs are the test() calls, each with one test per project.
 function collectTests(report) {
   const tests = [];
-  const walk = (suite, titles, jira) => {
-    // a ticket named above a describe block applies to all its tests
-    const suiteJira = suite.line ? [...jira, ...jiraAbove(suite.file, suite.line)] : jira;
-    const suiteTitles = suite.line ? [...titles, suite.title] : titles;
+  const walk = (suite, groups) => {
+    // the describe blocks a test is in, with their comments (a ticket named above one applies to all its tests)
+    const suiteGroups = suite.line ? [...groups, {title: suite.title, ...commentAbove(suite.file, suite.line)}] : groups;
     for (const spec of suite.specs ?? []) {
+      const comment = commentAbove(spec.file, spec.line);
       for (const test of spec.tests) {
         const results = test.results ?? [];
         const last = results.at(-1);
         tests.push({
+          // the id of the test in the Playwright HTML report (report/#?testId=<id>)
+          id: spec.id,
           feature: spec.file.split(/[\\/]/)[0].replace(/\.spec\.ts$/, ''),
           file: spec.file,
           line: spec.line,
-          title: [...suiteTitles, spec.title].join(' › '),
+          group: suiteGroups.map(group => group.title).join(' › '),
+          groupDescription: suiteGroups.map(group => group.description).filter(Boolean).join('\n') || undefined,
+          title: spec.title,
+          description: comment.description,
           tags: spec.tags ?? [],
-          jira: [...new Set([...suiteJira, ...jiraAbove(spec.file, spec.line)])],
+          jira: [...new Set([...suiteGroups.flatMap(group => group.jira), ...comment.jira])],
+          // the test.step() calls of the last attempt
+          steps: (last?.steps ?? []).map(step => ({title: step.title, failed: !!step.error})),
           status: STATUS[test.status] ?? test.status,
           durationMs: results.reduce((sum, result) => sum + result.duration, 0),
           retries: Math.max(results.length - 1, 0),
@@ -81,10 +88,10 @@ function collectTests(report) {
         });
       }
     }
-    for (const child of suite.suites ?? []) walk({file: suite.file, ...child}, suiteTitles, suiteJira);
+    for (const child of suite.suites ?? []) walk({file: suite.file, ...child}, suiteGroups);
   };
   // the file suites have no line, their title is the file name
-  for (const fileSuite of report.suites) walk({...fileSuite, line: undefined}, [], []);
+  for (const fileSuite of report.suites) walk({...fileSuite, line: undefined}, []);
   return tests;
 }
 
@@ -94,18 +101,32 @@ function countStatuses(tests) {
   return counts;
 }
 
-// Jira tickets in the comment lines right above a test or describe block, e.g. "// HELLODATA-2946"
-function jiraAbove(file, line) {
+// The comment right above a test or describe block describes it, and names its Jira tickets, e.g.
+// "// HELLODATA-2946". Both line comments and a /** ... */ block are read.
+function commentAbove(file, line) {
   if (!sources.has(file)) {
     const source = path.join(args['test-dir'], file);
     sources.set(file, fs.existsSync(source) ? fs.readFileSync(source, 'utf8').split('\n') : []);
   }
   const lines = sources.get(file);
-  const tickets = [];
-  for (let i = line - 2; i >= 0 && /^\s*\/\//.test(lines[i]); i--) {
-    tickets.push(...(lines[i].match(/HELLODATA-\d+/g) ?? []));
+  const comment = [];
+  let i = line - 2;
+  if (/\*\/\s*$/.test(lines[i] ?? '')) {
+    for (; i >= 0; i--) {
+      comment.unshift(lines[i]);
+      if (/^\s*\/\*/.test(lines[i])) break;
+    }
+  } else {
+    for (; i >= 0 && /^\s*\/\//.test(lines[i]); i--) comment.unshift(lines[i]);
   }
-  return tickets;
+  const text = comment
+    .map(l => l.replace(/^\s*(\/\*\*?|\/\/|\*\/|\*)\s?/, '').replace(/\s*\*\/\s*$/, '').trim())
+    .filter(Boolean);
+  return {
+    // a line that only names tickets is no description
+    description: text.filter(l => !/^(HELLODATA-\d+[\s,]*)+$/.test(l)).join(' ') || undefined,
+    jira: text.join(' ').match(/HELLODATA-\d+/g) ?? [],
+  };
 }
 
 function firstLines(message = '') {
@@ -134,7 +155,7 @@ function markdown(summary) {
   if (failed.length) {
     lines.push('### Failed tests', '');
     for (const test of failed) {
-      lines.push(`- **${test.title.replace(/</g, "&lt;")}** (\`${test.file}:${test.line}\`)`);
+      lines.push(`- **${[test.group, test.title].filter(Boolean).join(' › ').replace(/</g, "&lt;")}** (\`${test.file}:${test.line}\`)`);
       if (test.error) lines.push('  ```', ...test.error.split('\n').map(line => `  ${line}`), '  ```');
     }
     lines.push('');

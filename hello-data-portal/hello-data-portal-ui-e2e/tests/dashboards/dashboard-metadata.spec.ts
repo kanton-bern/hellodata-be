@@ -32,7 +32,10 @@ for (const {role, user} of [
   {role: 'DATA_DOMAIN_ADMIN', user: DATA_DOMAIN_ADMIN},
   {role: 'DATA_DOMAIN_EDITOR', user: DATA_DOMAIN_EDITOR},
 ]) {
+  // admins and editors may edit the metadata of a dashboard
   test.describe(`Dashboard metadata - ${role}`, () => {
+    // a dashboard admin or editor changes the business process of a dashboard in the dashboard list and sees it saved,
+    // also after reloading the list, then the value is cleared again
     test('can edit the metadata of a dashboard', async ({page}) => {
       await openPortalAs(page, user.username, user.password);
       await expectDashboardListed(page, true);
@@ -55,6 +58,7 @@ for (const {role, user} of [
   {role: 'DATA_DOMAIN_VIEWER', user: DATA_DOMAIN_VIEWER},
   {role: 'DATA_DOMAIN_BUSINESS_SPECIALIST', user: DATA_DOMAIN_BUSINESS_SPECIALIST},
 ]) {
+  // viewers and business specialists with dashboard access may only look at the metadata of a dashboard
   test.describe(`Dashboard metadata - ${role}`, () => {
     test.beforeAll(async ({browser}) => {
       await changeDashboardAccessAsAdmin(browser, user, true);
@@ -64,6 +68,8 @@ for (const {role, user} of [
       await changeDashboardAccessAsAdmin(browser, user, false);
     });
 
+    // a viewer or business specialist sees the open button in the dashboard list, but the edit button of the metadata
+    // is hidden
     test('cannot edit the metadata of a dashboard', async ({page}) => {
       await openPortalAs(page, user.username, user.password);
       await expectDashboardListed(page, true);

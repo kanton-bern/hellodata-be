@@ -39,6 +39,8 @@ test.describe('Batch import - new users', () => {
     await deleteBatchUsers(browser, [viewer, specialist, editor, dataDomainAdmin, businessDomainAdmin, hellodataAdmin]);
   });
 
+  // admin imports a file (with a byte order mark, as saved by Excel) for a new viewer; the user exists, has the roles
+  // of the file and its dashboard in the portal and in Superset, and is listed in the user management
   test('adds a viewer with its dashboard and RLS roles', async ({adminPage: page}) => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     expect(portalUser(viewer)).toBeUndefined();
@@ -59,6 +61,8 @@ test.describe('Batch import - new users', () => {
     await expect(page.getByRole('cell', {name: viewer, exact: true})).toBeVisible();
   });
 
+  // a file with a business specialist, an editor and a data domain admin; each gets the matching BI roles in Superset
+  // and the default comment permission, and only the data domain admin may comment
   test('maps the data domain role of each user to the BI roles of Superset', async () => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     await importCsv(toCsv([
@@ -80,6 +84,8 @@ test.describe('Batch import - new users', () => {
     await expectSupersetRoles(dataDomainAdmin, ['BI_ADMIN', 'BI_EDITOR', 'sql_lab']);
   });
 
+  // a business domain admin and a HelloDATA admin in the file become data domain admins everywhere; the HelloDATA admin
+  // is a superuser and also Admin in Superset
   test('makes business domain admins data domain admins everywhere', async () => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     await importCsv(toCsv([

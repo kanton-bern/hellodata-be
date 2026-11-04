@@ -55,8 +55,10 @@ const ROLES: {role: string, user: User, menus: string[], adminItems: string[]}[]
   },
 ];
 
+// which menu entries and pages each portal role can see
 test.describe('Roles', () => {
   for (const {role, user, menus, adminItems} of ROLES) {
+    // a user of this role after logging in
     test.describe(role, () => {
       test.beforeEach(async ({page}) => {
         await openPortalAs(page, user.username, user.password);
@@ -64,6 +66,7 @@ test.describe('Roles', () => {
         await expect(page.locator('#mainContentDiv').getByText('FAQ', {exact: true})).toBeVisible();
       });
 
+      // the user sees exactly the main menu entries of its role in the sidebar and none of the others
       test('sees only the main menu entries of its role', async ({page}) => {
         const sidebar = page.locator('#appSidebar');
         for (const menu of MAIN_MENUS) {
@@ -73,6 +76,7 @@ test.describe('Roles', () => {
       });
 
       if (adminItems.length > 0) {
+        // the user opens the Administration menu and sees exactly the entries allowed for its role
         test('sees only the administration entries of its role', async ({page}) => {
           const drawer = await openMenu(page, 'Administration');
           for (const item of ADMIN_ITEMS) {
@@ -83,6 +87,7 @@ test.describe('Roles', () => {
       }
 
       if (!adminItems.includes('User management')) {
+        // the user opens the user management by url and is sent to the forbidden page without seeing the users heading
         test('is not allowed to open user management by url', async ({page}) => {
           await page.goto('user-management');
           await expect(page).toHaveURL(/\/forbidden$/);

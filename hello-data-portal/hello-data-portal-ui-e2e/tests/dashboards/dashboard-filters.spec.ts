@@ -16,11 +16,14 @@ for (const {role, user} of [
   {role: 'DATA_DOMAIN_ADMIN', user: DATA_DOMAIN_ADMIN},
   {role: 'DATA_DOMAIN_EDITOR', user: DATA_DOMAIN_EDITOR},
 ]) {
+  // admins and editors may change the embedded dashboard and its filters
   test.describe(`Dashboard filters - ${role}`, () => {
     test.beforeEach(async ({page}) => {
       await openPortalAs(page, user.username, user.password);
     });
 
+    // a dashboard admin or editor opens a dashboard and edits it: the Save button appears, then Discard leaves the edit
+    // mode
     test('can edit the dashboard', async ({page}) => {
       const dashboard = await openDashboard(page);
       await dashboard.getByRole('button', {name: 'Edit dashboard', exact: true}).click();
@@ -30,6 +33,8 @@ for (const {role, user} of [
       await expect(dashboard.getByRole('button', {name: 'Edit dashboard', exact: true})).toBeVisible();
     });
 
+    // a dashboard admin or editor opens the filter settings (gear) of a dashboard and sees the dialog to add and edit
+    // filters
     test('can add and edit filters', async ({page}) => {
       const dashboard = await openDashboard(page);
       await dashboard.getByRole('img', {name: 'gear'}).click();
@@ -50,6 +55,7 @@ for (const {role, user} of [
   {role: 'DATA_DOMAIN_VIEWER', user: DATA_DOMAIN_VIEWER},
   {role: 'DATA_DOMAIN_BUSINESS_SPECIALIST', user: DATA_DOMAIN_BUSINESS_SPECIALIST},
 ]) {
+  // viewers and business specialists with dashboard access may use the filters but not change them
   test.describe(`Dashboard filters - ${role}`, () => {
     test.beforeAll(async ({browser}) => {
       await changeDashboardAccessAsAdmin(browser, user, true);
@@ -59,6 +65,8 @@ for (const {role, user} of [
       await changeDashboardAccessAsAdmin(browser, user, false);
     });
 
+    // a viewer or business specialist opens a dashboard: the filters can be applied, but there is no Edit dashboard
+    // button and no filter settings gear
     test('cannot edit the dashboard or its filters', async ({page}) => {
       await openPortalAs(page, user.username, user.password);
       await expectDashboardListed(page, true);

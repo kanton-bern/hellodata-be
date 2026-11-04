@@ -1,5 +1,6 @@
 import {ADMIN, errorToasts, expect, navigate, openPortalAs, test} from '../fixtures';
 
+// the admin opens the administration pages from the menu and the home page shows its panels without errors
 // which menu entries each role sees is covered by administration/roles.spec.ts
 test.describe('Navigation', () => {
   const adminPages = [
@@ -11,6 +12,7 @@ test.describe('Navigation', () => {
   ];
 
   for (const {item, url, heading} of adminPages) {
+    // the admin opens this entry of the Administration menu; the page url changes and its heading is shown
     test(`administration menu opens ${item}`, async ({adminPage: page}) => {
       await navigate(page, 'Administration', item);
       await expect(page).toHaveURL(url);
@@ -18,6 +20,8 @@ test.describe('Navigation', () => {
     });
   }
 
+  // the admin sees the overview panels on the home page: dashboards, external dashboards, data marts, lineage, FAQ and
+  // documentation
   test('home page shows the overview panels', async ({adminPage: page}) => {
     const main = page.locator('#mainContentDiv');
     for (const panel of ['Dashboards', 'External dashboards', 'Data Marts', 'Lineage', 'FAQ', 'Documentation']) {
@@ -25,6 +29,7 @@ test.describe('Navigation', () => {
     }
   });
 
+  // the admin opens the home page; the request for the lineage docs succeeds and no error message is shown
   test('home page loads the lineage docs without errors', async ({page}) => {
     // the docs url is published by the dbt-docs sidecar, so the request starts some time after the page loaded
     const docsRequest = page.waitForRequest(/\/api\/projects-docs$/, {timeout: 45_000});

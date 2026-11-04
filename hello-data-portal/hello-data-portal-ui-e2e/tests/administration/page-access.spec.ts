@@ -70,8 +70,11 @@ function routedComponent(page: Page) {
   return page.locator('#mainContentDiv > router-outlet + *');
 }
 
+// every role opens each page by its url; it is shown when the role has the permission, otherwise the user is sent
+// to the forbidden page
 test.describe('Page access by url', () => {
   for (const {role, user} of USERS) {
+    // the pages opened by url with a user of this role
     test.describe(role, () => {
       // one login per role, the tests only open urls
       test.describe.configure({mode: 'serial'});
@@ -88,6 +91,8 @@ test.describe('Page access by url', () => {
 
       for (const {url, permission, allowed} of PAGES) {
         const isAllowed = allowed.includes(role);
+        // the user of this role opens the page by url; with the required permission the page is shown, without it the
+        // user lands on the forbidden page
         test(`${isAllowed ? 'opens' : 'is not allowed to open'} ${url} (${permission})`, async () => {
           await page.goto(url);
           await expect(routedComponent(page)).toHaveCount(1);

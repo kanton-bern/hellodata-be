@@ -27,14 +27,18 @@ async function exportDashboard(page: Page) {
   return response.body();
 }
 
+// exporting a dashboard as zip from the import-export page and importing it again
 // HELLODATA-1318 and HELLODATA-1319
 test.describe('Dashboard export and import', () => {
+  // the admin selects the dashboard on the import-export page and exports it; Superset returns a zip file
   test('exports a dashboard as zip', async ({adminPage: page}) => {
     const zip = await exportDashboard(page);
     // a zip file starts with "PK"
     expect(zip.subarray(0, 2).toString()).toBe('PK');
   });
 
+  // the admin exports the dashboard and uploads the zip again for the data domain without removing orphaned charts;
+  // the upload succeeds and the dashboard is still listed
   test('imports an exported dashboard', async ({adminPage: page}, testInfo) => {
     const file = testInfo.outputPath('dashboard_export.zip');
     await writeFile(file, await exportDashboard(page));

@@ -36,6 +36,8 @@ test.describe('Batch import - last record wins', () => {
     await deleteBatchUsers(browser, [newUser, demoted, existing]);
   });
 
+  // a new user with three rows in the file ends up with the data domain role and the Superset roles of the last row
+  // only; no dashboards are assigned
   test('keeps the data domain and Superset roles of the last row of a new user', async () => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     await importCsv(toCsv([
@@ -49,6 +51,8 @@ test.describe('Batch import - last record wins', () => {
     await expectSupersetRoles(newUser, ['BI_VIEWER', RLS_B]);
   });
 
+  // a user with an admin row followed by an editor row is not a superuser at the end; the last row decides the
+  // business and data domain role and the Superset roles
   test('keeps the business domain role of the last row', async () => {
     test.setTimeout(2 * BATCH_TIMEOUT);
     await importCsv(toCsv([
@@ -61,6 +65,8 @@ test.describe('Batch import - last record wins', () => {
     await expectSupersetRoles(demoted, ['BI_EDITOR', 'sql_lab']);
   });
 
+  // an existing user is imported again with two rows; the result is the last row, the viewer role with the RLS_B role,
+  // whatever the user had before and without dashboards
   test('ends an existing user with the last row, whatever it had before', async () => {
     test.setTimeout(3 * BATCH_TIMEOUT);
     await importCsv(toCsv([{email: existing, dataDomainRole: 'DATA_DOMAIN_VIEWER', supersetRoles: [dashboardRole, RLS_A]}]));

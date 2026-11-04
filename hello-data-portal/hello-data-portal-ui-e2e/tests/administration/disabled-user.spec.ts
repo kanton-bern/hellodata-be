@@ -55,6 +55,8 @@ test.describe('Disabled user', () => {
     await withUser(browser, ADMIN, page => setUserEnabled(page, USER, true));
   });
 
+  // the disabled user logs in and gets no permissions: the page lists the admins to contact; there is no
+  // dashboards panel and no Data Marts menu entry
   test('sees only the list of admins to contact and no menu entries of its role', async ({page}) => {
     await openPortalAsDisabledUser(page);
     await expect(permissionMissing(page)).toBeVisible();
@@ -65,6 +67,8 @@ test.describe('Disabled user', () => {
     await expect(dataMartsMenu(page)).toHaveCount(0);
   });
 
+  // the disabled user opens pages by url (data marts viewer, announcements); each time it is sent back to the home page
+  // with the missing permissions notice
   test('is sent back to the home page when it opens a page by url', async ({page}) => {
     await openPortalAsDisabledUser(page);
     for (const url of ['embedded-dm-viewer', 'published-announcements']) {
@@ -74,6 +78,8 @@ test.describe('Disabled user', () => {
     }
   });
 
+  // the admin enables the user again; after the next login the user sees its dashboards panel and the Data Marts menu,
+  // and the missing permissions notice is gone
   test('gets its access back when the admin enables it again', async ({page, browser}) => {
     await withUser(browser, ADMIN, adminPage => setUserEnabled(adminPage, USER, true));
     await openPortalAs(page, USER.username, USER.password);

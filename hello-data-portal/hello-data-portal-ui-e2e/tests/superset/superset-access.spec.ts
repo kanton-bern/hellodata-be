@@ -17,6 +17,8 @@ for (const {role, user} of [
   {role: 'DATA_DOMAIN_ADMIN', user: DATA_DOMAIN_ADMIN},
   {role: 'DATA_DOMAIN_EDITOR', user: DATA_DOMAIN_EDITOR},
 ]) {
+  // the user opens the Superset instance of its data domain from the Dashboards menu; Superset is shown with its
+  // Dashboards menu and lists the showcase dashboard
   test(`${role} opens the Superset instance of its data domain`, async ({page}) => {
     await openPortalAs(page, user.username, user.password);
     const superset = await openSuperset(page);
@@ -30,6 +32,7 @@ for (const {role, user} of [
   {role: 'DATA_DOMAIN_VIEWER', user: DATA_DOMAIN_VIEWER},
   {role: 'DATA_DOMAIN_BUSINESS_SPECIALIST', user: DATA_DOMAIN_BUSINESS_SPECIALIST},
 ]) {
+  // a viewer role that has access to a dashboard but no access to the Superset instance itself
   test.describe(role, () => {
     // with access to a dashboard the menu has an entry for the data domain, where the link would be
     test.beforeAll(async ({browser}) => {
@@ -40,6 +43,8 @@ for (const {role, user} of [
       await changeDashboardAccessAsAdmin(browser, user, false);
     });
 
+    // the user has access to the showcase dashboard, which is in the Dashboards menu, but the menu has no Open Superset
+    // Instance entry
     test('has no link to the Superset instance', async ({page}) => {
       await openPortalAs(page, user.username, user.password);
       await expectDashboardListed(page, true);

@@ -9,11 +9,14 @@ import {
   sendForReview,
 } from '../comments';
 
+// the admin filters the comments of a dashboard
 // HELLODATA-2945
 test.describe('Comments filtering', () => {
   // a user's dashboards show up only after the sync with Superset
   test.describe.configure({timeout: 3 * 60_000});
 
+  // the admin creates a draft with a tag in Q1 and a published comment in Q2, then filters by status, quarter, tag and
+  // year and sees only the matching comment each time
   test('filters the comments by status, quarter, tag and year', async ({adminPage}) => {
     const id = Date.now();
     // tags are lower case and at most 10 characters long

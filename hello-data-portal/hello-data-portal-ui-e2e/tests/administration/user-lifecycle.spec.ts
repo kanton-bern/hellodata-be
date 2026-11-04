@@ -16,6 +16,8 @@ test.describe('User lifecycle', () => {
     await deleteBatchUsers(browser, [EMAIL]);
   });
 
+  // the admin invites a new user by email in the user management; the portal opens the edit page of the user, who is
+  // created as enabled and not a superuser
   test('admin invites a new user', async ({adminPage: page}) => {
     expect(portalUser(EMAIL)).toBeUndefined();
     await navigate(page, 'Administration', 'User management');
@@ -31,6 +33,8 @@ test.describe('User lifecycle', () => {
     expect(portalUser(EMAIL)).toEqual({enabled: true, superuser: false});
   });
 
+  // the admin edits the invited user and gives it the data domain editor role; the role is stored in the portal and
+  // Superset has the BI_EDITOR and sql_lab roles for the user
   test('admin gives the user a role in the data domain', async ({adminPage: page}) => {
     await navigate(page, 'Administration', 'User management');
     await page.getByPlaceholder('Search').fill(EMAIL);
@@ -46,6 +50,7 @@ test.describe('User lifecycle', () => {
     await expectSupersetRoles(EMAIL, ['BI_EDITOR', 'sql_lab']);
   });
 
+  // the admin deletes the user in the user management and confirms; the user is gone from the list and the portal
   test('admin deletes the user', async ({adminPage: page}) => {
     await navigate(page, 'Administration', 'User management');
     await page.getByPlaceholder('Search').fill(EMAIL);

@@ -17,7 +17,10 @@ The specs are grouped by feature:
 | `tests/batch-import/`   | Batch import of users and roles from csv files: new users, existing users, last record wins, dashboard groups, file validation |
 | `tests/data-eng/`       | The Data Eng. menu: Orchestration (Airflow) and its breadcrumb, DAG status per data domain, DWH and DataMarts Viewer (CloudBeaver connections per role), Filebrowser (SFTPGo) |
 
-Scenarios from Jira name their ticket (e.g. `HELLODATA-687`) in a comment above the test.
+Every test and `test.describe` has a comment right above it that says in plain words what it does and what it
+expects. Scenarios from Jira name their ticket (e.g. `HELLODATA-687`) on the last line of that comment. The published
+report shows both (see [Published reports](#published-reports)), so keep the comment directly above the call - not
+above a surrounding `for` loop - when adding a test.
 
 ## Running locally
 
@@ -144,8 +147,9 @@ Every run is also summarized and published as a web page, so it can be shared wi
    `*-SNAPSHOT` move, so the digests show which images were really tested.
 2. `Summarize test results` runs `scripts/summarize.mjs`. It reads the JSON report of Playwright
    (`test-results/results.json`, CI only) and writes `summary.json`: the version, browser, commit, images and every test
-   with its feature folder, status (passed, failed, flaky, skipped), retries, error and Jira tickets. The tickets come
-   from the `// HELLODATA-...` comments right above a test or its `test.describe`. The same summary is shown on the
+   with its feature folder, description, `test.step()` titles, status (passed, failed, flaky, skipped), retries, error
+   and Jira tickets. The description and the tickets come from the comment right above a test or its `test.describe`;
+   each test also links to its actions (clicks, navigations, assertions) in the full Playwright report. The same summary is shown on the
    page of the workflow run. When the stack did not start, the summary has the status `error` and no tests.
 3. The `publish` job runs `scripts/build-reports-site.mjs` in the `e2e/` folder of the `gh-pages` branch, which GitHub
    Pages serve next to the docs at https://kanton-bern.github.io/hellodata-be/e2e/ (linked in the docs under More):
