@@ -27,6 +27,9 @@
 
 FROM dbeaver/cloudbeaver:26.2.3
 
+# curl is no longer part of the base image since 26.x but is needed by the docker compose healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 ADD conf/cloudbeaver.conf /opt/cloudbeaver/conf/cloudbeaver.conf
 ADD conf/initial-data.conf /opt/cloudbeaver/conf/initial-data.conf
 ADD conf/initial-data-sources.conf /opt/cloudbeaver/conf/initial-data-sources.conf

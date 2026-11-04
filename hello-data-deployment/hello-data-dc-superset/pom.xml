@@ -158,6 +158,9 @@
                                     <name>${docker.namespace}/${project.artifactId}:${docker.tag.name}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/main/docker</contextDir>
+                                        <args>
+                                            <BASE_IMAGE_TAG>${docker.tag.name}</BASE_IMAGE_TAG>
+                                        </args>
                                         <assembly>
                                             <name>${project.artifactId}</name>
                                         </assembly>
