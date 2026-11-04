@@ -94,20 +94,37 @@ function removeEmptyFolders() {
 
 // --- pages ----------------------------------------------------------------------------------------------------------
 
+// one row per tested version with the result of its latest run in each browser; the version page has all its runs
+// (flaky tests passed on the retry, so they count as passed)
 function indexPage(runs) {
-  const sections = Object.values(Object.groupBy(runs, run => run.versionDir)).map(versionRuns => `
-    <section>
-      <h2><a href="${esc(versionRuns[0].versionDir)}/">${esc(versionRuns[0].version)}</a></h2>
-      ${runsTable(versionRuns, '')}
-    </section>`).join('');
+  const rows = Object.values(Object.groupBy(runs, run => run.versionDir)).map(versionRuns => {
+    const [latest] = versionRuns;
+    const latestPerBrowser = Object.values(Object.groupBy(versionRuns, run => run.browser)).map(([run]) => run);
+    return `
+      <tr>
+        <td><a class="version" href="${esc(latest.versionDir)}/">${esc(latest.version)}</a></td>
+        <td class="results">${latestPerBrowser.map(run => `
+          <div><a href="${esc(run.path)}/">${badge(run.status)} ${esc(run.browser)}</a>
+            <span class="muted small">${run.stats.passed + run.stats.flaky}/${run.stats.total} passed</span></div>`)
+          .join('')}</td>
+        <td>${date(latest.startedAt)}</td>
+        <td>${commitLink(latest)}</td>
+        <td class="num">${versionRuns.length}</td>
+      </tr>`;
+  }).join('');
   return page('HelloDATA E2E Reports', `
     <nav><a href="../">← HelloDATA docs</a></nav>
     <header>
       <h1>HelloDATA E2E Reports</h1>
-      <p class="muted">Playwright regression runs of the portal against the docker compose installation, grouped by the
-        tested image tag, newest first.</p>
+      <p class="muted">The HelloDATA versions (docker image tags) the Playwright regression suite ran against, last tested
+        first. Open a version for all its runs and what was tested.</p>
     </header>
-    ${sections || '<p>No runs yet.</p>'}`);
+    ${rows ? `
+    <div class="table"><table>
+      <thead><tr><th>Version</th><th>Latest result per browser</th><th>Last tested</th><th>Commit</th>
+        <th class="num">Runs</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>` : '<p>No version tested yet.</p>'}`);
 }
 
 // the latest run of the version, with all its runs on top
@@ -247,6 +264,8 @@ function page(title, body) {
   .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .links a { margin-right: 12px; white-space: nowrap; }
   .links.small a { margin: 0 0 0 8px; }
+  .version { font-weight: 600; white-space: nowrap; }
+  .results div { white-space: nowrap; } .results div + div { margin-top: 4px; } .results a { color: var(--fg); }
   tr.group td { background: var(--row); border-bottom: 1px solid var(--border); padding-top: 10px; }
   .title { font-weight: 600; } .description { margin: 2px 0; max-width: 75ch; }
   .steps { margin: 4px 0; padding-left: 20px; color: var(--muted); } .steps .failed { color: var(--failed); }

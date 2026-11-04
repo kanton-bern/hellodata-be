@@ -153,7 +153,7 @@ Every run is also summarized and published as a web page, so it can be shared wi
    page of the workflow run. When the stack did not start, the summary has the status `error` and no tests.
 3. The `publish` job runs `scripts/build-reports-site.mjs` in the `e2e/` folder of the `gh-pages` branch, which GitHub
    Pages serve next to the docs at https://kanton-bern.github.io/hellodata-be/e2e/ (linked in the docs under More):
-   - `e2e/` - all tested versions and their runs, newest first
+   - `e2e/` - the list of tested versions, last tested first, with the latest result per browser
    - `e2e/<version>/` - the runs of a version and what its latest run tested, e.g.
      https://kanton-bern.github.io/hellodata-be/e2e/e2e-playwright-SNAPSHOT/
    - `e2e/<version>/<browser>/<run id>-<attempt>/` - what was tested in a run and the result
