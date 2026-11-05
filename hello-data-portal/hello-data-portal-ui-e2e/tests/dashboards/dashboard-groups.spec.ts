@@ -40,7 +40,9 @@ test.describe('Dashboard groups', () => {
 
     await page.getByRole('checkbox', {name: SHOWCASE_DASHBOARD, exact: true}).check();
     await page.getByRole('tab', {name: /^Users/}).click();
-    await page.getByRole('tabpanel').getByPlaceholder('Search').fill(USER.username);
+    // the panel of the Users tab by its name: an unnamed tabpanel locator can still resolve to the Dashboards panel while
+    // the tabs switch, and an action keeps waiting on the element it resolved to once, which then stays hidden
+    await page.getByRole('tabpanel', {name: /^Users/}).getByPlaceholder('Search').fill(USER.username);
     await page.getByRole('checkbox', {name: new RegExp(USER.username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))}).check();
     await expect(page.getByRole('tab', {name: 'Users (1)'})).toBeVisible();
 

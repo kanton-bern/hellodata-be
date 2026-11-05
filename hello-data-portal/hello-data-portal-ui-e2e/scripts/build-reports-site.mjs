@@ -20,8 +20,8 @@ const {values: args} = parseArgs({
     site: {type: 'string'},
     summary: {type: 'string'},
     report: {type: 'string'},
-    // runs kept per version and browser, and versions kept in all; older ones are deleted from the site
-    'keep-runs': {type: 'string', default: '3'},
+    // runs kept per version (all browsers together), and versions kept in all; older ones are deleted from the site
+    'keep-runs': {type: 'string', default: '5'},
     'keep-versions': {type: 'string', default: '30'},
   },
 });
@@ -74,9 +74,9 @@ function prune(runs) {
   const versions = [...new Set(runs.map(run => run.version))].slice(0, keepVersions);
   const seen = new Map();
   return runs.filter(run => {
-    const key = `${run.version}/${run.browser}`;
-    seen.set(key, (seen.get(key) ?? 0) + 1);
-    if (versions.includes(run.version) && seen.get(key) <= keepRuns) return true;
+    // runs are sorted newest first, so the first keepRuns runs of a version are its latest ones
+    seen.set(run.version, (seen.get(run.version) ?? 0) + 1);
+    if (versions.includes(run.version) && seen.get(run.version) <= keepRuns) return true;
     fs.rmSync(path.join(site, run.path), {recursive: true, force: true});
     console.log(`pruned ${run.path}`);
     return false;

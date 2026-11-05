@@ -173,8 +173,9 @@ Every run is also summarized and published as a web page, so it can be shared wi
    - `e2e/<version>/<browser>/<run id>-<attempt>/` - what was tested in a run and the result
    - `e2e/<version>/<browser>/<run id>-<attempt>/report/` - the full Playwright HTML report
 
-   The pages are rebuilt from the `summary.json` files every time, and only the last 3 runs per version and browser
-   and the last 30 versions are kept. Compose logs are not published, they stay in the workflow artifact.
+   The pages are rebuilt from the `summary.json` files every time, and only the last 5 runs per version (all browsers
+   together) and the last 30 versions are kept, to limit the size of the site. Compose logs are not published, they stay
+   in the workflow artifact.
 
 `.github/workflows/deploy_docs.yml` also writes to `gh-pages`: it replaces the docs and keeps `e2e/`. Both use
 `.github/scripts/update-gh-pages.sh`, which pushes the branch as a single commit without history (so old reports do not
