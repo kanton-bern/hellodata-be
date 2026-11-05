@@ -164,7 +164,28 @@ class SupersetUpdateUserContextRoleConsumerTest {
         verify(supersetClient, times(1)).updateUserRoles(eq(expectedRolesUpdate), eq(1));
     }
 
+    @Test
+    void skips_an_older_update_that_arrives_after_a_newer_one() throws URISyntaxException, IOException {
+        SupersetDashboardResponse dashboardResponse = new SupersetDashboardResponse();
+        dashboardResponse.setResult(Collections.emptyList());
+        when(supersetClient.dashboards()).thenReturn(dashboardResponse);
+
+        // an admin made the user a viewer (state read at 200), then the full synchronization that read the user
+        // before (at 100, still without access) is processed: it must not take the access away again
+        updateRolesFor("DATA_DOMAIN_VIEWER", List.of(7), 200L);
+        updateRolesFor("NONE", List.of(3), 100L);
+
+        verify(supersetClient, times(1)).updateUserRoles(any(SupersetUserRolesUpdate.class), any(Integer.class));
+        SupersetUserRolesUpdate expectedRolesUpdate = new SupersetUserRolesUpdate();
+        expectedRolesUpdate.setRoles(List.of(3));
+        verify(supersetClient).updateUserRoles(eq(expectedRolesUpdate), eq(1));
+    }
+
     private void updateRolesFor(String dataDomainRole, List<Integer> currentRoleIds) throws URISyntaxException, IOException {
+        updateRolesFor(dataDomainRole, currentRoleIds, null);
+    }
+
+    private void updateRolesFor(String dataDomainRole, List<Integer> currentRoleIds, Long stateReadAt) throws URISyntaxException, IOException {
         String json = """
                 {
                   "email": "someone@example.com",
@@ -177,6 +198,7 @@ class SupersetUpdateUserContextRoleConsumerTest {
                   ]
                 }""".formatted(dataDomainRole);
         UserContextRoleUpdate userContextRoleUpdate = objectMapper.readValue(json, UserContextRoleUpdate.class);
+        userContextRoleUpdate.setStateReadAt(stateReadAt);
 
         HelloDataContextConfig.Context context = new HelloDataContextConfig.Context();
         context.setType(HdContextType.DATA_DOMAIN.name());

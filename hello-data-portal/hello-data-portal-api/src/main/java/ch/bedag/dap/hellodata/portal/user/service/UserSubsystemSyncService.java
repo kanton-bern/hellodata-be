@@ -91,6 +91,8 @@ public class UserSubsystemSyncService {
      */
     @Transactional
     public void syncAllUsers() {
+        // before anything is read: a sidecar skips these updates for users it got a newer single update of
+        long stateReadAt = System.currentTimeMillis();
         List<UserEntity> allUsers = userRepository.getUserEntitiesByEnabled(true);
         log.info("[syncAllUsers] Found {} enabled users to sync", allUsers.size());
 
@@ -103,7 +105,7 @@ public class UserSubsystemSyncService {
         }
 
         // Sync all users with their dashboards
-        syncAllUsersWithDashboards(allUsers);
+        syncAllUsersWithDashboards(allUsers, stateReadAt);
     }
 
     /**
@@ -111,7 +113,7 @@ public class UserSubsystemSyncService {
      * This method builds UserContextRoleUpdate for each user with their dashboard selections
      * (both direct and from groups) and publishes them in batches via JetStream.
      */
-    private void syncAllUsersWithDashboards(List<UserEntity> users) {
+    private void syncAllUsersWithDashboards(List<UserEntity> users, long stateReadAt) {
         log.info("[syncAllUsersWithDashboards] Synchronizing {} users with dashboards", users.size());
 
         List<UserContextRoleUpdate> updates = new ArrayList<>();
@@ -123,6 +125,7 @@ public class UserSubsystemSyncService {
             boolean isLast = (counter == total);
 
             UserContextRoleUpdate update = buildUserContextRoleUpdate(userEntity, isLast);
+            update.setStateReadAt(stateReadAt);
 
             // Build dashboards for all contexts
             Map<String, List<DashboardForUserDto>> dashboards = buildDashboardsForAllContexts(userEntity.getId());
@@ -260,6 +263,8 @@ public class UserSubsystemSyncService {
 
     private UserContextRoleUpdate buildUserContextRoleUpdate(UserEntity userEntity, boolean sendBackUsersList) {
         UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
+        // the single updates are sent after the commit, so the state read from now on is at least this new
+        userContextRoleUpdate.setStateReadAt(System.currentTimeMillis());
         userContextRoleUpdate.setEmail(userEntity.getEmail());
         userContextRoleUpdate.setUsername(userEntity.getEmail());
         userContextRoleUpdate.setFirstName(userEntity.getFirstName());

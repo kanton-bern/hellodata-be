@@ -55,6 +55,11 @@ public class UserContextRoleUpdate implements Serializable {
     private Map<String, List<DashboardForUserDto>> dashboardsPerContext; //NOSONAR
     //technical - send user list pushback enabled by default
     private boolean sendBackUsersList = true;
+    /**
+     * When the portal read the state of the user (epoch millis). A sidecar skips an update that is older than one it
+     * already applied for the same user, see {@link UserUpdateOrderGuard}. Null from portals that do not send it.
+     */
+    private Long stateReadAt;
 
     @ToString
     @Data

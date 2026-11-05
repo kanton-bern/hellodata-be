@@ -5,6 +5,7 @@ import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserUpdateOrderGuard;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.GroupMapping;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.User;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
@@ -31,6 +32,8 @@ public class SftpGoUpdateUserContextRoleConsumer {
     private final SftpGoService sftpGoService;
     private final SftpGoUserResourceProviderService sftpGoUserResourceProviderService;
     private final HelloDataContextConfig helloDataContextConfig;
+    // shared by the single updates and the full synchronization, which both go through this bean
+    private final UserUpdateOrderGuard orderGuard = new UserUpdateOrderGuard();
 
     @Value("${hello-data.sftpgo.viewer-disabled}")
     private boolean viewerDisabled;
@@ -38,6 +41,16 @@ public class SftpGoUpdateUserContextRoleConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void processContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
+        try (UserUpdateOrderGuard.Permit permit = orderGuard.enter(userContextRoleUpdate)) {
+            if (permit.isStale()) {
+                return;
+            }
+            applyContextRoleUpdate(userContextRoleUpdate);
+            permit.applied();
+        }
+    }
+
+    private void applyContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
         log.info("-=-=-=-= RECEIVED USER CONTEXT ROLES UPDATE: payload: {}", userContextRoleUpdate);
         User user = fetchUser(userContextRoleUpdate);
         checkBusinessContextRole(userContextRoleUpdate, user);

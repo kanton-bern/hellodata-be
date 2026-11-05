@@ -73,6 +73,8 @@ public class SupersetUpdateUserContextRoleConsumer {
     private final SupersetClientProvider supersetClientProvider;
     private final HelloDataContextConfig helloDataContextConfig;
     private final UserResourceProviderService userResourceProviderService;
+    // shared by the single updates and the full synchronization, which both go through this bean
+    private final UserUpdateOrderGuard orderGuard = new UserUpdateOrderGuard();
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
@@ -85,6 +87,16 @@ public class SupersetUpdateUserContextRoleConsumer {
     }
 
     public void updateUserRoles(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient, SupersetRolesResponse allRoles) throws URISyntaxException, IOException {
+        try (UserUpdateOrderGuard.Permit permit = orderGuard.enter(userContextRoleUpdate)) {
+            if (permit.isStale()) {
+                return;
+            }
+            applyUserRoles(userContextRoleUpdate, supersetClient, allRoles);
+            permit.applied();
+        }
+    }
+
+    private void applyUserRoles(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient, SupersetRolesResponse allRoles) throws URISyntaxException, IOException {
         String dataDomainKey = helloDataContextConfig.getContext().getKey();
         SubsystemUser supersetUser = getSupersetUser(userContextRoleUpdate, supersetClient, allRoles);
         Optional<UserContextRoleUpdate.ContextRole> dataDomainContextRole =
