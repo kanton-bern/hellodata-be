@@ -1,0 +1,1034 @@
+[
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "42217458824",
+    "runAttempt": "1",
+    "commit": "4d7f90cf6260bce775e34fdeb4114fd0d55b554a",
+    "ref": "develop",
+    "startedAt": "2026-11-06T12:31:10.862Z",
+    "durationMs": 2052977,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:a6b977ce8b4975c99406b30a281d6b02faa2da69ed1f796dbef1dacff76ca1d4"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:24c77ae663c77151ca3cb390f496d12df33cbaa59490697206ba4607438a5e01"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:f067b02e37454b6804d2c7c7846a277f3a2f278749ab5a605394123d1b0ddd89"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:6778632d57b1c99449558109da8214002a6338e029ebb98d1db6df98ed84a9b7"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:65507f68aa63464d33def6db7679aa045259591b56f03d4b8b02f4369cc5182a"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:5f9fbe59b9abbd1fad4228793b1926087d3a4057dd40c8c2f50d0a4b994ae1b7"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:a7f736dcae38f43d14061759608cd76e16450d7603166195aa9e2eeb0cf21f46"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:a44ac98e1a048c3845018dc4db446982f7e4d2b814070eb1e9b5cbc93c885c5c"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:9e3c1fb167b58bd4f3c00bcfe49a6fe9e19ef02cc399b7eb9611851e5995e53e"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:fcb9206c4ff543a0ccce3454ae4fe82b9bcd97433d461f0231e171043a4c37c1"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:37680c55312fc50c89e26cdf8e9d2545307ac0f037295b414aa906e66eb67b02"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:bab90f6cb429b12e42c8ef92e94883402c0bb3271b4a22ac9f1e81ac9b06ee87"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:8686b18c9b2ff88372f6f80c94d6943be57181dabcd16a5b555518eeadba8156"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:09068714506c9353192a8f99e8f05de3220887ac0d869e760927bfed1b06f920"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:8db04a7a0944bb8752f4fffe3652a7dd699b4bef4b8ad6edb85ea28fecbccb4a"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:47d054259a17d26cc8c4049537106077956294845aa8c433d4cb8c5caf966425"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:f245f4c83b84a9e9a0588da1c9456e579455310f0945d5db52cd2ba27f2000cc"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 298,
+      "passed": 298,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 165,
+        "passed": 165,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 34,
+        "passed": 34,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "latest/msedge/42217458824-1",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "42191212830",
+    "runAttempt": "1",
+    "commit": "705b9e6dd64381afcecedbb54eb25c854cb1885d",
+    "ref": "develop",
+    "startedAt": "2026-11-06T09:02:37.845Z",
+    "durationMs": 1805015,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:bcd6f565759a32ab49f84279acbee773673805a9f9d53ba50523b215128ebb37"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:d2426d737cde722ca26f8953e04b08c1661d55713ae77647587642a36e6bb65c"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:a921fc542d8244071de1d73bb6afe78abcd852cd4d8412963f4417d2bbd20a6a"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:463697769464258497d8ba76122a2cf971def16f1266bbf4080e82f2dad502e5"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:1fb28bd3856e5e2ccf957cb4e57daadd3f5e5913469a4361ccdd1ed8619e08d1"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:e88f3cbde27602f0f27bfcca2746c447d433248ec7859959ffa421f229b60484"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:c8cb38807feb195f4ace8a708645c1cfb8b8bd9102455568b9d8567c52dc1cae"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:1c9d1fadea8fc2cde927b10097d55f7755f2a480b0813616ed463211b3548694"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:818259059f20b6351429599e0c41ea4f45736dbcb43c154d8080d8af99f1996e"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:f15d0ed58f6130452a3e8a50ee71804bcb85265efa32a574f7ad2c3684cd30ca"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:e687df594661982d16dbd51147561a603ed8412c354710a92fa3fad98dd22ffb"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:7441b88337629a501b8e8f88db96682c678040e9b0e7e1b7ae4d8611ac931bea"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:d372a3d52a8d2a82560dcf3db29eed633e8a32e35a7a632ba46fc2ece9213fbf"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:4accf6b3609ebbecf7593f4ecb9b5d27b574336fdfcad7d4799c3c31285b125d"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:6845eea606cc86465b93173214e8915a3611e35045bd370b370283d0442bfc9e"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:ca36b35c0c01579ec18db7946753db747016e228974fcdd6082a9e992ea0d866"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:f245f4c83b84a9e9a0588da1c9456e579455310f0945d5db52cd2ba27f2000cc"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 298,
+      "passed": 298,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 165,
+        "passed": 165,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 34,
+        "passed": 34,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "latest/msedge/42191212830-1",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "42030229481",
+    "runAttempt": "1",
+    "commit": "cd3976f069f264bce8079d5f656ff0aeef32b0e0",
+    "ref": "develop",
+    "startedAt": "2026-11-05T12:55:31.144Z",
+    "durationMs": 2172429,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:09d1212fbed29ef285f31839a4368bc00d56412f512c750d8ee4ed481a43a205"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:d0c1111c9327befff163c5873bc4c8cff60387b44a34540597bcb9d0815ea686"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:8d9bbbc93d9be87c545ad294df3589c30667719e719bd513a797fe3c1f5342c7"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:2ce67792d9e1aab4c62a67da1073a236b032d58d67ab3521726d8482f335331d"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:fae4a0d7f038bd1cef9421407c339821c98aa7c28e9f50f32d9968d46309d8c6"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:7039c6cd70a5bd417eb45b8a915ce3b7a7fc567a328ab3448c5522d1ad36c5a1"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:016fca6d94032d0b3e070c33bd5eeeb4eaa14860bf03fd1b29967ed1f3a06095"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:41962c1850e35751d516fdc5e6f07d6a8684af210db4ceca5a03710b35c5f582"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:2c5976ac5edc71beb1a65670689d64759fa1fa28202577db1ca2c99e3d9921f9"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:d9fab856faf6042bdf4f8324dd7f06c1a264939f4c1badc4e809356977ac703d"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:df129b8435d24067520eb42213960f7af516988939f6c1b042141ffac90ee743"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:33da2d1b1471342881f151db788dd520f2f32ae34ec479574857fe6f9401f746"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:681bfb53fa3057d778039db364e5c1e6c0abec076729c83fbca38eea370f7dd5"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:b35935c0f8f300ef75efebb97d9a04031d989d9e00f8e033f7a3e7c313b8de03"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:57b4b17555b3efe919a8e53505d6177266a3a56fe8144315d48c0bd5c59f5951"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:2c19470e9d866c51ead06bb522b2bc42e8abb9e3bf3a0fcc1929f67fd81d861c"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:f245f4c83b84a9e9a0588da1c9456e579455310f0945d5db52cd2ba27f2000cc"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:25c434c1900a9c5b61e17ead0a774d9e81b80554d05cf64719d69e5ea8c66537"
+      }
+    ],
+    "stats": {
+      "total": 298,
+      "passed": 298,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 165,
+        "passed": 165,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 34,
+        "passed": 34,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "latest/msedge/42030229481-1",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "42011524589",
+    "runAttempt": "1",
+    "commit": "cd3976f069f264bce8079d5f656ff0aeef32b0e0",
+    "ref": "develop",
+    "startedAt": "2026-11-05T10:39:50.139Z",
+    "durationMs": 2163596,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:09d1212fbed29ef285f31839a4368bc00d56412f512c750d8ee4ed481a43a205"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:d0c1111c9327befff163c5873bc4c8cff60387b44a34540597bcb9d0815ea686"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:8d9bbbc93d9be87c545ad294df3589c30667719e719bd513a797fe3c1f5342c7"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:2ce67792d9e1aab4c62a67da1073a236b032d58d67ab3521726d8482f335331d"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:fae4a0d7f038bd1cef9421407c339821c98aa7c28e9f50f32d9968d46309d8c6"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:7039c6cd70a5bd417eb45b8a915ce3b7a7fc567a328ab3448c5522d1ad36c5a1"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:016fca6d94032d0b3e070c33bd5eeeb4eaa14860bf03fd1b29967ed1f3a06095"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:41962c1850e35751d516fdc5e6f07d6a8684af210db4ceca5a03710b35c5f582"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:2c5976ac5edc71beb1a65670689d64759fa1fa28202577db1ca2c99e3d9921f9"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:d9fab856faf6042bdf4f8324dd7f06c1a264939f4c1badc4e809356977ac703d"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:df129b8435d24067520eb42213960f7af516988939f6c1b042141ffac90ee743"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:33da2d1b1471342881f151db788dd520f2f32ae34ec479574857fe6f9401f746"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:681bfb53fa3057d778039db364e5c1e6c0abec076729c83fbca38eea370f7dd5"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:b35935c0f8f300ef75efebb97d9a04031d989d9e00f8e033f7a3e7c313b8de03"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:57b4b17555b3efe919a8e53505d6177266a3a56fe8144315d48c0bd5c59f5951"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:2c19470e9d866c51ead06bb522b2bc42e8abb9e3bf3a0fcc1929f67fd81d861c"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:6169dabab9f4050073203cf18517e83848f0f475b066992ebf90d38089e7ed7c"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:25c434c1900a9c5b61e17ead0a774d9e81b80554d05cf64719d69e5ea8c66537"
+      }
+    ],
+    "stats": {
+      "total": 298,
+      "passed": 298,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 165,
+        "passed": 165,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 34,
+        "passed": 34,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "latest/msedge/42011524589-1",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "42004200546",
+    "runAttempt": "1",
+    "commit": "ffd3ad8e1b61d5d632ab7a10a43abe0e8fb8b6b8",
+    "ref": "develop",
+    "startedAt": "2026-11-05T09:45:31.244Z",
+    "durationMs": 1848170,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:4922da830adffaa6313eb67efbdb175a8ec8685bb2f503625fb1ad4f53122dc0"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:1ba9de49defcf4a3ffec4645fba2a99d044d7355bb882770b5c3d203c389cf4d"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:1d61ed3acce2dcfbf31b139aa266e90efa1c7eef1664a4d72dd874147517f916"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:0f25b353ead76624a7a00babf1c832fa1767956cfb3f43a13b0723435ca84c43"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:80725aab917cbf050ccf40a337c076f1e4f91d8124bf4487382f97d4396c42f0"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:533b00ca66a3929d9a8d8410300d8dee85c7f7d9e787c770b351e268b0166641"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:57858e5a446cf76f0d4a202d42f329c88bbd58bedcaece7cbba8aeace6bb30da"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:5b6346da99bdf85b7fbe0063afb02a36adf7c737a02f9c3daaf2c56d501c8fb6"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:c8991b276f9c35d073a0d36adac2922ad8cbc1a2ff6361a78f90e041d8c94630"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:9b7ce6f8f911defedbda293f19abd780c8941700670af8d533cbf12f27088cd5"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:6ebba15816ce5ed06051a5e310000b3d3fcdea8d8112c235add716e15cbf4ea0"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:794813a27d49270e287c9456cf346bdf842f3a4e4150997abcdc3ab7d26b126c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:d54330950e292bf5938d799433b25b1c0a8dffeaa5b6a35ca384b6b975ec9446"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:a43ac04fadbadc26d4d646406ca7cfb603861418bf64c8a0157e89358b426ee3"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:2e87e839e57ea586383930ffb8830029fcab443ec2ecf347d59b5be4cd0edc5b"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:4227f9214ce6f178c69a1eeacf789d6d1c06e2fb7380a4df103a10dd191cdf95"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:6169dabab9f4050073203cf18517e83848f0f475b066992ebf90d38089e7ed7c"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:25c434c1900a9c5b61e17ead0a774d9e81b80554d05cf64719d69e5ea8c66537"
+      }
+    ],
+    "stats": {
+      "total": 298,
+      "passed": 295,
+      "failed": 1,
+      "flaky": 0,
+      "skipped": 2
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 165,
+        "passed": 165,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 16,
+        "failed": 1,
+        "flaky": 0,
+        "skipped": 2
+      },
+      {
+        "name": "data-eng",
+        "total": 34,
+        "passed": 34,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "failed",
+    "errors": [],
+    "path": "latest/msedge/42004200546-1",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "e2e-edge-dashboard-groups-SNAPSHOT",
+    "browser": "msedge",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "41987517440",
+    "runAttempt": "1",
+    "commit": "f7d62d8a01bd00796256b132ecbc464bbe4a38e6",
+    "ref": "feature/e2e-edge-dashboard-groups",
+    "startedAt": "2026-11-05T07:36:21.774Z",
+    "durationMs": 2344083,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:a52629df9f5e9b0971f765c0e4654a07724e54cd009a454b16faa5b8b7531d61"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:93307362edba9a616653e3939e70f0f4dfab31362088367eabb6f1da295c69d6"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:879e1adac831573523c0e1ee145037603952300744d0031f150773d3cc29af61"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:48e0be0cb544339525483a48ff9461c340db57e87c662b16f568b2e3f14bc9cf"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:edc0eef8097e00946285331bd56bd235f05af65161c04b9a49659ff2771d012d"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:759eaecc5d977d64090d8002fc4dfd71e133186bf631494c53007385a4b3527e"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:01c5dd9ee9eeeb6e0bb9ba535eb54e7827ca015c1edb5bc3f5448861d951584c"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:da91bb7c5769ea45e85558efae93fb49a8992468533a18e15c8d9bbf1cd3b067"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:fdfb059de0070b5a5a11d98f7126f4d17f263a2ad20c707cee5448a323b2e83c"
+      },
+      {
+        "image": "bedag/hello-data-showcase:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:c5ef87a07789c80148e5db7affdf3763b49449ca4af460bae31ef304de958514"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:d731fd571c9ebd6ab8a3c63d785f83925a895a6b7fc41bc7b3ba823c7984befd"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:a8342a9bbbec536011c7010b93d828020fb87bbbd97ad59a5f77f0a6bfcb6aaf"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:625ecbe6040018346be48d518bc03dc2cba0a9da30ba5f372af5e0196158cd7d"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:bb4272d779a9093b7558f52109c3c4b29c4c975c8ed7f15b90e8008903907861"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:c76c8599027cbd02fbb470e1cfcba20a173c7aaa53a409f2c46f4c4bab561891"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:7bc9bf2fb5815a6775a75e951d15b3f6fd4726d00349f732ef00c028d7b79efc"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:de1068af6f552240dfab67bcc9bfef99bfc60f776bb4580ef077ea4c8c97e848"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:25c434c1900a9c5b61e17ead0a774d9e81b80554d05cf64719d69e5ea8c66537"
+      }
+    ],
+    "stats": {
+      "total": 298,
+      "passed": 297,
+      "failed": 0,
+      "flaky": 1,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 165,
+        "passed": 165,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 1,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 34,
+        "passed": 34,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "e2e-edge-dashboard-groups-SNAPSHOT/msedge/41987517440-1",
+    "versionDir": "e2e-edge-dashboard-groups-SNAPSHOT",
+    "hasReport": true
+  }
+]
