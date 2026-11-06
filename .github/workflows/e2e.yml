@@ -282,6 +282,7 @@ jobs:
             "$ARTIFACT/$E2E_DIR/playwright-report"
 
       - name: Link the report
+        id: link
         env:
           ARTIFACT: ${{ runner.temp }}/artifact
         run: |
@@ -290,3 +291,42 @@ jobs:
           base="https://${owner,,}.github.io/${GITHUB_REPOSITORY#*/}/e2e/$version"
           echo "Report of $version: $base/ (this run: $base/$run/)"
           echo "### Published report: [$version]($base/) ([this run]($base/$run/))" >> "$GITHUB_STEP_SUMMARY"
+          echo "url=$base/$run/" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Microsoft Teams
+        if: ${{ always() && env.TEAMS_WEBHOOK_URL != '' }}
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          ARTIFACT: ${{ runner.temp }}/artifact
+          REPORT_URL: ${{ steps.link.outputs.url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          jq --arg report "$REPORT_URL" --arg run "$RUN_URL" '
+            ({passed: "✅", failed: "❌", error: "⚠️"}[.status] // "❔") as $icon
+            | {
+                type: "message",
+                attachments: [{
+                  contentType: "application/vnd.microsoft.card.adaptive",
+                  content: {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    type: "AdaptiveCard",
+                    version: "1.4",
+                    body: [
+                      { type: "TextBlock", size: "Large", weight: "Bolder", wrap: true,
+                        color: (if .status == "passed" then "Good" else "Attention" end),
+                        text: "\($icon) E2E \(.version) (\(.browser)): \(.status)" },
+                      { type: "FactSet", facts: [
+                        { title: "Total",   value: "\(.stats.total)" },
+                        { title: "Passed",  value: "\(.stats.passed)" },
+                        { title: "Failed",  value: "\(.stats.failed)" },
+                        { title: "Flaky",   value: "\(.stats.flaky)" },
+                        { title: "Skipped", value: "\(.stats.skipped)" } ] }
+                    ],
+                    actions: [
+                      { type: "Action.OpenUrl", title: "Open report", url: $report },
+                      { type: "Action.OpenUrl", title: "Open run",    url: $run } ]
+                  }
+                }]
+              }' "$ARTIFACT/summary.json" > card.json
+          curl --fail-with-body -sS -H "Content-Type: application/json" \
+            -d @card.json "$TEAMS_WEBHOOK_URL"
