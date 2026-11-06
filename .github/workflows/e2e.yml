@@ -1,6 +1,6 @@
 name: E2E tests (docker compose)
 
-run-name: "E2E: ${{ inputs.version || 'latest' }} (${{ inputs.browser || 'chromium' }})"
+run-name: "E2E: ${{ inputs.version || 'latest' }} (${{ inputs.browser || 'msedge' }})"
 
 # Runs the Playwright regression suite against the portal and the default data domain's Superset of the docker compose
 # installation.
@@ -17,10 +17,10 @@ on:
       browser:
         description: 'Browser to run the tests in: chromium (bundled with Playwright) or msedge (Microsoft Edge)'
         required: false
-        default: 'chromium'
+        default: 'msedge'
         type: string
   # every working night against the images of develop ('latest'), so the reports are fresh in the morning; schedules
-  # run only from the default branch and have no inputs, so the version and browser fall back to latest and chromium
+  # run only from the default branch and have no inputs, so the version and browser fall back to latest and msedge
   schedule:
     - cron: '0 2 * * 1-5'
   workflow_dispatch:
@@ -33,14 +33,14 @@ on:
       browser:
         description: 'Browser to run the tests in'
         required: true
-        default: 'chromium'
+        default: 'msedge'
         type: choice
         options:
-          - chromium
           - msedge
+          - chromium
 
 concurrency:
-  group: e2e-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'chromium' }}
+  group: e2e-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'msedge' }}
   cancel-in-progress: true
 
 jobs:
@@ -69,8 +69,8 @@ jobs:
       E2E_SERVICES: >-
         hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
         airflow-webserver airflow-scheduler hello-data-airflow-sidecar hello-data-sftpgo-sidecar
-      # empty for the Chromium bundled with Playwright, msedge for Microsoft Edge
-      E2E_BROWSER_CHANNEL: ${{ inputs.browser == 'msedge' && 'msedge' || '' }}
+      # msedge for Microsoft Edge (the default, also for the nightly schedule without inputs), empty for the Chromium bundled with Playwright
+      E2E_BROWSER_CHANNEL: ${{ inputs.browser != 'chromium' && 'msedge' || '' }}
       COMPOSE_PROJECT_NAME: hellodata-e2e
       COMPOSE_DIR: hello-data-deployment/docker-compose
       E2E_DIR: hello-data-portal/hello-data-portal-ui-e2e
@@ -203,7 +203,7 @@ jobs:
         working-directory: ${{ env.E2E_DIR }}
         run: |
           npm ci
-          npx playwright install --with-deps ${{ inputs.browser == 'msedge' && 'msedge' || 'chromium' }}
+          npx playwright install --with-deps ${{ inputs.browser != 'chromium' && 'msedge' || 'chromium' }}
 
       - name: Run Playwright tests
         working-directory: ${{ env.E2E_DIR }}
@@ -215,7 +215,7 @@ jobs:
         if: ${{ !cancelled() }}
         working-directory: ${{ env.E2E_DIR }}
         env:
-          E2E_BROWSER: ${{ inputs.browser || 'chromium' }}
+          E2E_BROWSER: ${{ inputs.browser || 'msedge' }}
         run: >-
           node scripts/summarize.mjs --results test-results/results.json
           --images "$GITHUB_WORKSPACE/images.json" --out "$GITHUB_WORKSPACE/summary.json"
@@ -231,7 +231,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5
         with:
-          name: e2e-report-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'chromium' }}
+          name: e2e-report-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'msedge' }}
           path: |
             ${{ env.E2E_DIR }}/playwright-report/
             ${{ env.E2E_DIR }}/test-results/
@@ -263,7 +263,7 @@ jobs:
       - name: Download test report
         uses: actions/download-artifact@v5
         with:
-          name: e2e-report-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'chromium' }}
+          name: e2e-report-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'msedge' }}
           path: ${{ runner.temp }}/artifact
 
       - name: Set up Node
