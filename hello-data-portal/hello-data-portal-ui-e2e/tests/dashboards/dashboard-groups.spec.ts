@@ -1,9 +1,9 @@
+import {CONTEXT_KEY} from '../instance';
 import {Page} from '@playwright/test';
 import {deleteDashboardGroup} from '../batch-import';
 import {DATA_DOMAIN_VIEWER, dismissToasts, expect, test} from '../fixtures';
 import {changeDashboardAccessAsAdmin, expectDashboardListed, SHOWCASE_DASHBOARD, withUser} from '../superset';
 
-const CONTEXT_KEY = 'Default_Data_Domain';
 const USER = DATA_DOMAIN_VIEWER;
 
 function groupRow(page: Page, name: string) {

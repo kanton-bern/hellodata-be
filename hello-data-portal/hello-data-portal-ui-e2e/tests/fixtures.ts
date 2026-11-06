@@ -1,4 +1,5 @@
 import {expect, Locator, Page, test as base} from '@playwright/test';
+import {BUSINESS_DOMAIN_ADMIN_USERNAME, EXAMPLE_USERS_EMAIL_DOMAIN} from './instance';
 
 export const ADMIN = {
   username: process.env.E2E_ADMIN_USERNAME ?? 'admin',
@@ -9,15 +10,16 @@ export const ADMIN = {
 export type User = {username: string, password: string};
 
 // example users created by the portal api's create-example-users profile (see ExampleUsersInitializer),
-// for the business domain and the default data domain of the docker compose installation
-export const BUSINESS_DOMAIN_ADMIN: User = {username: 'hellodata-product-development-admin@hellodata.ch', password: 'admin'};
-export const DATA_DOMAIN_ADMIN: User = {username: 'default-data-domain-admin@hellodata.ch', password: 'admin'};
-export const DATA_DOMAIN_EDITOR: User = {username: 'default-data-domain-editor@hellodata.ch', password: 'editor'};
-export const DATA_DOMAIN_BUSINESS_SPECIALIST: User = {username: 'default-data-domain-business_specialist@hellodata.ch', password: 'specialist'};
-export const DATA_DOMAIN_VIEWER: User = {username: 'default-data-domain-viewer@hellodata.ch', password: 'viewer'};
+// for the business domain and the default data domain (the e-mail domain and the business domain admin differ per
+// installation, see instance.ts)
+export const BUSINESS_DOMAIN_ADMIN: User = {username: BUSINESS_DOMAIN_ADMIN_USERNAME, password: 'admin'};
+export const DATA_DOMAIN_ADMIN: User = {username: `default-data-domain-admin@${EXAMPLE_USERS_EMAIL_DOMAIN}`, password: 'admin'};
+export const DATA_DOMAIN_EDITOR: User = {username: `default-data-domain-editor@${EXAMPLE_USERS_EMAIL_DOMAIN}`, password: 'editor'};
+export const DATA_DOMAIN_BUSINESS_SPECIALIST: User = {username: `default-data-domain-business_specialist@${EXAMPLE_USERS_EMAIL_DOMAIN}`, password: 'specialist'};
+export const DATA_DOMAIN_VIEWER: User = {username: `default-data-domain-viewer@${EXAMPLE_USERS_EMAIL_DOMAIN}`, password: 'viewer'};
 // the second data domain exists only in the e2e installation (compose-override.yaml), which creates its example users too
-export const EXTRA_DATA_DOMAIN_ADMIN: User = {username: 'extra-data-domain-admin@hellodata.ch', password: 'admin'};
-export const EXTRA_DATA_DOMAIN_VIEWER: User = {username: 'extra-data-domain-viewer@hellodata.ch', password: 'viewer'};
+export const EXTRA_DATA_DOMAIN_ADMIN: User = {username: `extra-data-domain-admin@${EXAMPLE_USERS_EMAIL_DOMAIN}`, password: 'admin'};
+export const EXTRA_DATA_DOMAIN_VIEWER: User = {username: `extra-data-domain-viewer@${EXAMPLE_USERS_EMAIL_DOMAIN}`, password: 'viewer'};
 
 /** Fills the Keycloak login form the portal redirects to. */
 export async function signIn(page: Page, username: string, password: string) {
@@ -70,22 +72,26 @@ export async function openMenu(page: Page, menu: string) {
   return drawer;
 }
 
-/** Expands a collapsible group of the sub navigation drawer (e.g. a data domain in the Dashboards menu). */
-export async function expandMenuGroup(drawer: Locator, group: string) {
+/**
+ * Expands a collapsible group of the sub navigation drawer (e.g. a data domain in the Dashboards menu) and returns the
+ * group. Each data domain with Superset has its own Open Superset Instance and All Dashboards Comments entries, so look
+ * them up in the group.
+ */
+export async function expandMenuGroup(drawer: Locator, group: string): Promise<Locator> {
   const header = drawer.getByRole('button', {name: group, exact: true});
   if (await header.getAttribute('aria-expanded') !== 'true') {
     await header.click();
   }
   await expect(header).toHaveAttribute('aria-expanded', 'true');
+  // the inner locator of has is matched inside each group, so it must not start at the drawer
+  return drawer.locator('.nav-drawer__group').filter({has: drawer.page().getByRole('button', {name: group, exact: true})});
 }
 
 /** Opens a first-level entry of the left sidebar and clicks one of its sub entries, optionally inside a group. */
 export async function navigate(page: Page, menu: string, item: string, group?: string) {
   const drawer = await openMenu(page, menu);
-  if (group) {
-    await expandMenuGroup(drawer, group);
-  }
-  await drawer.getByRole('button', {name: item, exact: true}).click();
+  const parent = group ? await expandMenuGroup(drawer, group) : drawer;
+  await parent.getByRole('button', {name: item, exact: true}).click();
 }
 
 /** Picks an option of a PrimeNG select, its options are appended to the body. */

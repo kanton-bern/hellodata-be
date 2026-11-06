@@ -43,12 +43,13 @@ export async function openDashboard(page: Page, title = SHOWCASE_DASHBOARD): Pro
 /** Opens the Superset instance of the data domain from the Dashboards menu, as a logged in user, in a new tab. */
 export async function openSuperset(page: Page): Promise<Page> {
   const drawer = await openMenu(page, 'Dashboards');
-  await expandMenuGroup(drawer, DATA_DOMAIN);
+  const group = await expandMenuGroup(drawer, DATA_DOMAIN);
   // the portal opens it with window.open(..., 'noopener'), so it is not reported as a popup of this page
   const supersetPage = page.context().waitForEvent('page');
-  await drawer.getByRole('button', {name: 'Open Superset Instance', exact: true}).click();
+  await group.getByRole('button', {name: 'Open Superset Instance', exact: true}).click();
   const superset = await supersetPage;
-  await expect(superset).toHaveURL(/\/superset\/welcome\//, {timeout: 60_000});
+  // compose lands on the welcome page, the superset config of the Helm charts on the dashboard list
+  await expect(superset).toHaveURL(/\/superset\/welcome\/|\/dashboard\/list\//, {timeout: 60_000});
   return superset;
 }
 

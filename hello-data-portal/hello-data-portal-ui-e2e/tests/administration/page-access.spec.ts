@@ -1,3 +1,4 @@
+import {CONTEXT_KEY} from '../instance';
 import {Page} from '@playwright/test';
 import {
   ADMIN,
@@ -12,7 +13,6 @@ import {
   User,
 } from '../fixtures';
 
-const CONTEXT_KEY = 'Default_Data_Domain';
 
 const ALL = ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN', 'DATA_DOMAIN_ADMIN', 'DATA_DOMAIN_EDITOR',
   'DATA_DOMAIN_BUSINESS_SPECIALIST', 'DATA_DOMAIN_VIEWER'];

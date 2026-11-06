@@ -3,3 +3,5 @@ test-results/
 playwright-report/
 blob-report/
 .auth/
+# local settings of other installations, e.g. azure.env (see README)
+*.env

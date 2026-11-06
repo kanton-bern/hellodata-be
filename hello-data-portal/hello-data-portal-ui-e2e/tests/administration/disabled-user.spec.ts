@@ -1,5 +1,5 @@
 import {Page} from '@playwright/test';
-import {ADMIN, DATA_DOMAIN_BUSINESS_SPECIALIST, dismissToasts, expect, navigate, openPortalAs, signIn, test, User} from '../fixtures';
+import {ADMIN, BUSINESS_DOMAIN_ADMIN, DATA_DOMAIN_BUSINESS_SPECIALIST, dismissToasts, expect, navigate, openPortalAs, signIn, test, User} from '../fixtures';
 import {withUser} from '../superset';
 
 // the business specialist has the fewest dependencies in the other specs (no comments, no dashboards by default)
@@ -34,6 +34,10 @@ async function openPortalAsDisabledUser(page: Page) {
   await expect(page.locator('#userMenu')).toBeVisible();
 }
 
+function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function dataMartsMenu(page: Page) {
   return page.locator('#appSidebar').getByRole('button', {name: 'Data Marts', exact: true});
 }
@@ -60,7 +64,11 @@ test.describe('Disabled user', () => {
   test('sees only the list of admins to contact and no menu entries of its role', async ({page}) => {
     await openPortalAsDisabledUser(page);
     await expect(permissionMissing(page)).toBeVisible();
-    await expect(permissionMissing(page).getByRole('listitem').filter({hasText: ADMIN.email})).toBeVisible();
+    // the portal lists the enabled business domain admins, or the HelloDATA admins when there is none
+    // (UserService.findHelloDataAdminUsers), so either one is a valid contact
+    const admins = [ADMIN.email, BUSINESS_DOMAIN_ADMIN.username];
+    await expect(permissionMissing(page).getByRole('listitem').filter({hasText: new RegExp(admins.map(escapeRegExp).join('|'))})
+      .first()).toBeVisible();
     // none of the panels of a user with a data domain role
     await expect(page.locator('app-dashboards')).toHaveCount(0);
     // a business specialist normally has the DataMarts Viewer (DATA_MARTS)

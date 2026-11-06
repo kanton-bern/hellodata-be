@@ -1,12 +1,13 @@
 import {BrowserContext, FrameLocator, Page} from '@playwright/test';
 import {expect, navigate, openMenu, signIn, User} from './fixtures';
 import {exec} from './docker';
+import {BUSINESS_DOMAIN_NAME, CONTEXT_KEY} from './instance';
 
 // The Data Eng. menu: Orchestration (Airflow embedded in the portal), DWH Viewer (CloudBeaver in a new tab) and
 // Filebrowser (SFTPGo in a new tab). They need the Airflow, CloudBeaver and SFTPGo services of the compose stack.
 
 export const DATA_ENG_MENU = 'Data Eng.';
-export const CONTEXT_KEY = 'Default_Data_Domain';
+export {CONTEXT_KEY};
 export const DATA_DOMAIN_FOLDER = '/Default Data Domain';
 
 // DAGs the showcase copies into the dags folder of the default data domain, the data domain key is part of their id
@@ -165,7 +166,7 @@ export async function openDwhViewer(page: Page, user: User): Promise<Page> {
 }
 
 // the folder of initial-data-sources.conf with the DataMarts and DWH connections of the data domains
-export const CLOUDBEAVER_FOLDER = 'HelloDATA Product Development DBs';
+export const CLOUDBEAVER_FOLDER = `${BUSINESS_DOMAIN_NAME} DBs`;
 export const DM_CONNECTION = 'Default Data Domain DataMarts';
 export const DWH_CONNECTION = 'Default Data Domain DWH';
 export const EXTRA_DM_CONNECTION = 'Extra Data Domain DataMarts';

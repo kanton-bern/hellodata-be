@@ -44,12 +44,12 @@ test.describe('Batch import - file validation', () => {
     {
       name: 'a Superset role that does not exist in Superset',
       csv: () => toCsv([{email: invalid, dataDomainRole: 'DATA_DOMAIN_VIEWER', supersetRoles: [RLS_A, 'RLS_E2E_MISSING']}]),
-      error: /not present in Superset for context 'Default_Data_Domain': \[RLS_E2E_MISSING]/,
+      error: new RegExp(`not present in Superset for context '${CONTEXT_KEY}': \\[RLS_E2E_MISSING]`),
     },
     {
       name: 'a dashboard group that does not exist',
       csv: () => toCsv([{email: invalid, dataDomainRole: 'DATA_DOMAIN_VIEWER', dashboardGroups: ['E2E missing group']}]),
-      error: /dashboard group\(s\) not found in context 'Default_Data_Domain': \[E2E missing group]/,
+      error: new RegExp(`dashboard group\\(s\\) not found in context '${CONTEXT_KEY}': \\[E2E missing group]`),
     },
     {
       name: 'an invalid email',

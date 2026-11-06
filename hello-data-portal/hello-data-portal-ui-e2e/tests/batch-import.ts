@@ -2,20 +2,20 @@ import {Browser, Page} from '@playwright/test';
 import {ADMIN, dismissToasts, expect, navigate} from './fixtures';
 import {SHOWCASE_DASHBOARD_SLUG, SUPERSET_SYNC_TIMEOUT, withUser} from './superset';
 import {exec, sql} from './docker';
+import {CONTEXT_KEY, PORTAL_DB, SUPERSET_DB} from './instance';
 
 export {sql};
 
 // The batch import has no UI: the portal api scans a folder for *.csv files every 30 seconds
 // (hello-data.batch-users-file), processes them and writes its progress to users-output.log in the same folder.
 // The helpers below drop the files into the portal api container and check the result in the databases of the portal
-// and of Superset, so these tests need the docker CLI and the docker compose stack on the machine running Playwright.
+// and of Superset, so these tests need the docker CLI and the docker compose stack (or kubectl and the Kubernetes instance, see docker.ts)
+// on the machine running Playwright.
 
 const BATCH_DIR = '/storage/batch-users-processing';
 const BATCH_LOG = `${BATCH_DIR}/users-output.log`;
-const PORTAL_DB = 'hd_metainfo';
-const SUPERSET_DB = 'superset_default_data_domain';
 
-export const CONTEXT_KEY = 'Default_Data_Domain';
+export {CONTEXT_KEY};
 export const CSV_HEADER = 'email;businessDomainRole;context;dataDomainRole;supersetRole;dashboardGroup';
 // the scan interval (30s), creating the users and the sync with Superset over NATS
 export const BATCH_TIMEOUT = 3 * 60_000;

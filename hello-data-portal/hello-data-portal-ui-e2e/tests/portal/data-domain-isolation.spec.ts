@@ -27,8 +27,8 @@ import {
   SHOWCASE_DAG,
 } from '../data-eng';
 import {DATA_DOMAIN, dashboardRow, expectDashboardListed, SHOWCASE_DASHBOARD} from '../superset';
+import {EXTRA_CONTEXT_KEY} from '../instance';
 
-const EXTRA_CONTEXT_KEY = 'Extra_Data_Domain';
 const EXTRA_DATA_DOMAIN = 'Extra Data Domain';
 
 // A user with a role in one data domain sees nothing of another one: neither in the data domain selector, nor its

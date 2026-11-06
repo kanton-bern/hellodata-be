@@ -1,9 +1,10 @@
 import {Browser, Locator, Page} from '@playwright/test';
+import {CONTEXT_KEY} from './instance';
 import {ADMIN, dismissToasts, expandMenuGroup, expect, openMenu, selectOption, User} from './fixtures';
 import {DATA_DOMAIN, expectDashboardListed, openDashboard, openUserEdit, saveUserEdit, setDashboardAccess, SHOWCASE_DASHBOARD, withUser} from './superset';
 
 // the context key of the default data domain, used in the ids of the comment permission checkboxes
-export const CONTEXT_KEY = 'Default_Data_Domain';
+export {CONTEXT_KEY};
 export const DOMAIN_COMMENTS = 'All Dashboards Comments';
 
 /**
@@ -224,8 +225,8 @@ export async function showDetails(entry: Locator) {
 export async function domainCommentsMenuEntry(page: Page) {
   await expectDashboardListed(page, true);
   const drawer = await openMenu(page, 'Dashboards');
-  await expandMenuGroup(drawer, DATA_DOMAIN);
+  const group = await expandMenuGroup(drawer, DATA_DOMAIN);
   // wait for the dashboards of the group, the comments entry is added together with them
-  await expect(drawer.getByRole('button', {name: SHOWCASE_DASHBOARD, exact: true})).toBeVisible();
-  return drawer.getByRole('button', {name: DOMAIN_COMMENTS, exact: true});
+  await expect(group.getByRole('button', {name: SHOWCASE_DASHBOARD, exact: true})).toBeVisible();
+  return group.getByRole('button', {name: DOMAIN_COMMENTS, exact: true});
 }

@@ -23,7 +23,7 @@ for (const {role, user} of [
     await openPortalAs(page, user.username, user.password);
     const superset = await openSuperset(page);
     await expect(superset.getByRole('button', {name: 'Dashboards', exact: true})).toBeVisible();
-    // the welcome page lists the dashboards of the instance
+    // the landing page (welcome page or dashboard list) lists the dashboards of the instance
     await expect(superset.getByText(SHOWCASE_DASHBOARD, {exact: true}).first()).toBeVisible();
   });
 }
@@ -49,9 +49,9 @@ for (const {role, user} of [
       await openPortalAs(page, user.username, user.password);
       await expectDashboardListed(page, true);
       const drawer = await openMenu(page, 'Dashboards');
-      await expandMenuGroup(drawer, DATA_DOMAIN);
-      await expect(drawer.getByRole('button', {name: SHOWCASE_DASHBOARD, exact: true})).toBeVisible();
-      await expect(drawer.getByRole('button', {name: 'Open Superset Instance', exact: true})).toHaveCount(0);
+      const group = await expandMenuGroup(drawer, DATA_DOMAIN);
+      await expect(group.getByRole('button', {name: SHOWCASE_DASHBOARD, exact: true})).toBeVisible();
+      await expect(group.getByRole('button', {name: 'Open Superset Instance', exact: true})).toHaveCount(0);
     });
   });
 }

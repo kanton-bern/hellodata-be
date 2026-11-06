@@ -1,8 +1,8 @@
+import {CONTEXT_KEY} from '../instance';
 import {BATCH_TIMEOUT, deleteBatchUsers, expectSupersetRoles, portalRoles, portalUser} from '../batch-import';
 import {dismissToasts, expect, navigate, selectOption, test} from '../fixtures';
 import {saveUserEdit} from '../superset';
 
-const CONTEXT_KEY = 'Default_Data_Domain';
 
 // An admin invites a user, gives it a role in a data domain and deletes it again, all in the user management. The
 // compose installation looks users up locally (LocalUserLookupProvider), so any email can be invited.

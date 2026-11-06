@@ -143,6 +143,53 @@ business specialist was added does not get that user. Use a fresh stack (`down -
 Pointing `E2E_BASE_URL` at another installation (e.g. a port-forwarded cluster) works as long as the Keycloak client
 accepts that URL as redirect URI.
 
+The names that differ between installations are read from environment variables too (`tests/instance.ts`), all of
+them default to the compose stack:
+
+| Variable                             | Default (compose)                                  | Description                                     |
+|--------------------------------------|----------------------------------------------------|-------------------------------------------------|
+| `E2E_CONTEXT_KEY`                    | `Default_Data_Domain`                              | Key of the default data domain                  |
+| `E2E_EXTRA_CONTEXT_KEY`              | `Extra_Data_Domain`                                | Key of the second data domain                   |
+| `E2E_BUSINESS_DOMAIN_NAME`           | `HelloDATA Product Development`                    | Business domain, prefix of the CloudBeaver folder |
+| `E2E_EXAMPLE_USERS_EMAIL_DOMAIN`     | `hellodata.ch`                                     | E-mail domain of the example users              |
+| `E2E_BUSINESS_DOMAIN_ADMIN_USERNAME` | `hellodata-product-development-admin@<domain>`     | Business domain admin example user              |
+| `E2E_PORTAL_DB`                      | `hd_metainfo`                                      | Portal database                                 |
+| `E2E_SUPERSET_DB`                    | `superset_default_data_domain`                     | Superset database of the default data domain    |
+| `E2E_KUBE_NAMESPACE`                 | empty (docker compose)                             | Run the `docker exec` / psql steps with `kubectl exec` in this namespace instead |
+| `E2E_KUBE_CONTEXT`                   | empty (current kube context)                       | Kube context for `kubectl exec`                 |
+
+## Running against another installation
+
+Put the settings of the installation in a local env file next to `package.json`, e.g. `my-instance.env`. Files ending
+in `.env` are git-ignored, so the settings of an installation stay on your machine:
+
+```bash
+E2E_BASE_URL=https://portal.example.com/app
+# Kubernetes: the specs that prepare data or check results run kubectl exec instead of docker exec
+E2E_KUBE_CONTEXT=my-cluster
+E2E_KUBE_NAMESPACE=my-namespace
+E2E_CONTEXT_KEY=default
+E2E_EXTRA_CONTEXT_KEY=extra
+E2E_BUSINESS_DOMAIN_NAME=My Business Domain
+E2E_EXAMPLE_USERS_EMAIL_DOMAIN=example.com
+E2E_BUSINESS_DOMAIN_ADMIN_USERNAME=my-business-domain-admin@example.com
+E2E_PORTAL_DB=my_portal
+E2E_SUPERSET_DB=my_default_superset
+# empty when an ingress serves <portal>/cloudbeaver/ itself
+E2E_CLOUDBEAVER_URL=
+```
+
+Then run the suite with Node loading that file. Variables set in the shell win over the file:
+
+```bash
+node --env-file=my-instance.env node_modules/@playwright/test/cli.js test
+node --env-file=my-instance.env node_modules/@playwright/test/cli.js test tests/batch-import   # one folder only
+```
+
+On Kubernetes the specs that prepare data or check results (batch import, users, dashboard groups, pipelines) need
+kubectl access with `pods/exec` in the namespace: they exec into `deploy/portal-backend` (the compose service
+`hello-data-portal-api`, with the shared storage at `/storage`) and run psql in `deploy/postgres`.
+
 ## CI
 
 `.github/workflows/e2e.yml` runs the suite for every release candidate tag (`*.rc*`) right after `maven.yml` pushed the
@@ -217,7 +264,7 @@ open /tmp/e2e-site/e2e/index.html
   databases: `portalRoles()`, `portalDashboards()`, `portalCommentPermission()` in the portal and `supersetRoles()` /
   `expectSupersetRoles()` in Superset (`ab_user`, `ab_user_role`, `ab_role`). `createDashboardGroup()`,
   `dashboardGroupMembers()` and `deleteDashboardGroup()` work on the dashboard groups of the portal. So these tests need
-  the docker CLI and the compose stack on the machine that runs Playwright. They create the Superset roles `RLS_E2E_A`
+  the docker CLI and the compose stack (or kubectl and `E2E_KUBE_NAMESPACE`) on the machine that runs Playwright. They create the Superset roles `RLS_E2E_A`
   and `RLS_E2E_B` once and keep them, and delete the users and groups they created in `afterAll`.
 - `tests/data-eng.ts` has the helpers for the Data Eng. menu: `openOrchestration()` (the embedded Airflow),
   `breadcrumb()`, `addDag()` / `removeDag()` (write a DAG file into the dags folder of a data domain with `docker exec`),
@@ -227,7 +274,7 @@ open /tmp/e2e-site/e2e/index.html
   mock), `openDataMartsViewer()` (CloudBeaver embedded in the portal), `expandConnectionsFolder()` (expands the shared
   connections folder, and presses CloudBeaver's Retry when it failed to load the connections of a new session) and
   `cloudbeaverConnection()`, `openFilebrowser()`, `openFolder()`, `createFolder()`, `renameFolder()`, `deleteFolder()` for SFTPGo and
-  `expectNoDataEngEntry()`. `tests/docker.ts` has the `docker exec` and SQL helpers shared with the batch import.
+  `expectNoDataEngEntry()`. `tests/docker.ts` has the `docker exec` (or `kubectl exec`) and SQL helpers shared with the batch import.
 - Only the admin roles (`HELLODATA_ADMIN`, `BUSINESS_DOMAIN_ADMIN`, `DATA_DOMAIN_ADMIN`) can comment by default. Comment
   tests give the other roles a comment permission in `beforeAll` and set it back to none in `afterAll`. A reviewer does
   not see the drafts of other users, so a comment is cleaned up by its author.
