@@ -122,4 +122,5 @@ nav:
       - Changelog: more/changelog.md
       - Glossary: more/glossary.md
       - FAQ: more/faq.md
+      - E2E Test Reports: https://kanton-bern.github.io/hellodata-be/e2e/
     # - Features Examples: test/examples.md

@@ -39,7 +39,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
-import java.util.Locale;
 
 @Log4j2
 @Component
@@ -57,7 +56,8 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
             if (!sb.isEmpty()) {
                 sb.append("|"); // roles are split with |
             }
-            sb.append(grantedAuthority.getAuthority().toUpperCase(Locale.ENGLISH));
+            // the authorities are already the ids of the CloudBeaver teams (see CbTeams), which are case-sensitive
+            sb.append(grantedAuthority.getAuthority());
         }
         return sb.toString();
     }

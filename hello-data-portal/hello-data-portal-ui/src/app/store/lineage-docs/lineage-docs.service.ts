@@ -60,7 +60,8 @@ export class LineageDocsService {
         if (url.endsWith(swaggerSuffix)) {
           return url.slice(0, -swaggerSuffix.length);
         }
-        return url;
+        // a trailing slash would produce '//api/...' which the dbt-docs CORS config rejects
+        return url.replace(/\/+$/, '');
       })
     );
   }

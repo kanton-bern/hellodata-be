@@ -104,21 +104,6 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
-            },
-            "e2e": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.e2e.ts"
-                }
-              ],
-              "baseHref": "/",
-              "buildOptimizer": false,
-              "optimization": false,
-              "vendorChunk": true,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
@@ -140,9 +125,6 @@
             "local-with-dev-apis": {
               "proxyConfig": "proxy.conf.json",
               "buildTarget": "hellodata-portal-ui:build:local-with-dev-apis"
-            },
-            "e2e": {
-              "buildTarget": "hellodata-portal-ui:build:e2e"
             }
           },
           "defaultConfiguration": "development"

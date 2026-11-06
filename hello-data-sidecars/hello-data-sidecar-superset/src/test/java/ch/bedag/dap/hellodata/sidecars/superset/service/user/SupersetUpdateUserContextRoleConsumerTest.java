@@ -205,6 +205,23 @@ class SupersetUpdateUserContextRoleConsumerTest {
         assertThat(captureUpdatedRoles()).containsExactly(3);
     }
 
+    @Test
+    void shouldSkipAnOlderUpdateThatArrivesAfterANewerOne() throws URISyntaxException, IOException {
+        mockSupersetForRlsTest(List.of(7));
+
+        // an admin made the user a viewer (state read at 200), then the full synchronization that read the user
+        // before (at 100, still without access) is processed: it must not take the access away again
+        UserContextRoleUpdate newerUpdate = rlsUserContextRoleUpdate(HdRoleName.DATA_DOMAIN_VIEWER, null);
+        newerUpdate.setStateReadAt(200L);
+        consumer.subscribe(newerUpdate);
+        UserContextRoleUpdate olderUpdate = rlsUserContextRoleUpdate(HdRoleName.NONE, null);
+        olderUpdate.setStateReadAt(100L);
+        consumer.subscribe(olderUpdate);
+
+        // captureUpdatedRoles verifies a single roles update - the one of the newer state
+        assertThat(captureUpdatedRoles()).containsExactly(3);
+    }
+
     private UserContextRoleUpdate rlsUserContextRoleUpdate(HdRoleName roleName, Map<String, List<String>> rlsRolesPerContext) {
         UserContextRoleUpdate.ContextRole contextRole = new UserContextRoleUpdate.ContextRole();
         contextRole.setContextKey("dd01");

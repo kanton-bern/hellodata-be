@@ -61,7 +61,6 @@ import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 @Log4j2
@@ -118,7 +117,7 @@ public class SecurityConfig {
                     Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
                     log.debug("--> mapping authorities... {}", rolesForUser);
                     for (String role : rolesForUser) {
-                        mappedAuthorities.add(new SimpleGrantedAuthority(role.toUpperCase(Locale.ENGLISH)));
+                        mappedAuthorities.add(new SimpleGrantedAuthority(role));
                     }
                     return Mono.just(new DefaultOidcUser(mappedAuthorities, userRequest.getIdToken()));
                 });

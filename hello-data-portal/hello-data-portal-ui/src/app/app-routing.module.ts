@@ -322,7 +322,10 @@ const routes: Routes = [
   },
   {
     path: naviElements.query.path,
-    canActivate: [AutoLoginPartialRoutesGuard],
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['QUERIES'],
+    },
     children: [
       {
         path: '',

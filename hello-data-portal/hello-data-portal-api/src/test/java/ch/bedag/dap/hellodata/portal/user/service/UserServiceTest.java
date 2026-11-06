@@ -204,6 +204,8 @@ class UserServiceTest {
             verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.DISABLE_USER), any());
             verify(emailNotificationService).notifyAboutUserDeactivation(any(), eq("test@example.com"), eq(Locale.GERMAN));
             verify(authenticationConverter).invalidateUserCache("test@example.com");
+            // the auth provider (Keycloak) is never touched
+            verifyNoInteractions(keycloakService);
         }
     }
 
@@ -245,6 +247,8 @@ class UserServiceTest {
             verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.ENABLE_USER), any());
             verify(emailNotificationService).notifyAboutUserActivation(any(), eq("test@example.com"), any());
             verify(authenticationConverter).invalidateUserCache("test@example.com");
+            // the auth provider (Keycloak) is never touched
+            verifyNoInteractions(keycloakService);
         }
     }
 

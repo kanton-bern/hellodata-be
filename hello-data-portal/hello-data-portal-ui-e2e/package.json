@@ -4,27 +4,15 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "test:run": "cypress run",
-    "test:open": "cypress open"
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.29.2",
-    "@typescript-eslint/parser": "^4.29.2",
-    "chance": "^1.1.10",
-    "cypress": "^8.7.0",
-    "cypress-log-to-output": "^1.1.2",
-    "eslint": "^7.32.0",
-    "eslint-plugin-import": "2.24.0",
-    "eslint-plugin-jsdoc": "36.0.7",
-    "eslint-plugin-prefer-arrow": "1.2.3",
-    "jwt-decode": "^3.1.2",
-    "typescript": "~4.3.5",
-    "uuid": "^14.0.0"
-  },
-  "resolutions": {
-    "js-yaml": "^4.2.0",
-    "@cypress/request": "^4.0.0",
-    "qs": "^6.16.1",
-    "form-data": "^4.0.6"
+    "@playwright/test": "1.64.0",
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3"
   }
 }
