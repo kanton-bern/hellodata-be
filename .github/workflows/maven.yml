@@ -88,6 +88,8 @@ jobs:
     needs: build
     if: ${{ github.ref_type == 'tag' && contains(github.ref_name, '.rc') }}
     uses: ./.github/workflows/e2e.yml
+    # the Teams notification of the e2e workflow needs TEAMS_WEBHOOK_URL
+    secrets: inherit
     # write: the e2e workflow publishes its report to the gh-pages branch
     permissions:
       contents: write
