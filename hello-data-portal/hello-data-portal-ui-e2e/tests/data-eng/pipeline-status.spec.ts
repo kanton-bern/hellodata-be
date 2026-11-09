@@ -8,7 +8,7 @@ import {
   openPortalAs,
   test,
 } from '../fixtures';
-import {addDag, CONTEXT_KEY, expectPipelines, PIPELINE_SYNC_TIMEOUT, removeDag, SHOWCASE_DAG} from '../data-eng';
+import {addDag, AIRFLOW3, CONTEXT_KEY, expectPipelines, PIPELINE_SYNC_TIMEOUT, removeDag, SHOWCASE_DAG} from '../data-eng';
 
 // HELLODATA-745: a user sees the DAG status (Status -> Data pipelines on the summary page) only of the data domains the
 // user has a role in. The portal assigns a DAG to a data domain by the data domain key in the path of the DAG file.
@@ -49,12 +49,15 @@ test.describe('Pipeline status', () => {
   }
 
   // the admin opens the summary page and the status panel Data pipelines lists the DAG of the data domain but not
-  // the DAG of the foreign data domain
+  // the DAG of the foreign data domain; the badge next to the DAG names the Airflow it runs in (AF2 or AF3)
   test('status panel lists the DAGs of the data domain', async ({adminPage: page}) => {
     await page.goto('summary');
     const status = page.locator('#statusHeader');
     await status.getByText('Data pipelines', {exact: true}).click();
-    await expect(status.getByText(OWN_DAG, {exact: true})).toBeVisible();
+    const ownDag = status.getByText(OWN_DAG, {exact: true});
+    await expect(ownDag).toBeVisible();
     await expect(status.getByText(FOREIGN_DAG, {exact: true})).toHaveCount(0);
+    const row = status.locator('.grid').filter({has: ownDag});
+    await expect(row.getByText(AIRFLOW3 ? 'AF3' : 'AF2', {exact: true})).toBeVisible();
   });
 });

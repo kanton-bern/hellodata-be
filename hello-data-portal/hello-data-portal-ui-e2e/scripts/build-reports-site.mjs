@@ -8,8 +8,9 @@
 // <site>/index.html                               all versions and their runs
 // <site>/index.json                               the same as data (the summaries without their tests)
 // <site>/<version>/index.html                     the runs of a version and what its latest run tested
-// <site>/<version>/<browser>/<run>/index.html     what was tested in a run and its result
-// <site>/<version>/<browser>/<run>/report/        the Playwright HTML report of the run
+// <site>/<version>/<setup>/<run>/index.html       what was tested in a run and its result
+// <site>/<version>/<setup>/<run>/report/          the Playwright HTML report of the run
+// The setup is the browser, with an -airflow3 suffix for runs against Airflow 3 (see setupDir()).
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -42,7 +43,7 @@ fs.writeFileSync(path.join(site, 'index.json'), JSON.stringify(runs.map(({tests,
 console.log(`${runs.length} runs in ${site}`);
 
 function addRun(summary, report) {
-  const dir = path.join(site, safe(summary.version), safe(summary.browser),
+  const dir = path.join(site, safe(summary.version), safe(setupDir(summary)),
     safe(`${summary.runId}-${summary.runAttempt}`));
   fs.rmSync(dir, {recursive: true, force: true});
   fs.mkdirSync(dir, {recursive: true});
@@ -92,6 +93,16 @@ function removeEmptyFolders() {
   }
 }
 
+// The browser and the Airflow a run tested; runs before E2E_AIRFLOW_VERSION existed have no airflow and tested Airflow 2.
+function setup(run) {
+  return `${run.browser}, Airflow ${run.airflow ?? '2'}`;
+}
+
+// the folder of a run's setup: the browser, as before Airflow 3 was tested, plus -airflow3 for Airflow 3
+function setupDir(summary) {
+  return summary.airflow === '3' ? `${summary.browser}-airflow3` : summary.browser;
+}
+
 // --- pages ----------------------------------------------------------------------------------------------------------
 
 // one row per tested version with the result of its latest run in each browser; the version page has all its runs
@@ -99,12 +110,12 @@ function removeEmptyFolders() {
 function indexPage(runs) {
   const rows = Object.values(Object.groupBy(runs, run => run.versionDir)).map(versionRuns => {
     const [latest] = versionRuns;
-    const latestPerBrowser = Object.values(Object.groupBy(versionRuns, run => run.browser)).map(([run]) => run);
+    const latestPerBrowser = Object.values(Object.groupBy(versionRuns, setup)).map(([run]) => run);
     return `
       <tr>
         <td><a class="version" href="${esc(latest.versionDir)}/">${esc(latest.version)}</a></td>
         <td class="results">${latestPerBrowser.map(run => `
-          <div><a href="${esc(run.path)}/">${badge(run.status)} ${esc(run.browser)}</a>
+          <div><a href="${esc(run.path)}/">${badge(run.status)} ${esc(setup(run))}</a>
             <span class="muted small">${run.stats.passed + run.stats.flaky}/${run.stats.total} passed</span></div>`)
           .join('')}</td>
         <td>${date(latest.startedAt)}</td>
@@ -121,7 +132,7 @@ function indexPage(runs) {
     </header>
     ${rows ? `
     <div class="table"><table>
-      <thead><tr><th>Version</th><th>Latest result per browser</th><th>Last tested</th><th>Commit</th>
+      <thead><tr><th>Version</th><th>Latest result per browser and Airflow</th><th>Last tested</th><th>Commit</th>
         <th class="num">Runs</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>` : '<p>No version tested yet.</p>'}`);
@@ -135,14 +146,14 @@ function versionPage(versionRuns) {
     <header><h1>${esc(latest.version)}</h1></header>
     <h2>Runs</h2>
     ${runsTable(versionRuns, '../')}
-    <h2>Latest run <span class="muted">${esc(latest.browser)}, ${date(latest.startedAt)}</span></h2>
+    <h2>Latest run <span class="muted">${esc(setup(latest))}, ${date(latest.startedAt)}</span></h2>
     ${runDetails(latest, `${latest.path.slice(latest.versionDir.length + 1)}/`)}`);
 }
 
 function runPage(run) {
-  return page(`E2E ${run.version} ${run.browser}`, `
+  return page(`E2E ${run.version} ${setup(run)}`, `
     <nav class="links"><a href="../../">← ${esc(run.version)}</a><a href="../../../">All versions</a></nav>
-    <header><h1>${esc(run.version)} <span class="muted">${esc(run.browser)}</span> ${badge(run.status)}</h1></header>
+    <header><h1>${esc(run.version)} <span class="muted">${esc(setup(run))}</span> ${badge(run.status)}</h1></header>
     ${runDetails(run, '')}`);
 }
 
@@ -150,12 +161,12 @@ function runPage(run) {
 function runsTable(runs, prefix) {
   return `
     <div class="table"><table>
-      <thead><tr><th>Status</th><th>Browser</th><th>Started</th><th class="num">Passed</th><th class="num">Failed</th>
+      <thead><tr><th>Status</th><th>Setup</th><th>Started</th><th class="num">Passed</th><th class="num">Failed</th>
         <th class="num">Flaky</th><th class="num">Skipped</th><th>Commit</th><th>Links</th></tr></thead>
       <tbody>${runs.map(run => `
         <tr>
           <td>${badge(run.status)}</td>
-          <td>${esc(run.browser)}</td>
+          <td>${esc(setup(run))}</td>
           <td>${date(run.startedAt)}</td>
           <td class="num">${run.stats.passed}</td>
           <td class="num">${run.stats.failed}</td>

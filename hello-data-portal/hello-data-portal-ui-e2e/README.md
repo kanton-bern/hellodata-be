@@ -57,6 +57,33 @@ The variables shorten waits that only matter for the tests (all of them default 
 Airflow and SFTPGo need more memory than the rest of the subset; leave them out of the command when only other specs
 are run.
 
+### Airflow 3
+
+The compose installation runs Airflow 2. HelloDATA 1.7 also ships Airflow 3 (`bedag/hello-data-airflow:airflow3-<tag>`
+and its sidecar `bedag/hello-data-sidecar-airflow:airflow3-<tag>`), which the portal shows as Data Eng. ->
+Orchestration (Airflow3). `compose-airflow3.yaml` adds it to the e2e stack the way the Helm charts deploy it: its own
+database `airflow3`, the api-server on http://localhost:28090, scheduler, dag-processor, the technical user of the
+sidecar (`hd-seed`), a loop that grants the `DD_<key>` roles their DAGs (`airflow sync-perm`), the sidecar, and the DAG
+`hello_world_Default_Data_Domain` (`airflow3/hello_world.py`). The portal api gives the users their Airflow 3 roles in
+Keycloak (`AIRFLOW3_ROLE_SYNC_ENABLED`), for which a one-off service grants `admin-cli` the `manage-realm` role.
+
+Add the file to `COMPOSE_FILE` and start the Airflow 3 services instead of the Airflow 2 ones (needs a tag that has the
+Airflow 3 images, e.g. `1.7.0-dev-SNAPSHOT`):
+
+```bash
+cd hello-data-deployment/docker-compose
+export COMPOSE_FILE="$(grep '^COMPOSE_FILE=' .env | cut -d= -f2):../../hello-data-portal/hello-data-portal-ui-e2e/compose-override.yaml:../../hello-data-portal/hello-data-portal-ui-e2e/compose-airflow3.yaml"
+HD_VERSION=1.7.0-dev-SNAPSHOT HD_SUPERSET_PUBLISH_INTERVAL_MINUTES=1 HD_DBT_DOCS_PUBLISH_INTERVAL_MINUTES=1 \
+HD_BATCH_USERS_SCAN_INTERVAL_SECONDS=5 HD_AIRFLOW_DAG_DIR_LIST_INTERVAL_SECONDS=30 HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES=1 \
+HD_SFTPGO_PUBLISH_INTERVAL_MINUTES=1 \
+  docker compose -p hellodata-e2e up -d --wait hello-data-portal-ui hello-data-superset-sidecar-default-data-domain \
+  airflow3-api-server airflow3-scheduler airflow3-dag-processor airflow3-sync-perm hello-data-airflow3-sidecar \
+  hello-data-sftpgo-sidecar
+```
+
+and run the specs with `E2E_AIRFLOW_VERSION=3` (see [Configuration](#configuration)). The wait for the sidecar
+resources below then looks for `module_type = 'AIRFLOW3'` instead of `'AIRFLOW'`.
+
 On a fresh stack the sidecars may publish their resources before the portal sidecar is listening. They republish on
 their interval, so the lineage docs test can fail until then. Wait for the dbt docs app info and the
 Superset dashboards first (this is what the CI workflow does, the query returns 4 when the dbt docs, Superset, Airflow
@@ -123,6 +150,7 @@ docker compose -p hellodata-e2e down --volumes
 | `E2E_ADMIN_EMAIL`     | `admin@hellodata.ch`                      | Its email, shown in the top bar and profile         |
 | `E2E_COMPOSE_PROJECT` | `$COMPOSE_PROJECT_NAME` or `hellodata-e2e` | Compose project the tests that read the databases or write files (batch import, pipelines, users, dashboard groups) run `docker exec` in; `hellodata` for the everyday stack |
 | `E2E_BROWSER_CHANNEL` | empty (Chromium bundled with Playwright)  | Browser channel, e.g. `msedge` for Microsoft Edge |
+| `E2E_AIRFLOW_VERSION` | `2`                                       | Airflow the Data Eng. specs test: `2` (Orchestration) or `3` (Orchestration (Airflow3), `compose-airflow3.yaml`) |
 | `E2E_CLOUDBEAVER_URL` | `http://localhost:8087` if `E2E_BASE_URL` is not set, else empty | CloudBeaver gateway the DWH Viewer tests route `<portal>/cloudbeaver/` to; empty when the installation routes it itself (ingress) |
 
 The other users are the example users created by the portal api's `create-example-users` profile (see
@@ -155,6 +183,7 @@ them default to the compose stack:
 | `E2E_BUSINESS_DOMAIN_ADMIN_USERNAME` | `hellodata-product-development-admin@<domain>`     | Business domain admin example user              |
 | `E2E_PORTAL_DB`                      | `hd_metainfo`                                      | Portal database                                 |
 | `E2E_SUPERSET_DB`                    | `superset_default_data_domain`                     | Superset database of the default data domain    |
+| `E2E_SHOWCASE_DAG`                   | `hello_world_<E2E_CONTEXT_KEY>`                    | A DAG that is always in the default data domain |
 | `E2E_KUBE_NAMESPACE`                 | empty (docker compose)                             | Run the `docker exec` / psql steps with `kubectl exec` in this namespace instead |
 | `E2E_KUBE_CONTEXT`                   | empty (current kube context)                       | Kube context for `kubectl exec`                 |
 
@@ -193,9 +222,10 @@ kubectl access with `pods/exec` in the namespace: they exec into `deploy/portal-
 ## CI
 
 `.github/workflows/e2e.yml` runs the suite for every release candidate tag (`*.rc*`) right after `maven.yml` pushed the
-images, and every working night (Monday to Friday, 02:00 UTC) against the images of `develop` (`latest`) in Chromium,
+images, and every working night (Monday to Friday, 02:00 UTC) against the images of `develop` (`latest`) with Airflow 2,
 so a fresh report of `latest` is on the reports page every morning. Schedules only run from the default branch. It can also be started manually on any branch (Actions -> "E2E tests (docker compose)" -> Run workflow) with
-the image tag to test and the browser (Chromium or Microsoft Edge). The tests run from the selected branch, the images come from the given tag. Every push publishes
+the image tag to test, the browser (Chromium or Microsoft Edge) and the Airflow (2 or 3). Release candidates are tested
+twice, with Airflow 2 and with Airflow 3. The tests run from the selected branch, the images come from the given tag. Every push publishes
 images: `develop` as `latest`, and gitflow branches as `<name after the prefix>-SNAPSHOT` (e.g. `feature/my-change` ->
 `my-change-SNAPSHOT`), so a branch can be tested once its `maven.yml` run has finished. The HTML report, traces of
 failed tests and the compose logs are uploaded as a workflow artifact.
@@ -266,7 +296,9 @@ open /tmp/e2e-site/e2e/index.html
   `dashboardGroupMembers()` and `deleteDashboardGroup()` work on the dashboard groups of the portal. So these tests need
   the docker CLI and the compose stack (or kubectl and `E2E_KUBE_NAMESPACE`) on the machine that runs Playwright. They create the Superset roles `RLS_E2E_A`
   and `RLS_E2E_B` once and keep them, and delete the users and groups they created in `afterAll`.
-- `tests/data-eng.ts` has the helpers for the Data Eng. menu: `openOrchestration()` (the embedded Airflow),
+- `tests/data-eng.ts` has the helpers for the Data Eng. menu: `openOrchestration()` (the embedded Airflow of
+  `E2E_AIRFLOW_VERSION`; `ORCHESTRATION_ENTRY`, `ORCHESTRATION_PATH` and `orchestrationSrc()` give its menu entry, page
+  and iframe url),
   `breadcrumb()`, `addDag()` / `removeDag()` (write a DAG file into the dags folder of a data domain with `docker exec`),
   `pipelineIds()` / `expectPipelines()` (the DAGs `/api/pipelines` reports to the logged in user), `openDwhViewer()` and
   `routeCloudbeaver()` (the portal embeds `<portal>/cloudbeaver/`, which only an ingress serves, so the tests route it to

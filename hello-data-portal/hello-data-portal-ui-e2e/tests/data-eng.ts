@@ -1,17 +1,37 @@
 import {BrowserContext, FrameLocator, Page} from '@playwright/test';
 import {expect, navigate, openMenu, signIn, User} from './fixtures';
 import {exec} from './docker';
-import {BUSINESS_DOMAIN_NAME, CONTEXT_KEY} from './instance';
+import {AIRFLOW3, BUSINESS_DOMAIN_NAME, CONTEXT_KEY, SHOWCASE_DAG_ID} from './instance';
 
 // The Data Eng. menu: Orchestration (Airflow embedded in the portal), DWH Viewer (CloudBeaver in a new tab) and
 // Filebrowser (SFTPGo in a new tab). They need the Airflow, CloudBeaver and SFTPGo services of the compose stack.
+// Airflow is version 2 or 3 (E2E_AIRFLOW_VERSION); the portal has an Orchestration page for each, the helpers below
+// use the one of the version under test.
 
 export const DATA_ENG_MENU = 'Data Eng.';
 export {CONTEXT_KEY};
 export const DATA_DOMAIN_FOLDER = '/Default Data Domain';
 
-// DAGs the showcase copies into the dags folder of the default data domain, the data domain key is part of their id
-export const SHOWCASE_DAG = `hello_world_${CONTEXT_KEY}`;
+// DAG that is always in the dags folder of the default data domain, the data domain key is part of its id (see
+// SHOWCASE_DAG_ID in instance.ts)
+export const SHOWCASE_DAG = SHOWCASE_DAG_ID;
+export {AIRFLOW3};
+
+// the Data Eng. menu entry and the page of the Airflow under test
+export const ORCHESTRATION_ENTRY = AIRFLOW3 ? 'Orchestration (Airflow3)' : 'Orchestration';
+export const ORCHESTRATION_PATH = AIRFLOW3 ? 'embedded-orchestration-airflow3' : 'embedded-orchestration';
+
+/**
+ * The end of the url the portal loads into the Airflow iframe, for the DAG list or the page of a DAG. Airflow 2 is
+ * opened through its Keycloak login with the target page appended (/home, /dags/<id>), Airflow 3 through its logout
+ * with the target page url-encoded in ?next= (%2Fdags, %2Fdags%2F<id>).
+ */
+export function orchestrationSrc(dagId?: string): RegExp {
+  if (AIRFLOW3) {
+    return new RegExp(`\\?next=${encodeURIComponent(dagId ? `/dags/${dagId}` : '/dags')}$`);
+  }
+  return new RegExp(dagId ? `/dags/${dagId}$` : '/home$');
+}
 
 // the airflow sidecar publishes DAGs to the portal on a fixed interval (HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES, 1 minute in
 // the e2e workflow) and Airflow looks for new DAG files every HD_AIRFLOW_DAG_DIR_LIST_INTERVAL_SECONDS (30 there)
@@ -19,7 +39,8 @@ export const PIPELINE_SYNC_TIMEOUT = 4 * 60_000;
 // SFTPGo users and their data domain folders are created by its sidecar after the portal published the users
 export const FILEBROWSER_SYNC_TIMEOUT = 3 * 60_000;
 
-const DAGS_DIR = '/storage/airflow/dags';
+// the dags folders on the shared storage of the portal api, the Airflow 3 one is mounted by compose-airflow3.yaml
+const DAGS_DIR = AIRFLOW3 ? '/storage/airflow3/dags' : '/storage/airflow/dags';
 
 /** The Airflow or CloudBeaver page embedded in the portal. */
 export function subsystemFrame(page: Page): FrameLocator {
@@ -28,8 +49,8 @@ export function subsystemFrame(page: Page): FrameLocator {
 
 /** Opens Data Eng. -> Orchestration and returns the embedded Airflow once it shows a DAG of the data domain. */
 export async function openOrchestration(page: Page): Promise<FrameLocator> {
-  await navigate(page, DATA_ENG_MENU, 'Orchestration');
-  await expect(page).toHaveURL(/\/embedded-orchestration$/);
+  await navigate(page, DATA_ENG_MENU, ORCHESTRATION_ENTRY);
+  await expect(page).toHaveURL(new RegExp(`/${ORCHESTRATION_PATH}$`));
   const airflow = subsystemFrame(page);
   // the iframe logs in to Airflow through Keycloak first and then opens the DAG list
   await expect(airflow.getByText(SHOWCASE_DAG, {exact: true}).first()).toBeVisible({timeout: 90_000});
@@ -54,6 +75,16 @@ export async function expectNoDataEngEntry(page: Page, entry: string) {
 
 /** A DAG file without tasks, enough for Airflow to list it and for the sidecar to publish it. */
 function dagFile(dagId: string) {
+  if (AIRFLOW3) {
+    // Airflow 3 moved DAG to the task SDK and dropped schedule_interval
+    return [
+      'from datetime import datetime',
+      'from airflow.sdk import DAG',
+      '',
+      `dag = DAG('${dagId}', description='e2e test DAG', schedule=None, start_date=datetime(2024, 1, 1), catchup=False)`,
+      '',
+    ].join('\n');
+  }
   return [
     'from datetime import datetime',
     'from airflow import DAG',

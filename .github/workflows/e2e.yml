@@ -1,6 +1,6 @@
 name: E2E tests (docker compose)
 
-run-name: "E2E: ${{ inputs.version || 'latest' }} (${{ inputs.browser || 'msedge' }})"
+run-name: "E2E: ${{ inputs.version || 'latest' }} (${{ inputs.browser || 'msedge' }}, Airflow ${{ inputs.airflow || '2' }})"
 
 # Runs the Playwright regression suite against the portal and the default data domain's Superset of the docker compose
 # installation.
@@ -18,6 +18,11 @@ on:
         description: 'Browser to run the tests in: chromium (bundled with Playwright) or msedge (Microsoft Edge)'
         required: false
         default: 'msedge'
+        type: string
+      airflow:
+        description: 'Airflow to test: 2 (the Airflow of the compose installation) or 3 (compose-airflow3.yaml of the e2e suite)'
+        required: false
+        default: '2'
         type: string
   # every working night against the images of develop ('latest'), so the reports are fresh in the morning; schedules
   # run only from the default branch and have no inputs, so the version and browser fall back to latest and msedge
@@ -38,9 +43,17 @@ on:
         options:
           - msedge
           - chromium
+      airflow:
+        description: 'Airflow to test (3 needs the airflow3-<version> images, published since 1.7.0)'
+        required: true
+        default: '2'
+        type: choice
+        options:
+          - '2'
+          - '3'
 
 concurrency:
-  group: e2e-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'msedge' }}
+  group: e2e-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'msedge' }}-airflow${{ inputs.airflow || '2' }}
   cancel-in-progress: true
 
 jobs:
@@ -65,10 +78,12 @@ jobs:
       HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES: 1
       # the Filebrowser menu entry appears once the SFTPGo sidecar published its app info
       HD_SFTPGO_PUBLISH_INTERVAL_MINUTES: 1
-      # the services the tests use, the others they depend on are started with them
-      E2E_SERVICES: >-
-        hello-data-portal-ui hello-data-superset-sidecar-default-data-domain
-        airflow-webserver airflow-scheduler hello-data-airflow-sidecar hello-data-sftpgo-sidecar
+      # 2 or 3: the Airflow the specs test (tests/instance.ts); Airflow 3 comes from compose-airflow3.yaml
+      E2E_AIRFLOW_VERSION: ${{ inputs.airflow || '2' }}
+      # the services the tests use, the others they depend on are started with them; the step "Add e2e compose
+      # override" adds the Airflow services and writes the list to E2E_SERVICES
+      E2E_BASE_SERVICES: >-
+        hello-data-portal-ui hello-data-superset-sidecar-default-data-domain hello-data-sftpgo-sidecar
       # msedge for Microsoft Edge (the default, also for the nightly schedule without inputs), empty for the Chromium bundled with Playwright
       E2E_BROWSER_CHANNEL: ${{ inputs.browser != 'chromium' && 'msedge' || '' }}
       COMPOSE_PROJECT_NAME: hellodata-e2e
@@ -93,10 +108,23 @@ jobs:
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
 
-      # the compose files are listed in COMPOSE_FILE of the compose .env, the e2e override replaces unavailable images
+      # the compose files are listed in COMPOSE_FILE of the compose .env, the e2e override replaces unavailable images;
+      # for Airflow 3 compose-airflow3.yaml adds its services (the Airflow 2 services are not started then)
       - name: Add e2e compose override
         working-directory: ${{ env.COMPOSE_DIR }}
-        run: echo "COMPOSE_FILE=$(grep '^COMPOSE_FILE=' .env | cut -d= -f2):${{ github.workspace }}/${{ env.E2E_DIR }}/compose-override.yaml" >> "$GITHUB_ENV"
+        run: |
+          files="$(grep '^COMPOSE_FILE=' .env | cut -d= -f2):$GITHUB_WORKSPACE/$E2E_DIR/compose-override.yaml"
+          if [ "$E2E_AIRFLOW_VERSION" = "3" ]; then
+            files="$files:$GITHUB_WORKSPACE/$E2E_DIR/compose-airflow3.yaml"
+            airflow="airflow3-api-server airflow3-scheduler airflow3-dag-processor airflow3-sync-perm hello-data-airflow3-sidecar"
+            module=AIRFLOW3
+          else
+            airflow="airflow-webserver airflow-scheduler hello-data-airflow-sidecar"
+            module=AIRFLOW
+          fi
+          echo "COMPOSE_FILE=$files" >> "$GITHUB_ENV"
+          echo "E2E_SERVICES=$E2E_BASE_SERVICES $airflow" >> "$GITHUB_ENV"
+          echo "E2E_AIRFLOW_MODULE=$module" >> "$GITHUB_ENV"
 
       - name: Pull images
         working-directory: ${{ env.COMPOSE_DIR }}
@@ -117,14 +145,15 @@ jobs:
 
       # sidecars publish their resources on an interval (1 minute for dbt docs, Superset, Airflow and SFTPGo here), and
       # on a fresh install the first round can be published before the portal sidecar subscribed - so wait until the
-      # portal knows the dbt docs instance, the Superset dashboards, the Airflow DAGs and the SFTPGo instance
+      # portal knows the dbt docs instance, the Superset dashboards, the Airflow DAGs (of the Airflow under test,
+      # module AIRFLOW or AIRFLOW3) and the SFTPGo instance
       - name: Wait for sidecar resources
         working-directory: ${{ env.COMPOSE_DIR }}
         run: |
           query="select count(distinct module_type) from resource
                  where (kind = 'hellodata/AppInfo' and module_type in ('DBT_DOCS', 'SFTPGO'))
                     or (kind = 'hellodata/Dashboards' and module_type = 'SUPERSET')
-                    or (kind = 'hellodata/Pipelines' and module_type = 'AIRFLOW')"
+                    or (kind = 'hellodata/Pipelines' and module_type = '$E2E_AIRFLOW_MODULE')"
           for i in $(seq 1 75); do
             count=$(docker compose exec -T postgres psql -U postgres -d hd_metainfo -tAc "$query")
             if [ "${count:-0}" -ge 4 ]; then
@@ -216,6 +245,7 @@ jobs:
         working-directory: ${{ env.E2E_DIR }}
         env:
           E2E_BROWSER: ${{ inputs.browser || 'msedge' }}
+        # E2E_AIRFLOW_VERSION comes from the job env
         run: >-
           node scripts/summarize.mjs --results test-results/results.json
           --images "$GITHUB_WORKSPACE/images.json" --out "$GITHUB_WORKSPACE/summary.json"
@@ -231,7 +261,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5
         with:
-          name: e2e-report-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'msedge' }}
+          name: e2e-report-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'msedge' }}-airflow${{ inputs.airflow || '2' }}
           path: |
             ${{ env.E2E_DIR }}/playwright-report/
             ${{ env.E2E_DIR }}/test-results/
@@ -263,7 +293,7 @@ jobs:
       - name: Download test report
         uses: actions/download-artifact@v5
         with:
-          name: e2e-report-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'msedge' }}
+          name: e2e-report-${{ inputs.version || 'latest' }}-${{ inputs.browser || 'msedge' }}-airflow${{ inputs.airflow || '2' }}
           path: ${{ runner.temp }}/artifact
 
       - name: Set up Node
@@ -275,7 +305,7 @@ jobs:
         env:
           ARTIFACT: ${{ runner.temp }}/artifact
         run: |
-          message=$(jq -r '"E2E \(.version) (\(.browser)): \(.status) - run \(.runId)"' "$ARTIFACT/summary.json")
+          message=$(jq -r '"E2E \(.version) (\(.browser), Airflow \(.airflow // "2")): \(.status) - run \(.runId)"' "$ARTIFACT/summary.json")
           .github/scripts/update-gh-pages.sh "$message" bash -c \
             'node "$0" --site e2e --summary "$1" --report "$2" && touch .nojekyll' \
             "$GITHUB_WORKSPACE/$E2E_DIR/scripts/build-reports-site.mjs" "$ARTIFACT/summary.json" \
@@ -286,7 +316,7 @@ jobs:
         env:
           ARTIFACT: ${{ runner.temp }}/artifact
         run: |
-          read -r version run < <(jq -r '[.version, "\(.browser)/\(.runId)-\(.runAttempt)"] | map(gsub("[^A-Za-z0-9._/-]"; "_")) | join(" ")' "$ARTIFACT/summary.json")
+          read -r version run < <(jq -r '[.version, "\(.browser)\(if .airflow == "3" then "-airflow3" else "" end)/\(.runId)-\(.runAttempt)"] | map(gsub("[^A-Za-z0-9._/-]"; "_")) | join(" ")' "$ARTIFACT/summary.json")
           owner="${GITHUB_REPOSITORY%%/*}"
           base="https://${owner,,}.github.io/${GITHUB_REPOSITORY#*/}/e2e/$version"
           echo "Report of $version: $base/ (this run: $base/$run/)"
@@ -314,7 +344,7 @@ jobs:
                     body: [
                       { type: "TextBlock", size: "Large", weight: "Bolder", wrap: true,
                         color: (if .status == "passed" then "Good" else "Attention" end),
-                        text: "\($icon) E2E \(.version) (\(.browser)): \(.status)" },
+                        text: "\($icon) E2E \(.version) (\(.browser), Airflow \(.airflow // "2")): \(.status)" },
                       { type: "FactSet", facts: [
                         { title: "Total",   value: "\(.stats.total)" },
                         { title: "Passed",  value: "\(.stats.passed)" },

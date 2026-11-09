@@ -51,6 +51,11 @@ const PAGES: {url: string, permission: string, allowed: string[]}[] = [
     url: 'embedded-orchestration', permission: 'DATA_ENG',
     allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN', 'DATA_DOMAIN_ADMIN'],
   },
+  // the Airflow 3 page has its own route with the same permission, also when no Airflow 3 is installed
+  {
+    url: 'embedded-orchestration-airflow3', permission: 'DATA_ENG',
+    allowed: ['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN', 'DATA_DOMAIN_ADMIN'],
+  },
   {url: 'lineage-docs/list', permission: 'DATA_LINEAGE', allowed: ALL},
   {url: 'my-dashboards', permission: '-', allowed: ALL},
   {url: `queries/list/${CONTEXT_KEY}`, permission: 'QUERIES', allowed: ['HELLODATA_ADMIN']},

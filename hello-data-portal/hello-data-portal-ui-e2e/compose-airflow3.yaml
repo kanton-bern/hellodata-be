@@ -1,0 +1,209 @@
+# Airflow 3 for the e2e stack, added to the compose files (COMPOSE_FILE) after compose-override.yaml when the suite runs
+# with E2E_AIRFLOW_VERSION=3. The compose installation itself has only Airflow 2; this file starts Airflow 3 the way the
+# Helm chart of HelloDATA 1.7 does (api-server, scheduler, dag-processor, the technical user of the sidecar and the
+# Airflow 3 sidecar), with its own database and DAG folder.
+#
+# Relative paths are resolved against hello-data-deployment/docker-compose (the folder of the first compose file).
+#
+# Airflow 3 is served on http://localhost:28090. The portal opens it with the auth.access_token cookie, from which
+# webserver_config.py logs the user in, and reads the user's Airflow roles live from Keycloak. The portal api gives the
+# users these roles in Keycloak (AIRFLOW3_ROLE_SYNC_ENABLED): airflow_admin for HELLODATA_ADMIN, airflow_base and
+# DD_<data domain key> for DATA_DOMAIN_ADMIN.
+
+x-airflow3-common:
+  &airflow3-common
+  platform: ${HD_PLATFORM}
+  # Airflow 2 and 3 share the image repository, Airflow 3 is tagged airflow3-<tag>
+  image: bedag/hello-data-airflow:airflow3-${HD_VERSION:-latest}
+  env_file: .env
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+    - "keycloak.localhost:host-gateway"
+  environment:
+    &airflow3-common-env
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/airflow3
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow3-api-server:8080/execution/
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "True"
+    # test values only, the same in every Airflow 3 container and the sidecar; the sidecar signs its tokens with HS512,
+    # which needs a secret of at least 64 bytes
+    AIRFLOW__CORE__FERNET_KEY: ZmDfcTF7_60GrrY167zsiPd67pEvs0aGOv2oasOM1Pg=
+    AIRFLOW__API__SECRET_KEY: e2e-airflow3-secret-key
+    AIRFLOW__API_AUTH__JWT_SECRET: e2e-airflow3-jwt-secret-at-least-64-bytes-long-for-the-hs512-signature-of-the-sidecar
+    AIRFLOW__API_AUTH__JWT_EXPIRATION_TIME: "36000"
+    AIRFLOW__API__BASE_URL: http://localhost:28090
+    AIRFLOW__FAB__ENABLE_PROXY_FIX: "True"
+    AIRFLOW__SCHEDULER__STANDALONE_DAG_PROCESSOR: "True"
+    # how often Airflow looks for new DAG files (300 seconds by default, 30 in the e2e workflow)
+    AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: "${HD_AIRFLOW_DAG_DIR_LIST_INTERVAL_SECONDS:-300}"
+    # Keycloak login of webserver_config.py: the public frontend-client (PKCE), and admin-cli to read the live roles
+    KEYCLOAK_CLIENT_ID: frontend-client
+    KEYCLOAK_ADMIN_URL: http://keycloak.localhost:38080
+    KEYCLOAK_REALM: hellodata
+    KEYCLOAK_ADMIN_CLIENT_ID: admin-cli
+    KEYCLOAK_ADMIN_CLIENT_SECRET: LiLlI86eFxXNWXUWqov4eyG1ocgWwPEq
+  volumes:
+    # the first folder below the DAG folder is the data domain (dag_policy in airflow_local_settings.py)
+    - airflow3-dags:/opt/airflow/dags
+    # the DAG the specs expect in the default data domain, as the showcase DAG of Airflow 2 (hello_world_<key>)
+    - ../../hello-data-portal/hello-data-portal-ui-e2e/airflow3/hello_world.py:/opt/airflow/dags/Default_Data_Domain/hello_world_Default_Data_Domain.py:ro
+  depends_on:
+    &airflow3-common-depends-on
+    airflow3-init:
+      condition: service_completed_successfully
+
+services:
+  # creates the database of Airflow 3 (the Airflow 2 database cannot be shared), lets the airflow user write the DAG
+  # folder (the entrypoint copies the HelloDATA standard DAGs into it) and migrates the database
+  airflow3-init:
+    <<: *airflow3-common
+    user: "0:0"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -e
+        chown 50000:0 /opt/airflow/dags
+        python - <<'EOF'
+        import time
+        import psycopg2
+        # pg_isready reports healthy while the init scripts of a fresh volume still run (socket only), so retry
+        for attempt in range(60):
+            try:
+                connection = psycopg2.connect(host='postgres', user='postgres', password='postgres', dbname='postgres')
+                break
+            except psycopg2.OperationalError:
+                if attempt == 59:
+                    raise
+                time.sleep(5)
+        connection.autocommit = True
+        cursor = connection.cursor()
+        cursor.execute("select 1 from pg_database where datname = 'airflow3'")
+        if not cursor.fetchone():
+            cursor.execute('create database airflow3')
+        EOF
+        exec /entrypoint airflow db migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # gives the service account of admin-cli (used by the portal api) manage-realm, so the api can create the Airflow 3
+  # realm roles (airflow_admin, airflow_base, DD_<key>) it assigns to the users
+  airflow3-keycloak-roles:
+    image: bedag/hello-data-dc-keycloak:${HD_VERSION:-latest}
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -e
+        /opt/keycloak/bin/kcadm.sh config credentials --server http://keycloak:8080 --realm master --user admin --password admin
+        /opt/keycloak/bin/kcadm.sh add-roles -r hellodata --uusername service-account-admin-cli --cclientid realm-management --rolename manage-realm
+    depends_on:
+      keycloak:
+        condition: service_healthy
+
+  airflow3-api-server:
+    <<: *airflow3-common
+    command: api-server
+    ports:
+      - "28090:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:8080/api/v2/monitor/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 30s
+    restart: always
+    depends_on:
+      <<: *airflow3-common-depends-on
+      airflow3-keycloak-roles:
+        condition: service_completed_successfully
+      keycloak:
+        condition: service_healthy
+
+  airflow3-scheduler:
+    <<: *airflow3-common
+    command: scheduler
+    restart: always
+    depends_on:
+      <<: *airflow3-common-depends-on
+      airflow3-api-server:
+        condition: service_healthy
+
+  airflow3-dag-processor:
+    <<: *airflow3-common
+    command: dag-processor
+    restart: always
+
+  # the technical user the sidecar calls the api with (id 900000, JWT only) and the hd_base role of airflow_base; the
+  # api-server creates the FAB tables it needs at its start.
+  # It also creates the FAB roles DD_<key> of the data domains: dag_policy grants them their DAGs (access_control), and
+  # Airflow refuses to import a DAG whose access_control names a missing role ("... but that role does not exist").
+  # Otherwise the role appears only with the first login of a data domain admin, and until then no DAG of the data
+  # domain is listed.
+  airflow3-seed:
+    <<: *airflow3-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -e
+        python /opt/airflow/hd-seed/seed.py
+        python - <<'EOF'
+        import psycopg2
+        connection = psycopg2.connect(host='postgres', user='postgres', password='postgres', dbname='airflow3')
+        connection.autocommit = True
+        for role in ('DD_Default_Data_Domain', 'DD_Extra_Data_Domain'):
+            connection.cursor().execute(
+                "insert into ab_role (id, name) select nextval('ab_role_id_seq'), %s "
+                "where not exists (select 1 from ab_role where name = %s)", (role, role))
+        EOF
+    depends_on:
+      <<: *airflow3-common-depends-on
+      airflow3-api-server:
+        condition: service_healthy
+
+  # the FAB auth manager of Airflow 3 does not grant the DD_<key> roles the DAGs of their data domain by itself (the Helm
+  # chart runs a CronJob every 10 minutes), so the e2e stack does it every 30 seconds
+  airflow3-sync-perm:
+    <<: *airflow3-common
+    entrypoint: /bin/bash
+    command: [ "-c", "while true; do airflow sync-perm --include-dags || true; sleep 30; done" ]
+    restart: always
+    depends_on:
+      airflow3-seed:
+        condition: service_completed_successfully
+
+  hello-data-airflow3-sidecar:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-sidecar-airflow:airflow3-${HD_VERSION:-latest}
+    env_file: .env
+    restart: always
+    environment:
+      # no trailing slash: the portal appends /auth/login/ and /auth/logout/
+      - HELLO_DATA_INSTANCE_URL=http://localhost:28090
+      - HELLO_DATA_INSTANCE_NAME=Airflow 3
+      - HELLO_DATA_AIRFLOW_HOST=airflow3-api-server
+      - HELLO_DATA_AIRFLOW_PORT=8080
+      - AIRFLOW_API_JWT_SECRET=e2e-airflow3-jwt-secret-at-least-64-bytes-long-for-the-hs512-signature-of-the-sidecar
+      - AIRFLOW_API_USER_ID=900000
+      - HELLO_DATA_BUSINESS_CONTEXT_NAME=
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_MINUTES=${HD_AIRFLOW_PUBLISH_INTERVAL_MINUTES:-10}
+    depends_on:
+      nats:
+        condition: service_started
+      airflow3-seed:
+        condition: service_completed_successfully
+
+  # the portal api gives the users their Airflow 3 roles in Keycloak, and the specs write their DAGs into the DAG folder
+  # of Airflow 3 through it (as on Kubernetes, where it is the airflow3/dags folder of the shared storage)
+  hello-data-portal-api:
+    environment:
+      - AIRFLOW3_ROLE_SYNC_ENABLED=true
+    volumes:
+      - airflow3-dags:/storage/airflow3/dags
+
+volumes:
+  airflow3-dags:

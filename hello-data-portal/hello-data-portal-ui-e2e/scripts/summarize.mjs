@@ -4,7 +4,7 @@
 //
 // node scripts/summarize.mjs --results test-results/results.json --images images.json --out summary.json
 //
-// The run is described by environment variables: HD_VERSION and E2E_BROWSER, and the GITHUB_* variables of Actions.
+// The run is described by environment variables: HD_VERSION, E2E_BROWSER and E2E_AIRFLOW_VERSION, and the GITHUB_* variables of Actions.
 // A missing results file (the stack did not start, so no test ran) gives a summary with the status 'error'.
 
 import fs from 'node:fs';
@@ -31,6 +31,8 @@ const report = readJson(args.results);
 const summary = {
   version: env.HD_VERSION || 'unknown',
   browser: env.E2E_BROWSER || 'chromium',
+  // the Airflow the suite ran against (E2E_AIRFLOW_VERSION): 2 or 3
+  airflow: env.E2E_AIRFLOW_VERSION || '2',
   repository: env.GITHUB_REPOSITORY,
   serverUrl: env.GITHUB_SERVER_URL || 'https://github.com',
   runId: env.GITHUB_RUN_ID || 'local',
@@ -141,7 +143,7 @@ function markdown(summary) {
   const icon = {passed: '✅', failed: '❌', error: '⚠️'}[summary.status];
   const {stats} = summary;
   const lines = [
-    `## ${icon} E2E ${summary.version} (${summary.browser}): ${summary.status}`,
+    `## ${icon} E2E ${summary.version} (${summary.browser}, Airflow ${summary.airflow}): ${summary.status}`,
     '',
     `${stats.total} tests: ${stats.passed} passed, ${stats.failed} failed, ${stats.flaky} flaky, ${stats.skipped} skipped`
     + ` in ${Math.round(summary.durationMs / 60_000)} min`,
