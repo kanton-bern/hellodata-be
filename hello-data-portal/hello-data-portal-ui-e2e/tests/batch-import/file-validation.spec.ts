@@ -1,3 +1,4 @@
+import {requireExec} from '../docker';
 import {expect, test} from '../fixtures';
 import {SUPERSET_SYNC_TIMEOUT} from '../superset';
 import {
@@ -21,6 +22,7 @@ const CSV_HEADER_WITH_COMMAS = 'email,businessDomainRole,context,dataDomainRole,
 // HELLODATA-2075: the whole file is checked before any user is touched. A file with an error is rejected as a whole,
 // the error is written to users-output.log and the file is left in the folder.
 test.describe('Batch import - file validation', () => {
+  requireExec();
   const valid = batchEmail('validation-valid');
   const invalid = batchEmail('validation-invalid');
   const oldFormat = batchEmail('validation-old-format');

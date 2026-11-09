@@ -1,13 +1,25 @@
 import {execFileSync} from 'node:child_process';
+import {test} from '@playwright/test';
 
 // Some tests prepare data or check results inside the containers of the installation under test. By default that is the
 // docker compose stack, so they need the docker CLI and the stack on the machine running Playwright. With
 // E2E_KUBE_NAMESPACE set they run in the pods of a Kubernetes installation instead (kubectl exec into the deployment
-// that plays the part of the compose service), optionally in the kube context E2E_KUBE_CONTEXT.
+// that plays the part of the compose service), optionally in the kube context E2E_KUBE_CONTEXT. With E2E_NO_EXEC set
+// (e.g. a tester without kubectl access) these tests are skipped, see requireExec().
 
 const COMPOSE_PROJECT = process.env.E2E_COMPOSE_PROJECT ?? process.env.COMPOSE_PROJECT_NAME ?? 'hellodata-e2e';
 const KUBE_NAMESPACE = process.env.E2E_KUBE_NAMESPACE;
 const KUBE_CONTEXT = process.env.E2E_KUBE_CONTEXT;
+const NO_EXEC = !!process.env.E2E_NO_EXEC;
+const NO_EXEC_REASON = 'needs docker or kubectl access to the installation (E2E_NO_EXEC is set)';
+
+/**
+ * Skips the tests of the enclosing describe, and its hooks, when E2E_NO_EXEC is set. Call it first in every describe
+ * whose tests or hooks use exec() or sql(), directly or through the helpers of batch-import.ts and data-eng.ts.
+ */
+export function requireExec() {
+  test.skip(NO_EXEC, NO_EXEC_REASON);
+}
 
 // the Helm deployments of the compose services the tests exec into (a service missing here keeps its name)
 const KUBE_DEPLOYMENTS: Record<string, string> = {
@@ -50,6 +62,10 @@ function kubeExec(service: string, args: string[], input?: string) {
  * writable for it there).
  */
 export function exec(service: string, args: string[], {input, user}: {input?: string, user?: string} = {}) {
+  if (NO_EXEC) {
+    // a describe that uses exec() is missing requireExec()
+    throw new Error(`exec into ${service}: ${NO_EXEC_REASON}, add requireExec() to the describe`);
+  }
   if (KUBE_NAMESPACE) {
     return kubeExec(service, args, input);
   }

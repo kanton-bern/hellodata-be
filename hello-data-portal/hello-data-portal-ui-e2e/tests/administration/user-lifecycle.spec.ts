@@ -1,3 +1,4 @@
+import {requireExec} from '../docker';
 import {CONTEXT_KEY} from '../instance';
 import {BATCH_TIMEOUT, deleteBatchUsers, expectSupersetRoles, portalRoles, portalUser} from '../batch-import';
 import {dismissToasts, expect, navigate, selectOption, test} from '../fixtures';
@@ -7,6 +8,7 @@ import {saveUserEdit} from '../superset';
 // An admin invites a user, gives it a role in a data domain and deletes it again, all in the user management. The
 // compose installation looks users up locally (LocalUserLookupProvider), so any email can be invited.
 test.describe('User lifecycle', () => {
+  requireExec();
   test.describe.configure({mode: 'serial'});
   const EMAIL = `e2e-invite.${Date.now().toString(36)}@hellodata.ch`;
 

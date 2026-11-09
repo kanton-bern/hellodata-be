@@ -1,3 +1,4 @@
+import {requireExec} from '../docker';
 import {
   ADMIN,
   BUSINESS_DOMAIN_ADMIN,
@@ -13,6 +14,7 @@ import {addDag, CONTEXT_KEY, expectPipelines, PIPELINE_SYNC_TIMEOUT, removeDag, 
 // HELLODATA-745: a user sees the DAG status (Status -> Data pipelines on the summary page) only of the data domains the
 // user has a role in. The portal assigns a DAG to a data domain by the data domain key in the path of the DAG file.
 test.describe('Pipeline status', () => {
+  requireExec();
   // the status panel shows the first 20 characters of a DAG id, so keep them short
   const RUN_ID = Date.now().toString(36);
   const OWN_DAG = `e2e_own_${RUN_ID}`;

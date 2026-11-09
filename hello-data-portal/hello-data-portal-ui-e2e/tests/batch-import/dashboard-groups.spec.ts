@@ -1,3 +1,4 @@
+import {requireExec} from '../docker';
 import {expect, test} from '../fixtures';
 import {SUPERSET_SYNC_TIMEOUT} from '../superset';
 import {
@@ -19,6 +20,7 @@ import {
 // HELLODATA-2073 / HELLODATA-2074: the dashboardGroup column puts viewers and business specialists into dashboard groups.
 // Like the roles, the groups of a data domain are the ones of the file: a group that is no longer listed is left.
 test.describe('Batch import - dashboard groups', () => {
+  requireExec();
   const user = batchEmail('grouped');
   const group = `E2E batch group ${Date.now().toString(36)}`;
   let dashboardRole: string;

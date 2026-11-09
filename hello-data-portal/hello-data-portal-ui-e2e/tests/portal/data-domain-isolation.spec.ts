@@ -1,3 +1,4 @@
+import {requireExec} from '../docker';
 import {
   ADMIN,
   DATA_DOMAIN_ADMIN,
@@ -35,6 +36,7 @@ const EXTRA_DATA_DOMAIN = 'Extra Data Domain';
 // dashboards, its DAGs or its CloudBeaver connections. The e2e installation has the Default Data Domain with Superset and
 // the Extra Data Domain without (compose-override.yaml), and both share Airflow and CloudBeaver.
 test.describe('Data domain isolation', () => {
+  requireExec();
   // the status panel shows the first 20 characters of a DAG id, so keep them short
   const RUN_ID = Date.now().toString(36);
   const DEFAULT_DAG = `e2e_dd_${RUN_ID}`;

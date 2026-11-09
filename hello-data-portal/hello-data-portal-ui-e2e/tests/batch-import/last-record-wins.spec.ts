@@ -1,3 +1,4 @@
+import {requireExec} from '../docker';
 import {expect, test} from '../fixtures';
 import {SUPERSET_SYNC_TIMEOUT} from '../superset';
 import {
@@ -20,6 +21,7 @@ import {
 // same user, the end result is the one of its last row. The current state of an existing user counts like a row above
 // the first one of the file.
 test.describe('Batch import - last record wins', () => {
+  requireExec();
   const newUser = batchEmail('last-new');
   const demoted = batchEmail('last-demoted');
   const existing = batchEmail('last-existing');

@@ -1,3 +1,4 @@
+import {requireExec} from '../docker';
 import {expect, navigate, test} from '../fixtures';
 import {SHOWCASE_DASHBOARD, SUPERSET_SYNC_TIMEOUT} from '../superset';
 import {
@@ -20,6 +21,7 @@ import {
 // HELLODATA-2073 (roles in the subsystems) and HELLODATA-2074 (roles in HelloDATA): users of the csv file that do not
 // exist yet are added to the portal and to Superset, with the roles of the file
 test.describe('Batch import - new users', () => {
+  requireExec();
   const viewer = batchEmail('new-viewer');
   const specialist = batchEmail('new-specialist');
   const editor = batchEmail('new-editor');

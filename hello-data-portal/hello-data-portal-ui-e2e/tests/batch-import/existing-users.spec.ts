@@ -1,3 +1,4 @@
+import {requireExec} from '../docker';
 import {expect, test} from '../fixtures';
 import {SHOWCASE_DASHBOARD, SUPERSET_SYNC_TIMEOUT} from '../superset';
 import {
@@ -20,6 +21,7 @@ import {
 // HELLODATA-2073 / HELLODATA-2074: users that already exist are changed to match the csv file. Roles that are not in
 // the file are removed, in the portal and in Superset. Each test continues with the user the previous one left.
 test.describe('Batch import - existing users', () => {
+  requireExec();
   test.describe.configure({mode: 'serial'});
 
   const user = batchEmail('existing');

@@ -1,3 +1,4 @@
+import {requireExec} from '../docker';
 import {CONTEXT_KEY} from '../instance';
 import {Page} from '@playwright/test';
 import {deleteDashboardGroup} from '../batch-import';
@@ -18,6 +19,7 @@ async function openDashboardGroups(page: Page) {
 // An admin groups dashboards and users of a data domain in its dashboard group page: every member of a group gets the
 // dashboards of the group, and loses them again when the group is deleted
 test.describe('Dashboard groups', () => {
+  requireExec();
   test.describe.configure({mode: 'serial'});
   const GROUP = `e2e-group-${Date.now().toString(36)}`;
 

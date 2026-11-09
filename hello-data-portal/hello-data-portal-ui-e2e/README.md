@@ -157,6 +157,7 @@ them default to the compose stack:
 | `E2E_SUPERSET_DB`                    | `superset_default_data_domain`                     | Superset database of the default data domain    |
 | `E2E_KUBE_NAMESPACE`                 | empty (docker compose)                             | Run the `docker exec` / psql steps with `kubectl exec` in this namespace instead |
 | `E2E_KUBE_CONTEXT`                   | empty (current kube context)                       | Kube context for `kubectl exec`                 |
+| `E2E_NO_EXEC`                        | empty                                              | Any value skips the specs that need `docker exec` / `kubectl exec` (see below) |
 
 ## Running against another installation
 
@@ -189,6 +190,21 @@ node --env-file=my-instance.env node_modules/@playwright/test/cli.js test tests/
 On Kubernetes the specs that prepare data or check results (batch import, users, dashboard groups, pipelines) need
 kubectl access with `pods/exec` in the namespace: they exec into `deploy/portal-backend` (the compose service
 `hello-data-portal-api`, with the shared storage at `/storage`) and run psql in `deploy/postgres`.
+
+Without that access (e.g. a tester who only has the portal in the browser) set `E2E_NO_EXEC=1`. These specs are then
+reported as skipped ("needs docker or kubectl access to the installation") instead of failing, the others run as usual:
+
+| Spec                                          | Uses `exec` for                                             |
+|-----------------------------------------------|-------------------------------------------------------------|
+| `batch-import/*.spec.ts`                      | the CSV files in the portal api container, the portal and Superset databases |
+| `administration/user-lifecycle.spec.ts`       | checking the user and its roles in the databases            |
+| `dashboards/dashboard-groups.spec.ts`         | deleting the dashboard group afterwards                     |
+| `data-eng/pipeline-status.spec.ts`            | writing and removing the test DAGs                          |
+| `portal/data-domain-isolation.spec.ts`        | writing and removing the test DAGs                          |
+
+A new describe whose tests or hooks use `exec()` / `sql()` (also through the helpers of `batch-import.ts` and
+`data-eng.ts`) calls `requireExec()` from `tests/docker.ts` first. If it is missing, `exec()` fails with a message
+saying so.
 
 ## CI
 
