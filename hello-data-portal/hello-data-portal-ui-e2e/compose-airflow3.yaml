@@ -1,5 +1,6 @@
-# Airflow 3 for the e2e stack, added to the compose files (COMPOSE_FILE) after compose-override.yaml when the suite runs
-# with E2E_AIRFLOW_VERSION=3. The compose installation itself has only Airflow 2; this file starts Airflow 3 the way the
+# Airflow 3 for the e2e stack, added to the compose files (COMPOSE_FILE) after compose-override.yaml when the suite tests
+# Airflow 3 (E2E_AIRFLOW_VERSIONS=2,3 or 3). It runs next to Airflow 2 (own ports, database and DAG folder). The compose
+# installation itself has only Airflow 2; this file starts Airflow 3 the way the
 # Helm chart of HelloDATA 1.7 does (api-server, scheduler, dag-processor, the technical user of the sidecar and the
 # Airflow 3 sidecar), with its own database and DAG folder.
 #

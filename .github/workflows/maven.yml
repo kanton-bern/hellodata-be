@@ -83,15 +83,11 @@ jobs:
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         run: ./mvnw --batch-mode deploy -Pdocker -DskipTests
 
-  # regression check of every release candidate against its freshly pushed images, once with Airflow 2 and once with
-  # Airflow 3 (both are released since 1.7.0)
+  # regression check of every release candidate against its freshly pushed images, with Airflow 2 and Airflow 3 (both
+  # are released since 1.7.0) in one run
   e2e:
     needs: build
     if: ${{ github.ref_type == 'tag' && contains(github.ref_name, '.rc') }}
-    strategy:
-      fail-fast: false
-      matrix:
-        airflow: [ '2', '3' ]
     uses: ./.github/workflows/e2e.yml
     # the Teams notification of the e2e workflow needs TEAMS_WEBHOOK_URL
     secrets: inherit
@@ -100,7 +96,7 @@ jobs:
       contents: write
     with:
       version: ${{ github.ref_name }}
-      airflow: ${{ matrix.airflow }}
+      airflow: '2,3'
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph

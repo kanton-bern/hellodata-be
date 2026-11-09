@@ -1,12 +1,12 @@
 import {BrowserContext, FrameLocator, Page} from '@playwright/test';
-import {expect, navigate, openMenu, signIn, User} from './fixtures';
+import {AirflowVersion, expect, navigate, openMenu, signIn, User} from './fixtures';
 import {exec} from './docker';
-import {AIRFLOW3, BUSINESS_DOMAIN_NAME, CONTEXT_KEY, SHOWCASE_DAG_ID} from './instance';
+import {BUSINESS_DOMAIN_NAME, CONTEXT_KEY, SHOWCASE_DAG_ID} from './instance';
 
 // The Data Eng. menu: Orchestration (Airflow embedded in the portal), DWH Viewer (CloudBeaver in a new tab) and
 // Filebrowser (SFTPGo in a new tab). They need the Airflow, CloudBeaver and SFTPGo services of the compose stack.
-// Airflow is version 2 or 3 (E2E_AIRFLOW_VERSION); the portal has an Orchestration page for each, the helpers below
-// use the one of the version under test.
+// The portal embeds Airflow 2 and Airflow 3, each with its own Orchestration page; the Airflow helpers take the version
+// under test (the airflowVersion fixture of the Playwright project).
 
 export const DATA_ENG_MENU = 'Data Eng.';
 export {CONTEXT_KEY};
@@ -15,19 +15,38 @@ export const DATA_DOMAIN_FOLDER = '/Default Data Domain';
 // DAG that is always in the dags folder of the default data domain, the data domain key is part of its id (see
 // SHOWCASE_DAG_ID in instance.ts)
 export const SHOWCASE_DAG = SHOWCASE_DAG_ID;
-export {AIRFLOW3};
 
-// the Data Eng. menu entry and the page of the Airflow under test
-export const ORCHESTRATION_ENTRY = AIRFLOW3 ? 'Orchestration (Airflow3)' : 'Orchestration';
-export const ORCHESTRATION_PATH = AIRFLOW3 ? 'embedded-orchestration-airflow3' : 'embedded-orchestration';
+/** What differs between the Airflow versions in the portal. */
+export type Airflow = {
+  version: AirflowVersion;
+  /** The module type of its resources (the DAGs in /api/pipelines). */
+  moduleType: 'AIRFLOW' | 'AIRFLOW3';
+  /** The Data Eng. menu entry and the breadcrumb of its Orchestration page. */
+  entry: string;
+  /** The url of its Orchestration page. */
+  path: string;
+  /** Its dags folder on the shared storage of the portal api; Airflow 3's is mounted by compose-airflow3.yaml. */
+  dagsDir: string;
+};
+
+const AIRFLOWS: Record<AirflowVersion, Airflow> = {
+  '2': {version: '2', moduleType: 'AIRFLOW', entry: 'Orchestration', path: 'embedded-orchestration',
+    dagsDir: '/storage/airflow/dags'},
+  '3': {version: '3', moduleType: 'AIRFLOW3', entry: 'Orchestration (Airflow3)', path: 'embedded-orchestration-airflow3',
+    dagsDir: '/storage/airflow3/dags'},
+};
+
+export function airflow(version: AirflowVersion): Airflow {
+  return AIRFLOWS[version];
+}
 
 /**
  * The end of the url the portal loads into the Airflow iframe, for the DAG list or the page of a DAG. Airflow 2 is
  * opened through its Keycloak login with the target page appended (/home, /dags/<id>), Airflow 3 through its logout
  * with the target page url-encoded in ?next= (%2Fdags, %2Fdags%2F<id>).
  */
-export function orchestrationSrc(dagId?: string): RegExp {
-  if (AIRFLOW3) {
+export function orchestrationSrc(version: AirflowVersion, dagId?: string): RegExp {
+  if (version === '3') {
     return new RegExp(`\\?next=${encodeURIComponent(dagId ? `/dags/${dagId}` : '/dags')}$`);
   }
   return new RegExp(dagId ? `/dags/${dagId}$` : '/home$');
@@ -39,22 +58,20 @@ export const PIPELINE_SYNC_TIMEOUT = 4 * 60_000;
 // SFTPGo users and their data domain folders are created by its sidecar after the portal published the users
 export const FILEBROWSER_SYNC_TIMEOUT = 3 * 60_000;
 
-// the dags folders on the shared storage of the portal api, the Airflow 3 one is mounted by compose-airflow3.yaml
-const DAGS_DIR = AIRFLOW3 ? '/storage/airflow3/dags' : '/storage/airflow/dags';
-
 /** The Airflow or CloudBeaver page embedded in the portal. */
 export function subsystemFrame(page: Page): FrameLocator {
   return page.frameLocator('app-subsystem-iframe iframe');
 }
 
-/** Opens Data Eng. -> Orchestration and returns the embedded Airflow once it shows a DAG of the data domain. */
-export async function openOrchestration(page: Page): Promise<FrameLocator> {
-  await navigate(page, DATA_ENG_MENU, ORCHESTRATION_ENTRY);
-  await expect(page).toHaveURL(new RegExp(`/${ORCHESTRATION_PATH}$`));
-  const airflow = subsystemFrame(page);
+/** Opens the Orchestration page of an Airflow and returns the embedded Airflow once it shows a DAG of the data domain. */
+export async function openOrchestration(page: Page, version: AirflowVersion): Promise<FrameLocator> {
+  const {entry, path} = airflow(version);
+  await navigate(page, DATA_ENG_MENU, entry);
+  await expect(page).toHaveURL(new RegExp(`/${path}$`));
+  const frame = subsystemFrame(page);
   // the iframe logs in to Airflow through Keycloak first and then opens the DAG list
-  await expect(airflow.getByText(SHOWCASE_DAG, {exact: true}).first()).toBeVisible({timeout: 90_000});
-  return airflow;
+  await expect(frame.getByText(SHOWCASE_DAG, {exact: true}).first()).toBeVisible({timeout: 90_000});
+  return frame;
 }
 
 /** The breadcrumb of the portal header. */
@@ -74,8 +91,8 @@ export async function expectNoDataEngEntry(page: Page, entry: string) {
 }
 
 /** A DAG file without tasks, enough for Airflow to list it and for the sidecar to publish it. */
-function dagFile(dagId: string) {
-  if (AIRFLOW3) {
+function dagFile(version: AirflowVersion, dagId: string) {
+  if (version === '3') {
     // Airflow 3 moved DAG to the task SDK and dropped schedule_interval
     return [
       'from datetime import datetime',
@@ -99,41 +116,52 @@ function dagFile(dagId: string) {
  * only to users with a role in the data domain whose key is part of the file location.
  * The dags folder belongs to root, so the file is written as root in a container that mounts the shared storage.
  */
-export function addDag(contextKey: string, dagId: string) {
-  const file = `${DAGS_DIR}/${contextKey}/${dagId}.py`;
+export function addDag(version: AirflowVersion, contextKey: string, dagId: string) {
+  const file = `${airflow(version).dagsDir}/${contextKey}/${dagId}.py`;
   exec('hello-data-portal-api', ['sh', '-c', 'mkdir -p "$(dirname "$1")" && cat > "$1.tmp" && mv "$1.tmp" "$1"', 'sh', file],
-    {input: dagFile(dagId), user: '0'});
+    {input: dagFile(version, dagId), user: '0'});
 }
 
 /** Removes a DAG written by addDag, and the data domain folder if it is empty then. */
-export function removeDag(contextKey: string, dagId: string) {
-  exec('hello-data-portal-api', ['sh', '-c', 'rm -f "$1/$2.py" && rmdir "$1" 2>/dev/null || true', 'sh', `${DAGS_DIR}/${contextKey}`, dagId],
-    {user: '0'});
+export function removeDag(version: AirflowVersion, contextKey: string, dagId: string) {
+  exec('hello-data-portal-api', ['sh', '-c', 'rm -f "$1/$2.py" && rmdir "$1" 2>/dev/null || true', 'sh',
+    `${airflow(version).dagsDir}/${contextKey}`, dagId], {user: '0'});
 }
 
-/** Reloads the portal and returns the ids of the DAGs the api reports to the current user (status panel of the summary). */
-export async function pipelineIds(page: Page): Promise<string[]> {
+/**
+ * Reloads the portal and returns the ids of the DAGs of one Airflow the api reports to the current user (status panel
+ * of the summary). The api lists the DAGs of all Airflows together, the module type tells them apart (a pipeline
+ * without one comes from an Airflow 2 sidecar older than Airflow 3).
+ */
+export async function pipelineIds(page: Page, version: AirflowVersion): Promise<string[]> {
   // the pipelines are loaded once after the login, so reload to get the current ones
   const loaded = page.waitForResponse(r => r.url().endsWith('/api/pipelines') && r.request().method() === 'GET');
   await page.goto('summary');
   const response = await loaded;
   expect(response.ok(), 'GET .../api/pipelines failed').toBe(true);
-  return (await response.json() as {id: string}[]).map(pipeline => pipeline.id);
+  const {moduleType} = airflow(version);
+  return (await response.json() as {id: string, moduleType?: string}[])
+    .filter(pipeline => (pipeline.moduleType ?? 'AIRFLOW') === moduleType)
+    .map(pipeline => pipeline.id);
 }
 
-/** Reloads the portal until the api reports the expected DAGs (and none of the unexpected ones) to the current user. */
-export async function expectPipelines(page: Page, {listed = [], notListed = []}: {listed?: string[], notListed?: string[]},
+/**
+ * Reloads the portal until the api reports the expected DAGs of an Airflow (and none of the unexpected ones) to the
+ * current user.
+ */
+export async function expectPipelines(page: Page, version: AirflowVersion,
+                                      {listed = [], notListed = []}: {listed?: string[], notListed?: string[]},
                                       timeout = PIPELINE_SYNC_TIMEOUT) {
   // toPass reports only its timeout, so keep the last answer of the api for the error
   let ids: string[] = [];
   await expect(async () => {
-    ids = await pipelineIds(page);
+    ids = await pipelineIds(page, version);
     expect(ids).toEqual(expect.arrayContaining(listed));
     for (const id of notListed) {
       expect(ids, `${id} must not be listed`).not.toContain(id);
     }
   }).toPass({timeout, intervals: [10_000, 15_000]}).catch(error => {
-    throw new Error(`expected the DAGs ${listed.join(', ')} and none of ${notListed.join(', ') || '-'}, `
+    throw new Error(`expected the Airflow ${version} DAGs ${listed.join(', ')} and none of ${notListed.join(', ') || '-'}, `
       + `the api reported: ${ids.join(', ') || 'none'}\n${error.message}`);
   });
 }

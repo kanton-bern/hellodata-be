@@ -115,7 +115,19 @@ type Fixtures = {
   adminPage: Page;
 };
 
-export const test = base.extend<Fixtures>({
+/** The Airflow versions the portal can embed: 2 (Orchestration) and 3 (Orchestration (Airflow3)). */
+export type AirflowVersion = '2' | '3';
+
+export type WorkerFixtures = {
+  /**
+   * The Airflow the Data Eng. specs test, set per Playwright project (playwright.config.ts): the project airflow2 runs the
+   * whole suite, airflow3 only the specs tagged @airflow.
+   */
+  airflowVersion: AirflowVersion;
+};
+
+export const test = base.extend<Fixtures, WorkerFixtures>({
+  airflowVersion: ['2', {option: true, scope: 'worker'}],
   adminPage: async ({page}, use) => {
     await openPortalAs(page, ADMIN.username, ADMIN.password);
     await use(page);

@@ -10,7 +10,7 @@
 // <site>/<version>/index.html                     the runs of a version and what its latest run tested
 // <site>/<version>/<setup>/<run>/index.html       what was tested in a run and its result
 // <site>/<version>/<setup>/<run>/report/          the Playwright HTML report of the run
-// The setup is the browser, with an -airflow3 suffix for runs against Airflow 3 (see setupDir()).
+// The setup is the browser, with an -airflow3 suffix for runs against Airflow 3 only (see setupDir()).
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -93,14 +93,15 @@ function removeEmptyFolders() {
   }
 }
 
-// The browser and the Airflow a run tested; runs before E2E_AIRFLOW_VERSION existed have no airflow and tested Airflow 2.
+// The browser and the Airflows a run tested (e.g. "2,3"); runs before Airflow 3 was tested have no airflow and tested
+// Airflow 2.
 function setup(run) {
-  return `${run.browser}, Airflow ${run.airflow ?? '2'}`;
+  return `${run.browser}, Airflow ${(run.airflow ?? '2').split(',').join(' + ')}`;
 }
 
-// the folder of a run's setup: the browser, as before Airflow 3 was tested, plus -airflow3 for Airflow 3
+// the folder of a run's setup: the browser, plus -airflow3 for a run against Airflow 3 only
 function setupDir(summary) {
-  return summary.airflow === '3' ? `${summary.browser}-airflow3` : summary.browser;
+  return (summary.airflow ?? '2').split(',').includes('2') ? summary.browser : `${summary.browser}-airflow3`;
 }
 
 // --- pages ----------------------------------------------------------------------------------------------------------

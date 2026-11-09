@@ -4,7 +4,7 @@
 //
 // node scripts/summarize.mjs --results test-results/results.json --images images.json --out summary.json
 //
-// The run is described by environment variables: HD_VERSION, E2E_BROWSER and E2E_AIRFLOW_VERSION, and the GITHUB_* variables of Actions.
+// The run is described by environment variables: HD_VERSION, E2E_BROWSER and E2E_AIRFLOW_VERSIONS, and the GITHUB_* variables of Actions.
 // A missing results file (the stack did not start, so no test ran) gives a summary with the status 'error'.
 
 import fs from 'node:fs';
@@ -31,8 +31,8 @@ const report = readJson(args.results);
 const summary = {
   version: env.HD_VERSION || 'unknown',
   browser: env.E2E_BROWSER || 'chromium',
-  // the Airflow the suite ran against (E2E_AIRFLOW_VERSION): 2 or 3
-  airflow: env.E2E_AIRFLOW_VERSION || '2',
+  // the Airflows the suite ran against (E2E_AIRFLOW_VERSIONS, one Playwright project each): e.g. "2,3"
+  airflow: env.E2E_AIRFLOW_VERSIONS || '2',
   repository: env.GITHUB_REPOSITORY,
   serverUrl: env.GITHUB_SERVER_URL || 'https://github.com',
   runId: env.GITHUB_RUN_ID || 'local',
@@ -59,7 +59,10 @@ console.log(`${summary.status}: ${JSON.stringify(summary.stats)} -> ${args.out}`
 // --- Playwright JSON report -> flat list of tests -------------------------------------------------------------------
 
 // Suites are nested: file -> describe -> describe ...; specs are the test() calls, each with one test per project.
+// The projects are the Airflows (airflow2, airflow3, see playwright.config.ts); the tests of every project but the first
+// are grouped under the name of their Airflow.
 function collectTests(report) {
+  const firstProject = report.config?.projects?.[0]?.name;
   const tests = [];
   const walk = (suite, groups) => {
     // the describe blocks a test is in, with their comments (a ticket named above one applies to all its tests)
@@ -69,13 +72,16 @@ function collectTests(report) {
       for (const test of spec.tests) {
         const results = test.results ?? [];
         const last = results.at(-1);
+        const projectGroup = test.projectName && test.projectName !== firstProject
+          ? [test.projectName.replace(/^airflow(\d)$/, 'Airflow $1')] : [];
         tests.push({
           // the id of the test in the Playwright HTML report (report/#?testId=<id>)
           id: spec.id,
           feature: spec.file.split(/[\\/]/)[0].replace(/\.spec\.ts$/, ''),
           file: spec.file,
           line: spec.line,
-          group: suiteGroups.map(group => group.title).join(' › '),
+          project: test.projectName,
+          group: [...projectGroup, ...suiteGroups.map(group => group.title)].join(' › '),
           groupDescription: suiteGroups.map(group => group.description).filter(Boolean).join('\n') || undefined,
           title: spec.title,
           description: comment.description,
@@ -143,7 +149,7 @@ function markdown(summary) {
   const icon = {passed: '✅', failed: '❌', error: '⚠️'}[summary.status];
   const {stats} = summary;
   const lines = [
-    `## ${icon} E2E ${summary.version} (${summary.browser}, Airflow ${summary.airflow}): ${summary.status}`,
+    `## ${icon} E2E ${summary.version} (${summary.browser}, Airflow ${summary.airflow.split(',').join(' + ')}): ${summary.status}`,
     '',
     `${stats.total} tests: ${stats.passed} passed, ${stats.failed} failed, ${stats.flaky} flaky, ${stats.skipped} skipped`
     + ` in ${Math.round(summary.durationMs / 60_000)} min`,

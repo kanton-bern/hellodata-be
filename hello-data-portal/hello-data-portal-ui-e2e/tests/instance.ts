@@ -22,14 +22,6 @@ export const BUSINESS_DOMAIN_ADMIN_USERNAME = env('E2E_BUSINESS_DOMAIN_ADMIN_USE
 export const PORTAL_DB = env('E2E_PORTAL_DB', 'hd_metainfo');
 export const SUPERSET_DB = env('E2E_SUPERSET_DB', 'superset_default_data_domain');
 
-// the Airflow the installation runs: 2 (the compose default) or 3 (compose-airflow3.yaml, HelloDATA 1.7 Helm charts).
-// The portal has a menu entry and a page for each (Orchestration, Orchestration (Airflow3)), the specs test this one.
-export const AIRFLOW_VERSION = env('E2E_AIRFLOW_VERSION', '2');
-if (!['2', '3'].includes(AIRFLOW_VERSION)) {
-  throw new Error(`E2E_AIRFLOW_VERSION must be 2 or 3, not ${AIRFLOW_VERSION}`);
-}
-export const AIRFLOW3 = AIRFLOW_VERSION === '3';
-
-// a DAG of the default data domain that is always there: the showcase DAG of Airflow 2, the e2e DAG of
-// compose-airflow3.yaml for Airflow 3
+// a DAG of the default data domain that is in every Airflow: the showcase DAG of Airflow 2, the e2e DAG of
+// compose-airflow3.yaml in Airflow 3
 export const SHOWCASE_DAG_ID = env('E2E_SHOWCASE_DAG', `hello_world_${CONTEXT_KEY}`);
