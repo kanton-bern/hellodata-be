@@ -64,7 +64,8 @@ test.describe('Pipeline status', {tag: '@airflow'}, () => {
     const ownDag = status.getByText(OWN_DAG, {exact: true});
     await expect(ownDag).toBeVisible();
     await expect(status.getByText(FOREIGN_DAG, {exact: true})).toHaveCount(0);
-    const row = status.locator('.grid').filter({has: ownDag});
+    // hasText and not has: a has locator is resolved inside each row, so one starting at #statusHeader finds nothing
+    const row = status.locator('.grid').filter({hasText: OWN_DAG});
     await expect(row.getByText(airflowVersion === '3' ? 'AF3' : 'AF2', {exact: true})).toBeVisible();
   });
 });

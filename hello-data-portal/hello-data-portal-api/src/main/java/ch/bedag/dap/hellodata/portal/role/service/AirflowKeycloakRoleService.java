@@ -84,9 +84,9 @@ public class AirflowKeycloakRoleService {
         if (!roleSyncEnabled) {
             return;
         }
-        String authId = user.getAuthId();
+        String authId = keycloakUserId(user);
         if (!StringUtils.hasText(authId)) {
-            log.debug("Skipping Airflow Keycloak role sync for {} - no authId yet", user.getEmail());
+            log.debug("Skipping Airflow Keycloak role sync for {} - no Keycloak id", user.getEmail());
             return;
         }
         try {
@@ -128,6 +128,18 @@ public class AirflowKeycloakRoleService {
             }
         }
         return desired;
+    }
+
+    /**
+     * The id of the user's Keycloak account: the authId, or the portal id until the hourly Keycloak user sync has set
+     * the authId. The portal creates its users with the id of their Keycloak account (as UserService resolves it), so
+     * without the fallback new users would get no Airflow 3 roles for up to an hour.
+     */
+    static String keycloakUserId(UserEntity user) {
+        if (StringUtils.hasText(user.getAuthId())) {
+            return user.getAuthId();
+        }
+        return user.getId() == null ? null : user.getId().toString();
     }
 
     private boolean isAirflowManaged(String roleName) {

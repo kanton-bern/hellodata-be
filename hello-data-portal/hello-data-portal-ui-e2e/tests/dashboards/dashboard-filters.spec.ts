@@ -48,10 +48,12 @@ for (const {role, user} of [
       // edit filters and controls" since Superset 6
       await dashboard.getByRole('menuitem', {name: /^Add or edit filters/}).click();
 
-      const filters = dashboard.getByRole('dialog').filter({hasText: /Add (and|or) edit filters/});
+      // the dialog is "Add and edit filters" up to Superset 5 and "Add or edit display controls" since Superset 6.1,
+      // which adds a filter with "New" instead of "Add filter" and enables Save only after a change
+      const filters = dashboard.getByRole('dialog').filter({hasText: /Add (and|or) edit (filters|display controls)/});
       await expect(filters).toBeVisible();
-      await expect(filters.getByRole('button', {name: /Add filter/i}).first()).toBeVisible();
-      await expect(filters.getByRole('button', {name: 'Save', exact: true})).toBeEnabled();
+      await expect(filters.getByRole('button', {name: /Add filter|New/i}).first()).toBeVisible();
+      await expect(filters.getByRole('button', {name: 'Save', exact: true})).toBeVisible();
       await filters.getByRole('button', {name: 'Cancel', exact: true}).click();
       await expect(filters).toBeHidden();
     });

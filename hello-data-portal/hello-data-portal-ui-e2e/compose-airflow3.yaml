@@ -199,8 +199,13 @@ services:
         condition: service_completed_successfully
 
   # the portal api gives the users their Airflow 3 roles in Keycloak, and the specs write their DAGs into the DAG folder
-  # of Airflow 3 through it (as on Kubernetes, where it is the airflow3/dags folder of the shared storage)
+  # of Airflow 3 through it (as on Kubernetes, where it is the airflow3/dags folder of the shared storage).
+  # It starts once admin-cli may manage the realm: its first full user sync creates the Airflow 3 realm roles, and the
+  # next one runs only an hour later.
   hello-data-portal-api:
+    depends_on:
+      airflow3-keycloak-roles:
+        condition: service_completed_successfully
     environment:
       - AIRFLOW3_ROLE_SYNC_ENABLED=true
     volumes:
