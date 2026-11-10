@@ -20,9 +20,10 @@ export const CSV_HEADER = 'email;businessDomainRole;context;dataDomainRole;super
 // the scan interval (30s), creating the users and the sync with Superset over NATS
 export const BATCH_TIMEOUT = 3 * 60_000;
 
-// RLS roles are plain Superset roles, the tests create them once and keep them (see ensureSupersetRoles)
-export const RLS_A = 'RLS_E2E_A';
-export const RLS_B = 'RLS_E2E_B';
+// Since HELLODATA-1477 the portal manages the RLS roles of Superset as RLS groups: only RLS_01 to RLS_15 (which every
+// Superset of a data domain has) are taken from the file, and the sidecar replaces all RLS_xx roles of a user with them
+export const RLS_A = 'RLS_01';
+export const RLS_B = 'RLS_02';
 
 export type CsvRow = {
   email: string,

@@ -5,6 +5,7 @@ import {
   expect,
   EXTRA_DATA_DOMAIN_ADMIN,
   EXTRA_DATA_DOMAIN_VIEWER,
+  expectOnlyDataDomain,
   openMenu,
   openPortalAs,
   test,
@@ -24,7 +25,6 @@ import {
   PIPELINE_SYNC_TIMEOUT,
   removeDag,
   routeCloudbeaver,
-  SHOWCASE_DAG,
 } from '../data-eng';
 import {DATA_DOMAIN, dashboardRow, expectDashboardListed, SHOWCASE_DASHBOARD} from '../superset';
 import {EXTRA_CONTEXT_KEY} from '../instance';
@@ -52,11 +52,12 @@ test.describe('Data domain isolation', () => {
   for (const {name, admin, ownConnections, foreignConnections, foreignDataDomain} of DOMAINS) {
     // checks that the admin of this data domain sees only its own data and nothing of the other one
     test.describe(name, () => {
-      // the data domain admin opens the data domain selector; it offers its own data domain but not the other one
+      // the data domain admin has a role in this data domain only: the selector shows it and offers nothing to choose,
+      // so neither the other data domain
+      // HELLODATA-662
       test(`${admin.username} cannot choose the ${foreignDataDomain}`, async ({page}) => {
         await openPortalAs(page, admin.username, admin.password);
-        await page.locator('.data-domain-selector .data-domain-name').click();
-        await expect(page.getByRole('menuitem', {name, exact: true})).toBeVisible();
+        await expectOnlyDataDomain(page, name);
         await expect(page.getByRole('menuitem', {name: foreignDataDomain, exact: true})).toHaveCount(0);
       });
 
@@ -89,7 +90,7 @@ test.describe('Data domain isolation', () => {
 });
 
 // The DAGs of a data domain are listed only to its users, in the Airflow of the Playwright project (the @airflow tag
-// runs it for each Airflow): each data domain gets a DAG of its own, and the default data domain has the showcase DAG.
+// runs it for each Airflow): each data domain gets a DAG of its own (tagged PROD, the only DAGs the portal lists).
 test.describe('Data domain isolation of the DAGs', {tag: '@airflow'}, () => {
   // the status panel shows the first 20 characters of a DAG id, so keep them short
   const RUN_ID = Date.now().toString(36);
@@ -118,11 +119,11 @@ test.describe('Data domain isolation of the DAGs', {tag: '@airflow'}, () => {
   const DOMAINS: {name: string, admin: User, viewer: User, ownDags: string[], foreignDags: string[]}[] = [
     {
       name: DATA_DOMAIN, admin: DATA_DOMAIN_ADMIN, viewer: DATA_DOMAIN_VIEWER,
-      ownDags: [SHOWCASE_DAG, DEFAULT_DAG], foreignDags: [EXTRA_DAG],
+      ownDags: [DEFAULT_DAG], foreignDags: [EXTRA_DAG],
     },
     {
       name: EXTRA_DATA_DOMAIN, admin: EXTRA_DATA_DOMAIN_ADMIN, viewer: EXTRA_DATA_DOMAIN_VIEWER,
-      ownDags: [EXTRA_DAG], foreignDags: [SHOWCASE_DAG, DEFAULT_DAG],
+      ownDags: [EXTRA_DAG], foreignDags: [DEFAULT_DAG],
     },
   ];
 

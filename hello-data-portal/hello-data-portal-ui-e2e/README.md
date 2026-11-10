@@ -305,8 +305,9 @@ open /tmp/e2e-site/e2e/index.html
   databases: `portalRoles()`, `portalDashboards()`, `portalCommentPermission()` in the portal and `supersetRoles()` /
   `expectSupersetRoles()` in Superset (`ab_user`, `ab_user_role`, `ab_role`). `createDashboardGroup()`,
   `dashboardGroupMembers()` and `deleteDashboardGroup()` work on the dashboard groups of the portal. So these tests need
-  the docker CLI and the compose stack (or kubectl and `E2E_KUBE_NAMESPACE`) on the machine that runs Playwright. They create the Superset roles `RLS_E2E_A`
-  and `RLS_E2E_B` once and keep them, and delete the users and groups they created in `afterAll`.
+  the docker CLI and the compose stack (or kubectl and `E2E_KUBE_NAMESPACE`) on the machine that runs Playwright. They use the RLS roles `RLS_01` and
+  `RLS_02` (since 1.7 the portal takes only `RLS_01` - `RLS_15` from the file, as RLS groups), and delete the users and
+  groups they created in `afterAll`.
 - `tests/data-eng.ts` has the helpers for the Data Eng. menu: `openOrchestration()` (the embedded Airflow; `airflow()`
   and `orchestrationSrc()` give the menu entry, page, dags folder and iframe url of a version). The Airflow helpers take
   the version from the `airflowVersion` fixture of the project; a spec that depends on Airflow gets the `@airflow` tag,
@@ -324,5 +325,8 @@ open /tmp/e2e-site/e2e/index.html
   not see the drafts of other users, so a comment is cleaned up by its author.
 - Viewers and business specialists see no dashboard until an admin gives them access. Tests that need it give it in
   `beforeAll` and take it away in `afterAll`.
+- The pipeline status lists only DAGs with the tag `PROD` (`hello-data.pipelines.tag-filter`), so `addDag()` tags the
+  DAGs it writes with it; the showcase DAG has no tags and is therefore not listed.
+- A user with a role in one data domain only has that data domain selected and no data domain menu (`expectOnlyDataDomain()`).
 - Prefer roles and element ids over CSS structure, and use Playwright's auto-waiting assertions instead of fixed waits.
 - Tests share one portal instance, so data created by a test must have a unique name and be cleaned up by that test.

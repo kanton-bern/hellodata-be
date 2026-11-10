@@ -110,6 +110,24 @@ export async function selectOption(select: Locator, option: string) {
   await expect(select).toContainText(option);
 }
 
+export const ALL_DATA_DOMAINS = 'All Data Domains';
+
+/** The name of the selected data domain in the top bar. */
+export function selectedDataDomain(page: Page) {
+  return page.locator('.data-domain-selector .data-domain-name');
+}
+
+/**
+ * Checks that a user with a role in a single data domain has that data domain selected and nothing to choose: the top
+ * bar shows its name as plain text, not as the link that opens the data domain menu (HELLODATA-662).
+ */
+export async function expectOnlyDataDomain(page: Page, name: string) {
+  await expect(selectedDataDomain(page)).toHaveText(name);
+  await expect(page.locator('.data-domain-selector a').filter({has: selectedDataDomain(page)})).toHaveCount(0);
+  await selectedDataDomain(page).click();
+  await expect(page.getByRole('menuitem', {name: ALL_DATA_DOMAINS, exact: true})).toHaveCount(0);
+}
+
 type Fixtures = {
   /** A page with the admin user logged in, on the home page. */
   adminPage: Page;

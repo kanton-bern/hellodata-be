@@ -7,9 +7,15 @@ import {
   openPortalAs,
   test,
 } from '../fixtures';
+import {FrameLocator} from '@playwright/test';
 import {changeDashboardAccessAsAdmin, expectDashboardListed, openDashboard} from '../superset';
 
 // the embedded Superset dashboard shows the edit button and the filter bar settings (gear) only to users who may change it
+
+/** The settings icon of the filter bar: "gear" up to Superset 5, "setting" since Superset 6. */
+function filterBarSettings(dashboard: FrameLocator) {
+  return dashboard.getByRole('img', {name: /^(gear|setting)$/});
+}
 
 // HELLODATA-703
 for (const {role, user} of [
@@ -37,12 +43,14 @@ for (const {role, user} of [
     // filters
     test('can add and edit filters', async ({page}) => {
       const dashboard = await openDashboard(page);
-      await dashboard.getByRole('img', {name: 'gear'}).click();
-      await dashboard.getByRole('menuitem', {name: 'Add or edit filters', exact: true}).click();
+      await filterBarSettings(dashboard).click();
+      // the settings open a menu whose first entry opens the dialog: "Add or edit filters" up to Superset 5, "Add or
+      // edit filters and controls" since Superset 6
+      await dashboard.getByRole('menuitem', {name: /^Add or edit filters/}).click();
 
-      const filters = dashboard.getByRole('dialog').filter({hasText: 'Add and edit filters'});
+      const filters = dashboard.getByRole('dialog').filter({hasText: /Add (and|or) edit filters/});
       await expect(filters).toBeVisible();
-      await expect(filters.getByRole('button', {name: 'Add Filter'})).toBeVisible();
+      await expect(filters.getByRole('button', {name: /Add filter/i}).first()).toBeVisible();
       await expect(filters.getByRole('button', {name: 'Save', exact: true})).toBeEnabled();
       await filters.getByRole('button', {name: 'Cancel', exact: true}).click();
       await expect(filters).toBeHidden();
@@ -74,7 +82,7 @@ for (const {role, user} of [
       // the filter bar itself can be used, only its configuration is missing
       await expect(dashboard.getByRole('button', {name: 'Apply filters'})).toBeVisible();
       await expect(dashboard.getByRole('button', {name: 'Edit dashboard', exact: true})).toHaveCount(0);
-      await expect(dashboard.getByRole('img', {name: 'gear'})).toHaveCount(0);
+      await expect(filterBarSettings(dashboard)).toHaveCount(0);
     });
   });
 }

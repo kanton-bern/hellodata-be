@@ -13,7 +13,8 @@ import {
 } from '../fixtures';
 
 const MAIN_MENUS = ['Dashboards', 'Lineage', 'Data Marts', 'Data Eng.', 'Administration', 'Monitoring', 'DevTools'];
-const ADMIN_ITEMS = ['User management', 'Portal role management', 'Notifications', 'FAQ management', 'Documentation management'];
+const ADMIN_ITEMS = ['User management', 'RLS Groups', 'Portal role management', 'Notifications', 'FAQ management',
+  'Documentation management'];
 
 // what each role may see, derived from the permissions in SystemDefaultPortalRoleName
 const ROLES: {role: string, user: User, menus: string[], adminItems: string[]}[] = [
@@ -27,13 +28,14 @@ const ROLES: {role: string, user: User, menus: string[], adminItems: string[]}[]
     role: 'BUSINESS_DOMAIN_ADMIN',
     user: BUSINESS_DOMAIN_ADMIN,
     menus: ['Dashboards', 'Lineage', 'Data Marts', 'Data Eng.', 'Administration'],
-    adminItems: ['User management', 'Notifications', 'FAQ management', 'Documentation management'],
+    adminItems: ['User management', 'RLS Groups', 'Notifications', 'FAQ management', 'Documentation management'],
   },
   {
     role: 'DATA_DOMAIN_ADMIN',
     user: DATA_DOMAIN_ADMIN,
-    menus: ['Dashboards', 'Lineage', 'Data Marts', 'Data Eng.'],
-    adminItems: [],
+    // RLS_ROLES_MANAGEMENT: names the RLS groups of its data domains (HELLODATA-1477)
+    menus: ['Dashboards', 'Lineage', 'Data Marts', 'Data Eng.', 'Administration'],
+    adminItems: ['RLS Groups'],
   },
   {
     role: 'DATA_DOMAIN_EDITOR',

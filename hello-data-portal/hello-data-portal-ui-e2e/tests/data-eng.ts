@@ -90,15 +90,20 @@ export async function expectNoDataEngEntry(page: Page, entry: string) {
   }
 }
 
+// The portal lists only DAGs with a visible tag in the pipeline status (hello-data.pipelines.tag-filter, PROD by
+// default; HELLODATA-2184), so the DAGs of the tests carry it unless a test checks an untagged one.
+export const VISIBLE_DAG_TAG = 'PROD';
+
 /** A DAG file without tasks, enough for Airflow to list it and for the sidecar to publish it. */
-function dagFile(version: AirflowVersion, dagId: string) {
+function dagFile(version: AirflowVersion, dagId: string, tags: string[]) {
+  const tagList = `[${tags.map(tag => `'${tag}'`).join(', ')}]`;
   if (version === '3') {
     // Airflow 3 moved DAG to the task SDK and dropped schedule_interval
     return [
       'from datetime import datetime',
       'from airflow.sdk import DAG',
       '',
-      `dag = DAG('${dagId}', description='e2e test DAG', schedule=None, start_date=datetime(2024, 1, 1), catchup=False)`,
+      `dag = DAG('${dagId}', description='e2e test DAG', schedule=None, start_date=datetime(2024, 1, 1), catchup=False, tags=${tagList})`,
       '',
     ].join('\n');
   }
@@ -106,7 +111,7 @@ function dagFile(version: AirflowVersion, dagId: string) {
     'from datetime import datetime',
     'from airflow import DAG',
     '',
-    `dag = DAG('${dagId}', description='e2e test DAG', schedule_interval=None, start_date=datetime(2024, 1, 1), catchup=False)`,
+    `dag = DAG('${dagId}', description='e2e test DAG', schedule_interval=None, start_date=datetime(2024, 1, 1), catchup=False, tags=${tagList})`,
     '',
   ].join('\n');
 }
@@ -116,10 +121,10 @@ function dagFile(version: AirflowVersion, dagId: string) {
  * only to users with a role in the data domain whose key is part of the file location.
  * The dags folder belongs to root, so the file is written as root in a container that mounts the shared storage.
  */
-export function addDag(version: AirflowVersion, contextKey: string, dagId: string) {
+export function addDag(version: AirflowVersion, contextKey: string, dagId: string, tags = [VISIBLE_DAG_TAG]) {
   const file = `${airflow(version).dagsDir}/${contextKey}/${dagId}.py`;
   exec('hello-data-portal-api', ['sh', '-c', 'mkdir -p "$(dirname "$1")" && cat > "$1.tmp" && mv "$1.tmp" "$1"', 'sh', file],
-    {input: dagFile(version, dagId), user: '0'});
+    {input: dagFile(version, dagId, tags), user: '0'});
 }
 
 /** Removes a DAG written by addDag, and the data domain folder if it is empty then. */

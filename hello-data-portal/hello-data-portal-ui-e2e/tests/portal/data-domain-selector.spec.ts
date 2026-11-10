@@ -1,15 +1,9 @@
 import {Page} from '@playwright/test';
-import {ADMIN, DATA_DOMAIN_ADMIN, expect, openMenu, openPortalAs, test, User} from '../fixtures';
+import {ADMIN, ALL_DATA_DOMAINS, DATA_DOMAIN_ADMIN, expect, expectOnlyDataDomain, openMenu, openPortalAs, selectedDataDomain, test, User} from '../fixtures';
 import {DATA_DOMAIN, dashboardRow, expectDashboardListed, SHOWCASE_DASHBOARD} from '../superset';
 
-const ALL_DATA_DOMAINS = 'All Data Domains';
 // the second data domain of the e2e installation (compose-override.yaml); it has no Superset and therefore no dashboards
 const EXTRA_DATA_DOMAIN = 'Extra Data Domain';
-
-/** The name of the selected data domain in the top bar. */
-function selectedDataDomain(page: Page) {
-  return page.locator('.data-domain-selector .data-domain-name');
-}
 
 /** The entries of the data domain menu, which lists the data domains of the user except the selected one. */
 function dataDomainEntry(page: Page, name: string) {
@@ -53,12 +47,12 @@ test.describe('Data domain selector', () => {
     await expect(dataDomainEntry(page, DATA_DOMAIN)).toHaveCount(0);
   });
 
-  // the data domain admin opens the selector; it offers its own data domain but not the Extra Data Domain
-  test(`${DATA_DOMAIN_ADMIN.username} chooses only its own data domain`, async ({page}) => {
-    await openPortalWithAllDataDomains(page, DATA_DOMAIN_ADMIN);
-    await openDataDomainMenu(page);
-    await expect(dataDomainEntry(page, DATA_DOMAIN)).toBeVisible();
-    await expect(dataDomainEntry(page, EXTRA_DATA_DOMAIN)).toHaveCount(0);
+  // the data domain admin has a role in one data domain only: the top bar shows that data domain, without All Data
+  // Domains and without a menu to choose another one
+  // HELLODATA-662
+  test(`${DATA_DOMAIN_ADMIN.username} has only its own data domain`, async ({page}) => {
+    await openPortalAs(page, DATA_DOMAIN_ADMIN.username, DATA_DOMAIN_ADMIN.password);
+    await expectOnlyDataDomain(page, DATA_DOMAIN);
   });
 
   // the admin selects the Extra Data Domain, which has no dashboards: the list says no dashboards found and the
@@ -85,10 +79,10 @@ test.describe('Data domain selector', () => {
     await expect(dashboardRow(page)).toBeVisible();
   });
 
-  // the data domain admin selects a data domain and then all data domains; after each page reload the selector still
-  // shows that choice
+  // the admin selects a data domain and then all data domains; after each page reload the selector still shows that
+  // choice
   test('the selected data domain is kept after a reload', async ({page}) => {
-    await openPortalWithAllDataDomains(page, DATA_DOMAIN_ADMIN);
+    await openPortalWithAllDataDomains(page, ADMIN);
     await selectDataDomain(page, DATA_DOMAIN);
     await page.reload();
     await expect(selectedDataDomain(page)).toHaveText(DATA_DOMAIN);
