@@ -103,6 +103,7 @@ class AirflowUserContextRoleConsumerAdminRoleTest {
 
         assertThat(pushedRoles)
                 .as("Airflow Admin must be revoked when the user no longer holds HELLODATA_ADMIN")
+                .isNotEmpty()
                 .doesNotContain(ADMIN);
     }
 
@@ -133,7 +134,7 @@ class AirflowUserContextRoleConsumerAdminRoleTest {
         verify(airflowClient).updateUser(captor.capture(), eq("jdoe"));
         List<String> pushedRoles = captor.getValue().getRoles().stream().map(AirflowUserRole::getName).toList();
 
-        assertThat(pushedRoles).doesNotContain(ADMIN);
+        assertThat(pushedRoles).isNotEmpty().doesNotContain(ADMIN);
     }
 
     private static ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowRolesResponse rolesResponse() {
