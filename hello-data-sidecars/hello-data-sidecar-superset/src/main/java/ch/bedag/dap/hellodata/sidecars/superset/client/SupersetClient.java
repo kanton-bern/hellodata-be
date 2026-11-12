@@ -87,6 +87,12 @@ import static ch.bedag.dap.hellodata.sidecars.superset.client.SupersetApiRequest
  */
 @Log4j2
 public class SupersetClient implements Closeable {
+    private static final String RESULT_KEY = "result";
+    private static final String VALUE_KEY = "value";
+    private static final String POSITION_JSON_KEY = "position_json";
+    private static final String CHART_ID_KEY = "chartId";
+    private static final String DASHBOARDS_KEY = "dashboards";
+
 
     private final String host;
     private final int port;
@@ -473,7 +479,7 @@ public class SupersetClient implements Closeable {
         HttpUriRequest request = SupersetApiRequestBuilder.getListDatabasesRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
-        return respBody.getAsJsonObject().getAsJsonArray("result");
+        return respBody.getAsJsonObject().getAsJsonArray(RESULT_KEY);
     }
 
     /**
@@ -488,7 +494,7 @@ public class SupersetClient implements Closeable {
         HttpUriRequest request = SupersetApiRequestBuilder.getDatabaseByIdRequest(databaseId, host, port, authToken);
         ApiResponse resp = executeRequest(request);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
-        return respBody.getAsJsonObject().get("result");
+        return respBody.getAsJsonObject().get(RESULT_KEY);
     }
 
     /**
@@ -569,9 +575,9 @@ public class SupersetClient implements Closeable {
         HttpUriRequest request = SupersetApiRequestBuilder.getDashboardRequest(dashboardId, host, port, authToken);
         ApiResponse resp = executeRequest(request);
         JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
-        JsonObject result = obj != null && obj.has("result") && obj.get("result").isJsonObject() ? obj.getAsJsonObject("result") : null;
-        if (result != null && result.has("position_json") && !result.get("position_json").isJsonNull()) {
-            return result.get("position_json").getAsString();
+        JsonObject result = obj != null && obj.has(RESULT_KEY) && obj.get(RESULT_KEY).isJsonObject() ? obj.getAsJsonObject(RESULT_KEY) : null;
+        if (result != null && result.has(POSITION_JSON_KEY) && !result.get(POSITION_JSON_KEY).isJsonNull()) {
+            return result.get(POSITION_JSON_KEY).getAsString();
         }
         return "";
     }
@@ -664,7 +670,7 @@ public class SupersetClient implements Closeable {
         HttpUriRequest request = SupersetApiRequestBuilder.getDashboardChartsRequest(host, port, authToken, dashboardId);
         ApiResponse resp = executeRequest(request);
         JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
-        return obj.has("result") && !obj.get("result").isJsonNull() ? obj.getAsJsonArray("result") : new JsonArray();
+        return obj.has(RESULT_KEY) && !obj.get(RESULT_KEY).isJsonNull() ? obj.getAsJsonArray(RESULT_KEY) : new JsonArray();
     }
 
     public List<Integer> getChartDashboardIds(int chartId) throws URISyntaxException, IOException {
@@ -672,10 +678,10 @@ public class SupersetClient implements Closeable {
         ApiResponse resp = executeRequest(request);
         JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
         List<Integer> dashboardIds = new ArrayList<>();
-        if (obj.has("result") && !obj.get("result").isJsonNull()) {
-            JsonObject result = obj.getAsJsonObject("result");
-            if (result.has("dashboards") && !result.get("dashboards").isJsonNull()) {
-                for (JsonElement dashboardEl : result.getAsJsonArray("dashboards")) {
+        if (obj.has(RESULT_KEY) && !obj.get(RESULT_KEY).isJsonNull()) {
+            JsonObject result = obj.getAsJsonObject(RESULT_KEY);
+            if (result.has(DASHBOARDS_KEY) && !result.get(DASHBOARDS_KEY).isJsonNull()) {
+                for (JsonElement dashboardEl : result.getAsJsonArray(DASHBOARDS_KEY)) {
                     JsonObject dashboardObj = dashboardEl.getAsJsonObject();
                     if (dashboardObj.has("id") && !dashboardObj.get("id").isJsonNull()) {
                         dashboardIds.add(dashboardObj.get("id").getAsInt());
@@ -691,19 +697,19 @@ public class SupersetClient implements Closeable {
         JsonObject f1 = new JsonObject();
         f1.addProperty("col", "datasource_id");
         f1.addProperty("opr", "eq");
-        f1.addProperty("value", datasourceId);
+        f1.addProperty(VALUE_KEY, datasourceId);
         filters.add(f1);
 
         JsonObject f2 = new JsonObject();
         f2.addProperty("col", "datasource_type");
         f2.addProperty("opr", "eq");
-        f2.addProperty("value", "table");
+        f2.addProperty(VALUE_KEY, "table");
         filters.add(f2);
 
         HttpUriRequest request = SupersetApiRequestBuilder.getListChartsRequestFiltered(host, port, authToken, filters);
         ApiResponse resp = executeRequest(request);
         JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
-        return obj.has("result") && !obj.get("result").isJsonNull() ? obj.getAsJsonArray("result") : new JsonArray();
+        return obj.has(RESULT_KEY) && !obj.get(RESULT_KEY).isJsonNull() ? obj.getAsJsonArray(RESULT_KEY) : new JsonArray();
     }
 
     public void deleteCharts(List<Integer> chartIds) throws URISyntaxException, IOException {
@@ -737,20 +743,20 @@ public class SupersetClient implements Closeable {
         JsonObject tableFilter = new JsonObject();
         tableFilter.addProperty("col", "table_name");
         tableFilter.addProperty("opr", "eq");
-        tableFilter.addProperty("value", tableName);
+        tableFilter.addProperty(VALUE_KEY, tableName);
         filters.add(tableFilter);
         if (schema != null) {
             JsonObject schemaFilter = new JsonObject();
             schemaFilter.addProperty("col", "schema");
             schemaFilter.addProperty("opr", "eq");
-            schemaFilter.addProperty("value", schema);
+            schemaFilter.addProperty(VALUE_KEY, schema);
             filters.add(schemaFilter);
         }
 
         HttpUriRequest request = SupersetApiRequestBuilder.getListDatasetsRequestFiltered(host, port, authToken, columns, filters);
         ApiResponse resp = executeRequest(request);
         JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
-        return obj.has("result") && !obj.get("result").isJsonNull() ? obj.getAsJsonArray("result") : new JsonArray();
+        return obj.has(RESULT_KEY) && !obj.get(RESULT_KEY).isJsonNull() ? obj.getAsJsonArray(RESULT_KEY) : new JsonArray();
     }
 
     public void deleteDataset(int datasetId) throws URISyntaxException, IOException {
@@ -787,8 +793,8 @@ public class SupersetClient implements Closeable {
 
     private String extractFirstResultUuid(String body) {
         JsonObject obj = new Gson().fromJson(body, JsonObject.class);
-        if (obj != null && obj.has("result") && obj.get("result").isJsonArray()) {
-            JsonArray result = obj.getAsJsonArray("result");
+        if (obj != null && obj.has(RESULT_KEY) && obj.get(RESULT_KEY).isJsonArray()) {
+            JsonArray result = obj.getAsJsonArray(RESULT_KEY);
             if (!result.isEmpty() && result.get(0).isJsonObject()) {
                 JsonObject first = result.get(0).getAsJsonObject();
                 if (first.has("uuid") && !first.get("uuid").isJsonNull()) {
@@ -841,15 +847,15 @@ public class SupersetClient implements Closeable {
      */
     public Optional<Set<String>> getDashboardComponentIds(String idOrSlug) throws URISyntaxException, IOException {
         JsonObject body = getJsonObjectOrNullOnNotFound(SupersetApiRequestBuilder.getDashboardByIdOrSlugRequest(host, port, authToken, idOrSlug));
-        if (body == null || !body.has("result") || !body.get("result").isJsonObject()) {
+        if (body == null || !body.has(RESULT_KEY) || !body.get(RESULT_KEY).isJsonObject()) {
             return Optional.empty();
         }
-        JsonObject result = body.getAsJsonObject("result");
-        if (!result.has("position_json") || result.get("position_json").isJsonNull()) {
+        JsonObject result = body.getAsJsonObject(RESULT_KEY);
+        if (!result.has(POSITION_JSON_KEY) || result.get(POSITION_JSON_KEY).isJsonNull()) {
             return Optional.empty();
         }
         try {
-            JsonElement positionElement = JsonParser.parseString(result.get("position_json").getAsString());
+            JsonElement positionElement = JsonParser.parseString(result.get(POSITION_JSON_KEY).getAsString());
             if (!positionElement.isJsonObject()) {
                 return Optional.empty();
             }
@@ -859,6 +865,24 @@ public class SupersetClient implements Closeable {
             log.warn("Could not parse position_json for dashboard {}", idOrSlug, e);
             return Optional.empty();
         }
+    }
+
+    private Set<Integer> collectChartIds(JsonObject position) {
+        Set<Integer> chartIds = new HashSet<>();
+        for (Map.Entry<String, JsonElement> entry : position.entrySet()) {
+            if (!entry.getValue().isJsonObject()) {
+                continue;
+            }
+            JsonObject component = entry.getValue().getAsJsonObject();
+            if (!component.has("meta") || !component.get("meta").isJsonObject()) {
+                continue;
+            }
+            JsonObject meta = component.getAsJsonObject("meta");
+            if (meta.has(CHART_ID_KEY) && !meta.get(CHART_ID_KEY).isJsonNull()) {
+                chartIds.add(meta.get(CHART_ID_KEY).getAsInt());
+            }
+        }
+        return chartIds;
     }
 
     /**
@@ -871,32 +895,19 @@ public class SupersetClient implements Closeable {
      */
     public Optional<Set<Integer>> getDashboardChartIds(String idOrSlug) throws URISyntaxException, IOException {
         JsonObject body = getJsonObjectOrNullOnNotFound(SupersetApiRequestBuilder.getDashboardByIdOrSlugRequest(host, port, authToken, idOrSlug));
-        if (body == null || !body.has("result") || !body.get("result").isJsonObject()) {
+        if (body == null || !body.has(RESULT_KEY) || !body.get(RESULT_KEY).isJsonObject()) {
             return Optional.empty();
         }
-        JsonObject result = body.getAsJsonObject("result");
-        if (!result.has("position_json") || result.get("position_json").isJsonNull()) {
+        JsonObject result = body.getAsJsonObject(RESULT_KEY);
+        if (!result.has(POSITION_JSON_KEY) || result.get(POSITION_JSON_KEY).isJsonNull()) {
             return Optional.empty();
         }
         try {
-            JsonElement positionElement = JsonParser.parseString(result.get("position_json").getAsString());
+            JsonElement positionElement = JsonParser.parseString(result.get(POSITION_JSON_KEY).getAsString());
             if (!positionElement.isJsonObject()) {
                 return Optional.empty();
             }
-            Set<Integer> chartIds = new HashSet<>();
-            for (Map.Entry<String, JsonElement> entry : positionElement.getAsJsonObject().entrySet()) {
-                if (!entry.getValue().isJsonObject()) {
-                    continue;
-                }
-                JsonObject component = entry.getValue().getAsJsonObject();
-                if (component.has("meta") && component.get("meta").isJsonObject()) {
-                    JsonObject meta = component.getAsJsonObject("meta");
-                    if (meta.has("chartId") && !meta.get("chartId").isJsonNull()) {
-                        chartIds.add(meta.get("chartId").getAsInt());
-                    }
-                }
-            }
-            return Optional.of(chartIds);
+            return Optional.of(collectChartIds(positionElement.getAsJsonObject()));
         } catch (RuntimeException e) {
             log.warn("Could not parse position_json chart ids for dashboard {}", idOrSlug, e);
             return Optional.empty();
@@ -958,7 +969,7 @@ public class SupersetClient implements Closeable {
         setCookieHeader.ifPresent(header -> this.sessionCookie = header.getValue());
         log.debug("csrf response ==> {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
-        this.csrfToken = respBody.getAsJsonObject().get("result").getAsString();
+        this.csrfToken = respBody.getAsJsonObject().get(RESULT_KEY).getAsString();
     }
 
     private static final int MAX_RETRIES_ON_RATE_LIMIT = 5;
