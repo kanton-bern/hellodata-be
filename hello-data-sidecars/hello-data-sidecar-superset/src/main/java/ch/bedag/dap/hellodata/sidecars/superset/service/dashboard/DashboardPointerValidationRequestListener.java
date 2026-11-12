@@ -41,6 +41,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +87,7 @@ public class DashboardPointerValidationRequestListener {
         dispatcher.subscribe(supersetSidecarSubject);
     }
 
-    private void validatePointers(List<String> pointerUrls, Map<String, Boolean> validityByUrl) throws Exception {
+    private void validatePointers(List<String> pointerUrls, Map<String, Boolean> validityByUrl) throws IOException {
         if (pointerUrls == null || pointerUrls.isEmpty()) {
             return;
         }

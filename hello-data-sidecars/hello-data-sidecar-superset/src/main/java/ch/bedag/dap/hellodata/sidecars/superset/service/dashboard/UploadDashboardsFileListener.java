@@ -43,12 +43,13 @@ import java.util.zip.ZipOutputStream;
 @Service
 @RequiredArgsConstructor
 public class UploadDashboardsFileListener {
-    private static final String DATABASES_PATH = "/databases/";
+    private static final String PATH_SEPARATOR = "/";
+    private static final String DATABASES_PATH = PATH_SEPARATOR + "databases" + PATH_SEPARATOR;
     private static final String DATABASE_NAME_KEY = "database_name";
     private static final String YAML_EXTENSION = ".yaml";
-    private static final String DATASETS_PATH = "/datasets/";
+    private static final String DATASETS_PATH = PATH_SEPARATOR + "datasets" + PATH_SEPARATOR;
     private static final String METADATA_YAML = "metadata.yaml";
-    private static final String CHARTS_PATH = "/charts/";
+    private static final String CHARTS_PATH = PATH_SEPARATOR + "charts" + PATH_SEPARATOR;
     private static final String DATABASE_KEY = "database";
     private static final String DATASOURCE_ID_KEY = "datasource_id";
     private static final String DATASOURCE_TYPE_KEY = "datasource_type";
@@ -166,8 +167,20 @@ public class UploadDashboardsFileListener {
         }
     }
 
+    /**
+     * Deletes the file, returning false (instead of throwing) when the deletion fails.
+     */
+    private static boolean deleteFile(File file) {
+        try {
+            return Files.deleteIfExists(file.toPath());
+        } catch (IOException e) {
+            log.debug("Could not delete file {}: {}", file.getAbsolutePath(), e.getMessage());
+            return false;
+        }
+    }
+
     private void deleteBackupFile(File backupFile) {
-        if (backupFile != null && backupFile.exists() && !backupFile.delete()) {
+        if (backupFile != null && backupFile.exists() && !deleteFile(backupFile)) {
             log.warn("Could not delete backup file: {}", backupFile.getAbsolutePath());
         }
     }
@@ -281,7 +294,7 @@ public class UploadDashboardsFileListener {
                     Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
                     if (parsed.get(DATABASE_NAME_KEY) instanceof String name) {
                         String uuid = parsed.get("uuid") instanceof String u ? u : null;
-                        String fileName = StringUtils.removeEnd(entryName.substring(entryName.lastIndexOf('/') + 1), YAML_EXTENSION);
+                        String fileName = removeYamlExtension(entryName.substring(entryName.lastIndexOf('/') + 1));
                         return new SourceDatabase(name, uuid, fileName);
                     }
                 }
@@ -295,6 +308,10 @@ public class UploadDashboardsFileListener {
      *                 the datasets folder name - it is {@code secure_filename(database_name)}, not the raw name.
      */
     private record SourceDatabase(String name, String uuid, String fileName) {
+    }
+
+    private static String removeYamlExtension(String fileName) {
+        return fileName.endsWith(YAML_EXTENSION) ? fileName.substring(0, fileName.length() - YAML_EXTENSION.length()) : fileName;
     }
 
     private TargetDatabase resolveTargetDatabase(SupersetClient supersetClient) {
@@ -381,13 +398,10 @@ public class UploadDashboardsFileListener {
         JsonArray existingDatasets = supersetClient.getDatasetsBySchemaAndTable(incoming.schema(), incoming.tableName());
         for (JsonElement element : existingDatasets) {
             JsonObject existing = element.getAsJsonObject();
-            if (extractDatabaseId(existing) != targetDb.id()) {
-                // Same schema/table on a different database - not the slot this import targets.
-                continue;
-            }
             String existingUuid = existing.has("uuid") && !existing.get("uuid").isJsonNull() ? existing.get("uuid").getAsString() : null;
-            if (incoming.uuid() != null && incoming.uuid().equals(existingUuid)) {
-                // Same identity - the importer overwrites it in place, no collision.
+            // Skip when it is on a different database (not the slot this import targets) or has the same identity
+            // (the importer overwrites it in place, no collision).
+            if (extractDatabaseId(existing) != targetDb.id() || (incoming.uuid() != null && incoming.uuid().equals(existingUuid))) {
                 continue;
             }
             int existingId = existing.get("id").getAsInt();
@@ -467,7 +481,7 @@ public class UploadDashboardsFileListener {
         } catch (URISyntaxException e) {
             throw new UploadDashboardsFileException("Failed to refresh datasets after dashboard import", e);
         } finally {
-            if (datasetsZip.exists() && !datasetsZip.delete()) {
+            if (datasetsZip.exists() && !deleteFile(datasetsZip)) {
                 log.warn("Could not delete temporary dataset-import file: {}", datasetsZip.getAbsolutePath());
             }
         }
@@ -497,9 +511,7 @@ public class UploadDashboardsFileListener {
                         metadataContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                     }
                     root = name.substring(0, name.length() - METADATA_YAML.length());
-                    continue;
-                }
-                if (name.contains(DATASETS_PATH) || name.contains(DATABASES_PATH)) {
+                } else if (name.contains(DATASETS_PATH) || name.contains(DATABASES_PATH)) {
                     if (name.contains(DATASETS_PATH)) {
                         hasDataset = true;
                     }
@@ -515,7 +527,7 @@ public class UploadDashboardsFileListener {
             zos.closeEntry();
         }
         if (!hasDataset) {
-            if (datasetsZip.exists() && !datasetsZip.delete()) {
+            if (datasetsZip.exists() && !deleteFile(datasetsZip)) {
                 log.warn("Could not delete temporary dataset-import file: {}", datasetsZip.getAbsolutePath());
             }
             return null;
@@ -557,7 +569,7 @@ public class UploadDashboardsFileListener {
         } catch (URISyntaxException e) {
             throw new UploadDashboardsFileException("Failed to refresh charts after dashboard import", e);
         } finally {
-            if (chartsZip.exists() && !chartsZip.delete()) {
+            if (chartsZip.exists() && !deleteFile(chartsZip)) {
                 log.warn("Could not delete temporary chart-import file: {}", chartsZip.getAbsolutePath());
             }
         }
@@ -587,9 +599,7 @@ public class UploadDashboardsFileListener {
                         metadataContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                     }
                     root = name.substring(0, name.length() - METADATA_YAML.length());
-                    continue;
-                }
-                if (name.contains(CHARTS_PATH) || name.contains(DATASETS_PATH) || name.contains(DATABASES_PATH)) {
+                } else if (name.contains(CHARTS_PATH) || name.contains(DATASETS_PATH) || name.contains(DATABASES_PATH)) {
                     if (name.contains(CHARTS_PATH)) {
                         hasChart = true;
                     }
@@ -605,7 +615,7 @@ public class UploadDashboardsFileListener {
             zos.closeEntry();
         }
         if (!hasChart) {
-            if (chartsZip.exists() && !chartsZip.delete()) {
+            if (chartsZip.exists() && !deleteFile(chartsZip)) {
                 log.warn("Could not delete temporary chart-import file: {}", chartsZip.getAbsolutePath());
             }
             return null;
@@ -931,7 +941,7 @@ public class UploadDashboardsFileListener {
             List<File> chunks = listChunks(chunksFolderPath);
             int nrFilesDeleted = 0;
             for (File file : listChunks(chunksFolderPath)) {
-                if (file.delete()) { //NOSONAR
+                if (deleteFile(file)) {
                     nrFilesDeleted++;
                 }
             }

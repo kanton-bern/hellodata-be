@@ -145,18 +145,10 @@ public class QuerySynchronizer {
                     allQueries.remove(query.getId());
                     allQueries.put(query.getId(), query);
                 });
-                if (pageResults.size() < PAGE_SIZE) {
+                cursor = nextCursor(pageResults, cursor, contextKey);
+                if (cursor == null) {
                     break;
                 }
-                OffsetDateTime newestChangedOn = pageResults.stream()
-                        .map(query -> query.getChangedOn().atOffset(ZoneOffset.UTC))
-                        .max(Comparator.naturalOrder())
-                        .orElse(cursor);
-                if (!newestChangedOn.isAfter(cursor)) {
-                    log.warn("[fetchQueries] More than {} queries share changed_on {} for contextKey={}, stopping this run", PAGE_SIZE, cursor, contextKey);
-                    break;
-                }
-                cursor = newestChangedOn;
             }
             log.debug("[fetchQueries] Fetched total of {} queries for contextKey={}", allQueries.size(), contextKey);
             return new ArrayList<>(allQueries.values());
@@ -166,6 +158,24 @@ public class QuerySynchronizer {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error fetching queries from the superset instance " + contextKey, e); //NOSONAR
         }
+    }
+
+    /**
+     * @return the cursor for the next page, or null when there are no more pages to fetch
+     */
+    private OffsetDateTime nextCursor(List<SupersetQuery> pageResults, OffsetDateTime cursor, String contextKey) {
+        if (pageResults.size() < PAGE_SIZE) {
+            return null;
+        }
+        OffsetDateTime newestChangedOn = pageResults.stream()
+                .map(query -> query.getChangedOn().atOffset(ZoneOffset.UTC))
+                .max(Comparator.naturalOrder())
+                .orElse(cursor);
+        if (!newestChangedOn.isAfter(cursor)) {
+            log.warn("[fetchQueries] More than {} queries share changed_on {} for contextKey={}, stopping this run", PAGE_SIZE, cursor, contextKey);
+            return null;
+        }
+        return newestChangedOn;
     }
 
     /**

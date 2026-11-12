@@ -85,15 +85,17 @@ public class SftpGoUpdateUserContextRoleConsumer {
                                 addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + ADMIN_GROUP_POSTFIX, user);
                         case DATA_DOMAIN_EDITOR ->
                                 addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + EDITOR_GROUP_POSTFIX, user);
-                        case DATA_DOMAIN_VIEWER, DATA_DOMAIN_BUSINESS_SPECIALIST -> {
-                            if (!viewerDisabled) {
-                                addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + VIEWER_GROUP_POSTFIX, user);
-                            }
-                        }
+                        case DATA_DOMAIN_VIEWER, DATA_DOMAIN_BUSINESS_SPECIALIST -> addViewerGroupIfEnabled(user, groupName);
                         default -> log.error("Unhandled role {}", userContextRole.getRoleName());
 
                     }
                 });
+    }
+
+    private void addViewerGroupIfEnabled(User user, String groupName) {
+        if (!viewerDisabled) {
+            addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + VIEWER_GROUP_POSTFIX, user);
+        }
     }
 
     private void checkBusinessContextRole(UserContextRoleUpdate userContextRoleUpdate, User user) {

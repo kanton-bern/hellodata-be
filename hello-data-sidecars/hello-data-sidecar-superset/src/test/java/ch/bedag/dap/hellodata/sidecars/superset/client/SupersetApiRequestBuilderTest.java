@@ -72,10 +72,10 @@ class SupersetApiRequestBuilderTest {
         assertThat(request.getMethod()).isEqualTo("GET");
         assertThat(request.getURI().getPath()).isEqualTo("/api/v1/chart/");
         String query = decodedQuery(request);
-        assertThat(query).contains("\"columns\":[\"id\",\"uuid\"]");
-        assertThat(query).contains("\"col\":\"id\"");
-        assertThat(query).contains("\"opr\":\"eq\"");
-        assertThat(query).contains("\"value\":153");
+        assertThat(query).contains("\"columns\":[\"id\",\"uuid\"]")
+                .contains("\"col\":\"id\"")
+                .contains("\"opr\":\"eq\"")
+                .contains("\"value\":153");
     }
 
     @Test
@@ -85,8 +85,8 @@ class SupersetApiRequestBuilderTest {
         assertThat(request.getMethod()).isEqualTo("GET");
         assertThat(request.getURI().getPath()).isEqualTo("/api/v1/dataset/");
         String query = decodedQuery(request);
-        assertThat(query).contains("\"columns\":[\"id\",\"uuid\"]");
-        assertThat(query).contains("\"value\":70");
+        assertThat(query).contains("\"columns\":[\"id\",\"uuid\"]")
+                .contains("\"value\":70");
     }
 
     @Test
@@ -104,10 +104,10 @@ class SupersetApiRequestBuilderTest {
 
         assertThat(request.getURI().getPath()).isEqualTo("/api/v1/log/");
         String query = decodedQuery(request);
-        assertThat(query).contains("\"page\":2");
-        assertThat(query).contains("\"page_size\":1000");
-        assertThat(query).contains("\"order_column\":\"dttm\"");
-        assertThat(query).contains("\"order_direction\":\"asc\"");
+        assertThat(query).contains("\"page\":2")
+                .contains("\"page_size\":1000")
+                .contains("\"order_column\":\"dttm\"")
+                .contains("\"order_direction\":\"asc\"");
     }
 
     @Test
@@ -116,8 +116,8 @@ class SupersetApiRequestBuilderTest {
 
         assertThat(request.getURI().getPath()).isEqualTo("/api/v1/query/");
         String query = decodedQuery(request);
-        assertThat(query).contains("\"order_column\":\"changed_on\"");
-        assertThat(query).contains("\"order_direction\":\"asc\"");
+        assertThat(query).contains("\"order_column\":\"changed_on\"")
+                .contains("\"order_direction\":\"asc\"");
     }
 
     private static String decodedQuery(HttpUriRequest request) {

@@ -71,7 +71,7 @@ class UploadDashboardsFileListenerDatasetRefreshTest {
 
         String metadata = readEntry(datasetsZip, "dashboard_export/metadata.yaml");
         Map<String, Object> parsed = new ObjectMapper(new YAMLFactory()).readValue(metadata, Map.class);
-        assertThat(parsed.get("type")).isEqualTo("SqlaTable");
+        assertThat(parsed).containsEntry("type", "SqlaTable");
     }
 
     @Test

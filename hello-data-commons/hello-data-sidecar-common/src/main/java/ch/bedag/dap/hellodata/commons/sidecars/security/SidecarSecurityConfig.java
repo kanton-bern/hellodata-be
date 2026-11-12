@@ -38,7 +38,7 @@ public class SidecarSecurityConfig {
 
     @Bean
     @ConditionalOnMissingBean(SecurityFilterChain.class)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http.securityMatcher(EndpointRequest.toAnyEndpoint());
         http.authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
         return http.build();

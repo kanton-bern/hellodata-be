@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
 public class DwhCommentRepository {
 
     /** Postgres unquoted identifier charset; guards the role names we interpolate into GRANT statements. */
-    private static final Pattern SAFE_ROLE_NAME = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    private static final Pattern SAFE_ROLE_NAME = Pattern.compile("^[a-zA-Z_]\\w*$");
 
     private final JdbcTemplate jdbcTemplate;
     private final DwhCommentSyncProperties properties;

@@ -236,7 +236,7 @@ public class SupersetUpdateUserContextRoleConsumer {
             subsystemUserUpdate.setRoles(roles);
             try {
                 IdResponse createdUser = supersetClient.createUser(subsystemUserUpdate);
-                return supersetClient.user(createdUser.id).getResult();
+                return supersetClient.user(createdUser.getId()).getResult();
             } catch (UnexpectedResponseException e) {
                 if (e.getCode() == 422) {
                     log.info("User {} was concurrently created by another event, fetching existing user", userContextRoleUpdate.getEmail());

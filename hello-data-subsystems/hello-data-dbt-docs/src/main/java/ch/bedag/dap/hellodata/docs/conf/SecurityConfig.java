@@ -118,8 +118,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, DocsAuthorizationManager authorizationManager, DbtDocsJwtAuthenticationConverter authenticationConverter) throws
-            Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, DocsAuthorizationManager authorizationManager, DbtDocsJwtAuthenticationConverter authenticationConverter) {
         http.headers(headerSpec -> headerSpec.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)); // disabled to allow embedding into "portal"
         configureCors(http);
         configureCsrf(http);
