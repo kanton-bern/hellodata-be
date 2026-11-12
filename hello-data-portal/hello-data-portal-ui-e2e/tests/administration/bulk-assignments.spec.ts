@@ -82,7 +82,7 @@ async function expectResult(page: Page, counts: {updated: number, skipped: numbe
 }
 
 // An admin gives the same role in a data domain to several existing users at once in the bulk assignments wizard. The
-// users are created with no role by a batch import first.
+// users are created by a batch import first, which only imports users with a role, so the editors start as viewers.
 test.describe('Bulk assignments', () => {
   // the last test takes back the role the first one gave
   test.describe.configure({mode: 'serial'});
@@ -95,7 +95,11 @@ test.describe('Bulk assignments', () => {
     test.setTimeout(SUPERSET_SYNC_TIMEOUT + 2 * BATCH_TIMEOUT);
     dashboardRole = showcaseDashboardRole();
     await ensureSupersetRoles([RLS_A]);
-    await importCsv(toCsv([editorA, editorB, viewer].map(email => ({email, dataDomainRole: 'NONE'}))));
+    await importCsv(toCsv([
+      {email: editorA, dataDomainRole: 'DATA_DOMAIN_VIEWER'},
+      {email: editorB, dataDomainRole: 'DATA_DOMAIN_VIEWER'},
+      {email: viewer, dataDomainRole: 'DATA_DOMAIN_EDITOR'},
+    ]));
   });
 
   test.afterAll(async ({browser}) => {
@@ -103,11 +107,11 @@ test.describe('Bulk assignments', () => {
     await deleteBatchUsers(browser, [editorA, editorB, viewer]);
   });
 
-  // two users with no role become data domain editors in one run; the portal stores the role and Superset has the
+  // two viewers become data domain editors in one run; the portal stores the role and Superset has the
   // BI_EDITOR and sql_lab roles for both
   test('gives two users the data domain editor role', async ({adminPage: page}) => {
     test.setTimeout(2 * BATCH_TIMEOUT);
-    expect(portalRoles(editorA).dataDomainRole).toBe('NONE');
+    expect(portalRoles(editorA).dataDomainRole).toBe('DATA_DOMAIN_VIEWER');
 
     await bulkAssign(page, [editorA, editorB], {role: 'DATA_DOMAIN_EDITOR'});
     await expectResult(page, {updated: 2, skipped: 0, failed: 0});

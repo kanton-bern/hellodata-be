@@ -7,6 +7,15 @@ const publishedCheckbox = (page: Page) => page.locator('p-checkbox#published');
 const publishedInput = (page: Page) => page.locator('input#published');
 const save = (page: Page) => page.getByRole('button', {name: 'Save', exact: true});
 
+// A published announcement opens a modal popup for every user of the portal, the admin who published it included. It
+// covers the page and blocks every click, so it is closed as soon as it gets in the way of an action. The viewer of the
+// second test does not use it, since it checks the popup.
+function closeAnnouncementPopup(page: Page) {
+  return page.addLocatorHandler(
+    page.getByRole('dialog').filter({hasText: 'Do not show again'}),
+    () => page.keyboard.press('Escape'));
+}
+
 async function openList(page: Page) {
   await navigate(page, 'Administration', 'Notifications');
   await expect(page).toHaveURL(/\/announcements-management$/);
@@ -46,6 +55,15 @@ async function deleteAnnouncement(page: Page, message: string) {
   await expect(row(page, message)).toHaveCount(0);
 }
 
+// A test that fails half way must not leave its announcements behind: a published one would open its popup for every
+// user in all the specs that follow.
+async function deleteLeftovers(page: Page, token: string) {
+  await openList(page);
+  while (await row(page, token).count() > 0) {
+    await deleteAnnouncement(page, token);
+  }
+}
+
 // the admin manages the notifications (announcements) of the portal
 test.describe('Announcements management', () => {
   // the admin creates a published announcement, edits its text, unpublishes it and deletes it; after each step the list
@@ -55,50 +73,55 @@ test.describe('Announcements management', () => {
     // single tokens, since the rich text editor stores spaces of replaced content as &nbsp;
     const created = `created-${id}`;
     const edited = `edited-${id}`;
+    await closeAnnouncementPopup(page);
 
-    await createAnnouncement(page, created, true);
+    try {
+      await createAnnouncement(page, created, true);
 
-    await openPublishedPage(page);
-    await expect(page.getByText(created)).toBeVisible();
+      await openPublishedPage(page);
+      await expect(page.getByText(created)).toBeVisible();
 
-    // edit
-    await openList(page);
-    await row(page, created).getByRole('button').nth(1).click();
-    await expect(page).toHaveURL(/\/announcements-management\/edit\//);
-    // wait for the stored announcement to be loaded into the form, otherwise it overwrites our change
-    await expect(messageEditor(page)).toContainText(created);
-    await expect(publishedInput(page)).toBeChecked();
-    await messageEditor(page).fill(edited);
-    await save(page).click();
-    await expect(page).toHaveURL(/\/announcements-management$/);
-    await expect(row(page, edited)).toHaveCount(1);
-    await expect(row(page, created)).toHaveCount(0);
-    // the details of the row show the message per language
-    await row(page, edited).getByRole('button').first().click();
-    await expect(page.locator('.announcement-translations-table').getByText(edited)).toBeVisible();
+      // edit
+      await openList(page);
+      await row(page, created).getByRole('button').nth(1).click();
+      await expect(page).toHaveURL(/\/announcements-management\/edit\//);
+      // wait for the stored announcement to be loaded into the form, otherwise it overwrites our change
+      await expect(messageEditor(page)).toContainText(created);
+      await expect(publishedInput(page)).toBeChecked();
+      await messageEditor(page).fill(edited);
+      await save(page).click();
+      await expect(page).toHaveURL(/\/announcements-management$/);
+      await expect(row(page, edited)).toHaveCount(1);
+      await expect(row(page, created)).toHaveCount(0);
+      // the details of the row show the message per language
+      await row(page, edited).getByRole('button').first().click();
+      await expect(page.locator('.announcement-translations-table').getByText(edited)).toBeVisible();
 
-    await openPublishedPage(page);
-    await expect(page.getByText(edited)).toBeVisible();
-    await expect(page.getByText(created)).toHaveCount(0);
+      await openPublishedPage(page);
+      await expect(page.getByText(edited)).toBeVisible();
+      await expect(page.getByText(created)).toHaveCount(0);
 
-    // unpublish - it stays in the management list, but is no longer shown to the users
-    await openList(page);
-    await row(page, edited).getByRole('button').nth(1).click();
-    await expect(page).toHaveURL(/\/announcements-management\/edit\//);
-    await expect(messageEditor(page)).toContainText(edited);
-    await expect(publishedInput(page)).toBeChecked();
-    await publishedCheckbox(page).click();
-    await expect(publishedInput(page)).not.toBeChecked();
-    await save(page).click();
-    await expect(page).toHaveURL(/\/announcements-management$/);
-    await expect(row(page, edited)).toHaveCount(1);
+      // unpublish - it stays in the management list, but is no longer shown to the users
+      await openList(page);
+      await row(page, edited).getByRole('button').nth(1).click();
+      await expect(page).toHaveURL(/\/announcements-management\/edit\//);
+      await expect(messageEditor(page)).toContainText(edited);
+      await expect(publishedInput(page)).toBeChecked();
+      await publishedCheckbox(page).click();
+      await expect(publishedInput(page)).not.toBeChecked();
+      await save(page).click();
+      await expect(page).toHaveURL(/\/announcements-management$/);
+      await expect(row(page, edited)).toHaveCount(1);
 
-    await openPublishedPage(page);
-    await expect(page.getByText(edited)).toHaveCount(0);
+      await openPublishedPage(page);
+      await expect(page.getByText(edited)).toHaveCount(0);
 
-    // delete
-    await openList(page);
-    await deleteAnnouncement(page, edited);
+      // delete
+      await openList(page);
+      await deleteAnnouncement(page, edited);
+    } finally {
+      await deleteLeftovers(page, String(id));
+    }
   });
 
   // a published announcement reaches the users: a popup opens for them in the portal, they can hide it for good, and
@@ -108,37 +131,39 @@ test.describe('Announcements management', () => {
     const visible = `visible-${id}`;
     const hidden = `hidden-${id}`;
 
-    await createAnnouncement(admin, visible, true);
-    await createAnnouncement(admin, hidden, false);
+    await closeAnnouncementPopup(admin);
 
-    const viewer = await browser.newPage();
     try {
-      // the portal opens the popup on its own, the unpublished announcement is not in it
-      await openPortalAs(viewer, DATA_DOMAIN_VIEWER.username, DATA_DOMAIN_VIEWER.password);
-      const popup = viewer.getByRole('dialog');
-      await expect(popup.getByText(visible)).toBeVisible();
-      await expect(popup.getByText(hidden)).toHaveCount(0);
+      await createAnnouncement(admin, visible, true);
+      await createAnnouncement(admin, hidden, false);
 
-      // "Do not show again" hides it from the popup for this user, also after a reload
-      await popup.getByText('Do not show again').click();
-      await viewer.keyboard.press('Escape');
-      await expect(popup).toHaveCount(0);
-      await viewer.reload();
-      await expect(viewer.locator('#userMenu')).toBeVisible();
-      // the popup opens after a short delay, so give it the time before checking that it stays away
-      await viewer.waitForTimeout(2_000);
-      await expect(viewer.getByRole('dialog')).toHaveCount(0);
+      const viewer = await browser.newPage();
+      try {
+        // the portal opens the popup on its own, the unpublished announcement is not in it
+        await openPortalAs(viewer, DATA_DOMAIN_VIEWER.username, DATA_DOMAIN_VIEWER.password);
+        const popup = viewer.getByRole('dialog');
+        await expect(popup.getByText(visible)).toBeVisible();
+        await expect(popup.getByText(hidden)).toHaveCount(0);
 
-      // the page of the published announcements still lists it, but not the unpublished one
-      await openPublishedPage(viewer);
-      await expect(viewer.getByText(visible)).toBeVisible();
-      await expect(viewer.getByText(hidden)).toHaveCount(0);
+        // "Do not show again" hides it from the popup for this user, also after a reload
+        await popup.getByText('Do not show again').click();
+        await viewer.keyboard.press('Escape');
+        await expect(popup).toHaveCount(0);
+        await viewer.reload();
+        await expect(viewer.locator('#userMenu')).toBeVisible();
+        // the popup opens after a short delay, so give it the time before checking that it stays away
+        await viewer.waitForTimeout(2_000);
+        await expect(viewer.getByRole('dialog')).toHaveCount(0);
+
+        // the page of the published announcements still lists it, but not the unpublished one
+        await openPublishedPage(viewer);
+        await expect(viewer.getByText(visible)).toBeVisible();
+        await expect(viewer.getByText(hidden)).toHaveCount(0);
+      } finally {
+        await viewer.close();
+      }
     } finally {
-      await viewer.close();
-      // clean up, also when the checks above failed
-      await openList(admin);
-      await deleteAnnouncement(admin, visible);
-      await deleteAnnouncement(admin, hidden);
+      await deleteLeftovers(admin, String(id));
     }
   });
 });
