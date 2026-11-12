@@ -63,16 +63,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.filter.CompositeFilter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.IOException;
@@ -171,18 +169,15 @@ public abstract class AbstractKeycloakTestContainers {
     public void cleanUp() {
         log.debug("Truncate all tables");
         TransactionTemplate transactionTemplate = new TransactionTemplate(platformTransactionManager);
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Metamodel metamodel = em.getMetamodel();
+        transactionTemplate.executeWithoutResult(status -> {
+            Metamodel metamodel = em.getMetamodel();
 
-                em.createNativeQuery("SET session_replication_role = 'replica';").executeUpdate();
-                for (EntityType<?> e : metamodel.getEntities()) {
-                    String entityTableName = e.getName();
-                    em.createNativeQuery("truncate table " + entityTableName + " cascade").executeUpdate();
-                }
-                em.createNativeQuery("SET session_replication_role = 'origin';").executeUpdate();
+            em.createNativeQuery("SET session_replication_role = 'replica';").executeUpdate();
+            for (EntityType<?> e : metamodel.getEntities()) {
+                String entityTableName = e.getName();
+                em.createNativeQuery("truncate table " + entityTableName + " cascade").executeUpdate();
             }
+            em.createNativeQuery("SET session_replication_role = 'origin';").executeUpdate();
         });
     }
 

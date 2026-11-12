@@ -219,16 +219,16 @@ public class AirflowClient implements Closeable {
             throws URISyntaxException, IOException {
         List<T> allItems = new ArrayList<>();
         int offset = 0;
-        while (true) {
+        boolean hasMore = true;
+        while (hasMore) {
             R page = pageFetcher.fetch(offset, PAGE_LIMIT);
             List<T> items = itemsExtractor.apply(page);
             if (items == null || items.isEmpty()) {
-                break;
-            }
-            allItems.addAll(items);
-            offset += items.size();
-            if (offset >= totalExtractor.applyAsInt(page)) {
-                break;
+                hasMore = false;
+            } else {
+                allItems.addAll(items);
+                offset += items.size();
+                hasMore = offset < totalExtractor.applyAsInt(page);
             }
         }
         return allItems;

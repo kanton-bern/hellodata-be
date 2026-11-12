@@ -69,7 +69,7 @@ public class RemoveRequestCookieGatewayFilterFactory extends AbstractGatewayFilt
         for (String cookie : cookies) {
             String trimmedCookie = cookie.trim();
             if (!trimmedCookie.startsWith(cookieName + "=")) {
-                if (updatedCookies.length() > 0) {
+                if (!updatedCookies.isEmpty()) {
                     updatedCookies.append("; ");
                 }
                 updatedCookies.append(trimmedCookie);

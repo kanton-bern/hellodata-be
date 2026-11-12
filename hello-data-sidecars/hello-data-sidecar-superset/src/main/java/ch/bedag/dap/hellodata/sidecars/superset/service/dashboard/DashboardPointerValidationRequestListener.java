@@ -42,7 +42,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +87,7 @@ public class DashboardPointerValidationRequestListener {
         dispatcher.subscribe(supersetSidecarSubject);
     }
 
-    private void validatePointers(List<String> pointerUrls, Map<String, Boolean> validityByUrl) throws IOException, URISyntaxException {
+    private void validatePointers(List<String> pointerUrls, Map<String, Boolean> validityByUrl) throws IOException {
         if (pointerUrls == null || pointerUrls.isEmpty()) {
             return;
         }

@@ -802,11 +802,8 @@ public class SupersetClient implements Closeable {
     private Set<Integer> collectChartIds(JsonObject position) {
         Set<Integer> chartIds = new HashSet<>();
         for (Map.Entry<String, JsonElement> entry : position.entrySet()) {
-            if (!entry.getValue().isJsonObject()) {
-                continue;
-            }
-            JsonObject component = entry.getValue().getAsJsonObject();
-            if (!component.has("meta") || !component.get("meta").isJsonObject()) {
+            JsonObject component = entry.getValue().isJsonObject() ? entry.getValue().getAsJsonObject() : null;
+            if (component == null || !component.has("meta") || !component.get("meta").isJsonObject()) {
                 continue;
             }
             JsonObject meta = component.getAsJsonObject("meta");

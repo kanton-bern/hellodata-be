@@ -44,7 +44,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.ext.ScriptUtils;
 import org.testcontainers.jdbc.JdbcDatabaseDelegate;
 
@@ -78,7 +78,7 @@ class LogCleanupServiceTest {
     private LogCleanupService logCleanupService;
 
     @ServiceConnection
-    private static final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:15.4").withDatabaseName("testdatabase")
+    private static final PostgreSQLContainer postgresContainer = new PostgreSQLContainer("postgres:15.4").withDatabaseName("testdatabase")
             .withUsername("test")
             .withPassword("test")
             .withExposedPorts(5432)
@@ -115,7 +115,7 @@ class LogCleanupServiceTest {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/airflow-init.sql");
         ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/airflow-test-data.sql");
         ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/superset-one-init.sql");
