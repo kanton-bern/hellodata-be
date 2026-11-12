@@ -64,6 +64,9 @@ import java.util.List;
 @Log4j2
 @UtilityClass
 public class SupersetApiRequestBuilder {
+    private static final String CSRF_TOKEN_HEADER = "X-CSRFToken";
+    private static final String COOKIE_HEADER = "Cookie";
+
 
     private static final String BEARER_TOKEN_VALUE_PREFIX = "Bearer ";
     private static final String LOGIN_API_ENDPOINT = "/api/v1/security/login";
@@ -73,6 +76,8 @@ public class SupersetApiRequestBuilder {
     private static final String USERS_API_ENDPOINT = "/api/v1/security/users/";
     private static final String LIST_ROLE_PERMISSIONS_API_ENDPOINT = "/api/v1/security/roles/%d/permissions/";
     private static final String LIST_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/";
+    private static final String CHART_API_ENDPOINT = "/api/v1/chart/";
+    private static final String DATASET_API_ENDPOINT = "/api/v1/dataset/";
     private static final String LIST_QUERY_API_ENDPOINT = "/api/v1/query/";
     private static final String LIST_LOGS_API_ENDPOINT = "/api/v1/log/";
     private static final String DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/%d";
@@ -301,8 +306,8 @@ public class SupersetApiRequestBuilder {
                     .setUri(apiUri) //
                     .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
                     .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                    .setHeader("X-CSRFToken", csrfToken) //
-                    .setHeader("Cookie", sessionCookie) //
+                    .setHeader(CSRF_TOKEN_HEADER, csrfToken) //
+                    .setHeader(COOKIE_HEADER, sessionCookie) //
                     .setEntity(builder.build()) //
                     .build();
         }
@@ -356,7 +361,7 @@ public class SupersetApiRequestBuilder {
     }
 
     public static HttpUriRequest getDashboardChartsRequest(String host, int port, String authToken, int dashboardId) throws URISyntaxException {
-        URI apiUri = buildUri(host, port, "/api/v1/dashboard/" + dashboardId + "/charts", null);
+        URI apiUri = buildUri(host, port, LIST_DASHBOARD_API_ENDPOINT + dashboardId + "/charts", null);
         return RequestBuilder.get()
                 .setUri(apiUri)
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
@@ -365,15 +370,15 @@ public class SupersetApiRequestBuilder {
     }
 
     public static HttpUriRequest getListChartsRequestFiltered(String host, int port, String authToken, JsonArray filters) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, "/api/v1/chart/");
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, CHART_API_ENDPOINT);
     }
 
     public static HttpUriRequest getListDatasetsRequestFiltered(String host, int port, String authToken, JsonArray columns, JsonArray filters) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, columns, filters, "/api/v1/dataset/");
+        return getHttpUriRequestWithBasicParams(host, port, authToken, columns, filters, DATASET_API_ENDPOINT);
     }
 
     public static HttpUriRequest getChartByIdRequest(String host, int port, String authToken, int chartId) throws URISyntaxException {
-        URI apiUri = buildUri(host, port, "/api/v1/chart/" + chartId, null);
+        URI apiUri = buildUri(host, port, CHART_API_ENDPOINT + chartId, null);
         return RequestBuilder.get()
                 .setUri(apiUri)
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
@@ -388,7 +393,7 @@ public class SupersetApiRequestBuilder {
      * endpoint filtered by id.
      */
     public static HttpUriRequest getChartUuidByIdRequest(String host, int port, String authToken, int chartId) throws URISyntaxException {
-        return getUuidByIdListRequest(host, port, authToken, "/api/v1/chart/", chartId);
+        return getUuidByIdListRequest(host, port, authToken, CHART_API_ENDPOINT, chartId);
     }
 
     /**
@@ -396,7 +401,7 @@ public class SupersetApiRequestBuilder {
      * expose the {@code uuid}, so resolve it through the list endpoint filtered by id.
      */
     public static HttpUriRequest getDatasetUuidByIdRequest(String host, int port, String authToken, int datasetId) throws URISyntaxException {
-        return getUuidByIdListRequest(host, port, authToken, "/api/v1/dataset/", datasetId);
+        return getUuidByIdListRequest(host, port, authToken, DATASET_API_ENDPOINT, datasetId);
     }
 
     private static HttpUriRequest getUuidByIdListRequest(String host, int port, String authToken, String listEndpoint, int id) throws URISyntaxException {
@@ -424,18 +429,18 @@ public class SupersetApiRequestBuilder {
         }
         qBuilder.append(")");
 
-        URI apiUri = buildUri(host, port, "/api/v1/chart/", List.of(Pair.of("q", qBuilder.toString())));
+        URI apiUri = buildUri(host, port, CHART_API_ENDPOINT, List.of(Pair.of("q", qBuilder.toString())));
         return RequestBuilder.delete()
                 .setUri(apiUri)
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
                 .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
-                .setHeader("X-CSRFToken", csrfToken)
-                .setHeader("Cookie", sessionCookie)
+                .setHeader(CSRF_TOKEN_HEADER, csrfToken)
+                .setHeader(COOKIE_HEADER, sessionCookie)
                 .build();
     }
 
     public static HttpUriRequest getDashboardByIdOrSlugRequest(String host, int port, String authToken, String idOrSlug) throws URISyntaxException {
-        URI apiUri = buildUri(host, port, "/api/v1/dashboard/" + idOrSlug, null);
+        URI apiUri = buildUri(host, port, LIST_DASHBOARD_API_ENDPOINT + idOrSlug, null);
         return RequestBuilder.get()
                 .setUri(apiUri)
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
@@ -462,13 +467,13 @@ public class SupersetApiRequestBuilder {
     }
 
     public static HttpUriRequest getDeleteDatasetRequest(String host, int port, String authToken, int datasetId, String csrfToken, String sessionCookie) throws URISyntaxException {
-        URI apiUri = buildUri(host, port, "/api/v1/dataset/" + datasetId, null);
+        URI apiUri = buildUri(host, port, DATASET_API_ENDPOINT + datasetId, null);
         return RequestBuilder.delete()
                 .setUri(apiUri)
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken)
                 .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
-                .setHeader("X-CSRFToken", csrfToken)
-                .setHeader("Cookie", sessionCookie)
+                .setHeader(CSRF_TOKEN_HEADER, csrfToken)
+                .setHeader(COOKIE_HEADER, sessionCookie)
                 .build();
     }
 

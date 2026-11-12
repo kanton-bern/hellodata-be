@@ -43,6 +43,16 @@ import java.util.zip.ZipOutputStream;
 @Service
 @RequiredArgsConstructor
 public class UploadDashboardsFileListener {
+    private static final String DATABASES_PATH = "/databases/";
+    private static final String DATABASE_NAME_KEY = "database_name";
+    private static final String YAML_EXTENSION = ".yaml";
+    private static final String DATASETS_PATH = "/datasets/";
+    private static final String METADATA_YAML = "metadata.yaml";
+    private static final String CHARTS_PATH = "/charts/";
+    private static final String DATABASE_KEY = "database";
+    private static final String DATASOURCE_ID_KEY = "datasource_id";
+    private static final String DATASOURCE_TYPE_KEY = "datasource_type";
+
 
     private static final String CHUNK_SUFFIX = ".tmp";
     private static final int FILE_BUFFER_SIZE = 1024 * 1024;
@@ -76,74 +86,90 @@ public class UploadDashboardsFileListener {
     public void listenForRequests() {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
         log.debug("/*-/*- Listening for messages on subject {}", supersetSidecarSubject);
-        Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
-            log.debug("\t-=-=-=-= Received message from NATS: {}", new String(msg.getData()));
-            String binaryFileId = null;
-            try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
-                DashboardUpload dashboardUpload = objectMapper.readValue(msg.getData(), DashboardUpload.class);
-                saveChunk(dashboardUpload);
-                File destinationFile;
-                if (dashboardUpload.isLastChunk()) {
-                    destinationFile =
-                            File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), //NOSONAR
-                                    "", new File(tmpDir)); //NOSONAR
-                    log.debug("Created temp file for chunk {}", destinationFile);
-                    binaryFileId = dashboardUpload.getBinaryFileId();
-                    assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), destinationFile.toPath());
-                } else {
-                    log.debug("Saved chunk, waiting for another one {}", dashboardUpload.getChunkNumber());
-                    ackMessage(msg);
-                    return;
-                }
-                useDefaultSqlAlchemyUri(dashboardUpload, destinationFile);
-                remapDatabaseInZip(supersetClient, destinationFile, dashboardUpload);
-                normalizeChartsInZip(destinationFile);
-                JsonObject passwordsObject = getPasswordsObject(destinationFile);
-                File backupFile = null;
-                boolean pruned = false;
-                try {
-                    if (dashboardUpload.isPruneChartsAndDatasets()) {
-                        backupFile = backupDashboardIfExists(supersetClient, destinationFile);
-                        if (backupFile != null) {
-                            pruneExistingDashboardAssets(supersetClient, destinationFile);
-                            pruned = true;
-                        }
-                    }
-                    reconcileConflictingDatasets(supersetClient, destinationFile);
-                    log.debug("Passwords parameter send to API ");
-                    supersetClient.importDashboard(destinationFile, passwordsObject, true);
-                    refreshDatasetsInPlace(supersetClient, destinationFile, passwordsObject);
-                    refreshChartsInPlace(supersetClient, destinationFile, passwordsObject);
-                    verifyImportedDashboards(supersetClient, destinationFile);
-                } catch (Exception e) {
-                    if (pruned && backupFile != null) {
-                        log.error("Failed to import dashboard. Restoring from backup...", e);
-                        try {
-                            supersetClient.importDashboard(backupFile, passwordsObject, true);
-                            log.info("Successfully restored dashboard from backup");
-                        } catch (Exception restoreEx) {
-                            log.error("Failed to restore dashboard from backup!", restoreEx);
-                        }
-                    }
-                    throw e;
-                } finally {
-                    if (backupFile != null && backupFile.exists() && !backupFile.delete()) {
-                        log.warn("Could not delete backup file: {}", backupFile.getAbsolutePath());
-                    }
-                }
+        Dispatcher dispatcher = natsConnection.createDispatcher(this::handleUploadMessage);
+        dispatcher.subscribe(supersetSidecarSubject);
+    }
+
+    private void handleUploadMessage(Message msg) {
+        log.debug("\t-=-=-=-= Received message from NATS: {}", new String(msg.getData()));
+        String binaryFileId = null;
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+            DashboardUpload dashboardUpload = objectMapper.readValue(msg.getData(), DashboardUpload.class);
+            saveChunk(dashboardUpload);
+            if (!dashboardUpload.isLastChunk()) {
+                log.debug("Saved chunk, waiting for another one {}", dashboardUpload.getChunkNumber());
                 ackMessage(msg);
-                dashboardResourceProviderService.publishDashboards();
-            } catch (URISyntaxException | IOException | RuntimeException e) {
-                log.error("Error uploading dashboards", e);
-                String userFriendlyMessage = extractUserFriendlyErrorMessage(e);
-                natsConnection.publish(msg.getReplyTo(), userFriendlyMessage.getBytes(StandardCharsets.UTF_8));
-            } finally {
-                if (binaryFileId != null) {
-                    deleteTempBinaryFileData(binaryFileId);
+                return;
+            }
+            File destinationFile =
+                    File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), //NOSONAR
+                            "", new File(tmpDir)); //NOSONAR
+            log.debug("Created temp file for chunk {}", destinationFile);
+            binaryFileId = dashboardUpload.getBinaryFileId();
+            assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), destinationFile.toPath());
+            importUploadedDashboard(supersetClient, dashboardUpload, destinationFile);
+            ackMessage(msg);
+            dashboardResourceProviderService.publishDashboards();
+        } catch (URISyntaxException | IOException | RuntimeException e) {
+            log.error("Error uploading dashboards", e);
+            String userFriendlyMessage = extractUserFriendlyErrorMessage(e);
+            natsConnection.publish(msg.getReplyTo(), userFriendlyMessage.getBytes(StandardCharsets.UTF_8));
+        } finally {
+            if (binaryFileId != null) {
+                deleteTempBinaryFileData(binaryFileId);
+            }
+        }
+    }
+
+    private void importUploadedDashboard(SupersetClient supersetClient, DashboardUpload dashboardUpload, File destinationFile) throws URISyntaxException, IOException {
+        useDefaultSqlAlchemyUri(dashboardUpload, destinationFile);
+        remapDatabaseInZip(supersetClient, destinationFile, dashboardUpload);
+        normalizeChartsInZip(destinationFile);
+        JsonObject passwordsObject = getPasswordsObject(destinationFile);
+        File backupFile = null;
+        boolean pruned = false;
+        try {
+            if (dashboardUpload.isPruneChartsAndDatasets()) {
+                backupFile = backupDashboardIfExists(supersetClient, destinationFile);
+                if (backupFile != null) {
+                    pruneExistingDashboardAssets(supersetClient, destinationFile);
+                    pruned = true;
                 }
             }
-        });
-        dispatcher.subscribe(supersetSidecarSubject);
+            importAndRefresh(supersetClient, destinationFile, passwordsObject);
+        } catch (Exception e) {
+            if (pruned && backupFile != null) {
+                log.error("Failed to import dashboard. Restoring from backup...", e);
+                restoreFromBackup(supersetClient, backupFile, passwordsObject);
+            }
+            throw e;
+        } finally {
+            deleteBackupFile(backupFile);
+        }
+    }
+
+    private void importAndRefresh(SupersetClient supersetClient, File destinationFile, JsonObject passwordsObject) throws URISyntaxException, IOException {
+        reconcileConflictingDatasets(supersetClient, destinationFile);
+        log.debug("Passwords parameter send to API ");
+        supersetClient.importDashboard(destinationFile, passwordsObject, true);
+        refreshDatasetsInPlace(supersetClient, destinationFile, passwordsObject);
+        refreshChartsInPlace(supersetClient, destinationFile, passwordsObject);
+        verifyImportedDashboards(supersetClient, destinationFile);
+    }
+
+    private void restoreFromBackup(SupersetClient supersetClient, File backupFile, JsonObject passwordsObject) {
+        try {
+            supersetClient.importDashboard(backupFile, passwordsObject, true);
+            log.info("Successfully restored dashboard from backup");
+        } catch (Exception restoreEx) {
+            log.error("Failed to restore dashboard from backup!", restoreEx);
+        }
+    }
+
+    private void deleteBackupFile(File backupFile) {
+        if (backupFile != null && backupFile.exists() && !backupFile.delete()) {
+            log.warn("Could not delete backup file: {}", backupFile.getAbsolutePath());
+        }
     }
 
     public void saveChunk(DashboardUpload chunk) throws IOException {
@@ -194,23 +220,23 @@ public class UploadDashboardsFileListener {
                 String entryName = entry.getName();
 
                 try (InputStream inputStream = zipFile.getInputStream(entry)) {
-                    if (entryName.contains("/databases/") && !entry.isDirectory()) {
+                    if (entryName.contains(DATABASES_PATH) && !entry.isDirectory()) {
                         // Remap database yaml: replace name, uuid, and rename file
                         String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                         Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
-                        parsed.put("database_name", targetDb.name);
+                        parsed.put(DATABASE_NAME_KEY, targetDb.name);
                         parsed.put("uuid", targetDb.uuid);
 
                         String updatedYaml = yamlMapper.writeValueAsString(parsed);
-                        String newEntryName = entryName.replace("/databases/" + sourceDb.fileName() + ".yaml",
-                                "/databases/" + targetDb.name + ".yaml");
+                        String newEntryName = entryName.replace(DATABASES_PATH + sourceDb.fileName() + YAML_EXTENSION,
+                                DATABASES_PATH + targetDb.name + YAML_EXTENSION);
                         log.info("Renaming database entry: {} -> {}", entryName, newEntryName);
 
                         zos.putNextEntry(new ZipEntry(newEntryName));
                         zos.write(updatedYaml.getBytes(StandardCharsets.UTF_8));
                         zos.closeEntry();
 
-                    } else if (entryName.contains("/datasets/") && !entry.isDirectory()) {
+                    } else if (entryName.contains(DATASETS_PATH) && !entry.isDirectory()) {
                         // Every database entry now carries the target uuid, so every dataset must point to it too -
                         // otherwise Superset skips the dataset (and its charts) and fails on native filters
                         // referencing it with a KeyError. The folder can't be used to match: Superset names it
@@ -223,8 +249,8 @@ public class UploadDashboardsFileListener {
                         parsed.put("database_uuid", targetDb.uuid);
 
                         String updatedYaml = yamlMapper.writeValueAsString(parsed);
-                        String newEntryName = entryName.replace("/datasets/" + sourceDb.fileName() + "/",
-                                "/datasets/" + targetDb.name + "/");
+                        String newEntryName = entryName.replace(DATASETS_PATH + sourceDb.fileName() + "/",
+                                DATASETS_PATH + targetDb.name + "/");
                         log.info("Remapping dataset entry: {} -> {}", entryName, newEntryName);
 
                         zos.putNextEntry(new ZipEntry(newEntryName));
@@ -249,13 +275,13 @@ public class UploadDashboardsFileListener {
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
             String entryName = entry.getName();
-            if (entryName.contains("/databases/") && !entry.isDirectory()) {
+            if (entryName.contains(DATABASES_PATH) && !entry.isDirectory()) {
                 try (InputStream inputStream = zipFile.getInputStream(entry)) {
                     String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                     Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
-                    if (parsed.get("database_name") instanceof String name) {
+                    if (parsed.get(DATABASE_NAME_KEY) instanceof String name) {
                         String uuid = parsed.get("uuid") instanceof String u ? u : null;
-                        String fileName = StringUtils.removeEnd(entryName.substring(entryName.lastIndexOf('/') + 1), ".yaml");
+                        String fileName = StringUtils.removeEnd(entryName.substring(entryName.lastIndexOf('/') + 1), YAML_EXTENSION);
                         return new SourceDatabase(name, uuid, fileName);
                     }
                 }
@@ -284,7 +310,7 @@ public class UploadDashboardsFileListener {
             int lowestId = Integer.MAX_VALUE;
             for (JsonElement db : databases) {
                 JsonObject dbObj = db.getAsJsonObject();
-                String name = dbObj.has("database_name") ? dbObj.get("database_name").getAsString() : "";
+                String name = dbObj.has(DATABASE_NAME_KEY) ? dbObj.get(DATABASE_NAME_KEY).getAsString() : "";
                 if ("examples".equalsIgnoreCase(name)) {
                     continue;
                 }
@@ -303,7 +329,7 @@ public class UploadDashboardsFileListener {
             // Fetch full details to get uuid
             JsonElement detail = supersetClient.getDatabaseById(lowestId);
             JsonObject detailObj = detail.getAsJsonObject();
-            String name = detailObj.get("database_name").getAsString();
+            String name = detailObj.get(DATABASE_NAME_KEY).getAsString();
             String uuid = detailObj.has("uuid") && !detailObj.get("uuid").isJsonNull()
                     ? detailObj.get("uuid").getAsString() : null;
 
@@ -380,8 +406,8 @@ public class UploadDashboardsFileListener {
     }
 
     private int extractDatabaseId(JsonObject dataset) {
-        if (dataset.has("database") && dataset.get("database").isJsonObject()) {
-            JsonObject database = dataset.getAsJsonObject("database");
+        if (dataset.has(DATABASE_KEY) && dataset.get(DATABASE_KEY).isJsonObject()) {
+            JsonObject database = dataset.getAsJsonObject(DATABASE_KEY);
             if (database.has("id") && !database.get("id").isJsonNull()) {
                 return database.get("id").getAsInt();
             }
@@ -396,7 +422,7 @@ public class UploadDashboardsFileListener {
             Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                if (entry.getName().contains("/datasets/") && !entry.isDirectory() && entry.getName().endsWith(".yaml")) {
+                if (entry.getName().contains(DATASETS_PATH) && !entry.isDirectory() && entry.getName().endsWith(YAML_EXTENSION)) {
                     try (InputStream inputStream = zipFile.getInputStream(entry)) {
                         Map<String, Object> parsed = yamlMapper.readValue(inputStream.readAllBytes(), Map.class);
                         if (parsed.get("table_name") instanceof String tableName) {
@@ -466,15 +492,15 @@ public class UploadDashboardsFileListener {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                if (name.endsWith("metadata.yaml")) {
+                if (name.endsWith(METADATA_YAML)) {
                     try (InputStream inputStream = zipFile.getInputStream(entry)) {
                         metadataContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                     }
-                    root = name.substring(0, name.length() - "metadata.yaml".length());
+                    root = name.substring(0, name.length() - METADATA_YAML.length());
                     continue;
                 }
-                if (name.contains("/datasets/") || name.contains("/databases/")) {
-                    if (name.contains("/datasets/")) {
+                if (name.contains(DATASETS_PATH) || name.contains(DATABASES_PATH)) {
+                    if (name.contains(DATASETS_PATH)) {
                         hasDataset = true;
                     }
                     zos.putNextEntry(new ZipEntry(name));
@@ -484,7 +510,7 @@ public class UploadDashboardsFileListener {
                     zos.closeEntry();
                 }
             }
-            zos.putNextEntry(new ZipEntry(root + "metadata.yaml"));
+            zos.putNextEntry(new ZipEntry(root + METADATA_YAML));
             zos.write(buildSqlaTableMetadata(metadataContent).getBytes(StandardCharsets.UTF_8));
             zos.closeEntry();
         }
@@ -556,15 +582,15 @@ public class UploadDashboardsFileListener {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                if (name.endsWith("metadata.yaml")) {
+                if (name.endsWith(METADATA_YAML)) {
                     try (InputStream inputStream = zipFile.getInputStream(entry)) {
                         metadataContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                     }
-                    root = name.substring(0, name.length() - "metadata.yaml".length());
+                    root = name.substring(0, name.length() - METADATA_YAML.length());
                     continue;
                 }
-                if (name.contains("/charts/") || name.contains("/datasets/") || name.contains("/databases/")) {
-                    if (name.contains("/charts/")) {
+                if (name.contains(CHARTS_PATH) || name.contains(DATASETS_PATH) || name.contains(DATABASES_PATH)) {
+                    if (name.contains(CHARTS_PATH)) {
                         hasChart = true;
                     }
                     zos.putNextEntry(new ZipEntry(name));
@@ -574,7 +600,7 @@ public class UploadDashboardsFileListener {
                     zos.closeEntry();
                 }
             }
-            zos.putNextEntry(new ZipEntry(root + "metadata.yaml"));
+            zos.putNextEntry(new ZipEntry(root + METADATA_YAML));
             zos.write(buildSliceMetadata(metadataContent).getBytes(StandardCharsets.UTF_8));
             zos.closeEntry();
         }
@@ -613,7 +639,7 @@ public class UploadDashboardsFileListener {
                 String entryName = entry.getName();
 
                 try (InputStream inputStream = zipFile.getInputStream(entry)) {
-                    if (entryName.contains("/databases/") && !entry.isDirectory()) {
+                    if (entryName.contains(DATABASES_PATH) && !entry.isDirectory()) {
                         log.info("Replacing sqlalchemy_uri in: {} to {}", entryName, newSqlalchemyUri.substring(0, 30));
 
                         // Read and parse YAML
@@ -674,7 +700,7 @@ public class UploadDashboardsFileListener {
                 String entryName = entry.getName();
 
                 try (InputStream inputStream = zipFile.getInputStream(entry)) {
-                    if (entryName.contains("/charts/") && !entry.isDirectory()) {
+                    if (entryName.contains(CHARTS_PATH) && !entry.isDirectory()) {
                         // Read the chart bytes once; reuse them whether or not we rewrite the entry.
                         // (Do NOT fall through to inputStream.transferTo below - the stream is now consumed.)
                         byte[] chartBytes = inputStream.readAllBytes();
@@ -762,7 +788,7 @@ public class UploadDashboardsFileListener {
             while (entries.hasMoreElements()) {
                 ZipEntry zipEntry = entries.nextElement();
                 String name = zipEntry.getName();
-                if (name.contains("/databases/") && !zipEntry.isDirectory()) {
+                if (name.contains(DATABASES_PATH) && !zipEntry.isDirectory()) {
                     log.info("Reading database entry: {}", name);
                     try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
                         String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -1053,7 +1079,7 @@ public class UploadDashboardsFileListener {
      * Collects the UUIDs of all assets of a given type from a Superset export ZIP.
      *
      * @param pathSegment path segment identifying the asset folder, e.g. {@code "/dashboards/"},
-     *                    {@code "/charts/"} or {@code "/datasets/"}
+     *                    {@code CHARTS_PATH} or {@code DATASETS_PATH}
      */
     private List<String> findUuidsFromZip(File destinationFile, String pathSegment) throws IOException {
         List<String> uuids = new ArrayList<>();
@@ -1062,7 +1088,7 @@ public class UploadDashboardsFileListener {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                if (entry.getName().contains(pathSegment) && !entry.isDirectory() && entry.getName().endsWith(".yaml")) {
+                if (entry.getName().contains(pathSegment) && !entry.isDirectory() && entry.getName().endsWith(YAML_EXTENSION)) {
                     try (InputStream inputStream = zipFile.getInputStream(entry)) {
                         String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                         Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
@@ -1125,88 +1151,115 @@ public class UploadDashboardsFileListener {
             List<String> uuids = findDashboardUuidsFromZip(destinationFile);
             // Assets whose UUID is present in the new export are kept: the import overwrites them
             // in place, preserving their IDs so that permalinks / dashboard comment pointers survive.
-            Set<String> newChartUuids = new HashSet<>(findUuidsFromZip(destinationFile, "/charts/"));
-            Set<String> newDatasetUuids = new HashSet<>(findUuidsFromZip(destinationFile, "/datasets/"));
+            Set<String> newChartUuids = new HashSet<>(findUuidsFromZip(destinationFile, CHARTS_PATH));
+            Set<String> newDatasetUuids = new HashSet<>(findUuidsFromZip(destinationFile, DATASETS_PATH));
             for (String uuid : uuids) {
                 Integer existingDashboardId = findDashboardIdByUuid(supersetClient, uuid);
                 if (existingDashboardId != null) {
-                    log.info("Pruning assets for existing dashboard ID {}", existingDashboardId);
-
-                    // 1. Get all charts of this dashboard
-                    JsonArray charts = supersetClient.getDashboardCharts(existingDashboardId);
-                    List<Integer> chartIdsToDelete = new ArrayList<>();
-                    List<Integer> datasetIdsToCheck = new ArrayList<>();
-
-                    for (JsonElement chartEl : charts) {
-                        JsonObject chartObj = chartEl.getAsJsonObject();
-                        int chartId = chartObj.get("id").getAsInt();
-
-                        // Skip charts that are still part of the new export - they will be overwritten
-                        // in place, keeping their IDs (and therefore any permalinks pointing to them).
-                        String chartUuid = resolveChartUuid(supersetClient, chartId);
-                        if (chartUuid != null && newChartUuids.contains(chartUuid)) {
-                            log.info("Chart ID {} (UUID {}) is part of the new export. Keeping it for in-place overwrite.", chartId, chartUuid);
-                            continue;
-                        }
-
-                        // Skip charts that are also used by other dashboards
-                        if (isChartUsedByOtherDashboards(supersetClient, chartId, existingDashboardId)) {
-                            log.info("Chart ID {} is used by other dashboards. Skipping deletion.", chartId);
-                            continue;
-                        }
-                        chartIdsToDelete.add(chartId);
-
-                        if (chartObj.has("datasource_id") && !chartObj.get("datasource_id").isJsonNull()) {
-                            int datasourceId = chartObj.get("datasource_id").getAsInt();
-                            String datasourceType = chartObj.has("datasource_type") && !chartObj.get("datasource_type").isJsonNull()
-                                    ? chartObj.get("datasource_type").getAsString() : "";
-                            if ("table".equalsIgnoreCase(datasourceType)) {
-                                datasetIdsToCheck.add(datasourceId);
-                            }
-                        }
-                    }
-
-                    // 2. Delete the charts
-                    if (!chartIdsToDelete.isEmpty()) {
-                        log.info("Deleting {} charts for dashboard {}: {}", chartIdsToDelete.size(), existingDashboardId, chartIdsToDelete);
-                        supersetClient.deleteCharts(chartIdsToDelete);
-                    }
-
-                    // 3. For each dataset, delete it only if it is not part of the new export and is not
-                    //    referenced by any other chart.
-                    for (Integer datasetId : datasetIdsToCheck) {
-                        String datasetUuid = resolveDatasetUuid(supersetClient, datasetId);
-                        if (datasetUuid != null && newDatasetUuids.contains(datasetUuid)) {
-                            log.info("Dataset ID {} (UUID {}) is part of the new export. Keeping it for in-place overwrite.", datasetId, datasetUuid);
-                            continue;
-                        }
-
-                        JsonArray referencingCharts = supersetClient.getChartsForDatasource(datasetId);
-                        boolean referencedElsewhere = false;
-                        for (JsonElement refChartEl : referencingCharts) {
-                            JsonObject refChartObj = refChartEl.getAsJsonObject();
-                            int refChartId = refChartObj.get("id").getAsInt();
-                            if (!chartIdsToDelete.contains(refChartId)) {
-                                referencedElsewhere = true;
-                                break;
-                            }
-                        }
-
-                        if (!referencedElsewhere) {
-                            log.info("Dataset ID {} is not referenced by any other charts. Deleting dataset...", datasetId);
-                            try {
-                                supersetClient.deleteDataset(datasetId);
-                            } catch (Exception e) {
-                                log.error("Failed to delete dataset ID {}", datasetId, e);
-                            }
-                        } else {
-                            log.info("Dataset ID {} is referenced by other charts. Skipping deletion.", datasetId);
-                        }
-                    }
+                    pruneDashboardAssets(supersetClient, existingDashboardId, newChartUuids, newDatasetUuids);
                 }
             }
         } catch (Exception e) {
             log.error("Error during pruneExistingDashboardAssets", e);
+        }
+    }
+
+    private void pruneDashboardAssets(SupersetClient supersetClient, int existingDashboardId, Set<String> newChartUuids, Set<String> newDatasetUuids)
+            throws URISyntaxException, IOException {
+        log.info("Pruning assets for existing dashboard ID {}", existingDashboardId);
+
+        // 1. Get all charts of this dashboard
+        JsonArray charts = supersetClient.getDashboardCharts(existingDashboardId);
+        List<Integer> chartIdsToDelete = new ArrayList<>();
+        List<Integer> datasetIdsToCheck = new ArrayList<>();
+
+        for (JsonElement chartEl : charts) {
+            JsonObject chartObj = chartEl.getAsJsonObject();
+            int chartId = chartObj.get("id").getAsInt();
+            if (isChartKept(supersetClient, chartId, existingDashboardId, newChartUuids)) {
+                continue;
+            }
+            chartIdsToDelete.add(chartId);
+            Integer tableDatasourceId = extractTableDatasourceId(chartObj);
+            if (tableDatasourceId != null) {
+                datasetIdsToCheck.add(tableDatasourceId);
+            }
+        }
+
+        // 2. Delete the charts
+        if (!chartIdsToDelete.isEmpty()) {
+            log.info("Deleting {} charts for dashboard {}: {}", chartIdsToDelete.size(), existingDashboardId, chartIdsToDelete);
+            supersetClient.deleteCharts(chartIdsToDelete);
+        }
+
+        // 3. For each dataset, delete it only if it is not part of the new export and is not
+        //    referenced by any other chart.
+        for (Integer datasetId : datasetIdsToCheck) {
+            pruneDatasetIfUnused(supersetClient, datasetId, chartIdsToDelete, newDatasetUuids);
+        }
+    }
+
+    private boolean isChartKept(SupersetClient supersetClient, int chartId, int existingDashboardId, Set<String> newChartUuids) {
+        // Skip charts that are still part of the new export - they will be overwritten
+        // in place, keeping their IDs (and therefore any permalinks pointing to them).
+        String chartUuid = resolveChartUuid(supersetClient, chartId);
+        if (chartUuid != null && newChartUuids.contains(chartUuid)) {
+            log.info("Chart ID {} (UUID {}) is part of the new export. Keeping it for in-place overwrite.", chartId, chartUuid);
+            return true;
+        }
+
+        // Skip charts that are also used by other dashboards
+        if (isChartUsedByOtherDashboards(supersetClient, chartId, existingDashboardId)) {
+            log.info("Chart ID {} is used by other dashboards. Skipping deletion.", chartId);
+            return true;
+        }
+        return false;
+    }
+
+    private Integer extractTableDatasourceId(JsonObject chartObj) {
+        if (!chartObj.has(DATASOURCE_ID_KEY) || chartObj.get(DATASOURCE_ID_KEY).isJsonNull()) {
+            return null;
+        }
+        int datasourceId = chartObj.get(DATASOURCE_ID_KEY).getAsInt();
+        String datasourceType = chartObj.has(DATASOURCE_TYPE_KEY) && !chartObj.get(DATASOURCE_TYPE_KEY).isJsonNull()
+                ? chartObj.get(DATASOURCE_TYPE_KEY).getAsString() : "";
+        return "table".equalsIgnoreCase(datasourceType) ? datasourceId : null;
+    }
+
+    private void pruneDatasetIfUnused(SupersetClient supersetClient, int datasetId, List<Integer> chartIdsToDelete, Set<String> newDatasetUuids)
+            throws URISyntaxException, IOException {
+        String datasetUuid = resolveDatasetUuid(supersetClient, datasetId);
+        if (datasetUuid != null && newDatasetUuids.contains(datasetUuid)) {
+            log.info("Dataset ID {} (UUID {}) is part of the new export. Keeping it for in-place overwrite.", datasetId, datasetUuid);
+            return;
+        }
+
+        if (isDatasetReferencedElsewhere(supersetClient, datasetId, chartIdsToDelete)) {
+            log.info("Dataset ID {} is referenced by other charts. Skipping deletion.", datasetId);
+            return;
+        }
+        log.info("Dataset ID {} is not referenced by any other charts. Deleting dataset...", datasetId);
+        deleteDatasetQuietly(supersetClient, datasetId);
+    }
+
+    private boolean isDatasetReferencedElsewhere(SupersetClient supersetClient, int datasetId, List<Integer> chartIdsToDelete)
+            throws URISyntaxException, IOException {
+        JsonArray referencingCharts = supersetClient.getChartsForDatasource(datasetId);
+        for (JsonElement refChartEl : referencingCharts) {
+            JsonObject refChartObj = refChartEl.getAsJsonObject();
+            int refChartId = refChartObj.get("id").getAsInt();
+            if (!chartIdsToDelete.contains(refChartId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void deleteDatasetQuietly(SupersetClient supersetClient, int datasetId) {
+        try {
+            supersetClient.deleteDataset(datasetId);
+        } catch (Exception e) {
+            log.error("Failed to delete dataset ID {}", datasetId, e);
         }
     }
 
