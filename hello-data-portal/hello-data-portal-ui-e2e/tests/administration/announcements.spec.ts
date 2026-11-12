@@ -7,12 +7,15 @@ const publishedCheckbox = (page: Page) => page.locator('p-checkbox#published');
 const publishedInput = (page: Page) => page.locator('input#published');
 const save = (page: Page) => page.getByRole('button', {name: 'Save', exact: true});
 
+// the popup of the published announcements, a dialog with the option to hide it for good
+const announcementPopup = (page: Page) => page.locator('.p-dialog:not(.p-confirmdialog)').filter({hasText: /show again/});
+
 // A published announcement opens a modal popup for every user of the portal, the admin who published it included. It
 // covers the page and blocks every click, so it is closed as soon as it gets in the way of an action. The viewer of the
 // second test does not use it, since it checks the popup.
 function closeAnnouncementPopup(page: Page) {
   return page.addLocatorHandler(
-    page.getByRole('dialog').filter({hasText: 'Do not show again'}),
+    announcementPopup(page),
     () => page.keyboard.press('Escape'));
 }
 
@@ -32,40 +35,63 @@ async function createAnnouncement(page: Page, message: string, published: boolea
   await openList(page);
   await page.getByRole('button', {name: 'Create', exact: true}).click();
   await expect(page).toHaveURL(/\/announcements-management\/create$/);
-  // the form is rebuilt once the languages are loaded, which can wipe what was typed before
+  // the form is rebuilt once the languages are loaded, which wipes what was typed before; the language tabs show that
+  // they are loaded, and the retry covers a rebuild that comes later anyway
+  await expect(page.getByRole('tab').first()).toBeVisible();
   await expect(async () => {
-    await messageEditor(page).fill(message);
-    await expect(save(page)).toBeEnabled({timeout: 1_000});
+    if (!(await messageEditor(page).textContent())?.includes(message)) {
+      await messageEditor(page).fill(message);
+    }
+    if (published && !(await publishedInput(page).isChecked())) {
+      await publishedCheckbox(page).click();
+    }
     await expect(messageEditor(page)).toContainText(message, {timeout: 1_000});
+    await expect(publishedInput(page)).toBeChecked({checked: published, timeout: 1_000});
+    await expect(save(page)).toBeEnabled({timeout: 1_000});
   }).toPass();
-  if (published) {
-    await publishedCheckbox(page).click();
-    await expect(publishedInput(page)).toBeChecked();
-  }
   await save(page).click();
   await expect(page).toHaveURL(/\/announcements-management$/);
   await expect(row(page, message)).toHaveCount(1);
+}
+
+// Opens the edit form of an announcement and waits until the stored message is in it. The form is rebuilt once the
+// languages are loaded, which now and then wipes the stored message; then the form is opened again from the list.
+async function openEdit(page: Page, message: string) {
+  await expect(async () => {
+    await openList(page);
+    // the buttons of a row are details, edit and delete
+    await row(page, message).getByRole('button').nth(1).click();
+    await expect(page).toHaveURL(/\/announcements-management\/edit\//);
+    await expect(messageEditor(page)).toContainText(message, {timeout: 5_000});
+  }).toPass({timeout: 40_000});
 }
 
 // deletes an announcement of the management list, the dialog asks for a confirmation
 async function deleteAnnouncement(page: Page, message: string) {
   // the buttons of a row are details, edit and delete
   await row(page, message).getByRole('button').nth(2).click();
-  await page.getByRole('dialog').getByRole('button', {name: 'Delete', exact: true}).click();
+  // the confirm dialog of PrimeNG is not a role dialog, the other specs find it by its class
+  await page.locator('.p-confirmdialog').getByRole('button', {name: 'Delete', exact: true}).click();
   await expect(row(page, message)).toHaveCount(0);
 }
 
 // A test that fails half way must not leave its announcements behind: a published one would open its popup for every
-// user in all the specs that follow.
+// user in all the specs that follow. Deletes every announcement of the list whose message contains the token.
 async function deleteLeftovers(page: Page, token: string) {
   await openList(page);
-  while (await row(page, token).count() > 0) {
-    await deleteAnnouncement(page, token);
+  const rows = row(page, token);
+  for (let left = await rows.count(); left > 0; left--) {
+    // the buttons of a row are details, edit and delete
+    await rows.first().getByRole('button').nth(2).click();
+    await page.locator('.p-confirmdialog').getByRole('button', {name: 'Delete', exact: true}).click();
+    await expect(rows).toHaveCount(left - 1);
   }
 }
 
 // the admin manages the notifications (announcements) of the portal
 test.describe('Announcements management', () => {
+  // every step goes through the list, the edit form and the page of the published announcements
+  test.describe.configure({timeout: 120_000});
   // the admin creates a published announcement, edits its text, unpublishes it and deletes it; after each step the list
   // and the page of the published announcements show the change
   test('admin creates, edits, unpublishes and deletes an announcement', async ({adminPage: page}) => {
@@ -82,13 +108,10 @@ test.describe('Announcements management', () => {
       await expect(page.getByText(created)).toBeVisible();
 
       // edit
-      await openList(page);
-      await row(page, created).getByRole('button').nth(1).click();
-      await expect(page).toHaveURL(/\/announcements-management\/edit\//);
-      // wait for the stored announcement to be loaded into the form, otherwise it overwrites our change
-      await expect(messageEditor(page)).toContainText(created);
+      await openEdit(page, created);
       await expect(publishedInput(page)).toBeChecked();
       await messageEditor(page).fill(edited);
+      await expect(messageEditor(page)).toContainText(edited);
       await save(page).click();
       await expect(page).toHaveURL(/\/announcements-management$/);
       await expect(row(page, edited)).toHaveCount(1);
@@ -102,10 +125,7 @@ test.describe('Announcements management', () => {
       await expect(page.getByText(created)).toHaveCount(0);
 
       // unpublish - it stays in the management list, but is no longer shown to the users
-      await openList(page);
-      await row(page, edited).getByRole('button').nth(1).click();
-      await expect(page).toHaveURL(/\/announcements-management\/edit\//);
-      await expect(messageEditor(page)).toContainText(edited);
+      await openEdit(page, edited);
       await expect(publishedInput(page)).toBeChecked();
       await publishedCheckbox(page).click();
       await expect(publishedInput(page)).not.toBeChecked();
@@ -141,19 +161,19 @@ test.describe('Announcements management', () => {
       try {
         // the portal opens the popup on its own, the unpublished announcement is not in it
         await openPortalAs(viewer, DATA_DOMAIN_VIEWER.username, DATA_DOMAIN_VIEWER.password);
-        const popup = viewer.getByRole('dialog');
+        const popup = announcementPopup(viewer);
         await expect(popup.getByText(visible)).toBeVisible();
         await expect(popup.getByText(hidden)).toHaveCount(0);
 
-        // "Do not show again" hides it from the popup for this user, also after a reload
-        await popup.getByText('Do not show again').click();
+        // "Don't show again" hides it from the popup for this user, also after a reload
+        await popup.getByText(/show again/).click();
         await viewer.keyboard.press('Escape');
         await expect(popup).toHaveCount(0);
         await viewer.reload();
         await expect(viewer.locator('#userMenu')).toBeVisible();
         // the popup opens after a short delay, so give it the time before checking that it stays away
         await viewer.waitForTimeout(2_000);
-        await expect(viewer.getByRole('dialog')).toHaveCount(0);
+        await expect(announcementPopup(viewer)).toHaveCount(0);
 
         // the page of the published announcements still lists it, but not the unpublished one
         await openPublishedPage(viewer);

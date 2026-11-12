@@ -28,26 +28,33 @@ type Assignment = {
 // Walks through the four steps of the bulk assignments wizard (users, data domains, roles, summary), applies the
 // assignment to the default data domain and returns once the result panel is shown.
 async function bulkAssign(page: Page, emails: string[], assignment: Assignment) {
-  await navigate(page, 'Administration', 'Bulk assignments');
+  // the wizard is not in the menu, the user management has a button for it
+  await navigate(page, 'Administration', 'User management');
+  await page.getByRole('button', {name: 'Bulk assignments', exact: true}).click();
   await expect(page).toHaveURL(/\/bulk-assignments$/);
   const next = page.getByRole('button', {name: 'Next', exact: true});
 
   // step 1 - the users are searched one by one, the selection is kept while the search changes
+  // each step has its own counter; while the stepper moves on, the counters of both steps are in the page
+  const selectedUsers = page.locator('.selected-count').filter({hasText: /^Selected users:/});
+  const selectedDomains = page.locator('.selected-count').filter({hasText: /^Selected data domains:/});
   const search = page.getByPlaceholder('Search');
-  const selectedCount = page.locator('.selected-count');
   for (const [i, email] of emails.entries()) {
     await search.fill(email);
     const card = page.locator('.user-card').filter({hasText: email});
     await expect(card).toHaveCount(1);
     await card.click();
-    await expect(selectedCount).toHaveText(new RegExp(`:\\s*${i + 1}$`));
+    await expect(selectedUsers).toHaveText(new RegExp(`:\\s*${i + 1}$`));
   }
   await next.click();
 
-  // step 2 - only the default data domain
+  // step 2 - only the default data domain; wait until step 1 is gone, a click during the transition is lost
+  await expect(selectedUsers).toHaveCount(0);
+  await expect(selectedDomains).toBeVisible();
   await page.locator('.domain-item').filter({hasText: DATA_DOMAIN}).click();
-  await expect(page.locator('.selected-count')).toHaveText(/:\s*1$/);
+  await expect(selectedDomains).toHaveText(/:\s*1$/);
   await next.click();
+  await expect(selectedDomains).toHaveCount(0);
 
   // step 3 - the role of the domain with its comment permissions and, for a viewer, its dashboards and RLS groups
   await selectOption(page.locator(`p-select#roleSelect-${CONTEXT_KEY}`), assignment.role);
