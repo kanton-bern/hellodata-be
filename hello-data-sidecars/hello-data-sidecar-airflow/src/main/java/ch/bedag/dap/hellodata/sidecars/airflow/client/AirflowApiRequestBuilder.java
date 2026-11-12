@@ -62,14 +62,14 @@ public class AirflowApiRequestBuilder {
     private static final String DAG_RUNS_API_ENDPOINT = DAGS_API_ENDPOINT + "/%s/dagRuns";
 
     public static HttpUriRequest getListUsersRequest(String host, int port, String username, String password, int offset, int limit) throws URISyntaxException {
-        return getHttpUriRequestWithPagination(host, port, username, password, USERS_API_ENDPOINT, offset, limit, "email");
+        return getHttpUriRequestWithPagination(host, port, username, password, USERS_API_ENDPOINT, new Pagination(offset, limit, "email"));
     }
 
-    private static HttpUriRequest getHttpUriRequestWithPagination(String host, int port, String username, String password, String endpoint, int offset, int limit,
-                                                                  String orderBy) throws URISyntaxException {
-        Pair<String, String> offsetParam = Pair.of("offset", "" + offset);
-        Pair<String, String> limitParam = Pair.of("limit", "" + limit);
-        Pair<String, String> orderByParam = Pair.of("order_by", orderBy);
+    private static HttpUriRequest getHttpUriRequestWithPagination(String host, int port, String username, String password, String endpoint,
+                                                                  Pagination pagination) throws URISyntaxException {
+        Pair<String, String> offsetParam = Pair.of("offset", "" + pagination.offset());
+        Pair<String, String> limitParam = Pair.of("limit", "" + pagination.limit());
+        Pair<String, String> orderByParam = Pair.of("order_by", pagination.orderBy());
 
         URI apiUri = buildUri(host, port, endpoint, List.of(offsetParam, limitParam, orderByParam));
 
@@ -133,7 +133,7 @@ public class AirflowApiRequestBuilder {
     }
 
     public static HttpUriRequest getListRolesRequest(String host, int port, String username, String password, int offset, int limit) throws URISyntaxException {
-        return getHttpUriRequestWithPagination(host, port, username, password, ROLES_API_ENDPOINT, offset, limit, "name");
+        return getHttpUriRequestWithPagination(host, port, username, password, ROLES_API_ENDPOINT, new Pagination(offset, limit, "name"));
     }
 
     public static HttpUriRequest getListPermissionsRequest(String host, int port, String username, String password) throws URISyntaxException {
@@ -141,7 +141,7 @@ public class AirflowApiRequestBuilder {
     }
 
     public static HttpUriRequest getDagsRequest(String host, int port, String username, String password, int offset, int limit) throws URISyntaxException {
-        return getHttpUriRequestWithPagination(host, port, username, password, DAGS_API_ENDPOINT, offset, limit, "dag_id");
+        return getHttpUriRequestWithPagination(host, port, username, password, DAGS_API_ENDPOINT, new Pagination(offset, limit, "dag_id"));
     }
 
     public static HttpUriRequest getDagRunsRequest(String host, int port, String username, String password, String dagId, String orderBy, String limit) throws URISyntaxException {
@@ -185,5 +185,8 @@ public class AirflowApiRequestBuilder {
         }
 
         return builder.build();
+    }
+
+    private record Pagination(int offset, int limit, String orderBy) {
     }
 }

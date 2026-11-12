@@ -31,6 +31,8 @@ import com.google.gson.JsonObject;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -99,7 +101,7 @@ public class DashboardPointerValidationService {
         }
     }
 
-    private boolean isDashboardPermalinkValid(SupersetClient supersetClient, String key) throws Exception {
+    private boolean isDashboardPermalinkValid(SupersetClient supersetClient, String key) throws IOException, URISyntaxException {
         JsonObject permalink = supersetClient.getDashboardPermalinkState(key);
         if (permalink == null) {
             // permalink key or its referenced dashboard no longer exists
@@ -138,7 +140,7 @@ public class DashboardPointerValidationService {
         return componentIds.get().contains(anchor);
     }
 
-    private boolean isExplorePermalinkValid(SupersetClient supersetClient, String key) throws Exception {
+    private boolean isExplorePermalinkValid(SupersetClient supersetClient, String key) throws IOException, URISyntaxException {
         JsonObject permalink = supersetClient.getExplorePermalinkState(key);
         if (permalink == null) {
             return false;

@@ -166,8 +166,20 @@ public class UploadDashboardsFileListener {
         }
     }
 
+    /**
+     * Deletes the file, returning false (instead of throwing) when the deletion fails.
+     */
+    private static boolean deleteFile(File file) {
+        try {
+            return Files.deleteIfExists(file.toPath());
+        } catch (IOException e) {
+            log.debug("Could not delete file {}: {}", file.getAbsolutePath(), e.getMessage());
+            return false;
+        }
+    }
+
     private void deleteBackupFile(File backupFile) {
-        if (backupFile != null && backupFile.exists() && !backupFile.delete()) {
+        if (backupFile != null && backupFile.exists() && !deleteFile(backupFile)) {
             log.warn("Could not delete backup file: {}", backupFile.getAbsolutePath());
         }
     }
@@ -467,7 +479,7 @@ public class UploadDashboardsFileListener {
         } catch (URISyntaxException e) {
             throw new UploadDashboardsFileException("Failed to refresh datasets after dashboard import", e);
         } finally {
-            if (datasetsZip.exists() && !datasetsZip.delete()) {
+            if (datasetsZip.exists() && !deleteFile(datasetsZip)) {
                 log.warn("Could not delete temporary dataset-import file: {}", datasetsZip.getAbsolutePath());
             }
         }
@@ -515,7 +527,7 @@ public class UploadDashboardsFileListener {
             zos.closeEntry();
         }
         if (!hasDataset) {
-            if (datasetsZip.exists() && !datasetsZip.delete()) {
+            if (datasetsZip.exists() && !deleteFile(datasetsZip)) {
                 log.warn("Could not delete temporary dataset-import file: {}", datasetsZip.getAbsolutePath());
             }
             return null;
@@ -557,7 +569,7 @@ public class UploadDashboardsFileListener {
         } catch (URISyntaxException e) {
             throw new UploadDashboardsFileException("Failed to refresh charts after dashboard import", e);
         } finally {
-            if (chartsZip.exists() && !chartsZip.delete()) {
+            if (chartsZip.exists() && !deleteFile(chartsZip)) {
                 log.warn("Could not delete temporary chart-import file: {}", chartsZip.getAbsolutePath());
             }
         }
@@ -605,7 +617,7 @@ public class UploadDashboardsFileListener {
             zos.closeEntry();
         }
         if (!hasChart) {
-            if (chartsZip.exists() && !chartsZip.delete()) {
+            if (chartsZip.exists() && !deleteFile(chartsZip)) {
                 log.warn("Could not delete temporary chart-import file: {}", chartsZip.getAbsolutePath());
             }
             return null;
@@ -931,7 +943,7 @@ public class UploadDashboardsFileListener {
             List<File> chunks = listChunks(chunksFolderPath);
             int nrFilesDeleted = 0;
             for (File file : listChunks(chunksFolderPath)) {
-                if (file.delete()) { //NOSONAR
+                if (deleteFile(file)) {
                     nrFilesDeleted++;
                 }
             }
