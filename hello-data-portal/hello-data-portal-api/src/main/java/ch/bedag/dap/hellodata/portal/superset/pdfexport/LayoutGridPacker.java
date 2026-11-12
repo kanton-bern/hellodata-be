@@ -68,25 +68,30 @@ public final class LayoutGridPacker {
         for (PdfLayoutRequest.Item item : request.items()) {
             int cols = clampCols(item.cols());
             int rows = clampRowsToBand(item.y(), item.rows());
-            DashboardExport.Item content;
-            if (item.isChart()) {
-                String specId = specId(item.chartId(), cols, rows);
-                byte[] png = pngs.get(specId);
-                if (png == null) {
-                    continue; // a chart that failed to render is dropped, as in the PoC
-                }
-                String name = item.name() == null || item.name().isBlank() ? "Chart " + item.chartId() : item.name();
-                content = new DashboardExport.Chart(name, png);
-            } else {
-                content = new DashboardExport.Markdown(item.html() != null && !item.html().isBlank()
-                        ? sanitizeRichText(item.html())
-                        : markdownToHtml(item.markdown()));
+            DashboardExport.Item content = toContent(item, cols, rows, pngs);
+            if (content == null) {
+                continue; // a chart that failed to render is dropped, as in the PoC
             }
             positioned.add(new Positioned(Math.max(0, item.x()), Math.max(0, item.y()), cols, rows, content));
         }
 
         List<CustomLayout.GridPage> pages = groupByPage(positioned).stream().map(page -> toGridPage(page, template)).toList();
         return new CustomLayout(title, pages);
+    }
+
+    /** Content for one builder item, or null for a chart whose screenshot is missing. */
+    private static DashboardExport.Item toContent(PdfLayoutRequest.Item item, int cols, int rows, Map<String, byte[]> pngs) {
+        if (!item.isChart()) {
+            return new DashboardExport.Markdown(item.html() != null && !item.html().isBlank()
+                    ? sanitizeRichText(item.html())
+                    : markdownToHtml(item.markdown()));
+        }
+        byte[] png = pngs.get(specId(item.chartId(), cols, rows));
+        if (png == null) {
+            return null;
+        }
+        String name = item.name() == null || item.name().isBlank() ? "Chart " + item.chartId() : item.name();
+        return new DashboardExport.Chart(name, png);
     }
 
     /** Stable screenshot key for a chart placed at a given cell span. */

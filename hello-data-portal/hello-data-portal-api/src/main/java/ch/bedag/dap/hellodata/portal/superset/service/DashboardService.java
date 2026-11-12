@@ -89,7 +89,7 @@ public class DashboardService {
      */
     @Transactional(readOnly = true)
     public void assertCurrentUserMayAccess(String instanceName, long dashboardId) {
-        boolean allowed = fetchMyDashboards().stream()
+        boolean allowed = loadMyDashboards().stream()
                 .anyMatch(d -> d.getInstanceName().equalsIgnoreCase(instanceName) && d.getId() == dashboardId);
         if (!allowed) {
             log.warn("User {} attempted PDF export of dashboard {}/{} without access", SecurityUtils.getCurrentUserEmail(), instanceName, dashboardId);
@@ -99,6 +99,10 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public Set<SupersetDashboardDto> fetchMyDashboards() {
+        return loadMyDashboards();
+    }
+
+    private Set<SupersetDashboardDto> loadMyDashboards() {
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         Set<SupersetDashboardDto> dashboardsWithAccess = new HashSet<>();
         List<MetaInfoResourceEntity> metaInfoResources = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_DASHBOARDS);

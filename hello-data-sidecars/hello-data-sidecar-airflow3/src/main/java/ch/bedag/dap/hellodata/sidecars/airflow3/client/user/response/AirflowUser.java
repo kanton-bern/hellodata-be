@@ -32,7 +32,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 /** A user as returned by the Airflow 3 FAB auth-manager API (GET /auth/fab/v1/users). */
 @Data
@@ -44,7 +43,7 @@ public class AirflowUser implements Serializable {
     private String firstName;
     @JsonProperty("last_name")
     private String lastName;
-    private List<AirflowUserRole> roles = new ArrayList<>();
+    private ArrayList<AirflowUserRole> roles = new ArrayList<>();
     private boolean active;
     @JsonProperty("created_on")
     private String createdOn;

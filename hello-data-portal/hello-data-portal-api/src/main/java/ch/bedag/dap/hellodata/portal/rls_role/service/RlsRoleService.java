@@ -91,6 +91,10 @@ public class RlsRoleService {
      */
     @Transactional(readOnly = true)
     public List<RlsRoleDto> getRlsRoles(String contextKey) {
+        return loadRlsRoles(contextKey);
+    }
+
+    private List<RlsRoleDto> loadRlsRoles(String contextKey) {
         Map<String, String> names = rlsRoleNameRepository.findAllByContextKey(contextKey).stream()
                 .collect(Collectors.toMap(RlsRoleNameEntity::getRoleKey, RlsRoleNameEntity::getDisplayName, (a, b) -> a));
         return RLS_ROLE_KEYS.stream()
@@ -107,7 +111,7 @@ public class RlsRoleService {
         if (!permissions.contains("USER_MANAGEMENT") && !permissions.contains("DASHBOARD_GROUPS_MANAGEMENT")) {
             validateCurrentUserCanManage(contextKey);
         }
-        return getRlsRoles(contextKey);
+        return loadRlsRoles(contextKey);
     }
 
     @Transactional
@@ -135,7 +139,7 @@ public class RlsRoleService {
             rlsRoleNameRepository.save(entity);
         }
         log.info("Updated RLS role names for context {}", contextKey);
-        return getRlsRoles(contextKey);
+        return loadRlsRoles(contextKey);
     }
 
     /**
@@ -154,6 +158,10 @@ public class RlsRoleService {
 
     @Transactional(readOnly = true)
     public List<String> getSelectedRlsRoleKeys(UUID userId, String contextKey) {
+        return loadSelectedRlsRoleKeys(userId, contextKey);
+    }
+
+    private List<String> loadSelectedRlsRoleKeys(UUID userId, String contextKey) {
         return userRlsRoleRepository.findAllByUserIdAndContextKey(userId, contextKey).stream()
                 .map(UserRlsRoleEntity::getRoleKey)
                 .sorted()
@@ -198,7 +206,7 @@ public class RlsRoleService {
      */
     @Transactional(readOnly = true)
     public List<String> getEffectiveRlsRoleKeys(UUID userId, String contextKey) {
-        Set<String> roleKeys = new TreeSet<>(getSelectedRlsRoleKeys(userId, contextKey));
+        Set<String> roleKeys = new TreeSet<>(loadSelectedRlsRoleKeys(userId, contextKey));
         List<DashboardGroupEntity> groups = dashboardGroupService.findGroupsByContextKeyAndUserId(contextKey, userId.toString());
         for (DashboardGroupEntity group : groups) {
             CollectionUtils.emptyIfNull(group.getRlsRoles()).stream()

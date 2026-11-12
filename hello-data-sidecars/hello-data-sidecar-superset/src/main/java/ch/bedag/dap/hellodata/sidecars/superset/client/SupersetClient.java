@@ -87,6 +87,9 @@ import static ch.bedag.dap.hellodata.sidecars.superset.client.SupersetApiRequest
  */
 @Log4j2
 public class SupersetClient implements Closeable {
+
+    private static final String ACCESS_TOKEN = "access_token";
+    private static final String CACHE_KEY = "cache_key";
     private static final String RESULT_KEY = "result";
     private static final String VALUE_KEY = "value";
     private static final String POSITION_JSON_KEY = "position_json";
@@ -134,7 +137,7 @@ public class SupersetClient implements Closeable {
         ApiResponse resp = executeRequest(request);
         log.debug("Auth token request executed {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
-        this.authToken = respBody.getAsJsonObject().get("access_token").getAsString();
+        this.authToken = respBody.getAsJsonObject().get(ACCESS_TOKEN).getAsString();
         this.host = host;
         this.port = port;
     }
@@ -526,10 +529,10 @@ public class SupersetClient implements Closeable {
         HttpUriRequest request = SupersetApiRequestBuilder.getChartCacheScreenshotRequest(host, port, authToken, chartId, width, height, force);
         ApiResponse resp = executeRequest(request);
         JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
-        if (obj == null || !obj.has("cache_key") || obj.get("cache_key").isJsonNull()) {
+        if (obj == null || !obj.has(CACHE_KEY) || obj.get(CACHE_KEY).isJsonNull()) {
             throw new IllegalStateException("cache_screenshot returned no cache_key for chart " + chartId + " (is the THUMBNAILS feature enabled in Superset?)");
         }
-        return obj.get("cache_key").getAsString();
+        return obj.get(CACHE_KEY).getAsString();
     }
 
     /**
@@ -558,10 +561,10 @@ public class SupersetClient implements Closeable {
     public String impersonationToken(String email) throws URISyntaxException, IOException {
         ApiResponse resp = executeRequest(SupersetApiRequestBuilder.getImpersonationTokenRequest(host, port, authToken, email));
         JsonObject obj = new Gson().fromJson(resp.getBody(), JsonObject.class);
-        if (obj == null || !obj.has("access_token") || obj.get("access_token").isJsonNull()) {
+        if (obj == null || !obj.has(ACCESS_TOKEN) || obj.get(ACCESS_TOKEN).isJsonNull()) {
             throw new IllegalStateException("Impersonation endpoint returned no access_token for " + email);
         }
-        return obj.get("access_token").getAsString();
+        return obj.get(ACCESS_TOKEN).getAsString();
     }
 
     /** A new client authenticated as {@code email} (renders with that user's RLS). Caller must close it.

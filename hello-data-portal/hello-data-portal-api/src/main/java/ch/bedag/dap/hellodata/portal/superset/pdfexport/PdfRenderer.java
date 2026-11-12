@@ -50,6 +50,8 @@ import java.util.Base64;
 @Service
 public class PdfRenderer {
 
+    private static final String FONT_FAMILY = "Roboto";
+
     private static final DateTimeFormatter GERMAN_DATE_TIME = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     /** Logo + font files are looked up here first (overridable branding); see PdfTemplateProvisioner. */
     private static final String EXTERNAL_LOGO = "branding/logo.png";
@@ -117,10 +119,10 @@ public class PdfRenderer {
     private void registerRoboto(PdfRendererBuilder builder) {
         // Family stays "Roboto" (the CSS references it); operators swap the glyphs by dropping their own
         // Roboto-*.ttf into <location>/fonts (same filenames). Weights map Light/Regular/Medium/Bold.
-        builder.useFont(() -> fontStream("Roboto-Light.ttf"), "Roboto", 300, BaseRendererBuilder.FontStyle.NORMAL, true);
-        builder.useFont(() -> fontStream("Roboto-Regular.ttf"), "Roboto", 400, BaseRendererBuilder.FontStyle.NORMAL, true);
-        builder.useFont(() -> fontStream("Roboto-Medium.ttf"), "Roboto", 500, BaseRendererBuilder.FontStyle.NORMAL, true);
-        builder.useFont(() -> fontStream("Roboto-Bold.ttf"), "Roboto", 700, BaseRendererBuilder.FontStyle.NORMAL, true);
+        builder.useFont(() -> fontStream("Roboto-Light.ttf"), FONT_FAMILY, 300, BaseRendererBuilder.FontStyle.NORMAL, true);
+        builder.useFont(() -> fontStream("Roboto-Regular.ttf"), FONT_FAMILY, 400, BaseRendererBuilder.FontStyle.NORMAL, true);
+        builder.useFont(() -> fontStream("Roboto-Medium.ttf"), FONT_FAMILY, 500, BaseRendererBuilder.FontStyle.NORMAL, true);
+        builder.useFont(() -> fontStream("Roboto-Bold.ttf"), FONT_FAMILY, 700, BaseRendererBuilder.FontStyle.NORMAL, true);
     }
 
     private InputStream fontStream(String fileName) {

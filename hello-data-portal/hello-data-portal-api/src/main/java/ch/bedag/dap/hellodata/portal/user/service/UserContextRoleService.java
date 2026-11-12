@@ -200,6 +200,10 @@ public class UserContextRoleService {
 
     @Transactional
     public void removeUserFromDashboardGroupsForAllDomains(UUID userId) {
+        doRemoveUserFromDashboardGroupsForAllDomains(userId);
+    }
+
+    private void doRemoveUserFromDashboardGroupsForAllDomains(UUID userId) {
         List<HdContextEntity> allDataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         for (HdContextEntity dataDomain : allDataDomains) {
             dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), dataDomain.getContextKey());
@@ -219,7 +223,7 @@ public class UserContextRoleService {
         if (!updateContextRolesForUserDto.getBusinessDomainRole().getName().equalsIgnoreCase(HdRoleName.NONE.name())) {
             roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.DATA_DOMAIN_ADMIN);
             // User gets DATA_DOMAIN_ADMIN in all domains - remove from all dashboard groups
-            removeUserFromDashboardGroupsForAllDomains(userId);
+            doRemoveUserFromDashboardGroupsForAllDomains(userId);
         } else if (!CollectionUtils.isEmpty(updateContextRolesForUserDto.getDataDomainRoles())) {
             for (UserContextRoleDto dataDomainRoleForContextDto : updateContextRolesForUserDto.getDataDomainRoles()) {
                 roleService.updateDomainRoleForUser(userEntity, dataDomainRoleForContextDto.getRole(), dataDomainRoleForContextDto.getContext().getContextKey());

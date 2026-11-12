@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.base.config;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -51,7 +52,7 @@ import java.util.Map;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+    protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         log.warn("Validation failed for request: {}", ex.getMessage());
         ProblemDetail body = ex.getBody();

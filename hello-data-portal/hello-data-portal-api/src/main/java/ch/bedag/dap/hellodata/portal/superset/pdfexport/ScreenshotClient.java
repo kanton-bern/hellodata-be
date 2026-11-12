@@ -74,40 +74,11 @@ public class ScreenshotClient {
         String subject = SlugifyUtil.slugify(instanceName + RequestReplySubject.EXPORT_DASHBOARD_SCREENSHOTS.getSubject());
         String inbox = connection.createInbox();
         Subscription sub = connection.subscribe(inbox);
-        try {
+        // Subscription is not AutoCloseable, so adapt the unsubscribe into a try-with-resources resource.
+        try (AutoCloseable ignored = () -> unsubscribeQuietly(sub)) {
             byte[] payload = objectMapper.writeValueAsBytes(new ChartScreenshotRequest(specs, userEmail, force));
             connection.publish(subject, inbox, payload); // reply-to = our inbox
-
-            Map<String, ByteArrayOutputStream> buffers = new HashMap<>();
-            Map<String, String> errors = new HashMap<>();
-            long deadline = System.nanoTime() + timeout.toNanos();
-
-            while (true) {
-                Duration wait = Duration.ofNanos(Math.max(0, deadline - System.nanoTime()));
-                Message msg = sub.nextMessage(wait);
-                if (msg == null) {
-                    throw new ResponseStatusException(HttpStatus.GATEWAY_TIMEOUT,
-                            "Timed out waiting for chart screenshots from Superset instance '" + instanceName + "'.");
-                }
-                ChartScreenshotChunk chunk = objectMapper.readValue(msg.getData(), ChartScreenshotChunk.class);
-                if (chunk.isLastMessage()) { // stream complete
-                    if (chunk.getError() != null) {
-                        throw renderFailure(instanceName, Map.of("*", chunk.getError()));
-                    }
-                    break;
-                }
-                if (chunk.getError() != null) { // one chart failed
-                    errors.put(chunk.getSpecId(), chunk.getError());
-                    continue;
-                }
-                buffers.computeIfAbsent(chunk.getSpecId(), k -> new ByteArrayOutputStream()).writeBytes(chunk.getContent());
-            }
-            if (!errors.isEmpty()) {
-                throw renderFailure(instanceName, errors);
-            }
-            Map<String, byte[]> result = new LinkedHashMap<>();
-            buffers.forEach((specId, buf) -> result.put(specId, buf.toByteArray()));
-            return result;
+            return receiveScreenshots(sub, instanceName, timeout);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
@@ -118,12 +89,48 @@ public class ScreenshotClient {
             log.error("Failed to fetch chart screenshots from {}", instanceName, e);
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                     "Failed to fetch chart screenshots from Superset instance '" + instanceName + "'.");
-        } finally {
-            try {
-                sub.unsubscribe();
-            } catch (RuntimeException e) {
-                log.debug("Failed to unsubscribe screenshot inbox", e);
+        }
+    }
+
+    /** Read chunks from the inbox until the stream-complete marker, then return specId -&gt; PNG bytes. */
+    private Map<String, byte[]> receiveScreenshots(Subscription sub, String instanceName, Duration timeout) throws Exception {
+        Map<String, ByteArrayOutputStream> buffers = new HashMap<>();
+        Map<String, String> errors = new HashMap<>();
+        long deadline = System.nanoTime() + timeout.toNanos();
+
+        while (true) {
+            Duration wait = Duration.ofNanos(Math.max(0, deadline - System.nanoTime()));
+            Message msg = sub.nextMessage(wait);
+            if (msg == null) {
+                throw new ResponseStatusException(HttpStatus.GATEWAY_TIMEOUT,
+                        "Timed out waiting for chart screenshots from Superset instance '" + instanceName + "'.");
             }
+            ChartScreenshotChunk chunk = objectMapper.readValue(msg.getData(), ChartScreenshotChunk.class);
+            if (chunk.isLastMessage()) { // stream complete
+                if (chunk.getError() != null) {
+                    throw renderFailure(instanceName, Map.of("*", chunk.getError()));
+                }
+                break;
+            }
+            if (chunk.getError() != null) { // one chart failed
+                errors.put(chunk.getSpecId(), chunk.getError());
+                continue;
+            }
+            buffers.computeIfAbsent(chunk.getSpecId(), k -> new ByteArrayOutputStream()).writeBytes(chunk.getContent());
+        }
+        if (!errors.isEmpty()) {
+            throw renderFailure(instanceName, errors);
+        }
+        Map<String, byte[]> result = new LinkedHashMap<>();
+        buffers.forEach((specId, buf) -> result.put(specId, buf.toByteArray()));
+        return result;
+    }
+
+    private void unsubscribeQuietly(Subscription sub) {
+        try {
+            sub.unsubscribe();
+        } catch (RuntimeException e) {
+            log.debug("Failed to unsubscribe screenshot inbox", e);
         }
     }
 

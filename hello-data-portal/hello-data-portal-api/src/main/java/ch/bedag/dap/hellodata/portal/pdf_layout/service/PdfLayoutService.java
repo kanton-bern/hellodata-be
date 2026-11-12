@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PdfLayoutService {
 
+    private static final String CHARACTERS_SUFFIX = " characters";
     static final int MAX_NAME_LENGTH = 255;
     static final int MAX_TITLE_LENGTH = 500;
     static final int MAX_PAGES = 50;
@@ -267,10 +268,10 @@ public class PdfLayoutService {
         if (StringUtils.isBlank(saveDto.getName())) {
             errors.add("Name is required");
         } else if (saveDto.getName().trim().length() > MAX_NAME_LENGTH) {
-            errors.add("Name must not exceed " + MAX_NAME_LENGTH + " characters");
+            errors.add("Name must not exceed " + MAX_NAME_LENGTH + CHARACTERS_SUFFIX);
         }
         if (StringUtils.length(StringUtils.trim(saveDto.getTitle())) > MAX_TITLE_LENGTH) {
-            errors.add("Title must not exceed " + MAX_TITLE_LENGTH + " characters");
+            errors.add("Title must not exceed " + MAX_TITLE_LENGTH + CHARACTERS_SUFFIX);
         }
         if (StringUtils.isBlank(saveDto.getInstanceName()) || saveDto.getDashboardId() <= 0) {
             errors.add("Dashboard is required");
@@ -307,7 +308,7 @@ public class PdfLayoutService {
             errors.add(prefix + "unknown type '" + item.getType() + "'");
         }
         if (StringUtils.length(item.getHtml()) > MAX_TEXT_LENGTH || StringUtils.length(item.getMarkdown()) > MAX_TEXT_LENGTH) {
-            errors.add(prefix + "text must not exceed " + MAX_TEXT_LENGTH + " characters");
+            errors.add(prefix + "text must not exceed " + MAX_TEXT_LENGTH + CHARACTERS_SUFFIX);
         }
         if (item.getPage() < 0 || item.getPage() >= pageCount) {
             errors.add(prefix + "page is out of range");

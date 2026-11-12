@@ -57,6 +57,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardPaletteRequestListener {
 
+    private static final String SLICE_NAME = "slice_name";
+
     private final Connection natsConnection;
     private final SupersetClientProvider supersetClientProvider;
     private final ObjectMapper objectMapper;
@@ -80,7 +82,7 @@ public class DashboardPaletteRequestListener {
                     if (id == 0L) {
                         continue;
                     }
-                    String name = c.has("slice_name") && !c.get("slice_name").isJsonNull() ? c.get("slice_name").getAsString() : "Chart " + id;
+                    String name = c.has(SLICE_NAME) && !c.get(SLICE_NAME).isJsonNull() ? c.get(SLICE_NAME).getAsString() : "Chart " + id;
                     charts.add(new ChartRef(id, name));
                 }
                 String positionJson = client.getDashboardPositionJson(dashboardId);

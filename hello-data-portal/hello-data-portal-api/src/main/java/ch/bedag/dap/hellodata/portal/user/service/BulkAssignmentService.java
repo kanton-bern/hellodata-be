@@ -158,50 +158,42 @@ public class BulkAssignmentService {
         for (var entry : assignmentsByKey.entrySet()) {
             String contextKey = entry.getKey();
             BulkAssignmentRequestDto.DomainAssignment assignment = entry.getValue();
-
-            // Check role match
-            String existingRoleName = existingRoles.stream()
-                    .filter(r -> r.getContext() != null && contextKey.equalsIgnoreCase(r.getContext().getContextKey()))
-                    .map(r -> r.getRole().getName())
-                    .findFirst()
-                    .orElse(HdRoleName.NONE.name());
-
-            if (!existingRoleName.equalsIgnoreCase(assignment.getRoleName())) {
-                return false;
-            }
-
-            // Check dashboard group membership match
-            List<String> existingGroups = existingGroupIds.getOrDefault(contextKey, List.of());
-            List<String> requestedGroups = assignment.getDashboardGroupIds() != null
-                    ? assignment.getDashboardGroupIds() : List.of();
-            if (!Set.copyOf(existingGroups).equals(Set.copyOf(requestedGroups))) {
-                return false;
-            }
-
-            // Check individual dashboard selection match
-            Set<Integer> existingDashboards = existingDashboardIds.getOrDefault(contextKey, Set.of());
-            Set<Integer> requestedDashboards = assignment.getDashboards() != null
-                    ? assignment.getDashboards().stream()
-                        .map(BulkAssignmentRequestDto.DashboardInfo::getId)
-                        .collect(Collectors.toSet())
-                    : Set.of();
-            if (!existingDashboards.equals(requestedDashboards)) {
-                return false;
-            }
-
-            // Check dashboard comment permission match
-            DashboardCommentPermissionDto requestedPermission = buildCommentPermission(contextKey, assignment.getRoleName(), assignment.getCommentPermissions());
-            DashboardCommentPermissionDto existingPermission = existingCommentPermissions.get(contextKey);
-            if (!matchesCommentPermission(existingPermission, requestedPermission)) {
-                return false;
-            }
-
-            // Check directly assigned RLS role match
-            if (!existingRlsRoles.getOrDefault(contextKey, Set.of()).equals(requestedRlsRoles(assignment))) {
+            if (!matchesRole(existingRoles, contextKey, assignment)
+                    || !matchesDashboardGroups(existingGroupIds, contextKey, assignment)
+                    || !matchesDashboards(existingDashboardIds, contextKey, assignment)
+                    || !matchesCommentPermission(existingCommentPermissions.get(contextKey),
+                    buildCommentPermission(contextKey, assignment.getRoleName(), assignment.getCommentPermissions()))
+                    || !existingRlsRoles.getOrDefault(contextKey, Set.of()).equals(requestedRlsRoles(assignment))) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean matchesRole(List<UserContextRoleDto> existingRoles, String contextKey, BulkAssignmentRequestDto.DomainAssignment assignment) {
+        String existingRoleName = existingRoles.stream()
+                .filter(r -> r.getContext() != null && contextKey.equalsIgnoreCase(r.getContext().getContextKey()))
+                .map(r -> r.getRole().getName())
+                .findFirst()
+                .orElse(HdRoleName.NONE.name());
+        return existingRoleName.equalsIgnoreCase(assignment.getRoleName());
+    }
+
+    private boolean matchesDashboardGroups(Map<String, List<String>> existingGroupIds, String contextKey, BulkAssignmentRequestDto.DomainAssignment assignment) {
+        List<String> existingGroups = existingGroupIds.getOrDefault(contextKey, List.of());
+        List<String> requestedGroups = assignment.getDashboardGroupIds() != null
+                ? assignment.getDashboardGroupIds() : List.of();
+        return Set.copyOf(existingGroups).equals(Set.copyOf(requestedGroups));
+    }
+
+    private boolean matchesDashboards(Map<String, Set<Integer>> existingDashboardIds, String contextKey, BulkAssignmentRequestDto.DomainAssignment assignment) {
+        Set<Integer> existingDashboards = existingDashboardIds.getOrDefault(contextKey, Set.of());
+        Set<Integer> requestedDashboards = assignment.getDashboards() != null
+                ? assignment.getDashboards().stream()
+                    .map(BulkAssignmentRequestDto.DashboardInfo::getId)
+                    .collect(Collectors.toSet())
+                : Set.of();
+        return existingDashboards.equals(requestedDashboards);
     }
 
     private boolean matchesCommentPermission(DashboardCommentPermissionDto existing, DashboardCommentPermissionDto requested) {
