@@ -31,6 +31,8 @@ import com.google.gson.JsonObject;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -47,6 +49,11 @@ import java.util.regex.Pattern;
 @Log4j2
 @Service
 public class DashboardPointerValidationService {
+    private static final String DASHBOARD_ID_KEY = "dashboardId";
+    private static final String CHART_ID_KEY = "chartId";
+    private static final String STATE_KEY = "state";
+    private static final String ANCHOR_KEY = "anchor";
+
 
     private static final Pattern DASHBOARD_PERMALINK = Pattern.compile("/dashboard/p/([^/?#]+)");
     private static final Pattern EXPLORE_PERMALINK = Pattern.compile("/explore/p/([^/?#]+)");
@@ -94,7 +101,7 @@ public class DashboardPointerValidationService {
         }
     }
 
-    private boolean isDashboardPermalinkValid(SupersetClient supersetClient, String key) throws Exception {
+    private boolean isDashboardPermalinkValid(SupersetClient supersetClient, String key) throws IOException, URISyntaxException {
         JsonObject permalink = supersetClient.getDashboardPermalinkState(key);
         if (permalink == null) {
             // permalink key or its referenced dashboard no longer exists
@@ -105,8 +112,8 @@ public class DashboardPointerValidationService {
             // points to the dashboard as a whole, which still exists
             return true;
         }
-        String dashboardId = permalink.has("dashboardId") && !permalink.get("dashboardId").isJsonNull()
-                ? permalink.get("dashboardId").getAsString() : null;
+        String dashboardId = permalink.has(DASHBOARD_ID_KEY) && !permalink.get(DASHBOARD_ID_KEY).isJsonNull()
+                ? permalink.get(DASHBOARD_ID_KEY).getAsString() : null;
         if (dashboardId == null) {
             return true;
         }
@@ -133,22 +140,22 @@ public class DashboardPointerValidationService {
         return componentIds.get().contains(anchor);
     }
 
-    private boolean isExplorePermalinkValid(SupersetClient supersetClient, String key) throws Exception {
+    private boolean isExplorePermalinkValid(SupersetClient supersetClient, String key) throws IOException, URISyntaxException {
         JsonObject permalink = supersetClient.getExplorePermalinkState(key);
         if (permalink == null) {
             return false;
         }
-        if (permalink.has("chartId") && !permalink.get("chartId").isJsonNull()) {
-            return supersetClient.chartExists(permalink.get("chartId").getAsInt());
+        if (permalink.has(CHART_ID_KEY) && !permalink.get(CHART_ID_KEY).isJsonNull()) {
+            return supersetClient.chartExists(permalink.get(CHART_ID_KEY).getAsInt());
         }
         return true;
     }
 
     private String readAnchor(JsonObject permalink) {
-        if (permalink.has("state") && permalink.get("state").isJsonObject()) {
-            JsonObject state = permalink.getAsJsonObject("state");
-            if (state.has("anchor") && !state.get("anchor").isJsonNull()) {
-                return state.get("anchor").getAsString();
+        if (permalink.has(STATE_KEY) && permalink.get(STATE_KEY).isJsonObject()) {
+            JsonObject state = permalink.getAsJsonObject(STATE_KEY);
+            if (state.has(ANCHOR_KEY) && !state.get(ANCHOR_KEY).isJsonNull()) {
+                return state.get(ANCHOR_KEY).getAsString();
             }
         }
         return null;

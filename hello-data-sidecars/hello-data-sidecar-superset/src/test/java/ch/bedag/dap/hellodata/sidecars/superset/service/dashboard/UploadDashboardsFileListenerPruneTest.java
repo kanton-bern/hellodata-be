@@ -45,7 +45,6 @@ import java.util.zip.ZipOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -121,7 +120,7 @@ class UploadDashboardsFileListenerPruneTest {
 
         invokePrune(supersetClient, createExportZip());
 
-        verify(supersetClient).deleteCharts(eq(List.of(CHART_C_ID)));
+        verify(supersetClient).deleteCharts(List.of(CHART_C_ID));
         // dataset is in the new export -> must not be deleted, reference lookup must be skipped
         verify(supersetClient, never()).deleteDataset(DATASET_KEPT_ID);
         verify(supersetClient, never()).getChartsForDatasource(DATASET_KEPT_ID);

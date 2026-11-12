@@ -85,7 +85,7 @@ public class TokenAuthenticationFilter implements WebFilter {
             }
         }).build();
 
-        log.info("\t--->Added headers: {}", new ArrayList<>(request.getHeaders().asMultiValueMap().entrySet()).stream()
+        log.info("\t--->Added headers: {}", new ArrayList<>(request.getHeaders().headerSet()).stream()
                 .map(entry -> "\n\t" + entry.getKey() + ": " + entry.getValue() + "\n")
                 .collect(Collectors.toList()));
 

@@ -147,7 +147,7 @@ class SupersetUpdateUserContextRoleConsumerTest {
 
         SupersetUserRolesUpdate expectedRolesUpdate = new SupersetUserRolesUpdate();
         expectedRolesUpdate.setRoles(List.of(7));
-        verify(supersetClient, times(1)).updateUserRoles(eq(expectedRolesUpdate), eq(1));
+        verify(supersetClient, times(1)).updateUserRoles(expectedRolesUpdate, 1);
         verify(supersetClient, never()).dashboards();
     }
 
@@ -161,7 +161,7 @@ class SupersetUpdateUserContextRoleConsumerTest {
 
         SupersetUserRolesUpdate expectedRolesUpdate = new SupersetUserRolesUpdate();
         expectedRolesUpdate.setRoles(List.of(3));
-        verify(supersetClient, times(1)).updateUserRoles(eq(expectedRolesUpdate), eq(1));
+        verify(supersetClient, times(1)).updateUserRoles(expectedRolesUpdate, 1);
     }
 
     @Test
@@ -178,7 +178,7 @@ class SupersetUpdateUserContextRoleConsumerTest {
         verify(supersetClient, times(1)).updateUserRoles(any(SupersetUserRolesUpdate.class), any(Integer.class));
         SupersetUserRolesUpdate expectedRolesUpdate = new SupersetUserRolesUpdate();
         expectedRolesUpdate.setRoles(List.of(3));
-        verify(supersetClient).updateUserRoles(eq(expectedRolesUpdate), eq(1));
+        verify(supersetClient).updateUserRoles(expectedRolesUpdate, 1);
     }
 
     private void updateRolesFor(String dataDomainRole, List<Integer> currentRoleIds) throws URISyntaxException, IOException {

@@ -74,8 +74,8 @@ public class ProjectsDocsController {
     @GetMapping("/get-by-path")
     @Operation(summary = "Get project html page by path (does the redirect to <server>/<path>)")
     public void getByPath(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response, @RequestParam("path") String path) throws IOException {
-        securityService.validateIsAllowedToAccessPath(user, path);
-        Path pathWithContextPath = Paths.get(request.getContextPath(), path);
+        String trustedPath = securityService.validateIsAllowedToAccessPath(user, path);
+        Path pathWithContextPath = Paths.get(request.getContextPath(), trustedPath);
         response.sendRedirect(pathWithContextPath.normalize().toString().replace("\\", "/"));
     }
 

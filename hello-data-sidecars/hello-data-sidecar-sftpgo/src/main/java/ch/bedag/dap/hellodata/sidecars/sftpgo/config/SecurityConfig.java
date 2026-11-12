@@ -47,7 +47,7 @@ public class SecurityConfig {
             "/actuator/**"};
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http.authorizeHttpRequests(auth ->
                 auth.requestMatchers(AUTH_WHITELIST).permitAll()
         );

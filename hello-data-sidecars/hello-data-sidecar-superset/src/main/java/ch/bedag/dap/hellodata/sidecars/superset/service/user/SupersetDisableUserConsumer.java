@@ -31,7 +31,7 @@ public class SupersetDisableUserConsumer {
         try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
             log.info("------- Received superset user disable request {}", subsystemUserUpdate);
             SupersetUsersResponse response = supersetClient.getUser(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
-            if (response == null || response.getResult().size() == 0) {
+            if (response == null || response.getResult().isEmpty()) {
                 log.info("User {} doesn't exist in instance, omitting disable action", subsystemUserUpdate.getEmail());
                 return;
             }
