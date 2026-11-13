@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HelloDATA E2E Reports</title>
+<style>
+  :root { --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --border: #d0d7de; --row: #f6f8fa; --link: #0969da;
+    --passed: #1a7f37; --failed: #cf222e; --flaky: #9a6700; --skipped: #656d76; --error: #8250df; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --fg: #e6edf3; --muted: #8d96a0; --border: #30363d;
+    --row: #161b22; --link: #4493f8; --passed: #3fb950; --failed: #f85149; --flaky: #d29922; --skipped: #8d96a0;
+    --error: #a371f7; } }
+  * { box-sizing: border-box; }
+  body { margin: 0 auto; max-width: 1200px; padding: 24px 16px; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  a { color: var(--link); text-decoration: none; } a:hover { text-decoration: underline; }
+  h1 { font-size: 24px; margin: 0 0 8px; } h2 { font-size: 18px; margin: 32px 0 8px; } h3 { font-size: 15px; margin: 20px 0 8px; }
+  .muted { color: var(--muted); font-weight: normal; } .small { font-size: 12px; }
+  .table { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; vertical-align: top; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; } tbody tr:hover { background: var(--row); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .links a { margin-right: 12px; white-space: nowrap; }
+  .links.small a { margin: 0 0 0 8px; }
+  .version { font-weight: 600; white-space: nowrap; }
+  .results div { white-space: nowrap; } .results div + div { margin-top: 4px; } .results a { color: var(--fg); }
+  tr.group td { background: var(--row); border-bottom: 1px solid var(--border); padding-top: 10px; }
+  .title { font-weight: 600; } .description { margin: 2px 0; max-width: 75ch; }
+  .steps { margin: 4px 0; padding-left: 20px; color: var(--muted); } .steps .failed { color: var(--failed); }
+  .badge { display: inline-block; padding: 0 8px; border-radius: 10px; font-size: 12px; font-weight: 600;
+    color: var(--bg); background: var(--status); }
+  pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; background: var(--row); padding: 8px;
+    border-radius: 6px; margin: 6px 0 0; }
+  pre.error { border-left: 3px solid var(--error); }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 16px 0 0; }
+  dt { color: var(--muted); } dd { margin: 0; }
+  code { font-size: 12px; }
+  td > code { word-break: break-all; } .nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+    <nav><a href="../">← HelloDATA docs</a></nav>
+    <header>
+      <h1>HelloDATA E2E Reports</h1>
+      <p class="muted">The HelloDATA versions (docker image tags) the Playwright regression suite ran against, last tested
+        first. Open a version for all its runs and what was tested.</p>
+    </header>
+    
+    <div class="table"><table>
+      <thead><tr><th>Version</th><th>Latest result per browser</th><th>Last tested</th><th>Commit</th>
+        <th class="num">Runs</th></tr></thead>
+      <tbody>
+      <tr>
+        <td><a class="version" href="latest/">latest</a></td>
+        <td class="results">
+          <div><a href="latest/msedge/43398514979-1/"><span class="badge" style="--status: var(--passed)">passed</span> msedge</a>
+            <span class="muted small">298/298 passed</span></div></td>
+        <td><span class="nowrap">2026-11-13 09:12 UTC</span></td>
+        <td><a class="nowrap" href="https://github.com/kanton-bern/hellodata-be/commit/4e8095cf7af6ad12f4173efca3bfaccd1217e451"><code>4e8095cf</code></a></td>
+        <td class="num">5</td>
+      </tr>
+      <tr>
+        <td><a class="version" href="1.7.0-dev-SNAPSHOT/">1.7.0-dev-SNAPSHOT</a></td>
+        <td class="results">
+          <div><a href="1.7.0-dev-SNAPSHOT/msedge/43264449859-1/"><span class="badge" style="--status: var(--passed)">passed</span> msedge</a>
+            <span class="muted small">328/328 passed</span></div></td>
+        <td><span class="nowrap">2026-11-12 17:07 UTC</span></td>
+        <td><a class="nowrap" href="https://github.com/kanton-bern/hellodata-be/commit/3febb94a2f8b7a1c6e27d1b6eebbd12207c7b26c"><code>3febb94a</code></a></td>
+        <td class="num">5</td>
+      </tr>
+      <tr>
+        <td><a class="version" href="e2e-edge-dashboard-groups-SNAPSHOT/">e2e-edge-dashboard-groups-SNAPSHOT</a></td>
+        <td class="results">
+          <div><a href="e2e-edge-dashboard-groups-SNAPSHOT/msedge/41987517440-1/"><span class="badge" style="--status: var(--passed)">passed</span> msedge</a>
+            <span class="muted small">298/298 passed</span></div></td>
+        <td><span class="nowrap">2026-11-05 07:36 UTC</span></td>
+        <td><a class="nowrap" href="https://github.com/kanton-bern/hellodata-be/commit/f7d62d8a01bd00796256b132ecbc464bbe4a38e6"><code>f7d62d8a</code></a></td>
+        <td class="num">1</td>
+      </tr></tbody>
+    </table></div>
+</body>
+</html>

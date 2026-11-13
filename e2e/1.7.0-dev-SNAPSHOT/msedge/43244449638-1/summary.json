@@ -1,0 +1,265 @@
+{
+  "version": "1.7.0-dev-SNAPSHOT",
+  "browser": "msedge",
+  "airflow": "2",
+  "repository": "kanton-bern/hellodata-be",
+  "serverUrl": "https://github.com",
+  "runId": "43244449638",
+  "runAttempt": "1",
+  "commit": "d051e78fae44dcbee976b5a824606231284f48f7",
+  "ref": "diag/e2e-new-specs",
+  "startedAt": "2026-11-12T15:14:47.308Z",
+  "durationMs": 861762,
+  "images": [
+    {
+      "image": "bedag/hello-data-cloudbeaver-gateway:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:2d55ed7b88ebd152fd9565a94608a1e43a9ec73b7364e11e5982889fcd5bb3ef"
+    },
+    {
+      "image": "bedag/hello-data-dbt-docs:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-dbt-docs@sha256:8c4300f77f8330ec6570bcf6ea41a4bc1bce860f580647a480d31395e62957ab"
+    },
+    {
+      "image": "bedag/hello-data-dc-airflow:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-dc-airflow@sha256:1d0e7545e9afb53a9ef3d99bd38b876123321c252bb1d8ac02db1b32a7381ea2"
+    },
+    {
+      "image": "bedag/hello-data-dc-cloudbeaver:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-dc-cloudbeaver@sha256:5f2ec05cca8a0efaeff6a6701c42e7649cfdba48c19597d016cd575622e9edc3"
+    },
+    {
+      "image": "bedag/hello-data-dc-keycloak:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-dc-keycloak@sha256:b9d7e9491652ef038bdf6f8a568b36e7c7c09109a3123ae1cbc8e36918b9691c"
+    },
+    {
+      "image": "bedag/hello-data-dc-portal:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-dc-portal@sha256:0ac568687d61c02ff01c7b5892e0c83376ae0279294492654c3471ff99d74532"
+    },
+    {
+      "image": "bedag/hello-data-dc-postgres:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-dc-postgres@sha256:124a4d41a47035f4616d73eb1a28b42aa282d5fe146a564c39d34c62151ee40f"
+    },
+    {
+      "image": "bedag/hello-data-dc-superset:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-dc-superset@sha256:32d0f830a2da3384ea543860682443495920f3c64e6f7f5c000190ff72e8c46f"
+    },
+    {
+      "image": "bedag/hello-data-portal-api:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-portal-api@sha256:06450b983e5aa9040ff12be35586e93b770a9b079ab4809381b73c8f1528afdc"
+    },
+    {
+      "image": "bedag/hello-data-showcase:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-showcase@sha256:6f659eebe90247ac1bd57b4759e7b78f31b8b3fcedb5a603d80393f2d17dfa7b"
+    },
+    {
+      "image": "bedag/hello-data-sidecar-airflow:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-sidecar-airflow@sha256:8fbca6ffb0fc3f61ae1560bb5d6f4c727c68a9cc46926f145894b766a8a6538c"
+    },
+    {
+      "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:8a24e663474dd5e8b2e66fbbf36f9890968c121cd047ed7a2a7853e4a53a1326"
+    },
+    {
+      "image": "bedag/hello-data-sidecar-dbt-docs:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:217d95b3c2092d118904828d5dc1fbc73f928490ff737264d181e4b7eef9494a"
+    },
+    {
+      "image": "bedag/hello-data-sidecar-portal:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-sidecar-portal@sha256:b61aecdae66850e1ca4c8f73304f9807e218f6e712421076268ab7d8ca2c5728"
+    },
+    {
+      "image": "bedag/hello-data-sidecar-sftpgo:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-sidecar-sftpgo@sha256:5ed0950bb29fa7f14bd8e98e939144dd2304f95e840767ceb126dcdb5e47d0c7"
+    },
+    {
+      "image": "bedag/hello-data-sidecar-superset:1.7.0-dev-SNAPSHOT",
+      "digest": "bedag/hello-data-sidecar-superset@sha256:a333c857ac5a6ba537acd1bd2019a76c37eedcd575c8f38bab39e708b9ed1c71"
+    },
+    {
+      "image": "bitnamilegacy/minio-client:latest",
+      "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+    },
+    {
+      "image": "bitnamilegacy/minio:latest",
+      "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+    },
+    {
+      "image": "drakkan/sftpgo",
+      "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+    },
+    {
+      "image": "nats:alpine3.20",
+      "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+    },
+    {
+      "image": "redis:latest",
+      "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+    },
+    {
+      "image": "rnwood/smtp4dev:v3",
+      "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+    }
+  ],
+  "tests": [
+    {
+      "id": "a14328979f7d8652c5c9-008b0ba5d6533cd31c0c",
+      "feature": "administration",
+      "file": "administration/announcements.spec.ts",
+      "line": 79,
+      "project": "airflow2",
+      "group": "Announcements management",
+      "groupDescription": "the admin manages the notifications (announcements) of the portal",
+      "title": "admin creates, edits, unpublishes and deletes an announcement",
+      "description": "the admin creates a published announcement, edits its text, unpublishes it and deletes it; after each step the list and the page of the published announcements show the change",
+      "tags": [],
+      "jira": [],
+      "steps": [],
+      "status": "failed",
+      "durationMs": 60884,
+      "retries": 0,
+      "error": "Test timeout of 60000ms exceeded."
+    },
+    {
+      "id": "a14328979f7d8652c5c9-b79f09f94765dc08eef9",
+      "feature": "administration",
+      "file": "administration/announcements.spec.ts",
+      "line": 137,
+      "project": "airflow2",
+      "group": "Announcements management",
+      "groupDescription": "the admin manages the notifications (announcements) of the portal",
+      "title": "a viewer sees the published announcement and not the unpublished one",
+      "description": "a published announcement reaches the users: a popup opens for them in the portal, they can hide it for good, and it stays on the page of the published announcements; an unpublished one is not shown to them",
+      "tags": [],
+      "jira": [],
+      "steps": [],
+      "status": "failed",
+      "durationMs": 60962,
+      "retries": 0,
+      "error": "Test timeout of 60000ms exceeded."
+    },
+    {
+      "id": "8d31836b099989a91821-0d2958f7aee37ede49d0",
+      "feature": "administration",
+      "file": "administration/bulk-assignments.spec.ts",
+      "line": 114,
+      "project": "airflow2",
+      "group": "Bulk assignments",
+      "groupDescription": "An admin gives the same role in a data domain to several existing users at once in the bulk assignments wizard. The users are created by a batch import first, which only imports users with a role, so the editors start as viewers.",
+      "title": "gives two users the data domain editor role",
+      "description": "two viewers become data domain editors in one run; the portal stores the role and Superset has the BI_EDITOR and sql_lab roles for both",
+      "tags": [],
+      "jira": [],
+      "steps": [],
+      "status": "failed",
+      "durationMs": 361183,
+      "retries": 0,
+      "error": "Test timeout of 360000ms exceeded."
+    },
+    {
+      "id": "8d31836b099989a91821-77e1f7d3c40e72535198",
+      "feature": "administration",
+      "file": "administration/bulk-assignments.spec.ts",
+      "line": 129,
+      "project": "airflow2",
+      "group": "Bulk assignments",
+      "groupDescription": "An admin gives the same role in a data domain to several existing users at once in the bulk assignments wizard. The users are created by a batch import first, which only imports users with a role, so the editors start as viewers.",
+      "title": "gives a user the viewer role with a dashboard, an RLS group and comment permission",
+      "description": "a viewer gets a dashboard, an RLS group and the read permission for comments; the portal stores the dashboard and the permission and Superset has the BI_VIEWER, dashboard and RLS roles",
+      "tags": [],
+      "jira": [],
+      "steps": [],
+      "status": "skipped",
+      "durationMs": 0,
+      "retries": 0
+    },
+    {
+      "id": "8d31836b099989a91821-f8223914e412f54cd83f",
+      "feature": "administration",
+      "file": "administration/bulk-assignments.spec.ts",
+      "line": 144,
+      "project": "airflow2",
+      "group": "Bulk assignments",
+      "groupDescription": "An admin gives the same role in a data domain to several existing users at once in the bulk assignments wizard. The users are created by a batch import first, which only imports users with a role, so the editors start as viewers.",
+      "title": "takes the role away with NONE",
+      "description": "the role NONE takes the access to the data domain away again",
+      "tags": [],
+      "jira": [],
+      "steps": [],
+      "status": "skipped",
+      "durationMs": 0,
+      "retries": 0
+    },
+    {
+      "id": "ac7821c0742415a1b940-2c22c7d60317b8ff40ce",
+      "feature": "administration",
+      "file": "administration/faq.spec.ts",
+      "line": 7,
+      "project": "airflow2",
+      "group": "FAQ management",
+      "groupDescription": "the admin manages the FAQ entries of the portal",
+      "title": "admin creates, edits and deletes a FAQ",
+      "description": "the admin creates a FAQ in the FAQ management, edits its text and deletes it; after each step the list and the FAQ content show the change",
+      "tags": [],
+      "jira": [],
+      "steps": [],
+      "status": "skipped",
+      "durationMs": 0,
+      "retries": 0
+    },
+    {
+      "id": "447970821f82d6a8f034-032cad43abe93e374d9c",
+      "feature": "administration",
+      "file": "administration/users.spec.ts",
+      "line": 7,
+      "project": "airflow2",
+      "group": "Users and roles",
+      "groupDescription": "the profile of the logged in user and the user list of the admin the menus and pages each role may open are covered by roles.spec.ts",
+      "title": "profile shows the roles of the logged in user",
+      "description": "the admin opens the profile from the user menu; it shows the admin's email and the HELLODATA ADMIN role",
+      "tags": [],
+      "jira": [],
+      "steps": [],
+      "status": "skipped",
+      "durationMs": 0,
+      "retries": 0
+    },
+    {
+      "id": "447970821f82d6a8f034-e6f6b6b31715b5808e51",
+      "feature": "administration",
+      "file": "administration/users.spec.ts",
+      "line": 17,
+      "project": "airflow2",
+      "group": "Users and roles",
+      "groupDescription": "the profile of the logged in user and the user list of the admin the menus and pages each role may open are covered by roles.spec.ts",
+      "title": "user management lists the admin and the example users",
+      "description": "the admin opens the user management; the admin and the example users of the other roles are listed",
+      "tags": [],
+      "jira": [],
+      "steps": [],
+      "status": "skipped",
+      "durationMs": 0,
+      "retries": 0
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "passed": 0,
+    "failed": 3,
+    "flaky": 0,
+    "skipped": 5
+  },
+  "features": [
+    {
+      "name": "administration",
+      "total": 8,
+      "passed": 0,
+      "failed": 3,
+      "flaky": 0,
+      "skipped": 5
+    }
+  ],
+  "status": "error",
+  "errors": [
+    "Testing stopped early after 3 maximum allowed failures."
+  ]
+}

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E2E 1.7.0-dev-SNAPSHOT msedge</title>
+<style>
+  :root { --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --border: #d0d7de; --row: #f6f8fa; --link: #0969da;
+    --passed: #1a7f37; --failed: #cf222e; --flaky: #9a6700; --skipped: #656d76; --error: #8250df; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --fg: #e6edf3; --muted: #8d96a0; --border: #30363d;
+    --row: #161b22; --link: #4493f8; --passed: #3fb950; --failed: #f85149; --flaky: #d29922; --skipped: #8d96a0;
+    --error: #a371f7; } }
+  * { box-sizing: border-box; }
+  body { margin: 0 auto; max-width: 1200px; padding: 24px 16px; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  a { color: var(--link); text-decoration: none; } a:hover { text-decoration: underline; }
+  h1 { font-size: 24px; margin: 0 0 8px; } h2 { font-size: 18px; margin: 32px 0 8px; } h3 { font-size: 15px; margin: 20px 0 8px; }
+  .muted { color: var(--muted); font-weight: normal; } .small { font-size: 12px; }
+  .table { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; vertical-align: top; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; } tbody tr:hover { background: var(--row); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .links a { margin-right: 12px; white-space: nowrap; }
+  .links.small a { margin: 0 0 0 8px; }
+  .version { font-weight: 600; white-space: nowrap; }
+  .results div { white-space: nowrap; } .results div + div { margin-top: 4px; } .results a { color: var(--fg); }
+  tr.group td { background: var(--row); border-bottom: 1px solid var(--border); padding-top: 10px; }
+  .title { font-weight: 600; } .description { margin: 2px 0; max-width: 75ch; }
+  .steps { margin: 4px 0; padding-left: 20px; color: var(--muted); } .steps .failed { color: var(--failed); }
+  .badge { display: inline-block; padding: 0 8px; border-radius: 10px; font-size: 12px; font-weight: 600;
+    color: var(--bg); background: var(--status); }
+  pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; background: var(--row); padding: 8px;
+    border-radius: 6px; margin: 6px 0 0; }
+  pre.error { border-left: 3px solid var(--error); }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 16px 0 0; }
+  dt { color: var(--muted); } dd { margin: 0; }
+  code { font-size: 12px; }
+  td > code { word-break: break-all; } .nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+    <nav class="links"><a href="../../">← 1.7.0-dev-SNAPSHOT</a><a href="../../../">All versions</a></nav>
+    <header><h1>1.7.0-dev-SNAPSHOT <span class="muted">msedge</span> <span class="badge" style="--status: var(--error)">error</span></h1></header>
+    
+    <dl>
+      <dt>Status</dt><dd><span class="badge" style="--status: var(--error)">error</span></dd>
+      <dt>Started</dt><dd><span class="nowrap">2026-11-12 14:45 UTC</span> (1 min)</dd>
+      <dt>Tests</dt><dd>5: 0 passed, 1 failed,
+        0 flaky, 4 skipped</dd>
+      <dt>Tests from</dt><dd>diag/e2e-new-specs <a class="nowrap" href="https://github.com/kanton-bern/hellodata-be/commit/46bf03372bc244d17ab8ff80ff9256a57ebb4af7"><code>46bf0337</code></a></dd>
+      <dt>Links</dt><dd class="links"><a href="report/">Full Playwright report</a>
+        
+        <a href="https://github.com/kanton-bern/hellodata-be/actions/runs/43239291155/attempts/1">Workflow run (logs, traces)</a></dd>
+    </dl>
+    <pre class="error">Testing stopped early after 1 maximum allowed failures.</pre>
+    <h2>Features</h2>
+    <div class="table"><table>
+      <thead><tr><th>Feature</th><th class="num">Passed</th><th class="num">Failed</th><th class="num">Flaky</th>
+        <th class="num">Skipped</th></tr></thead>
+      <tbody>
+    <tr><td><a href="#administration">administration</a></td><td class="num">0</td>
+      <td class="num">1</td><td class="num">0</td><td class="num">4</td></tr></tbody>
+    </table></div>
+    <h2>Tests</h2>
+    
+    <section id="administration">
+      <h3>administration</h3>
+      <div class="table"><table>
+        <thead><tr><th>Status</th><th>Test</th><th>Jira</th><th class="num">Duration</th></tr></thead>
+        <tbody>
+          <tr class="group"><td colspan="4"><strong>Announcements management</strong>
+            <div class="muted">the admin manages the notifications (announcements) of the portal</div>
+          </td></tr>
+          
+    <tr>
+      <td><span class="badge" style="--status: var(--failed)">failed</span></td>
+      <td><div class="title">admin creates, edits, unpublishes and deletes an announcement</div>
+        <div class="description">the admin creates a published announcement, edits its text, unpublishes it and deletes it; after each step the list and the page of the published announcements show the change</div>
+        
+        <div class="muted small links">administration/announcements.spec.ts:71 <a href="report/#?testId=a14328979f7d8652c5c9-008b0ba5d6533cd31c0c">all actions in the report</a></div>
+        <pre>Test timeout of 60000ms exceeded.</pre></td>
+      <td class="nowrap"></td>
+      <td class="num">60.5 s</td>
+    </tr>
+    <tr>
+      <td><span class="badge" style="--status: var(--skipped)">skipped</span></td>
+      <td><div class="title">a viewer sees the published announcement and not the unpublished one</div>
+        <div class="description">a published announcement reaches the users: a popup opens for them in the portal, they can hide it for good, and it stays on the page of the published announcements; an unpublished one is not shown to them</div>
+        
+        <div class="muted small links">administration/announcements.spec.ts:129 <a href="report/#?testId=a14328979f7d8652c5c9-b79f09f94765dc08eef9">all actions in the report</a></div>
+        </td>
+      <td class="nowrap"></td>
+      <td class="num">0.0 s</td>
+    </tr>
+          <tr class="group"><td colspan="4"><strong>Bulk assignments</strong>
+            <div class="muted">An admin gives the same role in a data domain to several existing users at once in the bulk assignments wizard. The users are created by a batch import first, which only imports users with a role, so the editors start as viewers.</div>
+          </td></tr>
+          
+    <tr>
+      <td><span class="badge" style="--status: var(--skipped)">skipped</span></td>
+      <td><div class="title">gives two users the data domain editor role</div>
+        <div class="description">two viewers become data domain editors in one run; the portal stores the role and Superset has the BI_EDITOR and sql_lab roles for both</div>
+        
+        <div class="muted small links">administration/bulk-assignments.spec.ts:112 <a href="report/#?testId=8d31836b099989a91821-0d2958f7aee37ede49d0">all actions in the report</a></div>
+        </td>
+      <td class="nowrap"></td>
+      <td class="num">0.0 s</td>
+    </tr>
+    <tr>
+      <td><span class="badge" style="--status: var(--skipped)">skipped</span></td>
+      <td><div class="title">gives a user the viewer role with a dashboard, an RLS group and comment permission</div>
+        <div class="description">a viewer gets a dashboard, an RLS group and the read permission for comments; the portal stores the dashboard and the permission and Superset has the BI_VIEWER, dashboard and RLS roles</div>
+        
+        <div class="muted small links">administration/bulk-assignments.spec.ts:127 <a href="report/#?testId=8d31836b099989a91821-77e1f7d3c40e72535198">all actions in the report</a></div>
+        </td>
+      <td class="nowrap"></td>
+      <td class="num">0.0 s</td>
+    </tr>
+    <tr>
+      <td><span class="badge" style="--status: var(--skipped)">skipped</span></td>
+      <td><div class="title">takes the role away with NONE</div>
+        <div class="description">the role NONE takes the access to the data domain away again</div>
+        
+        <div class="muted small links">administration/bulk-assignments.spec.ts:142 <a href="report/#?testId=8d31836b099989a91821-f8223914e412f54cd83f">all actions in the report</a></div>
+        </td>
+      <td class="nowrap"></td>
+      <td class="num">0.0 s</td>
+    </tr>
+        </tbody>
+      </table></div>
+    </section>
+    <h2>Tested images</h2>
+    <div class="table"><table>
+      <thead><tr><th>Image</th><th>Digest</th></tr></thead>
+      <tbody>
+    <tr><td>bedag/hello-data-cloudbeaver-gateway:1.7.0-dev-SNAPSHOT</td><td><code>sha256:2d55ed7b88ebd152fd9565a94608a1e43a9ec73b7364e11e5982889fcd5bb3ef</code></td></tr>
+    <tr><td>bedag/hello-data-dbt-docs:1.7.0-dev-SNAPSHOT</td><td><code>sha256:8c4300f77f8330ec6570bcf6ea41a4bc1bce860f580647a480d31395e62957ab</code></td></tr>
+    <tr><td>bedag/hello-data-dc-airflow:1.7.0-dev-SNAPSHOT</td><td><code>sha256:1d0e7545e9afb53a9ef3d99bd38b876123321c252bb1d8ac02db1b32a7381ea2</code></td></tr>
+    <tr><td>bedag/hello-data-dc-cloudbeaver:1.7.0-dev-SNAPSHOT</td><td><code>sha256:5f2ec05cca8a0efaeff6a6701c42e7649cfdba48c19597d016cd575622e9edc3</code></td></tr>
+    <tr><td>bedag/hello-data-dc-keycloak:1.7.0-dev-SNAPSHOT</td><td><code>sha256:b9d7e9491652ef038bdf6f8a568b36e7c7c09109a3123ae1cbc8e36918b9691c</code></td></tr>
+    <tr><td>bedag/hello-data-dc-portal:1.7.0-dev-SNAPSHOT</td><td><code>sha256:0ac568687d61c02ff01c7b5892e0c83376ae0279294492654c3471ff99d74532</code></td></tr>
+    <tr><td>bedag/hello-data-dc-postgres:1.7.0-dev-SNAPSHOT</td><td><code>sha256:124a4d41a47035f4616d73eb1a28b42aa282d5fe146a564c39d34c62151ee40f</code></td></tr>
+    <tr><td>bedag/hello-data-dc-superset:1.7.0-dev-SNAPSHOT</td><td><code>sha256:32d0f830a2da3384ea543860682443495920f3c64e6f7f5c000190ff72e8c46f</code></td></tr>
+    <tr><td>bedag/hello-data-portal-api:1.7.0-dev-SNAPSHOT</td><td><code>sha256:06450b983e5aa9040ff12be35586e93b770a9b079ab4809381b73c8f1528afdc</code></td></tr>
+    <tr><td>bedag/hello-data-showcase:1.7.0-dev-SNAPSHOT</td><td><code>sha256:6f659eebe90247ac1bd57b4759e7b78f31b8b3fcedb5a603d80393f2d17dfa7b</code></td></tr>
+    <tr><td>bedag/hello-data-sidecar-airflow:1.7.0-dev-SNAPSHOT</td><td><code>sha256:8fbca6ffb0fc3f61ae1560bb5d6f4c727c68a9cc46926f145894b766a8a6538c</code></td></tr>
+    <tr><td>bedag/hello-data-sidecar-cloudbeaver:1.7.0-dev-SNAPSHOT</td><td><code>sha256:8a24e663474dd5e8b2e66fbbf36f9890968c121cd047ed7a2a7853e4a53a1326</code></td></tr>
+    <tr><td>bedag/hello-data-sidecar-dbt-docs:1.7.0-dev-SNAPSHOT</td><td><code>sha256:217d95b3c2092d118904828d5dc1fbc73f928490ff737264d181e4b7eef9494a</code></td></tr>
+    <tr><td>bedag/hello-data-sidecar-portal:1.7.0-dev-SNAPSHOT</td><td><code>sha256:b61aecdae66850e1ca4c8f73304f9807e218f6e712421076268ab7d8ca2c5728</code></td></tr>
+    <tr><td>bedag/hello-data-sidecar-sftpgo:1.7.0-dev-SNAPSHOT</td><td><code>sha256:5ed0950bb29fa7f14bd8e98e939144dd2304f95e840767ceb126dcdb5e47d0c7</code></td></tr>
+    <tr><td>bedag/hello-data-sidecar-superset:1.7.0-dev-SNAPSHOT</td><td><code>sha256:a333c857ac5a6ba537acd1bd2019a76c37eedcd575c8f38bab39e708b9ed1c71</code></td></tr>
+    <tr><td>bitnamilegacy/minio-client:latest</td><td><code>sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511</code></td></tr>
+    <tr><td>bitnamilegacy/minio:latest</td><td><code>sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c</code></td></tr>
+    <tr><td>drakkan/sftpgo</td><td><code>sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11</code></td></tr>
+    <tr><td>nats:alpine3.20</td><td><code>sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca</code></td></tr>
+    <tr><td>redis:latest</td><td><code>sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53</code></td></tr>
+    <tr><td>rnwood/smtp4dev:v3</td><td><code>sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75</code></td></tr></tbody>
+    </table></div>
+</body>
+</html>
