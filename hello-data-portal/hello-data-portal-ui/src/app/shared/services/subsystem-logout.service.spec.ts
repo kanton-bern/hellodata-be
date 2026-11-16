@@ -29,7 +29,7 @@ import {TestBed} from '@angular/core/testing';
 import {Store} from '@ngrx/store';
 import {of} from 'rxjs';
 import {afterEach, describe, expect, it, jest} from '@jest/globals';
-import {SubsystemLogoutService} from './subsystem-logout.service';
+import {jupyterhubLogoutUrl, SubsystemLogoutService} from './subsystem-logout.service';
 import {
   VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY
 } from '../../pages/my-dashboards/embed-my-dashboard/embed-my-dashboard.component';
@@ -37,12 +37,13 @@ import {
 describe('SubsystemLogoutService', () => {
   const appInfo = (url: string) => [{data: {url}}];
 
-  const setup = (airflow: unknown[] = [], airflow3: unknown[] = [], sftpgo: unknown[] = []) => {
+  const setup = (airflow: unknown[] = [], airflow3: unknown[] = [], sftpgo: unknown[] = [], jupyterhubs: unknown[] = []) => {
     const storeMock = {
       select: jest.fn<(selector: unknown) => unknown>()
         .mockReturnValueOnce(of(airflow))
         .mockReturnValueOnce(of(airflow3))
         .mockReturnValueOnce(of(sftpgo))
+        .mockReturnValueOnce(of(jupyterhubs))
     };
     TestBed.configureTestingModule({
       providers: [SubsystemLogoutService, {provide: Store, useValue: storeMock}]
@@ -81,6 +82,32 @@ describe('SubsystemLogoutService', () => {
     frames.forEach(f => f.dispatchEvent(new Event('load')));
     await done;
     expect(hiddenFrames()).toHaveLength(0);
+  });
+
+  it('logs out of every JupyterHub of the user, also when it was not opened in this tab', async () => {
+    sessionStorage.setItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY, JSON.stringify(['https://jupyter-dd01/hub/logout']));
+    const service = setup([], [], [], [
+      {data: {url: 'https://jupyter-dd01/'}},
+      {data: {url: 'https://jupyter-dd02'}},
+      {data: {}},
+    ]);
+
+    const done = service.logoutOpenedSubsystems(10_000);
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // dd01 was visited in this tab and is configured: called once; dd02 was only opened elsewhere: called too
+    expect(hiddenFrames().map(f => f.getAttribute('src')).sort()).toEqual([
+      'https://jupyter-dd01/hub/logout',
+      'https://jupyter-dd02/hub/logout',
+    ]);
+    hiddenFrames().forEach(f => f.dispatchEvent(new Event('load')));
+    await done;
+  });
+
+  it('builds the JupyterHub logout URL with or without a trailing slash', () => {
+    expect(jupyterhubLogoutUrl('https://jupyter')).toBe('https://jupyter/hub/logout');
+    expect(jupyterhubLogoutUrl('https://jupyter/')).toBe('https://jupyter/hub/logout');
+    expect(jupyterhubLogoutUrl('https://jupyter/base//')).toBe('https://jupyter/base/hub/logout');
   });
 
   it('resolves after the timeout when a subsystem never answers', async () => {

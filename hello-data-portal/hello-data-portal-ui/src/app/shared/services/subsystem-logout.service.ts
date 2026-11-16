@@ -35,6 +35,13 @@ import {
 } from '../../pages/my-dashboards/embed-my-dashboard/embed-my-dashboard.component';
 
 /**
+ * JupyterHub's logout URL for a JupyterHub base URL, with or without a trailing slash.
+ */
+export function jupyterhubLogoutUrl(baseUrl: string): string {
+  return baseUrl.replace(/\/+$/, '') + '/hub/logout';
+}
+
+/**
  * Logs the user out of the subsystems (Superset, Airflow, JupyterHub, SFTPGo) they opened from the
  * portal, by loading each logout URL in a hidden iframe - the same set the /logout page calls.
  *
@@ -68,10 +75,11 @@ export class SubsystemLogoutService {
   private async collectLogoutUrls(): Promise<string[]> {
     const urls = new Set<string>(this.visitedSubsystemLogoutUrls());
     try {
-      const [airflow, airflow3, sftpgo] = await firstValueFrom(combineLatest([
+      const [airflow, airflow3, sftpgo, jupyterhubs] = await firstValueFrom(combineLatest([
         this.store.select(selectAppInfoByModuleType('AIRFLOW')),
         this.store.select(selectAppInfoByModuleType('AIRFLOW3')),
         this.store.select(selectAppInfoByModuleType('SFTPGO')),
+        this.store.select(selectAppInfoByModuleType('JUPYTERHUB')),
       ]).pipe(take(1)));
       if (airflow?.length > 0) {
         urls.add(airflow[0].data.url + '/logout');
@@ -82,6 +90,13 @@ export class SubsystemLogoutService {
       if (sftpgo?.length > 0) {
         urls.add(sftpgo[0].data.url + '/web/client/logout');
       }
+      // HELLODATA-4166: every JupyterHub of the user, not only the ones opened in this tab - the visited list lives
+      // in this tab's sessionStorage, so a JupyterHub opened in another tab would otherwise stay logged in
+      jupyterhubs?.forEach(info => {
+        if (info?.data?.url) {
+          urls.add(jupyterhubLogoutUrl(info.data.url));
+        }
+      });
     } catch (e) {
       console.debug('[SubsystemLogout] could not read subsystem infos from the store', e);
     }

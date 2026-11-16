@@ -34,6 +34,7 @@ import {BaseComponent} from "../../shared/components/base/base.component";
 import {selectCurrentJupyterhubLink} from "../../store/start-page/start-page.selector";
 import {Observable, tap} from "rxjs";
 import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
+import {jupyterhubLogoutUrl} from "../../shared/services/subsystem-logout.service";
 import { AsyncPipe } from '@angular/common';
 import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
@@ -61,13 +62,8 @@ export class AdvancedAnalyticsViewerComponent extends BaseComponent implements O
     }));
     this.currentJupyterhubLink$ = this.store.select(selectCurrentJupyterhubLink).pipe(tap(url => {
       if (url) {
-        if (url.endsWith('/')) {
-          this.url = url + 'hub/custom/login';
-          this.openedSubsystemsService.rememberOpenedSubsystem(url + 'hub/logout')
-        } else {
-          this.url = url + '/hub/custom/login';
-          this.openedSubsystemsService.rememberOpenedSubsystem(url + '/hub/logout')
-        }
+        this.url = url.endsWith('/') ? url + 'hub/custom/login' : url + '/hub/custom/login';
+        this.openedSubsystemsService.rememberOpenedSubsystem(jupyterhubLogoutUrl(url));
       }
     }));
   }
