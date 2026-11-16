@@ -41,6 +41,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -67,16 +68,7 @@ public class DashboardPointerValidationRequestListener {
             try {
                 DashboardPointerValidationRequest request = objectMapper.readValue(msg.getData(), DashboardPointerValidationRequest.class);
                 Map<String, Boolean> validityByUrl = new HashMap<>();
-                List<String> pointerUrls = request.getPointerUrls();
-                if (pointerUrls != null && !pointerUrls.isEmpty()) {
-                    try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
-                        for (String pointerUrl : pointerUrls) {
-                            if (pointerUrl != null && !validityByUrl.containsKey(pointerUrl)) {
-                                validityByUrl.put(pointerUrl, pointerValidationService.isPointerValid(supersetClient, pointerUrl));
-                            }
-                        }
-                    }
-                }
+                validatePointers(request.getPointerUrls(), validityByUrl);
                 DashboardPointerValidationResponse response = new DashboardPointerValidationResponse(validityByUrl);
                 natsConnection.publish(msg.getReplyTo(), objectMapper.writeValueAsBytes(response));
                 msg.ack();
@@ -93,5 +85,18 @@ public class DashboardPointerValidationRequestListener {
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);
+    }
+
+    private void validatePointers(List<String> pointerUrls, Map<String, Boolean> validityByUrl) throws IOException {
+        if (pointerUrls == null || pointerUrls.isEmpty()) {
+            return;
+        }
+        try (SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance()) {
+            for (String pointerUrl : pointerUrls) {
+                if (pointerUrl != null && !validityByUrl.containsKey(pointerUrl)) {
+                    validityByUrl.put(pointerUrl, pointerValidationService.isPointerValid(supersetClient, pointerUrl));
+                }
+            }
+        }
     }
 }

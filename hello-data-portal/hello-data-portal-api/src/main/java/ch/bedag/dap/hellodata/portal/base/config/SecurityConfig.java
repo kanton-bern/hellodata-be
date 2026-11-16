@@ -35,11 +35,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Arrays;
@@ -88,11 +92,25 @@ public class SecurityConfig {
             auth.requestMatchers(AUTH_WHITELIST).permitAll();
             auth.anyRequest().authenticated();
         });
+        // API calls without a valid token must get a 401 (the frontend refreshes the token and retries),
+        // not the oauth2Login 302 to Keycloak - an XHR cannot follow that cross-origin redirect and fails with status 0.
+        // Registered before oauth2Login so this entry point is matched first.
+        http.exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(new BearerTokenAuthenticationEntryPoint(), nonBrowserNavigationMatcher()));
         http.oauth2Login(withDefaults());
         http.logout(httpSecurityLogoutConfigurer -> httpSecurityLogoutConfigurer.addLogoutHandler(keycloakLogoutHandler).logoutSuccessUrl("/"));
         http.oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> httpSecurityOAuth2ResourceServerConfigurer.jwt(
                 jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(hellodataAuthenticationConverter)));
         return http.build();
+    }
+
+    /**
+     * Matches every request except a browser navigation (which accepts text/html) - those keep the redirect to the login page.
+     */
+    static RequestMatcher nonBrowserNavigationMatcher() {
+        return request -> {
+            String accept = request.getHeader(HttpHeaders.ACCEPT);
+            return accept == null || !accept.contains(MediaType.TEXT_HTML_VALUE);
+        };
     }
 
     private void configureCsrf(HttpSecurity http) {

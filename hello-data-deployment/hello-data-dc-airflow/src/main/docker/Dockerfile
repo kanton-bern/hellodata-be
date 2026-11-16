@@ -25,10 +25,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hello-data-airflow
+# the maven build passes its own docker tag, so the image wraps the matching base image build
+ARG BASE_IMAGE_TAG=latest
+FROM bedag/hello-data-airflow:${BASE_IMAGE_TAG}
 
 ADD conf/airflow.cfg /opt/airflow/airflow.cfg
-ADD conf/webserver_config.py /opt/airflow/webserver_config.py
+# webserver_config.py is baked into the base hello-data-airflow image (env-driven:
+# KEYCLOAK_BASE_URL / KEYCLOAK_CLIENT_ID, set by docker-compose) — no override here.
 
 ADD db/02_01_add_extra_dd_connection.sql /db/changelog/changelogs/02_01_add_extra_dd_connection.sql
 RUN sed -i '/<\/databaseChangeLog>/d' /db/changelog/airflow-changelog.xml

@@ -83,8 +83,26 @@ public class DashboardService {
     private final ObjectMapper objectMapper;
     private final DashboardCommentService dashboardCommentService;
 
+    /**
+     * Reuse the per-dashboard RBAC gate: the (instanceName, dashboardId) must be one of the
+     * dashboards the current user may see, or the PDF export would be a data-leak bypass.
+     */
+    @Transactional(readOnly = true)
+    public void assertCurrentUserMayAccess(String instanceName, long dashboardId) {
+        boolean allowed = loadMyDashboards().stream()
+                .anyMatch(d -> d.getInstanceName().equalsIgnoreCase(instanceName) && d.getId() == dashboardId);
+        if (!allowed) {
+            log.warn("User {} attempted PDF export of dashboard {}/{} without access", SecurityUtils.getCurrentUserEmail(), instanceName, dashboardId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No access to the requested dashboard");
+        }
+    }
+
     @Transactional(readOnly = true)
     public Set<SupersetDashboardDto> fetchMyDashboards() {
+        return loadMyDashboards();
+    }
+
+    private Set<SupersetDashboardDto> loadMyDashboards() {
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         Set<SupersetDashboardDto> dashboardsWithAccess = new HashSet<>();
         List<MetaInfoResourceEntity> metaInfoResources = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_DASHBOARDS);

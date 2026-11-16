@@ -66,6 +66,15 @@ To start everything in a single command and **always build/fetch latest images**
 docker-compose pull;  docker-compose up -d --build
 ```
 
+### Running a specific version
+
+All HelloDATA images use the `latest` tag by default. To run a specific release (or release candidate), set
+`HD_VERSION` to its tag:
+
+```sh
+HD_VERSION=1.7.0.rc1 docker compose up -d
+```
+
 ### Hint
 
 If you don't have enough resources, you can try to start the portal and basic services only with:

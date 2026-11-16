@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserUpdateOrderGuard;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.AirflowClient;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowRole;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserResponse;
@@ -58,6 +59,8 @@ public class AirflowUserContextRoleConsumer {
     private final AirflowClientProvider airflowClientProvider;
     private final AirflowRoleResourceProviderService airflowRoleResourceProviderService;
     private final AirflowUserResourceProviderService airflowUserResourceProviderService;
+    // shared by the single updates and the full synchronization, which both go through this bean
+    private final UserUpdateOrderGuard orderGuard = new UserUpdateOrderGuard();
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
@@ -70,6 +73,16 @@ public class AirflowUserContextRoleConsumer {
     }
 
     public void updateUserRoles(UserContextRoleUpdate userContextRoleUpdate, AirflowClient airflowClient, List<AirflowRole> allAirflowRoles) {
+        try (UserUpdateOrderGuard.Permit permit = orderGuard.enter(userContextRoleUpdate)) {
+            if (permit.isStale()) {
+                return;
+            }
+            applyUserRoles(userContextRoleUpdate, airflowClient, allAirflowRoles);
+            permit.applied();
+        }
+    }
+
+    private void applyUserRoles(UserContextRoleUpdate userContextRoleUpdate, AirflowClient airflowClient, List<AirflowRole> allAirflowRoles) {
         try {
             List<UserContextRoleUpdate.ContextRole> dataDomainContextRoles =
                     userContextRoleUpdate.getContextRoles().stream().filter(contextRole -> contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN).toList();

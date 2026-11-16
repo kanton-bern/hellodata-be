@@ -1,0 +1,100 @@
+///
+/// Copyright © 2024, Kanton Bern
+/// All rights reserved.
+///
+/// Redistribution and use in source and binary forms, with or without
+/// modification, are permitted provided that the following conditions are met:
+///     * Redistributions of source code must retain the above copyright
+///       notice, this list of conditions and the following disclaimer.
+///     * Redistributions in binary form must reproduce the above copyright
+///       notice, this list of conditions and the following disclaimer in the
+///       documentation and/or other materials provided with the distribution.
+///     * Neither the name of the <organization> nor the
+///       names of its contributors may be used to endorse or promote products
+///       derived from this software without specific prior written permission.
+///
+/// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+/// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+/// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+/// DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+/// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+/// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+/// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+/// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+/// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+/// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+///
+
+import {inject, Injectable} from "@angular/core";
+import {HttpClient, HttpParams} from "@angular/common/http";
+import {Observable} from "rxjs";
+import {environment} from "../../../environments/environment";
+import {PdfChartRef, PdfLayoutRequest, PdfLayoutSaveRequest, PdfLayoutSummary, PdfSavedLayout, PdfTemplate} from "./pdf-export.model";
+
+@Injectable({providedIn: 'root'})
+export class PdfExportService {
+  private httpClient = inject(HttpClient);
+
+  private baseUrl = `${environment.portalApi}/superset/dashboards`;
+  private layoutsUrl = `${environment.portalApi}/pdf-layouts`;
+
+  /** Charts of one dashboard for the builder palette. */
+  public getCharts(instanceName: string, dashboardId: number): Observable<PdfChartRef[]> {
+    return this.httpClient.get<PdfChartRef[]>(
+      `${this.baseUrl}/${encodeURIComponent(instanceName)}/${dashboardId}/charts`
+    );
+  }
+
+  /** Existing markdown/text blocks of one dashboard for the builder palette. */
+  public getMarkdownBlocks(instanceName: string, dashboardId: number): Observable<string[]> {
+    return this.httpClient.get<string[]>(
+      `${this.baseUrl}/${encodeURIComponent(instanceName)}/${dashboardId}/markdown`
+    );
+  }
+
+  /** The PDF page templates with their page geometry, for the builder canvas. */
+  public getTemplates(): Observable<PdfTemplate[]> {
+    return this.httpClient.get<PdfTemplate[]>(`${this.baseUrl}/pdf/templates`);
+  }
+
+  /** Render the custom grid layout to a PDF (streamed as application/pdf). */
+  public exportCustom(request: PdfLayoutRequest): Observable<Blob> {
+    return this.httpClient.post(`${this.baseUrl}/pdf/custom`, request, {responseType: 'blob'});
+  }
+
+  /** Single-chart screenshot preview (PNG blob), sized to the tile's span, for the builder grid.
+   *  {@code force} re-renders even if a cached screenshot exists (per-tile "refresh" button). */
+  public getChartPreview(instanceName: string, dashboardId: number, chartId: number,
+                         cols: number, rows: number, template: string, force = false): Observable<Blob> {
+    let params = new HttpParams().set('cols', cols).set('rows', rows).set('template', template);
+    if (force) {
+      params = params.set('force', true);
+    }
+    return this.httpClient.get(
+      `${this.baseUrl}/${encodeURIComponent(instanceName)}/${dashboardId}/charts/${chartId}/preview`,
+      {params, responseType: 'blob'}
+    );
+  }
+
+  /** The saved layouts the current user may see (all data domains). */
+  public getLayouts(): Observable<PdfLayoutSummary[]> {
+    return this.httpClient.get<PdfLayoutSummary[]>(this.layoutsUrl);
+  }
+
+  /** A saved layout ready for the builder; charts removed from the dashboard are already dropped. */
+  public getLayout(id: string): Observable<PdfSavedLayout> {
+    return this.httpClient.get<PdfSavedLayout>(`${this.layoutsUrl}/${encodeURIComponent(id)}`);
+  }
+
+  public createLayout(request: PdfLayoutSaveRequest): Observable<PdfSavedLayout> {
+    return this.httpClient.post<PdfSavedLayout>(this.layoutsUrl, request);
+  }
+
+  public updateLayout(id: string, request: PdfLayoutSaveRequest): Observable<PdfSavedLayout> {
+    return this.httpClient.put<PdfSavedLayout>(`${this.layoutsUrl}/${encodeURIComponent(id)}`, request);
+  }
+
+  public deleteLayout(id: string): Observable<void> {
+    return this.httpClient.delete<void>(`${this.layoutsUrl}/${encodeURIComponent(id)}`);
+  }
+}

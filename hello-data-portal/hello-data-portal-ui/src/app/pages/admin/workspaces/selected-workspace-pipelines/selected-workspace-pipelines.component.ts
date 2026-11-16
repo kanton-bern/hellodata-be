@@ -64,7 +64,12 @@ export class SelectedWorkspacePipelinesComponent {
 
   readonly instanceName = input.required<string>();
 
+  // Which orchestrator this workspace's pipelines belong to; picks the right embedded route so the
+  // detail opens the correct Airflow (AIRFLOW3 -> the Airflow 3 embed, otherwise Airflow 2).
+  readonly moduleType = input<string>('AIRFLOW');
+
   showDetails(pipelineId: string) {
-    this.store.dispatch(navigate({url: `/embedded-orchestration/details/${pipelineId}`}));
+    const base = this.moduleType() === 'AIRFLOW3' ? 'embedded-orchestration-airflow3' : 'embedded-orchestration';
+    this.store.dispatch(navigate({url: `/${base}/details/${pipelineId}`}));
   }
 }

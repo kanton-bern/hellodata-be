@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +39,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DashboardCommentUpdateDto {
+    @NotBlank
     private String text;
     private String pointerUrl;
     private long entityVersion;

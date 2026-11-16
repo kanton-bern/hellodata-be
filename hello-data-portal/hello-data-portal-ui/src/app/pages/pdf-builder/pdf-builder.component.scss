@@ -1,0 +1,482 @@
+:host {
+  display: block;
+  height: 100%;
+  font-family: system-ui, sans-serif;
+}
+
+.app {
+  display: flex;
+  height: 100%;
+}
+
+.palette {
+  width: 280px;
+  flex: 0 0 280px;
+  padding: 16px;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.palette h2 {
+  font-size: 18px;
+  margin: 0 0 16px;
+}
+
+.palette h3 {
+  font-size: 14px;
+  margin: 20px 0 6px;
+}
+
+/* Collapsible section heading (charts); looks like the plain h3, the whole row is clickable. */
+.section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.section-toggle i {
+  font-size: 11px;
+  width: 12px;
+}
+
+.section-toggle .count {
+  margin-left: auto;
+  color: #888;
+  font-weight: normal;
+  font-size: 12px;
+}
+
+.hint,
+.empty {
+  color: #888;
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.layout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+// Let the buttons share the row and wrap onto a new line when the translated labels do not fit,
+// instead of overflowing into each other.
+.layout-actions p-button {
+  flex: 1 1 auto;
+  min-width: 0;
+
+  ::ng-deep .p-button {
+    width: 100%;
+    white-space: nowrap;
+  }
+}
+
+.title-field {
+  margin-top: 12px;
+}
+
+.field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field-info {
+  color: var(--p-text-muted-color);
+  cursor: help;
+}
+
+.name-field input,
+.title-field input {
+  width: 100%;
+}
+
+.name-field {
+  margin-bottom: 12px;
+}
+
+.local-hint {
+  margin: 0 0 12px;
+}
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.palette-item {
+  padding: 8px 10px;
+  margin: 4px 0;
+  background: #f3f3f3;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: grab;
+  font-size: 13px;
+}
+
+.palette-item.block {
+  background: #eef4ea;
+}
+
+.actions {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fresh-data {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.fresh-data input {
+  grid-row: 1;
+  cursor: pointer;
+}
+
+.fresh-data small {
+  grid-column: 2;
+  grid-row: 2;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.export-hint {
+  display: block;
+  color: #888;
+  font-size: 11px;
+  line-height: 1.3;
+  margin-top: -2px;
+}
+
+.canvas {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  overflow: hidden;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+}
+
+.paginator {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.paginator .page-label {
+  font-size: 13px;
+  color: #666;
+  margin-right: 4px;
+  flex: 0 0 auto;
+}
+
+/* The page numbers take the remaining width and scroll horizontally on their own, so a long run of
+   pages never pushes the prev/next arrows or the Add/Remove actions off screen. */
+.paginator .page-numbers {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+/* Add/Remove page buttons stay pinned at the right edge and always visible. */
+.paginator .page-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-btn {
+  flex: 0 0 auto;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #444;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.page-btn:hover {
+  background: #f0f0f0;
+}
+
+.page-btn.active {
+  background: var(--p-primary-color, #2f7d72);
+  border-color: var(--p-primary-color, #2f7d72);
+  color: var(--p-primary-contrast-color, #fff);
+  font-weight: 600;
+}
+
+/* Room for the page below the paginator; the page is centred in it at the PDF's aspect ratio and may be
+   taller than this area (see MAX_PAGE_HEIGHT_FACTOR), which then scrolls. The gutter stays reserved so a
+   scrollbar coming and going cannot change the width the page is sized from. */
+.page-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+/*
+ * PDF page grid, drawn at --pdf-scale screen px per CSS px of the PDF. The tiles below mirror the
+ * PDF's text and chart styles (hello-data-portal-api .../pdfexport/templates/fragments/pdf.html: body,
+ * .summary, .markdown, h3.chart-name, .chart-image, .grid-tile), every length scaled, so text breaks
+ * and is cut off where the PDF does. PdfTemplateDtoTest pins the PDF side; change both together.
+ */
+.pdf-page {
+  --pdf-scale: 1;
+  flex: 0 0 auto;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  font-family: 'PdfRoboto', Arial, sans-serif;
+  color: #0a0a0a;
+  font-size: calc(10pt * var(--pdf-scale));
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+gridster {
+  background: #f0f0f0;
+  width: 100%;
+  height: 100%;
+}
+
+// Empty cells: grey with a white frame inset 4px on each side, so neighbouring cells show doubled lines
+// with a grey gap between them. The grid itself has no margins (tiles touch, as in the PDF), so the
+// frames are drawn inside each column and row instead of gridster's border on the cell edge.
+::ng-deep .pdf-page gridster .gridster-column {
+  border: 0;
+  background: linear-gradient(to right,
+    transparent 4px, #fff 4px, #fff 5px, transparent 5px,
+    transparent calc(100% - 5px), #fff calc(100% - 5px), #fff calc(100% - 4px), transparent calc(100% - 4px));
+}
+
+::ng-deep .pdf-page gridster .gridster-row {
+  border: 0;
+  background: linear-gradient(to bottom,
+    transparent 4px, #fff 4px, #fff 5px, transparent 5px,
+    transparent calc(100% - 5px), #fff calc(100% - 5px), #fff calc(100% - 4px), transparent calc(100% - 4px));
+}
+
+.cell {
+  position: relative;
+  height: 100%;
+  outline: 1px dashed transparent;
+  outline-offset: -1px;
+}
+
+gridster-item:hover .cell {
+  outline-color: #bbb;
+}
+
+/* Tile actions float over the top-right corner, so the tile itself is laid out exactly like the PDF's. */
+.cell-actions {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+gridster-item:hover .cell-actions,
+.cell-actions:focus-within {
+  opacity: 1;
+}
+
+/* .grid-page .grid-tile: the PDF clips a tile's content at its edge. */
+.pdf-tile {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 calc(6px * var(--pdf-scale)) calc(10pt * var(--pdf-scale));
+  overflow: hidden;
+}
+
+// The global stylesheet sets Poppins on every element (`*`), so inheriting the page font is not enough.
+.pdf-tile,
+.pdf-tile ::ng-deep * {
+  font-family: 'PdfRoboto', Arial, sans-serif;
+}
+
+// openhtmltopdf only breaks a line where the text and the space after it fit, so a space at the end of
+// a line takes room like with break-spaces (the HTML is whitespace-collapsed first, see textHtml). The
+// extra 1px of right padding absorbs its rounding of text widths, so a line never fits here but not there.
+.summary {
+  margin-top: calc(6pt * var(--pdf-scale));
+  padding: calc(8px * var(--pdf-scale)) calc(11px * var(--pdf-scale)) calc(8px * var(--pdf-scale)) calc(10px * var(--pdf-scale));
+  white-space: break-spaces;
+  border: calc(1px * var(--pdf-scale)) solid #dedede;
+  background-color: #faf1e3;
+  font-size: calc(9pt * var(--pdf-scale));
+}
+
+.summary.markdown {
+  // The content comes in through [innerHTML], so it carries no component style-scope attribute:
+  // these rules need ::ng-deep to reach it. They also undo the global resets (Tailwind preflight).
+  ::ng-deep {
+    h1 { font-size: calc(18pt * var(--pdf-scale)); font-weight: 300; line-height: 1.2; margin: 0 0 calc(8px * var(--pdf-scale)); }
+    h2 { font-size: calc(15pt * var(--pdf-scale)); font-weight: 300; line-height: 1.2; margin: 0 0 calc(6px * var(--pdf-scale)); }
+    h3 { font-size: calc(12pt * var(--pdf-scale)); font-weight: 500; margin: 0 0 calc(6px * var(--pdf-scale)); }
+    p { margin: 0 0 calc(6px * var(--pdf-scale)); }
+    ul, ol { margin: 0 0 calc(6px * var(--pdf-scale)) 3em; padding: 0; }
+    ul { list-style: disc outside; }
+    ol { list-style: decimal outside; }
+    li { display: list-item; }
+    blockquote { margin: 1em calc(40px * var(--pdf-scale)); }
+    pre { margin: 1em 0; }
+    a { color: #0a0a0a; text-decoration: underline; pointer-events: none; }   // preview only - no navigation
+  }
+}
+
+.chart-name {
+  white-space: break-spaces;
+  font-size: calc(12pt * var(--pdf-scale));
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: calc(0.2px * var(--pdf-scale));
+  margin: 0 0 calc(8px * var(--pdf-scale));
+}
+
+.chart-image {
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: calc(6px * var(--pdf-scale));
+  border: calc(1px * var(--pdf-scale)) solid #dedede;
+  background-color: #fff;
+}
+
+.chart-image img {
+  width: 100%;
+  display: block;
+}
+
+.chart-image.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-icon {
+  width: 48px;
+  height: 48px;
+  color: #bbb;
+}
+
+/* Shown on a text tile whose content the PDF would cut off. */
+.clip-warning {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #fff4e5;
+  border: 1px solid #f0a64a;
+  color: #8a4b00;
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1.3;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #ddd;
+  border-top-color: var(--p-primary-color, #2f7d72);
+  border-radius: 50%;
+  animation: pdf-builder-spin 0.8s linear infinite;
+}
+
+@keyframes pdf-builder-spin {
+  to { transform: rotate(360deg); }
+}
+
+.editor-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.editor-backdrop.open {
+  display: flex;
+}
+
+.editor-dialog {
+  background: #fff;
+  margin-top: 6vh;
+  width: min(760px, 92vw);
+  padding: 16px;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+.save-as-dialog {
+  width: min(440px, 92vw);
+}
+
+.editor-dialog h3 {
+  margin: 0 0 12px;
+}
+
+.editor-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

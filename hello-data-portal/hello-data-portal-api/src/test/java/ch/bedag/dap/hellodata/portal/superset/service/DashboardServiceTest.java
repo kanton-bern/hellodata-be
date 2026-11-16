@@ -91,7 +91,7 @@ class DashboardServiceTest {
     private final int subsystemId = 1;
 
     @BeforeEach
-    public void initSecurityContext() {
+    void initSecurityContext() {
         HellodataAuthenticationToken hellodataAuthenticationToken = new HellodataAuthenticationToken(UUID.randomUUID(), "admin", "user", email, true, Collections.emptySet());
         SecurityContextHolder.getContext().setAuthentication(hellodataAuthenticationToken);
     }
@@ -117,7 +117,7 @@ class DashboardServiceTest {
     }
 
     @AfterEach
-    public void clearSecurityContext() {
+    void clearSecurityContext() {
         SecurityContextHolder.clearContext();
     }
 

@@ -186,13 +186,18 @@ public class SecurityService {
     /**
      * Role-Authorization for endpoint 'projects-docs/get-by-path' get already checked in DocsAuthorizationManager::check
      **/
-    public void validateIsAllowedToAccessPath(User loggedInUser, String path) {
+    /**
+     * Validates the user may access the documentation path and returns the trusted, server-side known path
+     * (never the raw user input), so it can be safely used e.g. for a redirect.
+     */
+    public String validateIsAllowedToAccessPath(User loggedInUser, String path) {
         List<ProjectDoc> allProjectsDocs = projectDocService.getAllProjectsDocs();
         ProjectDoc requestedProjectDoc = allProjectsDocs.stream().filter(projectDoc -> projectDoc.path().equalsIgnoreCase(path)).findFirst().orElse(null);
         if (requestedProjectDoc == null) {
             throw new RuntimeException("Could not find a project for path " + path); //NOSONAR
         }
         validateUserIsAllowedOnProjectDoc(loggedInUser, requestedProjectDoc.name());
+        return requestedProjectDoc.path();
     }
 
     private List<Role> getAdminRoles() {

@@ -1,0 +1,173 @@
+/*
+ * Copyright © 2024, Kanton Bern
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the <organization> nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package ch.bedag.dap.hellodata.portal.superset.pdfexport;
+
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Entities;
+import org.jsoup.safety.Safelist;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+/** Pure layout packing for the custom PDF export. Ported from the PoC SupersetClient
+ *  (toGridPage/groupByPage/clamp*), with chart content sourced from a specId -&gt; PNG map
+ *  instead of an inline screenshot call. Package-visible statics stay unit-testable. */
+public final class LayoutGridPacker {
+
+    private static final Parser MD_PARSER = Parser.builder().build();
+    private static final HtmlRenderer MD_RENDERER = HtmlRenderer.builder().softbreak("<br />\n").build();
+    /** What the builder's rich-text editor can produce; anything else (scripts, styles, images,
+     *  event handlers, non-web links) is stripped before the HTML reaches the PDF renderer. */
+    private static final Safelist RICH_TEXT = new Safelist()
+            .addTags("p", "br", "strong", "b", "em", "i", "u", "s", "h1", "h2", "h3", "ul", "ol", "li", "code", "pre", "blockquote", "a")
+            .addAttributes("a", "href")
+            .addProtocols("a", "href", "http", "https", "mailto");
+    /** openhtmltopdf parses XHTML, so the cleaned HTML is serialized as well-formed XML. */
+    private static final Document.OutputSettings XHTML = new Document.OutputSettings()
+            .syntax(Document.OutputSettings.Syntax.xml)
+            .escapeMode(Entities.EscapeMode.xhtml)
+            .prettyPrint(false);
+
+    private LayoutGridPacker() {
+    }
+
+    /** Build the CustomLayout view model from the builder payload and the fetched PNGs. */
+    public static CustomLayout buildCustomLayout(PdfLayoutRequest request, Map<String, byte[]> pngs, ReportTemplate template) {
+        String title = request.title() == null || request.title().isBlank() ? "Dashboard " + request.dashboardId() : request.title();
+
+        List<Positioned> positioned = new ArrayList<>();
+        for (PdfLayoutRequest.Item item : request.items()) {
+            int cols = clampCols(item.cols());
+            int rows = clampRowsToBand(item.y(), item.rows());
+            DashboardExport.Item content = toContent(item, cols, rows, pngs);
+            if (content == null) {
+                continue; // a chart that failed to render is dropped, as in the PoC
+            }
+            positioned.add(new Positioned(Math.max(0, item.x()), Math.max(0, item.y()), cols, rows, content));
+        }
+
+        List<CustomLayout.GridPage> pages = groupByPage(positioned).stream().map(page -> toGridPage(page, template)).toList();
+        return new CustomLayout(title, pages);
+    }
+
+    /** Content for one builder item, or null for a chart whose screenshot is missing. */
+    private static DashboardExport.Item toContent(PdfLayoutRequest.Item item, int cols, int rows, Map<String, byte[]> pngs) {
+        if (!item.isChart()) {
+            return new DashboardExport.Markdown(item.html() != null && !item.html().isBlank()
+                    ? sanitizeRichText(item.html())
+                    : markdownToHtml(item.markdown()));
+        }
+        byte[] png = pngs.get(specId(item.chartId(), cols, rows));
+        if (png == null) {
+            return null;
+        }
+        String name = item.name() == null || item.name().isBlank() ? "Chart " + item.chartId() : item.name();
+        return new DashboardExport.Chart(name, png);
+    }
+
+    /** Stable screenshot key for a chart placed at a given cell span. */
+    public static String specId(long chartId, int cols, int rows) {
+        return chartId + "_" + cols + "x" + rows;
+    }
+
+    static String markdownToHtml(String markdown) {
+        return MD_RENDERER.render(MD_PARSER.parse(markdown == null ? "" : markdown));
+    }
+
+    /** Rich-text HTML from the builder's WYSIWYG editor, reduced to the allowed formatting tags. */
+    static String sanitizeRichText(String html) {
+        return Jsoup.clean(html, "", RICH_TEXT, XHTML);
+    }
+
+    static int clampCols(int cols) {
+        return Math.max(1, Math.min(ReportTemplate.GRID_COLS, cols));
+    }
+
+    /** Rows the item may occupy without crossing its 4-row page boundary. */
+    static int clampRowsToBand(int y, int rows) {
+        int top = Math.max(0, y);
+        int roomInBand = ReportTemplate.GRID_ROWS_PER_PAGE - (top % ReportTemplate.GRID_ROWS_PER_PAGE);
+        return Math.max(1, Math.min(Math.min(rows, ReportTemplate.GRID_ROWS_PER_PAGE), roomInBand));
+    }
+
+    /** Split positioned items into pages of GRID_ROWS_PER_PAGE grid rows, in page order. */
+    static List<List<Positioned>> groupByPage(List<Positioned> items) {
+        TreeMap<Integer, List<Positioned>> byPage = new TreeMap<>();
+        for (Positioned p : items) {
+            int page = Math.max(0, p.y()) / ReportTemplate.GRID_ROWS_PER_PAGE;
+            byPage.computeIfAbsent(page, k -> new ArrayList<>()).add(p);
+        }
+        return new ArrayList<>(byPage.values());
+    }
+
+    /** Place a page's items as absolutely-positioned tiles on a fixed-height grid box. Each column
+     *  is 1/GRID_COLS of the width; each grid row is {@code cellHeightMm} tall, so the box is
+     *  GRID_ROWS_PER_PAGE rows tall. Positions are exact, so gaps and uneven content heights can't
+     *  shift tiles the way an HTML table's rowspans did. */
+    static CustomLayout.GridPage toGridPage(List<Positioned> items, ReportTemplate template) {
+        int gridCols = ReportTemplate.GRID_COLS;
+        int rowsPerPage = ReportTemplate.GRID_ROWS_PER_PAGE;
+        int cellHeightMm = template.cellHeightMm();
+        double colPercent = 100.0 / gridCols;
+
+        List<CustomLayout.Tile> tiles = new ArrayList<>();
+        for (Positioned p : items) {
+            int x = Math.max(0, Math.min(gridCols - 1, p.x()));
+            int cols = Math.max(1, Math.min(gridCols - x, p.cols()));
+            int localY = Math.max(0, p.y()) % rowsPerPage;
+            int rows = Math.max(1, Math.min(rowsPerPage - localY, p.rows()));
+            // The image box fills the tile minus the heading/border overhead, so a chart occupies its
+            // whole grid slot (the screenshot is fitted inside it, preserving aspect).
+            int imageHeightMm = Math.max(1, rows * cellHeightMm - ReportTemplate.CHART_OVERHEAD_MM);
+            tiles.add(new CustomLayout.Tile(
+                    p.item(),
+                    pct(x * colPercent),
+                    (localY * cellHeightMm) + "mm",
+                    pct(cols * colPercent),
+                    (rows * cellHeightMm) + "mm",
+                    imageHeightMm + "mm"));
+        }
+        return new CustomLayout.GridPage((rowsPerPage * cellHeightMm) + "mm", tiles);
+    }
+
+    /** Format a column percentage as a compact CSS value (e.g. 25.0 -&gt; "25%", 33.333 -&gt; "33.333%"). */
+    private static String pct(double value) {
+        if (value == Math.rint(value)) {
+            return (int) value + "%";
+        }
+        return Math.round(value * 1000.0) / 1000.0 + "%";
+    }
+
+    /** A resolved grid cell (page-local position + span) awaiting packing. */
+    record Positioned(int x, int y, int cols, int rows, DashboardExport.Item item) {
+    }
+}

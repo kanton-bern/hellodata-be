@@ -1,5 +1,6 @@
 package ch.bedag.dap.hellodata.portal.metainfo.data;
 
+import ch.bedag.dap.hellodata.portalcommon.userscache.data.DataDomainRoleDto;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import java.util.List;
 import java.util.Map;

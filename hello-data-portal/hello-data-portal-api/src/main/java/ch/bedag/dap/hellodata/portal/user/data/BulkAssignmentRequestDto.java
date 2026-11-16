@@ -53,6 +53,10 @@ public class BulkAssignmentRequestDto {
         private List<DashboardInfo> dashboards;
         private List<String> dashboardGroupIds;
         /**
+         * RLS role keys (RLS_01 - RLS_15) directly assigned in this data domain, replacing the existing ones (VIEWER/BUSINESS_SPECIALIST only).
+         */
+        private List<String> rlsRoles;
+        /**
          * Dashboard comment permissions to apply in this data domain. When omitted, the role defaults are used.
          */
         private CommentPermissions commentPermissions;

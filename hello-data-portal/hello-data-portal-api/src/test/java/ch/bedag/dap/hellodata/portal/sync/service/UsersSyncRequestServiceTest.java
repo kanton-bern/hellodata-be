@@ -28,14 +28,20 @@ package ch.bedag.dap.hellodata.portal.sync.service;
 
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.CommenceUsersSync;
+import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncLockEntity;
+import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus;
+import ch.bedag.dap.hellodata.portal.sync.repository.UserSyncLockRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Message;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -47,10 +53,41 @@ import static org.mockito.Mockito.when;
 class UsersSyncRequestServiceTest {
 
     private final UsersSyncService usersSyncService = mock(UsersSyncService.class);
+    private final UserSyncLockRepository userSyncLockRepository = mock(UserSyncLockRepository.class);
     private final Connection natsConnection = mock(Connection.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final UsersSyncRequestService service = new UsersSyncRequestService(usersSyncService, natsConnection, objectMapper, true, 60, 600, 600);
+    private final UsersSyncRequestService service = new UsersSyncRequestService(usersSyncService, userSyncLockRepository, natsConnection, objectMapper, true, 60, 600, 600);
     private final Instant start = Instant.parse("2026-01-01T10:00:00Z");
+    private final UserSyncLockEntity lock = new UserSyncLockEntity();
+
+    /**
+     * The repository mock works on a single row in memory, like the update queries on the user_sync_lock table
+     */
+    @BeforeEach
+    void setUp() {
+        lock.setStatus(UserSyncStatus.COMPLETED);
+        when(userSyncLockRepository.findAll()).thenReturn(List.of(lock));
+        when(userSyncLockRepository.registerSyncRequest(any())).thenAnswer(invocation -> {
+            Instant requestedAt = invocation.getArgument(0);
+            if (lock.getSyncRequestedFirstAt() == null) {
+                lock.setSyncRequestedFirstAt(requestedAt);
+            }
+            lock.setSyncRequestedLastAt(requestedAt);
+            return 1;
+        });
+        when(userSyncLockRepository.clearHandledSyncRequests(any())).thenAnswer(invocation -> {
+            if (!invocation.getArgument(0).equals(lock.getSyncRequestedLastAt())) {
+                return 0;
+            }
+            lock.setSyncRequestedFirstAt(null);
+            lock.setSyncRequestedLastAt(null);
+            return 1;
+        });
+        when(userSyncLockRepository.setLastAutoSyncAt(any())).thenAnswer(invocation -> {
+            lock.setLastAutoSyncAt(invocation.getArgument(0));
+            return 1;
+        });
+    }
 
     @Test
     void doesNothingWithoutRequest() {
@@ -113,8 +150,24 @@ class UsersSyncRequestServiceTest {
     }
 
     @Test
+    void keepsRequestRegisteredByAnotherInstanceMeanwhile() {
+        service.registerRequest(start);
+        // another instance registers a request while this one starts the synchronization
+        when(usersSyncService.startSynchronization()).thenAnswer(invocation -> {
+            service.registerRequest(start.plusSeconds(61));
+            return UserSyncStatus.STARTED;
+        });
+
+        service.startSynchronizationIfDue(start.plusSeconds(60));
+        verify(usersSyncService, times(1)).startSynchronization();
+
+        service.startSynchronizationIfDue(start.plusSeconds(660));
+        verify(usersSyncService, times(2)).startSynchronization();
+    }
+
+    @Test
     void ignoresRequestsWhenDisabled() {
-        UsersSyncRequestService disabled = new UsersSyncRequestService(usersSyncService, natsConnection, objectMapper, false, 60, 600, 600);
+        UsersSyncRequestService disabled = new UsersSyncRequestService(usersSyncService, userSyncLockRepository, natsConnection, objectMapper, false, 60, 600, 600);
 
         disabled.onCommenceUsersSync(new CommenceUsersSync(ModuleType.SUPERSET, "superset", null));
         disabled.startSynchronizationIfDue(Instant.now().plusSeconds(3600));

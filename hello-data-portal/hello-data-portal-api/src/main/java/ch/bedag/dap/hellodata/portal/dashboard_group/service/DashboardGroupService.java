@@ -34,6 +34,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntry;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupUserEntry;
 import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
+import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
 import ch.bedag.dap.hellodata.portal.user.data.DashboardGroupMembershipDto;
 import ch.bedag.dap.hellodata.portal.user.event.UserDashboardSyncEvent;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
@@ -96,12 +97,14 @@ public class DashboardGroupService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Dashboard group with this name already exists");
         }
         DashboardGroupEntity entity = modelMapper.map(createDto, DashboardGroupEntity.class);
+        entity.setRlsRoles(sanitizeRlsRoles(createDto.getRlsRoles()));
         dashboardGroupRepository.save(entity);
 
-        // If the new group has both users and dashboards, sync those users after commit
+        // If the new group has users and dashboards or RLS roles, sync those users after commit
         boolean hasUsers = entity.getUsers() != null && !entity.getUsers().isEmpty();
         boolean hasDashboards = entity.getEntries() != null && !entity.getEntries().isEmpty();
-        if (hasUsers && hasDashboards) {
+        boolean hasRlsRoles = entity.getRlsRoles() != null && !entity.getRlsRoles().isEmpty();
+        if (hasUsers && (hasDashboards || hasRlsRoles)) {
             String contextKey = createDto.getContextKey();
             Set<String> userIds = entity.getUsers().stream()
                     .map(DashboardGroupUserEntry::getId)
@@ -150,8 +153,9 @@ public class DashboardGroupService {
 
         // Also check if dashboards changed - if so, sync all users (both old and new)
         boolean dashboardsChanged = haveDashboardsChanged(entityToUpdate.getEntries(), updateDto.getEntries());
-        if (dashboardsChanged) {
-            // When dashboards change, we need to sync all users who are or were in the group
+        boolean rlsRolesChanged = haveRlsRolesChanged(entityToUpdate.getRlsRoles(), updateDto.getRlsRoles());
+        if (dashboardsChanged || rlsRolesChanged) {
+            // When dashboards or RLS roles change, we need to sync all users who are or were in the group
             usersToSync.addAll(oldUserIds);
             usersToSync.addAll(newUserIds);
         }
@@ -161,6 +165,7 @@ public class DashboardGroupService {
         entityToUpdate.setContextKey(updateDto.getContextKey());
         entityToUpdate.setEntries(updateDto.getEntries());
         entityToUpdate.setUsers(updateDto.getUsers());
+        entityToUpdate.setRlsRoles(sanitizeRlsRoles(updateDto.getRlsRoles()));
         dashboardGroupRepository.save(entityToUpdate);
 
         // Sync affected users to Superset after transaction commits,
@@ -187,6 +192,19 @@ public class DashboardGroupService {
                 ? newEntries.stream().map(DashboardGroupEntry::getDashboardId).collect(Collectors.toSet())
                 : Collections.emptySet();
         return !oldIds.equals(newIds);
+    }
+
+    private static List<String> sanitizeRlsRoles(List<String> rlsRoles) {
+        if (rlsRoles == null) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(rlsRoles.stream().filter(RlsRoleService::isRlsRoleKey).distinct().sorted().toList());
+    }
+
+    private boolean haveRlsRolesChanged(List<String> oldRlsRoles, List<String> newRlsRoles) {
+        Set<String> oldKeys = oldRlsRoles != null ? new HashSet<>(oldRlsRoles) : Collections.emptySet();
+        Set<String> newKeys = newRlsRoles != null ? new HashSet<>(newRlsRoles) : Collections.emptySet();
+        return !oldKeys.equals(newKeys);
     }
 
     @Transactional
@@ -228,7 +246,8 @@ public class DashboardGroupService {
             List<String> dashboardTitles = group.getEntries() != null
                     ? group.getEntries().stream().map(DashboardGroupEntry::getDashboardTitle).toList()
                     : Collections.emptyList();
-            return new DashboardGroupMembershipDto(group.getId().toString(), group.getName(), isMember, dashboardTitles);
+            List<String> rlsRoles = group.getRlsRoles() != null ? group.getRlsRoles() : Collections.emptyList();
+            return new DashboardGroupMembershipDto(group.getId().toString(), group.getName(), isMember, dashboardTitles, rlsRoles);
         }).toList();
     }
 

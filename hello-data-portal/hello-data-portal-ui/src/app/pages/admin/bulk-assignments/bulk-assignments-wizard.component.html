@@ -271,6 +271,35 @@
                         }
                       </div>
                     </div>
+                    <hr class="section-divider"/>
+                    <div class="dashboard-selection">
+                      <div class="select-all-row">
+                        <h4>{{ '@RLS Groups' | transloco }}</h4>
+                        <p-checkbox
+                          [inputId]="'selectAllRls-' + domainKey"
+                          [binary]="true"
+                          [ngModel]="areAllRlsRolesSelected(domainKey)"
+                          (onChange)="onSelectAllRlsRoles(domainKey, $event.checked)"/>
+                        <label [for]="'selectAllRls-' + domainKey">{{ '@Select all' | transloco }}</label>
+                      </div>
+                      <div class="checkbox-grid">
+                        @for (rlsRole of getRlsRolesForDomain(domainKey); track rlsRole.roleKey) {
+                          <div class="checkbox-item">
+                            <p-checkbox
+                              [inputId]="'rls-' + domainKey + '-' + rlsRole.roleKey"
+                              [binary]="true"
+                              [ngModel]="isRlsRoleSelected(domainKey, rlsRole.roleKey)"
+                              (onChange)="onRlsRoleSelectionChange(domainKey, rlsRole.roleKey, $event.checked)"/>
+                            <label [for]="'rls-' + domainKey + '-' + rlsRole.roleKey">
+                              {{ rlsRole.name }}
+                              @if (rlsRole.name !== rlsRole.roleKey) {
+                                <span class="no-data-inline">({{ rlsRole.roleKey }})</span>
+                              }
+                            </label>
+                          </div>
+                        }
+                      </div>
+                    </div>
                   }
                 </div>
               }
@@ -506,6 +535,21 @@
           @if (item.groupNames.length > 0) {
             <div class="flow-chips">
               @for (name of item.groupNames; track name) {
+                <span class="flow-chip group-chip">{{ name }}</span>
+              }
+            </div>
+          } @else {
+            <span class="flow-empty">{{ '@None' | transloco }}</span>
+          }
+        </div>
+        <div class="resources-divider" aria-hidden="true"></div>
+        <div class="summary-flow-item resource-block">
+          <div class="flow-title"><i [ngClass]="icons.CONTENT_PERMISSIONS.class"></i> {{ '@RLS Groups' | transloco }}
+            ({{ item.rlsGroupNames.length }})
+          </div>
+          @if (item.rlsGroupNames.length > 0) {
+            <div class="flow-chips">
+              @for (name of item.rlsGroupNames; track name) {
                 <span class="flow-chip group-chip">{{ name }}</span>
               }
             </div>

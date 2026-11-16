@@ -26,11 +26,17 @@
     @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
       @if ((selectedDataDomain$ | async); as selectedDataDomain) {
         <span class="data-domain-selector">
-          <a (click)="selectedDataDomainMenu.toggle($event)"
-             class="route-link p-button-link layout-topbar-button inline-flex items-center gap-1" pRipple>
-            <span class="cursor-pointer truncate data-domain-name">{{ selectedDataDomain.name | transloco }}</span>
-            <i class="text-xs cursor-pointer" [ngClass]="icons.NAV_CHEVRON_DOWN.class"></i>
-          </a>
+          @if (dataDomainSelectionItems.length > 0 || selectedDataDomain.id === '') {
+            <a (click)="selectedDataDomainMenu.toggle($event)"
+               class="route-link p-button-link layout-topbar-button inline-flex items-center gap-1" pRipple>
+              <span class="cursor-pointer truncate data-domain-name">{{ selectedDataDomain.name | transloco }}</span>
+              <i class="text-xs cursor-pointer" [ngClass]="icons.NAV_CHEVRON_DOWN.class"></i>
+            </a>
+          } @else {
+            <span class="layout-topbar-button inline-flex items-center gap-1">
+              <span class="truncate data-domain-name">{{ selectedDataDomain.name | transloco }}</span>
+            </span>
+          }
         </span>
       }
     }

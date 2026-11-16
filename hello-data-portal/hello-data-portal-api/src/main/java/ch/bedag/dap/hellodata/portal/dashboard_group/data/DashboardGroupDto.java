@@ -42,6 +42,7 @@ public class DashboardGroupDto {
     private String contextKey;
     private List<DashboardGroupEntry> entries;
     private List<DashboardGroupUserEntry> users;
+    private List<String> rlsRoles;
     @JsonSerialize(using = LocalDateTimeToMillisSerializer.class)
     private LocalDateTime createdDate;
     private String createdBy;

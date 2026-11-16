@@ -29,7 +29,6 @@ package ch.bedag.dap.hellodata.portal.initialize.service;
 import ch.bedag.dap.hellodata.portal.initialize.event.SyncAllUsersEvent;
 import ch.bedag.dap.hellodata.portal.sync.service.UsersSyncService;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
@@ -44,10 +43,8 @@ public class SyncAllUsersEventListener implements ApplicationListener<SyncAllUse
 
     @Async
     @Override
-    @SneakyThrows
     public void onApplicationEvent(SyncAllUsersEvent event) {
         log.info("All users being synchronized");
-        Thread.sleep(5000L);
         usersSyncService.startSynchronization();
     }
 }

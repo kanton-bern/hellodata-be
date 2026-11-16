@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ class TemporaryUserServiceSharedRoleTest {
     private static final String ADMIN_USER = "dwh_owner";
     private static final String ADMIN_PASSWORD = "dwh_owner";
 
-    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:15")
+    private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:15")
             .withDatabaseName("testdwh")
             .withUsername("superuser")
             .withPassword("superuser");

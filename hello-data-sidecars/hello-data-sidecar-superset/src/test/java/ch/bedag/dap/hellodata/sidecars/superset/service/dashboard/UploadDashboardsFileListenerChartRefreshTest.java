@@ -71,7 +71,7 @@ class UploadDashboardsFileListenerChartRefreshTest {
 
         String metadata = readEntry(chartsZip, "dashboard_export/metadata.yaml");
         Map<String, Object> parsed = new ObjectMapper(new YAMLFactory()).readValue(metadata, Map.class);
-        assertThat(parsed.get("type")).isEqualTo("Slice");
+        assertThat(parsed).containsEntry("type", "Slice");
     }
 
     @Test

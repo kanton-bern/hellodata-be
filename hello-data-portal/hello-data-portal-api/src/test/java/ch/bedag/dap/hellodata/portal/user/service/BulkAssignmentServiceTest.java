@@ -58,6 +58,8 @@ class BulkAssignmentServiceTest {
     private EmailNotificationService emailNotificationService;
     @Mock
     private DashboardCommentPermissionService dashboardCommentPermissionService;
+    @Mock
+    private ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService rlsRoleService;
     @InjectMocks
     private BulkAssignmentService bulkAssignmentService;
 
@@ -401,6 +403,86 @@ class BulkAssignmentServiceTest {
         assertEquals(0, result.getUpdatedCount());
         assertEquals(1, result.getSkippedCount());
         verify(userService, never()).updateContextRolesForUser(any(), any(), anyBoolean());
+    }
+
+    @Test
+    void testRlsRolesSetOnlyForAssignedDomain() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "DATA_DOMAIN_VIEWER"));
+
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_VIEWER", List.of(), List.of());
+        assignment.setRlsRoles(List.of("RLS_03", "RLS_01", "INVALID"));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        bulkAssignmentService.executeBulkAssignment(request);
+
+        ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        assertEquals(Map.of("domain_a", List.of("RLS_01", "RLS_03")), captor.getValue().getSelectedRlsRolesForUser());
+    }
+
+    @Test
+    void testRlsRolesClearedForNonViewerRole() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "NONE", "domain_b", "NONE"));
+
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_EDITOR", List.of(), List.of());
+        assignment.setRlsRoles(List.of("RLS_01"));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        bulkAssignmentService.executeBulkAssignment(request);
+
+        ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        assertEquals(List.of(), captor.getValue().getSelectedRlsRolesForUser().get("domain_a"));
+    }
+
+    @Test
+    void testUserNotSkippedWhenOnlyRlsRolesDiffer() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "DATA_DOMAIN_VIEWER", "domain_b", "NONE"));
+        when(rlsRoleService.getSelectedRlsRoleKeys(userId, "domain_a")).thenReturn(List.of("RLS_01"));
+
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_VIEWER", List.of(), List.of());
+        assignment.setRlsRoles(List.of("RLS_01", "RLS_02"));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        BulkAssignmentResultDto result = bulkAssignmentService.executeBulkAssignment(request);
+
+        assertEquals(1, result.getUpdatedCount());
+        assertEquals(0, result.getSkippedCount());
+    }
+
+    @Test
+    void testUserSkippedWhenRlsRolesAlreadyMatch() {
+        UUID userId = UUID.randomUUID();
+        mockExistingRoles(userId, Map.of("domain_a", "DATA_DOMAIN_VIEWER", "domain_b", "NONE"));
+        when(rlsRoleService.getSelectedRlsRoleKeys(userId, "domain_a")).thenReturn(List.of("RLS_01", "RLS_02"));
+
+        BulkAssignmentRequestDto.DomainAssignment assignment =
+                createAssignment("domain_a", "DATA_DOMAIN_VIEWER", List.of(), List.of());
+        assignment.setRlsRoles(List.of("RLS_02", "RLS_01"));
+
+        BulkAssignmentRequestDto request = new BulkAssignmentRequestDto();
+        request.setUserIds(List.of(userId));
+        request.setDomainAssignments(List.of(assignment));
+
+        BulkAssignmentResultDto result = bulkAssignmentService.executeBulkAssignment(request);
+
+        assertEquals(0, result.getUpdatedCount());
+        assertEquals(1, result.getSkippedCount());
     }
 
     @Test

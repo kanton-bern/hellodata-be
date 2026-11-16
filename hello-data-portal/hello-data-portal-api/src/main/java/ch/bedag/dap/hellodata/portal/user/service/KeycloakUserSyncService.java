@@ -34,6 +34,7 @@ import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.representations.idm.UserRepresentation;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -59,6 +60,10 @@ public class KeycloakUserSyncService {
     @Async
     @Transactional
     @Scheduled(fixedDelayString = "${hello-data.auth-server.sync-users-schedule-hours}", timeUnit = TimeUnit.HOURS)
+    // with @Async the lock may be released before the sync is done, holding it for 90% of the interval keeps the other instances out
+    @SchedulerLock(name = "syncUsersWithKeycloak",
+            lockAtMostFor = "${hello-data.auth-server.sync-users-schedule-hours}h",
+            lockAtLeastFor = "#{${hello-data.auth-server.sync-users-schedule-hours} * 54}m")
     public void syncUsers() {
         log.debug("[sync-users-with-keycloak] Started");
         List<UserEntity> allPortalUsers = userRepository.findAll();

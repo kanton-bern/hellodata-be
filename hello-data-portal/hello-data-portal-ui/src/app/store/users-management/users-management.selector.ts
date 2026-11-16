@@ -287,6 +287,16 @@ export const selectSelectedDashboardGroupIdsForUser = createSelector(
   (state: UsersManagementState) => state.selectedDashboardGroupIdsForUser
 );
 
+export const selectRlsRolesForUser = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.rlsRolesForUser
+);
+
+export const selectSelectedRlsRolesForUser = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.selectedRlsRolesForUser
+);
+
 export const selectPaginatedSubsystemUsers = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.paginatedSubsystemUsers

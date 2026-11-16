@@ -25,7 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {map, Observable, Subscription} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
@@ -75,6 +76,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
   private readonly store = inject<Store<AppState>>(Store);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
 
@@ -136,9 +138,11 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
           id: [externalDashboardForEdition?.id],
         });
         this.unsubFormValueChanges();
-        this.formValueChangedSub = this.externalDashboardForm.valueChanges.subscribe(() => {
-          this.onChange(externalDashboard);
-        });
+        this.formValueChangedSub = this.externalDashboardForm.valueChanges
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.onChange(externalDashboard);
+          });
         return externalDashboardForEdition;
       })
     );

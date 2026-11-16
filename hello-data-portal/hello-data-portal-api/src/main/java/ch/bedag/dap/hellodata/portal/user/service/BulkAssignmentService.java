@@ -35,6 +35,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentP
 import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
+import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.BulkAssignmentRequestDto;
@@ -85,6 +86,7 @@ public class BulkAssignmentService {
     private final UserSelectedDashboardService userSelectedDashboardService;
     private final EmailNotificationService emailNotificationService;
     private final DashboardCommentPermissionService dashboardCommentPermissionService;
+    private final RlsRoleService rlsRoleService;
 
     @Transactional
     public BulkAssignmentResultDto executeBulkAssignment(BulkAssignmentRequestDto request) {
@@ -128,8 +130,9 @@ public class BulkAssignmentService {
             Map<String, List<String>> existingGroupIds = loadExistingDashboardGroupIds(userId, contextsByKey.keySet());
             Map<String, Set<Integer>> existingDashboardIds = loadExistingDashboardIds(userId, contextsByKey.keySet());
             Map<String, DashboardCommentPermissionDto> existingCommentPermissions = loadExistingCommentPermissions(userId);
+            Map<String, Set<String>> existingRlsRoles = loadExistingRlsRoles(userId, assignmentsByKey.keySet());
 
-            if (isAlreadyUpToDate(existingRoles, assignmentsByKey, existingGroupIds, existingDashboardIds, existingCommentPermissions)) {
+            if (isAlreadyUpToDate(existingRoles, assignmentsByKey, existingGroupIds, existingDashboardIds, existingCommentPermissions, existingRlsRoles)) {
                 log.debug("Skipping user {} — assignments already match", userId);
                 result.addSkipped(email, firstName, lastName, "Assignments already match");
                 return;
@@ -150,49 +153,47 @@ public class BulkAssignmentService {
                                       Map<String, BulkAssignmentRequestDto.DomainAssignment> assignmentsByKey,
                                       Map<String, List<String>> existingGroupIds,
                                       Map<String, Set<Integer>> existingDashboardIds,
-                                      Map<String, DashboardCommentPermissionDto> existingCommentPermissions) {
+                                      Map<String, DashboardCommentPermissionDto> existingCommentPermissions,
+                                      Map<String, Set<String>> existingRlsRoles) {
         for (var entry : assignmentsByKey.entrySet()) {
             String contextKey = entry.getKey();
             BulkAssignmentRequestDto.DomainAssignment assignment = entry.getValue();
-
-            // Check role match
-            String existingRoleName = existingRoles.stream()
-                    .filter(r -> r.getContext() != null && contextKey.equalsIgnoreCase(r.getContext().getContextKey()))
-                    .map(r -> r.getRole().getName())
-                    .findFirst()
-                    .orElse(HdRoleName.NONE.name());
-
-            if (!existingRoleName.equalsIgnoreCase(assignment.getRoleName())) {
-                return false;
-            }
-
-            // Check dashboard group membership match
-            List<String> existingGroups = existingGroupIds.getOrDefault(contextKey, List.of());
-            List<String> requestedGroups = assignment.getDashboardGroupIds() != null
-                    ? assignment.getDashboardGroupIds() : List.of();
-            if (!Set.copyOf(existingGroups).equals(Set.copyOf(requestedGroups))) {
-                return false;
-            }
-
-            // Check individual dashboard selection match
-            Set<Integer> existingDashboards = existingDashboardIds.getOrDefault(contextKey, Set.of());
-            Set<Integer> requestedDashboards = assignment.getDashboards() != null
-                    ? assignment.getDashboards().stream()
-                        .map(BulkAssignmentRequestDto.DashboardInfo::getId)
-                        .collect(Collectors.toSet())
-                    : Set.of();
-            if (!existingDashboards.equals(requestedDashboards)) {
-                return false;
-            }
-
-            // Check dashboard comment permission match
-            DashboardCommentPermissionDto requestedPermission = buildCommentPermission(contextKey, assignment.getRoleName(), assignment.getCommentPermissions());
-            DashboardCommentPermissionDto existingPermission = existingCommentPermissions.get(contextKey);
-            if (!matchesCommentPermission(existingPermission, requestedPermission)) {
+            if (!matchesRole(existingRoles, contextKey, assignment)
+                    || !matchesDashboardGroups(existingGroupIds, contextKey, assignment)
+                    || !matchesDashboards(existingDashboardIds, contextKey, assignment)
+                    || !matchesCommentPermission(existingCommentPermissions.get(contextKey),
+                    buildCommentPermission(contextKey, assignment.getRoleName(), assignment.getCommentPermissions()))
+                    || !existingRlsRoles.getOrDefault(contextKey, Set.of()).equals(requestedRlsRoles(assignment))) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean matchesRole(List<UserContextRoleDto> existingRoles, String contextKey, BulkAssignmentRequestDto.DomainAssignment assignment) {
+        String existingRoleName = existingRoles.stream()
+                .filter(r -> r.getContext() != null && contextKey.equalsIgnoreCase(r.getContext().getContextKey()))
+                .map(r -> r.getRole().getName())
+                .findFirst()
+                .orElse(HdRoleName.NONE.name());
+        return existingRoleName.equalsIgnoreCase(assignment.getRoleName());
+    }
+
+    private boolean matchesDashboardGroups(Map<String, List<String>> existingGroupIds, String contextKey, BulkAssignmentRequestDto.DomainAssignment assignment) {
+        List<String> existingGroups = existingGroupIds.getOrDefault(contextKey, List.of());
+        List<String> requestedGroups = assignment.getDashboardGroupIds() != null
+                ? assignment.getDashboardGroupIds() : List.of();
+        return Set.copyOf(existingGroups).equals(Set.copyOf(requestedGroups));
+    }
+
+    private boolean matchesDashboards(Map<String, Set<Integer>> existingDashboardIds, String contextKey, BulkAssignmentRequestDto.DomainAssignment assignment) {
+        Set<Integer> existingDashboards = existingDashboardIds.getOrDefault(contextKey, Set.of());
+        Set<Integer> requestedDashboards = assignment.getDashboards() != null
+                ? assignment.getDashboards().stream()
+                    .map(BulkAssignmentRequestDto.DashboardInfo::getId)
+                    .collect(Collectors.toSet())
+                : Set.of();
+        return existingDashboards.equals(requestedDashboards);
     }
 
     private boolean matchesCommentPermission(DashboardCommentPermissionDto existing, DashboardCommentPermissionDto requested) {
@@ -221,6 +222,8 @@ public class BulkAssignmentService {
         List<UserContextRoleDto> dataDomainRoles = new ArrayList<>();
         Map<String, List<DashboardForUserDto>> selectedDashboards = new HashMap<>();
         Map<String, List<String>> selectedGroupIds = new HashMap<>();
+        // only the domains of the bulk assignment get an entry - RLS roles of all other domains stay untouched
+        Map<String, List<String>> selectedRlsRoles = new HashMap<>();
         List<DashboardCommentPermissionDto> commentPermissions = new ArrayList<>();
 
         List<ContextDto> dataDomainContexts = contextsByKey.values().stream()
@@ -244,6 +247,7 @@ public class BulkAssignmentService {
                 selectedGroupIds.put(contextKey, assignment.getDashboardGroupIds() != null
                         ? assignment.getDashboardGroupIds() : List.of());
                 commentPermissions.add(buildCommentPermission(contextKey, role.getName(), assignment.getCommentPermissions()));
+                selectedRlsRoles.put(contextKey, requestedRlsRoles(assignment).stream().sorted().toList());
             } else {
                 // This domain is NOT in the bulk assignment — preserve existing state, including comment permissions,
                 // which stay untouched because they are not part of the update payload
@@ -259,6 +263,7 @@ public class BulkAssignmentService {
         dto.setSelectedDashboardsForUser(selectedDashboards);
         dto.setSelectedDashboardGroupIdsForUser(selectedGroupIds);
         dto.setCommentPermissions(commentPermissions);
+        dto.setSelectedRlsRolesForUser(selectedRlsRoles);
 
         return dto;
     }
@@ -362,6 +367,34 @@ public class BulkAssignmentService {
             perm.setWriteComments(false);
             perm.setReviewComments(false);
         }
+    }
+
+    /**
+     * RLS roles requested for a domain - only VIEWER and BUSINESS_SPECIALIST can have them, every other role clears them.
+     */
+    private Set<String> requestedRlsRoles(BulkAssignmentRequestDto.DomainAssignment assignment) {
+        if (assignment.getRlsRoles() == null || !isRlsEligibleRole(assignment.getRoleName())) {
+            return Set.of();
+        }
+        return assignment.getRlsRoles().stream()
+                .filter(RlsRoleService::isRlsRoleKey)
+                .collect(Collectors.toSet());
+    }
+
+    private boolean isRlsEligibleRole(String roleName) {
+        return HdRoleName.DATA_DOMAIN_VIEWER.name().equalsIgnoreCase(roleName)
+                || HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name().equalsIgnoreCase(roleName);
+    }
+
+    private Map<String, Set<String>> loadExistingRlsRoles(UUID userId, Set<String> contextKeys) {
+        Map<String, Set<String>> result = new HashMap<>();
+        for (String contextKey : contextKeys) {
+            List<String> rlsRoles = rlsRoleService.getSelectedRlsRoleKeys(userId, contextKey);
+            if (!rlsRoles.isEmpty()) {
+                result.put(contextKey, Set.copyOf(rlsRoles));
+            }
+        }
+        return result;
     }
 
     private Map<String, DashboardCommentPermissionDto> loadExistingCommentPermissions(UUID userId) {

@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.announcement.data;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.Locale;
@@ -34,6 +35,7 @@ import java.util.UUID;
 
 @Data
 public class AnnouncementUpdateDto {
+    @NotNull
     private UUID id;
     private Map<Locale, String> messages;
     private String published;

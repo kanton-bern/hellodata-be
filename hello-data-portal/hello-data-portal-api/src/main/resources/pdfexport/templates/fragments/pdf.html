@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<!--/*
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Shared Canton-of-Bern corporate-design styles and page header, reused by the
+  full-dashboard and custom-layout PDF templates.
+  NOTE: openhtmltopdf renders CSS 2.1 only -- use tables/floats, not flexbox/grid.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head>
+    <style th:fragment="styles">
+        @page {
+            size: @@PAGE_SIZE@@;
+            margin: @@PAGE_MARGIN@@;
+            @bottom-left {
+                content: "@@FOOTER_TITLE@@";
+                font-family: "Roboto", sans-serif;
+                font-size: 8pt;
+                color: #999999;
+            }
+            @bottom-center {
+                content: "Seite " counter(page) " / " counter(pages);
+                font-family: "Roboto", sans-serif;
+                font-size: 8pt;
+                color: #999999;
+            }
+            @bottom-right {
+                content: "@@FOOTER_DATE@@";
+                font-family: "Roboto", sans-serif;
+                font-size: 8pt;
+                color: #999999;
+            }
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Roboto", Arial, sans-serif;
+            color: #0a0a0a;
+            font-size: 10pt;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+        .header {
+            width: 100%;
+            border-collapse: collapse;
+            border-bottom: 1px solid #dedede;
+            margin-bottom: 16px;
+        }
+        .header .logo-cell {
+            width: 120px;
+            padding: 0 0 10px 0;
+            vertical-align: bottom;
+        }
+        .header .logo-cell img {
+            width: 110px;
+        }
+        .header .caption-cell {
+            padding: 0 0 12px 14px;
+            vertical-align: bottom;
+            text-align: right;
+        }
+        .header .caption {
+            font-size: 13pt;
+            font-weight: 500;
+            color: #0a0a0a;
+        }
+        .header .meta {
+            font-size: 8pt;
+            color: #999999;
+        }
+        h1.title {
+            font-size: 28pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.15;
+            letter-spacing: 0.2px;
+            word-spacing: 0.5px;
+            margin: 6px 0 16px 0;
+        }
+        .summary {
+            background-color: #faf1e3;
+            border: 1px solid #dedede;
+            padding: 8px 10px;
+            font-size: 9pt;
+            color: #0a0a0a;
+            margin-bottom: 18px;
+        }
+        .chart {
+            margin-bottom: 8px;
+            page-break-inside: avoid;
+        }
+        h2.tab-title {
+            font-size: 20pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.2;
+            letter-spacing: 0.2px;
+            margin: 20pt 0 10pt 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #dedede;
+        }
+        h3.chart-name {
+            font-size: 12pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.2;
+            letter-spacing: 0.2px;
+            margin: 0 0 8px 0;
+        }
+        /* Fixed-height box so a chart always fills its whole grid slot (its height is set inline per
+           tile); the screenshot fills the box width, preserving aspect, and overflow is clipped.
+           openhtmltopdf has no object-fit, so we cannot letterbox-centre -- width:100% is the
+           reliable fit, and since the screenshot is requested at the slot's aspect it fills cleanly. */
+        .chart .chart-image {
+            border: 1px solid #dedede;
+            background-color: #ffffff;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 6px;
+        }
+        .chart .chart-image img {
+            width: 100%;
+            display: block;
+        }
+        hr.chart-sep {
+            border: none;
+            height: 1px;
+            background-color: #dedede;
+            width: 100%;
+            margin: 18pt 0 18pt 0;
+        }
+        .markdown {
+            margin: 6pt 0 14pt 0;
+            page-break-inside: avoid;
+        }
+        .markdown h1 {
+            font-size: 18pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.2;
+            margin: 0 0 8px 0;
+        }
+        .markdown h2 {
+            font-size: 15pt;
+            font-weight: 300;
+            color: #0a0a0a;
+            line-height: 1.2;
+            margin: 0 0 6px 0;
+        }
+        .markdown h3 {
+            font-size: 12pt;
+            font-weight: 500;
+            color: #0a0a0a;
+            margin: 0 0 6px 0;
+        }
+        .markdown p {
+            margin: 0 0 6px 0;
+        }
+        .markdown ul, .markdown ol {
+            /* Same text indent as the builder's editor and preview (3em). */
+            margin: 0 0 6px 3em;
+            padding: 0;
+        }
+        .markdown a {
+            color: #0a0a0a;
+        }
+        /* Custom-layout grid: each page is a fixed-height box; tiles are absolutely positioned at
+           their exact grid coordinates (openhtmltopdf renders CSS 2.1 absolute positioning), so an
+           uneven chart height can never nudge a neighbour out of place. */
+        .cover-page {
+            page-break-after: always;
+        }
+        .pdf-page.page-break {
+            page-break-before: always;
+        }
+        .grid-page {
+            position: relative;
+            width: 100%;
+            page-break-inside: avoid;
+        }
+        .grid-page .grid-tile {
+            position: absolute;
+            box-sizing: border-box;
+            padding: 0 6px 10pt 6px;
+            overflow: hidden;
+        }
+        .grid-page .grid-tile .chart,
+        .grid-page .grid-tile .markdown {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <table class="header" th:fragment="header">
+        <tr>
+            <td class="logo-cell">
+                <img th:src="${logoDataUri}" alt="Kanton Bern" />
+            </td>
+            <td class="caption-cell">
+                <div class="caption" th:text="${orgName}">Kanton Bern</div>
+                <div class="meta" th:text="${reportCaption}">HelloDATA Dashboard Export</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- One leaf cell: a chart image or a rendered markdown block. The chart's image box is a fixed
+         height (imageHeight) so it always fills its grid slot; the screenshot fills the box width. -->
+    <th:block th:fragment="item(it, imageHeight)" th:switch="${it.type()}">
+        <div th:case="'chart'" class="chart">
+            <h3 class="chart-name" th:text="${it.name()}">Chart name</h3>
+            <div class="chart-image" th:style="'height:' + ${imageHeight}">
+                <img th:src="${it.dataUri()}" alt="chart" />
+            </div>
+        </div>
+        <div th:case="'markdown'" class="summary markdown" th:utext="${it.html()}">Markdown</div>
+    </th:block>
+
+    <!-- One page: a fixed-height box holding each tile absolutely positioned at its grid slot.
+         Gaps the user left are simply un-covered space (no tile), so nothing needs a spacer. -->
+    <div class="grid-page" th:fragment="gridPage(page)" th:style="'height:' + ${page.heightCss()}">
+        <div class="grid-tile" th:each="tile : ${page.tiles()}"
+             th:style="'left:' + ${tile.left()} + ';top:' + ${tile.top()} + ';width:' + ${tile.width()} + ';height:' + ${tile.height()}">
+            <th:block th:replace="~{fragments/pdf :: item(${tile.item()}, ${tile.imageHeight()})}"></th:block>
+        </div>
+    </div>
+</body>
+</html>

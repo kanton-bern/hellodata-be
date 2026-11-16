@@ -1,0 +1,44 @@
+/*
+ * Copyright © 2024, Kanton Bern
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the <organization> nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package ch.bedag.dap.hellodata.portal.superset.pdfexport;
+
+import java.util.List;
+
+/** Payload posted by the Angular layout builder: a dashboard plus positioned grid cells.
+ *  {@code instanceName} + {@code dashboardId} drive the authZ gate and NATS routing.
+ *  {@code force} (the "fresh data" export option) re-renders every chart even if cached. */
+public record PdfLayoutRequest(String instanceName, long dashboardId, String title, String template, List<Item> items, boolean force) {
+
+    /** One grid cell: a chart reference or a text block, with its gridster position/size. A text block
+     *  carries {@code html} from the WYSIWYG editor, or {@code markdown} (dashboard text and blocks
+     *  saved before the editor switch); {@code html} wins when both are set. */
+    public record Item(String type, Long chartId, String markdown, String html, int x, int y, int cols, int rows, String name) {
+        public boolean isChart() {
+            return "chart".equals(type) && chartId != null;
+        }
+    }
+}

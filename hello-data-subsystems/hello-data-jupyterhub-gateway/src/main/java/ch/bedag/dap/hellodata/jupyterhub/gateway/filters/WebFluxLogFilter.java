@@ -55,13 +55,11 @@ public class WebFluxLogFilter implements WebFilter, Ordered {
                 log.info("Path: {}", exchange.getRequest().getURI());
                 log.info("Request Headers: {}", new java.util.ArrayList<>(exchange.getRequest()
                         .getHeaders()
-                        .asMultiValueMap()
-                        .entrySet()));
+                        .headerSet()));
                 log.info("Response: {}", exchange.getResponse().getStatusCode());
                 log.info("Response Headers: {}", new java.util.ArrayList<>(exchange.getResponse()
                         .getHeaders()
-                        .asMultiValueMap()
-                        .entrySet()));
+                        .headerSet()));
                 log.info("\n:: End Request Log ::");
             }
         });

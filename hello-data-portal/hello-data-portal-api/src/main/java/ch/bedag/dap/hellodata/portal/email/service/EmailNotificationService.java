@@ -168,7 +168,7 @@ public class EmailNotificationService {
         emailTemplateData.getTemplateModel().put(FAILED_COUNT_PARAM, result.getFailedCount());
 
         List<String> domainAssignmentDescriptions = request.getDomainAssignments().stream()
-                .map(a -> a.getContextKey() + " \u2192 " + a.getRoleName() + describeCommentPermissions(a.getCommentPermissions()))
+                .map(a -> a.getContextKey() + " \u2192 " + a.getRoleName() + describeCommentPermissions(a.getCommentPermissions()) + describeRlsRoles(a.getRlsRoles()))
                 .toList();
         emailTemplateData.getTemplateModel().put(DOMAIN_ASSIGNMENTS_PARAM, domainAssignmentDescriptions);
         emailTemplateData.getTemplateModel().put(UPDATED_USERS_PARAM, result.getUpdatedUsers());
@@ -178,6 +178,13 @@ public class EmailNotificationService {
         emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
         emailTemplateData.getReceivers().addAll(adminEmails);
         emailSendService.sendMultiLangEmailFromTemplate(emailTemplateData);
+    }
+
+    private String describeRlsRoles(List<String> rlsRoles) {
+        if (rlsRoles == null || rlsRoles.isEmpty()) {
+            return "";
+        }
+        return " (RLS: " + String.join(", ", rlsRoles.stream().sorted().toList()) + ")";
     }
 
     private String describeCommentPermissions(BulkAssignmentRequestDto.CommentPermissions permissions) {

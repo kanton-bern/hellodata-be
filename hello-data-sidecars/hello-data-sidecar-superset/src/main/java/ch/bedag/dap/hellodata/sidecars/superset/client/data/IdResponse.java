@@ -30,5 +30,5 @@ import lombok.Data;
 
 @Data
 public class IdResponse {
-    public int id;
+    private int id;
 }

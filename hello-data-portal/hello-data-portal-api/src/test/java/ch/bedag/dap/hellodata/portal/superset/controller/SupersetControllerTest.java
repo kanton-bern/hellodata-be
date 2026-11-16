@@ -30,6 +30,8 @@ import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PaletteClient;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfExportService;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardAccessService;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
@@ -56,6 +58,10 @@ class SupersetControllerTest extends HDControllerTest {
     private QueryService queryService;
     @MockitoBean
     private DashboardAccessService dashboardAccessService;
+    @MockitoBean
+    private PdfExportService pdfExportService;
+    @MockitoBean
+    private PaletteClient paletteClient;
 
     @Test
     void fetchMyDashboards() throws Exception {
@@ -128,5 +134,20 @@ class SupersetControllerTest extends HDControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(updateDto))).andExpect(status().isOk());
     }
-}
 
+    @Test
+    void pdfTemplates() throws Exception {
+        mockMvc.perform(get("/superset/dashboards/pdf/templates").header("authorization",
+                        generateToken(Set.of(Permission.DASHBOARDS.name()))))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("""
+                        [
+                            {"id": "portrait", "name": "Portrait", "pageWidthMm": 210, "pageHeightMm": 297,
+                             "contentWidthMm": 178, "cellHeightMm": 64, "gridCols": 4, "gridRowsPerPage": 4, "chartOverheadMm": 15},
+                            {"id": "landscape", "name": "Landscape", "pageWidthMm": 297, "pageHeightMm": 210,
+                             "contentWidthMm": 265, "cellHeightMm": 42, "gridCols": 4, "gridRowsPerPage": 4, "chartOverheadMm": 15}
+                        ]
+                        """));
+    }
+}

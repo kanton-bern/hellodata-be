@@ -61,6 +61,14 @@ public class DashboardGroupEntity extends BaseEntity {
     @Column(columnDefinition = "json", name = "users")
     private List<DashboardGroupUserEntry> users; //NOSONAR
 
+    /**
+     * RLS role keys (RLS_01 - RLS_15) granted to all members of the group
+     */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Basic(fetch = FetchType.EAGER)
+    @Column(columnDefinition = "json", name = "rls_roles")
+    private List<String> rlsRoles; //NOSONAR
+
     @Override
     public int hashCode() {
         return super.hashCode();

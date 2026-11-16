@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!--/*
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Full-dashboard export: charts grouped by tab in the dashboard's visual order.
+  Shared styles/header live in fragments/pdf.html.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${export.title()}">Dashboard</title>
+    <th:block th:replace="~{fragments/pdf :: styles}"></th:block>
+</head>
+<body>
+    <th:block th:replace="~{fragments/pdf :: header}"></th:block>
+
+    <h1 class="title" th:text="${export.title()}">Dashboard Title</h1>
+
+    <div class="section" th:each="section : ${export.sections()}">
+        <h2 class="tab-title" th:if="${!#strings.isEmpty(section.title())}"
+            th:text="${section.title()}">Tab title</h2>
+        <div th:each="item : ${section.items()}" th:switch="${item.type()}">
+            <div th:case="'chart'" class="chart">
+                <h3 class="chart-name" th:text="${item.name()}">Chart name</h3>
+                <div class="chart-image">
+                    <img th:src="${item.dataUri()}" alt="chart" />
+                </div>
+                <hr class="chart-sep" />
+            </div>
+            <div th:case="'markdown'" class="summary markdown" th:utext="${item.html()}">Markdown</div>
+        </div>
+    </div>
+</body>
+</html>

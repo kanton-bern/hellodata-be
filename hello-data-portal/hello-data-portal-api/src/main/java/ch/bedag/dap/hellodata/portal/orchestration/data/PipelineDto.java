@@ -39,12 +39,14 @@ public class PipelineDto {
     private String id;
     private String description;
     private String contextKey;
+    // Which orchestrator this pipeline comes from: "AIRFLOW" (Airflow 2) or "AIRFLOW3".
+    private String moduleType;
     private PipelineInstanceDto lastInstance;
 
-    public static PipelineDto fromPipeline(Pipeline pipeline, String contextKey) {
+    public static PipelineDto fromPipeline(Pipeline pipeline, String contextKey, String moduleType) {
         PipelineInstance pipelineLastInstance = pipeline.getLastInstance();
         PipelineInstanceDto pipelineLastInstanceDto =
                 new PipelineInstanceDto(pipelineLastInstance.getState(), pipelineLastInstance.getStartDate(), pipelineLastInstance.getEndDate());
-        return new PipelineDto(pipeline.getId(), pipeline.getDescription(), contextKey, pipelineLastInstanceDto);
+        return new PipelineDto(pipeline.getId(), pipeline.getDescription(), contextKey, moduleType, pipelineLastInstanceDto);
     }
 }

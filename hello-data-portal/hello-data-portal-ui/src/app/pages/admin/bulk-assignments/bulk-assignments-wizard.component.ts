@@ -64,6 +64,8 @@ import {
 } from '../../../store/users-management/users-management.model';
 import {UsersManagementService} from '../../../store/users-management/users-management.service';
 import {DashboardGroupsService} from '../../../store/dashboard-groups/dashboard-groups.service';
+import {RlsRolesService} from '../../../store/rls-roles/rls-roles.service';
+import type {RlsRole} from '../../../store/rls-roles/rls-roles.model';
 import {ConfirmationService} from 'primeng/api';
 import {TranslateService} from '../../../shared/services/translate.service';
 import {FormsModule} from '@angular/forms';
@@ -94,6 +96,7 @@ interface DomainAssignmentConfig {
   roleName: string;
   dashboards: Map<number, BulkDashboardInfo>;
   dashboardGroupIds: Set<string>;
+  rlsRoles: Set<string>;
   commentPermissions: CommentPermissions;
 }
 
@@ -108,6 +111,7 @@ interface DomainSummaryItem {
   roleName: string;
   dashboardNames: string[];
   groupNames: string[];
+  rlsGroupNames: string[];
   commentPermissionNames: string[];
 }
 
@@ -195,6 +199,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   domainAssignments = new Map<string, DomainAssignmentConfig>();
   dashboardsByDomain: Record<string, SupersetDashboardWithMetadata[]> = {};
   dashboardGroupsByDomain = new Map<string, DashboardGroupMembership[]>();
+  rlsRolesByDomain = new Map<string, RlsRole[]>();
   readonly roleOptions: RoleOption[] = [
     {label: 'DATA_DOMAIN_ADMIN', value: 'DATA_DOMAIN_ADMIN'},
     {label: 'DATA_DOMAIN_EDITOR', value: 'DATA_DOMAIN_EDITOR'},
@@ -213,6 +218,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
   private readonly store = inject<Store<AppState>>(Store);
   private readonly usersManagementService = inject(UsersManagementService);
   private readonly dashboardGroupsService = inject(DashboardGroupsService);
+  private readonly rlsRolesService = inject(RlsRolesService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -428,6 +434,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       if (!this.showDashboardSelection(roleName)) {
         assignment.dashboards.clear();
         assignment.dashboardGroupIds.clear();
+        assignment.rlsRoles.clear();
       }
       // Mirror the per-user edit page: Data Domain Admins get everything, every other role starts from scratch
       assignment.commentPermissions = this.defaultCommentPermissions(roleName);
@@ -499,6 +506,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       roleName: NONE_ROLE,
       dashboards: new Map(),
       dashboardGroupIds: new Set(),
+      rlsRoles: new Set(),
       commentPermissions: this.defaultCommentPermissions(NONE_ROLE),
     };
   }
@@ -608,6 +616,56 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     }
   }
 
+  getRlsRolesForDomain(contextKey: string): RlsRole[] {
+    return this.rlsRolesByDomain.get(contextKey) || [];
+  }
+
+  isRlsRoleSelected(domainKey: string, roleKey: string): boolean {
+    return this.domainAssignments.get(domainKey)?.rlsRoles.has(roleKey) || false;
+  }
+
+  onRlsRoleSelectionChange(domainKey: string, roleKey: string, checked: boolean): void {
+    const assignment = this.domainAssignments.get(domainKey);
+    if (assignment) {
+      if (checked) {
+        assignment.rlsRoles.add(roleKey);
+      } else {
+        assignment.rlsRoles.delete(roleKey);
+      }
+    }
+  }
+
+  areAllRlsRolesSelected(domainKey: string): boolean {
+    const rlsRoles = this.getRlsRolesForDomain(domainKey);
+    if (rlsRoles.length === 0) return false;
+    return rlsRoles.every(r => this.isRlsRoleSelected(domainKey, r.roleKey));
+  }
+
+  onSelectAllRlsRoles(domainKey: string, checked: boolean): void {
+    const assignment = this.domainAssignments.get(domainKey);
+    if (!assignment) return;
+    if (checked) {
+      for (const r of this.getRlsRolesForDomain(domainKey)) {
+        assignment.rlsRoles.add(r.roleKey);
+      }
+    } else {
+      assignment.rlsRoles.clear();
+    }
+  }
+
+  loadRlsRolesForDomains(): void {
+    for (const domainKey of this.selectedDomainKeys) {
+      if (!this.rlsRolesByDomain.has(domainKey)) {
+        this.rlsRolesService.getRlsRoles(domainKey).pipe(
+          takeUntil(this.destroy$)
+        ).subscribe(rlsRoles => {
+          this.rlsRolesByDomain.set(domainKey, rlsRoles);
+          this.cdr.markForCheck();
+        });
+      }
+    }
+  }
+
   loadDashboardGroupsForDomains(): void {
     for (const domainKey of this.selectedDomainKeys) {
       if (!this.dashboardGroupsByDomain.has(domainKey)) {
@@ -640,12 +698,16 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       const groupNames = assignment
         ? groups.filter(g => assignment.dashboardGroupIds.has(g.groupId)).map(g => g.groupName)
         : [];
+      const rlsGroupNames = assignment
+        ? this.getRlsRolesForDomain(key).filter(r => assignment.rlsRoles.has(r.roleKey)).map(r => r.name)
+        : [];
       items.push({
         key,
         name: domain?.name || key,
         roleName: assignment?.roleName || NONE_ROLE,
         dashboardNames,
         groupNames,
+        rlsGroupNames,
         commentPermissionNames: this.getCommentPermissionNames(this.getCommentPermissions(key)),
       });
     }
@@ -813,6 +875,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
       } as Content);
       this.pdfAddBulletList(content, `${t('@Dashboard groups')} (${domain.groupNames.length}):`, domain.groupNames);
       this.pdfAddBulletList(content, `${t('@Dashboards')} (${domain.dashboardNames.length}):`, domain.dashboardNames);
+      this.pdfAddBulletList(content, `${t('@RLS Groups')} (${domain.rlsGroupNames.length}):`, domain.rlsGroupNames);
     }
   }
 
@@ -830,6 +893,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
     if (nextStep === 3) {
       this.loadDashboardsFromStore();
       this.loadDashboardGroupsForDomains();
+      this.loadRlsRolesForDomains();
     }
     this.activeStep = nextStep;
     activateCallback(nextStep);
@@ -849,6 +913,7 @@ export class BulkAssignmentsWizardComponent extends BaseComponent implements OnD
           roleName: config.roleName,
           dashboards: Array.from(config.dashboards.values()),
           dashboardGroupIds: Array.from(config.dashboardGroupIds),
+          rlsRoles: Array.from(config.rlsRoles).sort((a, b) => a.localeCompare(b)),
           commentPermissions: {...config.commentPermissions},
         });
       }

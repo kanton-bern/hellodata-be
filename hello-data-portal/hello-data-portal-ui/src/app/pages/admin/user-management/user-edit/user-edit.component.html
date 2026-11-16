@@ -163,6 +163,7 @@
                             <app-dashboard-group-membership
                               class="mb-4 block"
                               [context]="dataDomain"/>
+                            <app-rls-role-selection [context]="dataDomain"/>
                             <app-dashboard-viewer-permissions
                               (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
                               [context]="dataDomain"/>

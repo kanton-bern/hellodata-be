@@ -42,6 +42,38 @@ const routes: Routes = [
     canActivate: [AutoLoginPartialRoutesGuard]
   },
   {
+    path: 'pdf-builder',
+    loadComponent: () => import('./pages/pdf-builder/pdf-builder.component').then(m => m.PdfBuilderComponent),
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARDS'],
+    },
+  },
+  {
+    // PDF layout management. DASHBOARDS until a dedicated layout management permission exists.
+    path: 'pdf-layouts',
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARDS'],
+    },
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/pdf-layouts/pdf-layouts.component').then(m => m.PdfLayoutsComponent),
+      },
+      {
+        path: 'create',
+        loadComponent: () => import('./pages/pdf-builder/pdf-builder.component').then(m => m.PdfBuilderComponent),
+        data: {mode: 'manage'},
+      },
+      {
+        path: 'edit/:id',
+        loadComponent: () => import('./pages/pdf-builder/pdf-builder.component').then(m => m.PdfBuilderComponent),
+        data: {mode: 'manage'},
+      },
+    ]
+  },
+  {
     path: naviElements.profile.path,
     loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [AutoLoginPartialRoutesGuard],
@@ -224,10 +256,31 @@ const routes: Routes = [
     children: [
       {
         path: '',
+        data: {moduleType: 'AIRFLOW'},
         loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
       },
       {
         path: naviElements.embeddedOrchestrationDetails.path,
+        data: {moduleType: 'AIRFLOW'},
+        loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
+      }
+    ]
+  },
+  {
+    path: naviElements.embeddedOrchestrationAirflow3.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DATA_ENG'],
+    },
+    children: [
+      {
+        path: '',
+        data: {moduleType: 'AIRFLOW3'},
+        loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
+      },
+      {
+        path: naviElements.embeddedOrchestrationDetails.path,
+        data: {moduleType: 'AIRFLOW3'},
         loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
       }
     ]
@@ -269,7 +322,10 @@ const routes: Routes = [
   },
   {
     path: naviElements.query.path,
-    canActivate: [AutoLoginPartialRoutesGuard],
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['QUERIES'],
+    },
     children: [
       {
         path: '',
@@ -304,6 +360,14 @@ const routes: Routes = [
         }
       },
     ]
+  },
+  {
+    path: naviElements.rlsGroups.path,
+    loadComponent: () => import('./pages/admin/rls-groups/rls-groups.component').then(m => m.RlsGroupsComponent),
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['RLS_ROLES_MANAGEMENT'],
+    }
   },
   {
     path: naviElements.dashboardGroups.path,

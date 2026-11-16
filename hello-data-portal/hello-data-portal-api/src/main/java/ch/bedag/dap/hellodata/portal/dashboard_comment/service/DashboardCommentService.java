@@ -952,9 +952,9 @@ public class DashboardCommentService {
      */
     private void sendCommentStatusNotification(DashboardCommentEntity comment, String contextKey, int dashboardId,
                                                String reviewerFullName, boolean published, String declineReason) {
-        notificationService.notifyStatusChange(contextKey, dashboardId, comment.getId(),
-                comment.getAuthorEmail(), comment.getAuthor(), getActiveVersionText(comment),
-                SecurityUtils.getCurrentUserEmail(), reviewerFullName, published, declineReason);
+        notificationService.notifyStatusChange(new DashboardCommentNotificationService.AuthorNotificationContext(
+                contextKey, dashboardId, comment.getId(), comment.getAuthorEmail(), comment.getAuthor(),
+                getActiveVersionText(comment), SecurityUtils.getCurrentUserEmail(), reviewerFullName), published, declineReason);
     }
 
     /**
@@ -981,18 +981,18 @@ public class DashboardCommentService {
      * Send email notification to the comment author when their comment is deleted by another user.
      */
     private void sendCommentDeletedNotification(DashboardCommentEntity comment, String contextKey, int dashboardId, String deletionReason) {
-        notificationService.notifyDeleted(contextKey, dashboardId, comment.getId(),
-                comment.getAuthorEmail(), comment.getAuthor(), getActiveVersionText(comment),
-                SecurityUtils.getCurrentUserEmail(), SecurityUtils.getCurrentUserFullName(), deletionReason);
+        notificationService.notifyDeleted(new DashboardCommentNotificationService.AuthorNotificationContext(
+                contextKey, dashboardId, comment.getId(), comment.getAuthorEmail(), comment.getAuthor(),
+                getActiveVersionText(comment), SecurityUtils.getCurrentUserEmail(), SecurityUtils.getCurrentUserFullName()), deletionReason);
     }
 
     /**
      * Send email notification to the comment author when their comment is edited by a reviewer.
      */
     private void sendCommentEditedByReviewerNotification(DashboardCommentEntity comment, String contextKey, int dashboardId, String newText) {
-        notificationService.notifyEditedByReviewer(contextKey, dashboardId, comment.getId(),
-                comment.getAuthorEmail(), comment.getAuthor(), newText,
-                SecurityUtils.getCurrentUserEmail(), SecurityUtils.getCurrentUserFullName());
+        notificationService.notifyEditedByReviewer(new DashboardCommentNotificationService.AuthorNotificationContext(
+                contextKey, dashboardId, comment.getId(), comment.getAuthorEmail(), comment.getAuthor(),
+                newText, SecurityUtils.getCurrentUserEmail(), SecurityUtils.getCurrentUserFullName()));
     }
 
     /**

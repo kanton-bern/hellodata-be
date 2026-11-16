@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.dashboard_comment.service;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.config.DashboardCommentSyncProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -48,6 +49,8 @@ public class DashboardCommentReconciliationJob {
     private final DashboardCommentSyncProperties syncProperties;
 
     @Scheduled(cron = "${hello-data.dashboard-comments.reconciliation-cron:0 0 */6 * * *}")
+    // cron fires on all instances at the same time, lockAtLeastFor covers the clock differences between them
+    @SchedulerLock(name = "reconcileDashboardComments", lockAtMostFor = "PT1H", lockAtLeastFor = "PT5M")
     public void reconcile() {
         if (!syncProperties.isDwhSyncEnabled()) {
             return;

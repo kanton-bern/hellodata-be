@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,6 +41,7 @@ import java.util.List;
 public class DashboardCommentCreateDto {
     private String dashboardUrl;
     private String pointerUrl;
+    @NotBlank
     private String text;
     private List<String> tags;
     private Integer quarter; // Optional - relevant quarter (1-4), derived from creation date if not set

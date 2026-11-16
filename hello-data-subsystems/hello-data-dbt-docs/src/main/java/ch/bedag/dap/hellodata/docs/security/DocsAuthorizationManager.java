@@ -92,8 +92,8 @@ public class DocsAuthorizationManager implements AuthorizationManager<RequestAut
         log.info("Server context-path: {}", request.getContextPath());
 
         Authentication authentication = authenticationSupplier.get();
-        if (authentication instanceof DbtDocsAuthenticationToken) {
-            User user = (User) authentication.getPrincipal();
+        if (authentication instanceof DbtDocsAuthenticationToken dbtDocsToken) {
+            User user = dbtDocsToken.getPrincipal();
             if (user == null) {
                 return new AuthorizationDecision(false);
             }

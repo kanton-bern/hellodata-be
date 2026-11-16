@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {asyncScheduler, catchError, delay, map, mergeMap, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, delay, forkJoin, map, mergeMap, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
 import {UsersManagementService} from "./users-management.service";
 import {NotificationService} from "../../shared/services/notification.service";
 import {Store} from '@ngrx/store';
@@ -39,6 +39,7 @@ import {
   selectEffectiveUserId,
   selectParamUserId,
   selectSelectedDashboardGroupIdsForUser,
+  selectSelectedRlsRolesForUser,
   selectSelectedRolesForUser,
   selectUserForPopup
 } from "./users-management.selector";
@@ -46,6 +47,7 @@ import {Router} from "@angular/router";
 import {UserAction, UserActionForPopup} from "./users-management.model";
 import {CURRENT_EDITED_USER_ID} from "./users-management.reducer";
 import {ContextRoleService} from "./context-role.service";
+import {RlsRolesService} from "../rls-roles/rls-roles.service";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {navigate, showError, showSuccess} from "../app/app.action";
 import {
@@ -66,6 +68,8 @@ import {
   loadCommentPermissionsSuccess,
   loadDashboardGroupMemberships,
   loadDashboardGroupMembershipsSuccess,
+  loadRlsRolesForUser,
+  loadRlsRolesForUserSuccess,
   loadDashboards,
   loadDashboardsSuccess,
   loadDashboardUsersPaginated,
@@ -101,6 +105,7 @@ export class UsersManagementEffects {
   private readonly _store = inject<Store<AppState>>(Store);
   private readonly _usersManagementService = inject(UsersManagementService);
   private readonly _contextRoleService = inject(ContextRoleService);
+  private readonly _rlsRolesService = inject(RlsRolesService);
   private readonly _notificationService = inject(NotificationService);
 
 
@@ -320,11 +325,12 @@ export class UsersManagementEffects {
         this._store.select(selectSelectedRolesForUser),
         this._store.select(selectDashboardsForUser),
         this._store.select(selectCommentPermissionsForUser),
-        this._store.select(selectSelectedDashboardGroupIdsForUser)
+        this._store.select(selectSelectedDashboardGroupIdsForUser),
+        this._store.select(selectSelectedRlsRolesForUser)
       ),
-      switchMap(([action, selectedRoles, selectedDashboards, commentPermissions, selectedGroupIds]) => {
+      switchMap(([action, selectedRoles, selectedDashboards, commentPermissions, selectedGroupIds, selectedRlsRoles]) => {
         const commentPermissionsMap = new Map(Object.entries(commentPermissions));
-        return this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards, commentPermissionsMap, selectedGroupIds);
+        return this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards, commentPermissionsMap, selectedGroupIds, selectedRlsRoles);
       }),
       switchMap(() => scheduled([updateUserRolesSuccess(), clearUnsavedChanges()], asyncScheduler)),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
@@ -414,6 +420,22 @@ export class UsersManagementEffects {
       mergeMap(([action, userId]) =>
         this._usersManagementService.getDashboardGroupMemberships(userId as string, action.contextKey).pipe(
           map(memberships => loadDashboardGroupMembershipsSuccess({contextKey: action.contextKey, memberships})),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        )
+      )
+    )
+  });
+
+  loadRlsRolesForUser$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadRlsRolesForUser),
+      withLatestFrom(this._store.select(selectEffectiveUserId)),
+      mergeMap(([action, userId]) =>
+        forkJoin([
+          this._rlsRolesService.getRlsRoles(action.contextKey),
+          this._usersManagementService.getSelectedRlsRoles(userId as string, action.contextKey)
+        ]).pipe(
+          map(([rlsRoles, selectedRoleKeys]) => loadRlsRolesForUserSuccess({contextKey: action.contextKey, rlsRoles, selectedRoleKeys})),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         )
       )

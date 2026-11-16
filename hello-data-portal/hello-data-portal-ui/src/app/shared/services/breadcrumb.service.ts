@@ -29,10 +29,9 @@ import {inject, Injectable} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectBreadcrumbs} from "../../store/breadcrumb/breadcrumb.selector";
-import {combineLatest, delay, map, Observable} from "rxjs";
+import {combineLatest, delay, map, Observable, of, switchMap} from "rxjs";
 import {MenuItem} from "primeng/api";
 import {TranslateService} from "./translate.service";
-import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 
 @Injectable({
   providedIn: 'root'
@@ -42,22 +41,15 @@ export class BreadcrumbService {
   private translateService = inject(TranslateService);
 
 
+  /** Breadcrumbs with their '@' labels translated. selectTranslate emits again on a language switch
+   *  once the new language file is loaded; a sync translate() right after the switch returned the key. */
   getBreadCrumbs(): Observable<MenuItem[]> {
-    return combineLatest([
-      this.store.select(selectBreadcrumbs),
-      this.store.select(selectSelectedLanguage)
-    ]).pipe(
-      delay(100),
-      map(([breadcrumbs, _]) => {
-        const translatedBreadCrumbs: MenuItem[] = []
-        breadcrumbs.forEach(breadcrumb => {
-          const labelTranslated = breadcrumb.label?.startsWith('@') ? this.translateService.translate(breadcrumb.label as string) : breadcrumb.label
-          translatedBreadCrumbs.push({
-            ...breadcrumb,
-            label: labelTranslated
-          });
-        })
-        return translatedBreadCrumbs;
-      }));
+    return this.store.select(selectBreadcrumbs).pipe(
+      switchMap(breadcrumbs => breadcrumbs.length === 0
+        ? of([] as MenuItem[])
+        : combineLatest(breadcrumbs.map(breadcrumb => breadcrumb.label?.startsWith('@')
+          ? this.translateService.selectTranslate(breadcrumb.label).pipe(map(label => ({...breadcrumb, label} as MenuItem)))
+          : of({...breadcrumb} as MenuItem)))),
+      delay(100));
   }
 }

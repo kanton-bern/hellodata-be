@@ -26,6 +26,7 @@
 ///
 
 import {TestBed} from '@angular/core/testing';
+import {SubsystemLogoutService} from '../services/subsystem-logout.service';
 import {HTTP_INTERCEPTORS, HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import {LoginResponse, OidcSecurityService} from 'angular-auth-oidc-client';
@@ -70,6 +71,10 @@ describe('TokenInterceptor', () => {
       url: '/'
     };
 
+    const subsystemLogoutMock = {
+      logoutOpenedSubsystems: jest.fn<() => Promise<void>>().mockResolvedValue(undefined)
+    };
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -80,14 +85,15 @@ describe('TokenInterceptor', () => {
         },
         {provide: AuthService, useValue: authMock},
         {provide: OidcSecurityService, useValue: oidcMock},
-        {provide: Router, useValue: routerMock}
+        {provide: Router, useValue: routerMock},
+        {provide: SubsystemLogoutService, useValue: subsystemLogoutMock}
       ]
     });
 
     const httpClient = TestBed.inject(HttpClient);
     const httpMock = TestBed.inject(HttpTestingController);
 
-    return {authMock, oidcMock, routerMock, httpClient, httpMock, doLoginFn};
+    return {authMock, oidcMock, routerMock, httpClient, httpMock, doLoginFn, subsystemLogoutMock};
   };
 
   describe('Token attachment', () => {
@@ -195,6 +201,73 @@ describe('TokenInterceptor', () => {
       req.flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'});
     });
 
+    it('should log out of opened subsystems before redirecting to login (HELLODATA-4146)', (done) => {
+      const {routerMock, oidcMock, httpClient, httpMock, subsystemLogoutMock} = setupTestBed(mockToken);
+
+      oidcMock.forceRefreshSession.mockReturnValue(
+        of({isAuthenticated: false} as LoginResponse)
+      );
+      let finishLogout: () => void = () => undefined;
+      subsystemLogoutMock.logoutOpenedSubsystems.mockReturnValue(
+        new Promise<void>(resolve => finishLogout = resolve)
+      );
+
+      httpClient.get(testUrl).subscribe({
+        next: () => done(new Error('Should have errored')),
+        error: () => {
+          setTimeout(() => {
+            try {
+              expect(subsystemLogoutMock.logoutOpenedSubsystems).toHaveBeenCalledTimes(1);
+              // Still logging out of the subsystems: no redirect yet.
+              expect(routerMock.navigate).not.toHaveBeenCalled();
+              finishLogout();
+              setTimeout(() => {
+                try {
+                  expect(routerMock.navigate).toHaveBeenCalledWith(['/home']);
+                  httpMock.verify();
+                  done();
+                } catch (e) {
+                  done(e as Error);
+                }
+              }, 0);
+            } catch (e) {
+              done(e as Error);
+            }
+          }, 0);
+        }
+      });
+
+      const req = httpMock.expectOne(testUrl);
+      req.flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'});
+    });
+
+    it('should still redirect to login when the subsystem logout fails', (done) => {
+      const {routerMock, oidcMock, httpClient, httpMock, subsystemLogoutMock} = setupTestBed(mockToken);
+
+      oidcMock.forceRefreshSession.mockReturnValue(
+        of({isAuthenticated: false} as LoginResponse)
+      );
+      subsystemLogoutMock.logoutOpenedSubsystems.mockRejectedValue(new Error('boom'));
+
+      httpClient.get(testUrl).subscribe({
+        next: () => done(new Error('Should have errored')),
+        error: () => {
+          setTimeout(() => {
+            try {
+              expect(routerMock.navigate).toHaveBeenCalledWith(['/home']);
+              httpMock.verify();
+              done();
+            } catch (e) {
+              done(e as Error);
+            }
+          }, 0);
+        }
+      });
+
+      const req = httpMock.expectOne(testUrl);
+      req.flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'});
+    });
+
     it('should redirect to login when token refresh throws error', (done) => {
       const {routerMock, oidcMock, httpClient, httpMock} = setupTestBed(mockToken);
 
@@ -262,6 +335,29 @@ describe('TokenInterceptor', () => {
         expect(r.request.headers.get('Authorization')).toBe(`Bearer ${newMockToken}`);
         r.flush({success: true});
       });
+    });
+
+    it('should refresh again after the request that started a refresh was cancelled', () => {
+      const {oidcMock, httpClient, httpMock} = setupTestBed(newMockToken);
+
+      // A poller (switchMap effect) cancels its request while the refresh is still running.
+      const refresh$ = new Subject<LoginResponse>();
+      oidcMock.forceRefreshSession.mockReturnValue(refresh$.asObservable());
+      const cancelled = httpClient.get(testUrl).subscribe();
+      httpMock.expectOne(testUrl).flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'});
+      cancelled.unsubscribe();
+      refresh$.next({isAuthenticated: true} as LoginResponse);
+
+      // The next 401 must trigger a fresh refresh and retry, not wait forever for the old one.
+      oidcMock.forceRefreshSession.mockReturnValue(of({isAuthenticated: true} as LoginResponse));
+      const result = jest.fn();
+      httpClient.get(testUrl).subscribe(result);
+      httpMock.expectOne(testUrl).flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'});
+      httpMock.expectOne(testUrl).flush({success: true});
+
+      expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(2);
+      expect(result).toHaveBeenCalledWith({success: true});
+      httpMock.verify();
     });
 
     it('should remember the current route so the user returns after re-auth', (done) => {

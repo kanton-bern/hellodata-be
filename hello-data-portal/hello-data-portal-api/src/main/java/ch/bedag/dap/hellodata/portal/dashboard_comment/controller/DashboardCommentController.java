@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.dashboard_comment.controller;
 
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -63,7 +64,7 @@ public class DashboardCommentController {
     public DashboardCommentDto createComment(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
-            @RequestBody DashboardCommentCreateDto createDto) {
+            @Valid @RequestBody DashboardCommentCreateDto createDto) {
         return commentService.createComment(contextKey, dashboardId, createDto);
     }
 
@@ -73,7 +74,7 @@ public class DashboardCommentController {
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId,
-            @RequestBody DashboardCommentUpdateDto updateDto) {
+            @Valid @RequestBody DashboardCommentUpdateDto updateDto) {
         return commentService.updateComment(contextKey, dashboardId, commentId, updateDto);
     }
 
@@ -83,7 +84,7 @@ public class DashboardCommentController {
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId,
-            @RequestBody(required = false) DashboardCommentDeleteDto deleteDto) {
+            @Valid @RequestBody(required = false) DashboardCommentDeleteDto deleteDto) {
         boolean deleteEntire = deleteDto != null && deleteDto.isDeleteEntire();
         String deletionReason = deleteDto != null ? deleteDto.getDeletionReason() : null;
         return commentService.deleteComment(contextKey, dashboardId, commentId, deleteEntire, deletionReason);
@@ -113,7 +114,7 @@ public class DashboardCommentController {
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId,
-            @RequestBody DashboardCommentDeclineDto declineDto) {
+            @Valid @RequestBody DashboardCommentDeclineDto declineDto) {
         return commentService.declineComment(contextKey, dashboardId, commentId, declineDto);
     }
 
@@ -123,7 +124,7 @@ public class DashboardCommentController {
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId,
-            @RequestBody DashboardCommentUpdateDto updateDto) {
+            @Valid @RequestBody DashboardCommentUpdateDto updateDto) {
         return commentService.cloneCommentForEdit(contextKey, dashboardId, commentId, updateDto);
     }
 
@@ -150,7 +151,7 @@ public class DashboardCommentController {
     public CommentImportResultDto importComments(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
-            @RequestBody CommentExportDto importData) {
+            @Valid @RequestBody CommentExportDto importData) {
         return commentService.importComments(contextKey, dashboardId, importData);
     }
 }

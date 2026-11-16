@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.sidecars.portal.service.resource.user;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserUpdateOrderGuard;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.SystemDefaultPortalRoleName;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserPortalRoleEntity;
@@ -39,7 +40,7 @@ import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.HashSet;
 import java.util.List;
@@ -50,18 +51,31 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER
 
 @Log4j2
 @Service
-@Transactional
 @AllArgsConstructor
 public class UpdateUserContextRoleConsumer {
 
     private final UserRepository userRepository;
     private final UserPortalRoleRepository userPortalRoleRepository;
     private final PortalRoleRepository portalRoleRepository;
+    // the update runs in a transaction inside the guard, so the next update of the user starts after the commit
+    private final TransactionTemplate transactionTemplate;
+    // shared by the single updates and the full synchronization, which both go through this bean
+    private final UserUpdateOrderGuard orderGuard = new UserUpdateOrderGuard();
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void subscribe(UserContextRoleUpdate userContextRoleUpdate) {
         log.info("Update user context role received {}", userContextRoleUpdate);
+        try (UserUpdateOrderGuard.Permit permit = orderGuard.enter(userContextRoleUpdate)) {
+            if (permit.isStale()) {
+                return;
+            }
+            transactionTemplate.executeWithoutResult(status -> applyContextRoleUpdate(userContextRoleUpdate));
+            permit.applied();
+        }
+    }
+
+    private void applyContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
         Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(userContextRoleUpdate.getEmail());
         List<UserContextRoleUpdate.ContextRole> domainContextRoles = userContextRoleUpdate.getContextRoles(); // Filter by context necessary? Only BD is available here
         if (userEntityByEmail.isPresent()) {

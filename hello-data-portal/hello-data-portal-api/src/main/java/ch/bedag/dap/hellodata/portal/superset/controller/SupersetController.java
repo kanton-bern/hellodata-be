@@ -26,11 +26,16 @@
  */
 package ch.bedag.dap.hellodata.portal.superset.controller;
 
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.screenshot.DashboardPaletteResponse;
 import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
 import ch.bedag.dap.hellodata.portal.superset.data.DashboardAccessDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetQueryDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PaletteClient;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfExportService;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfLayoutRequest;
+import ch.bedag.dap.hellodata.portal.superset.pdfexport.PdfTemplateDto;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardAccessService;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
@@ -41,6 +46,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +56,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 @Log4j2
@@ -59,6 +68,8 @@ public class SupersetController {
     private final DashboardService dashboardService;
     private final QueryService queryService;
     private final DashboardAccessService dashboardAccessService;
+    private final PdfExportService pdfExportService;
+    private final PaletteClient paletteClient;
 
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     @GetMapping(value = "/my-dashboards")
@@ -105,6 +116,65 @@ public class SupersetController {
         Pageable pageable = PageUtil.createPageable(page, size, sort, "dttm", Sort.Direction.DESC);
         Page<DashboardAccessDto> result = dashboardAccessService.findDashboardAccess(contextKey, pageable, search);
         return ResponseEntity.ok(result);
+    }
+
+    /** Charts of one dashboard for the PDF builder palette. */
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    @GetMapping(value = "/dashboards/{instanceName}/{dashboardId}/charts")
+    public List<DashboardPaletteResponse.ChartRef> charts(@PathVariable String instanceName, @PathVariable long dashboardId) {
+        dashboardService.assertCurrentUserMayAccess(instanceName, dashboardId);
+        return paletteClient.fetchPalette(instanceName, dashboardId).getCharts();
+    }
+
+    /** Existing markdown/text blocks of one dashboard for the PDF builder palette. */
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    @GetMapping(value = "/dashboards/{instanceName}/{dashboardId}/markdown")
+    public List<String> markdown(@PathVariable String instanceName, @PathVariable long dashboardId) throws Exception {
+        dashboardService.assertCurrentUserMayAccess(instanceName, dashboardId);
+        return paletteClient.markdownBlocks(paletteClient.fetchPalette(instanceName, dashboardId));
+    }
+
+    /** Single-chart screenshot preview for a builder grid tile, sized to the cell's span and rendered
+     *  as the current user. The browser can request these lazily per tile while the layout is built. */
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    @GetMapping(value = "/dashboards/{instanceName}/{dashboardId}/charts/{chartId}/preview", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> chartPreview(
+            @PathVariable String instanceName, @PathVariable long dashboardId, @PathVariable long chartId,
+            @RequestParam(defaultValue = "2") int cols, @RequestParam(defaultValue = "2") int rows,
+            @RequestParam(defaultValue = "portrait") String template,
+            @RequestParam(defaultValue = "false") boolean force) {
+        byte[] png = pdfExportService.chartPreview(instanceName, dashboardId, chartId, cols, rows, template, force);
+        // Never let the browser cache a chart preview: the underlying Superset screenshot can change
+        // (data refresh, RLS, edits) and a stale cached image must not be shown. Explicit no-store so
+        // it doesn't rely on the global Spring Security default alone.
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .contentType(MediaType.IMAGE_PNG)
+                .body(png);
+    }
+
+    /** The selectable PDF page templates with their page geometry, so the builder canvas can show
+     *  each page in the shape and scale the PDF will have. */
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    @GetMapping(value = "/dashboards/pdf/templates")
+    public List<PdfTemplateDto> pdfTemplates() {
+        return PdfTemplateDto.all();
+    }
+
+    /** Custom grid layout export designed in the Angular builder. */
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    @PostMapping(value = "/dashboards/pdf/custom", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> exportCustomPdf(@Valid @RequestBody PdfLayoutRequest request) {
+        byte[] pdf = pdfExportService.exportCustom(request);
+        return pdfResponse(pdf, "dashboard-" + request.dashboardId() + ".pdf");
+    }
+
+    private ResponseEntity<byte[]> pdfResponse(byte[] pdf, String filename) {
+        ContentDisposition disposition = ContentDisposition.attachment().filename(filename).build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
 }

@@ -40,6 +40,8 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentP
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntry;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
+import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
+import ch.bedag.dap.hellodata.portal.role.service.AirflowKeycloakRoleService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
@@ -83,7 +85,13 @@ class UserSubsystemSyncServiceTest {
     private DashboardGroupService dashboardGroupService;
 
     @Mock
+    private RlsRoleService rlsRoleService;
+
+    @Mock
     private DashboardCommentPermissionService dashboardCommentPermissionService;
+
+    @Mock
+    private AirflowKeycloakRoleService airflowKeycloakRoleService;
 
     @InjectMocks
     private UserSubsystemSyncService userSubsystemSyncService;

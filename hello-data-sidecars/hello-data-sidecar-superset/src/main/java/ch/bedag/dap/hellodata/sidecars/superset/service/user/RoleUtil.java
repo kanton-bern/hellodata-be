@@ -66,6 +66,12 @@ public class RoleUtil {
         supersetUserRolesUpdate.setRoles(userRoles);
     }
 
+    public static void removeAllRlsRoles(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
+        List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().startsWith(SlugifyUtil.RLS_ROLE_PREFIX)).map(SubsystemRole::getId).toList();
+        List<Integer> userRoles = supersetUserRolesUpdate.getRoles().stream().filter(supersetRoleId -> !roles.contains(supersetRoleId)).toList();
+        supersetUserRolesUpdate.setRoles(userRoles);
+    }
+
     public static void removeRoleFromUser(String roleName, SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
         List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(roleName)).map(SubsystemRole::getId).toList();
         List<Integer> userRoles = supersetUserRolesUpdate.getRoles().stream().filter(supersetRoleId -> !roles.contains(supersetRoleId)).toList();

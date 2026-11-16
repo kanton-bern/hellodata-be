@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementCreateDto;
 import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementDto;
 import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementUpdateDto;
 import ch.bedag.dap.hellodata.portal.announcement.service.AnnouncementService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -63,13 +64,13 @@ public class AnnouncementController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ANNOUNCEMENT_MANAGEMENT')")
-    public void createAnnouncement(@RequestBody AnnouncementCreateDto announcementCreateDto) {
+    public void createAnnouncement(@Valid @RequestBody AnnouncementCreateDto announcementCreateDto) {
         announcementService.create(announcementCreateDto);
     }
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('ANNOUNCEMENT_MANAGEMENT')")
-    public void updateAnnouncement(@RequestBody AnnouncementUpdateDto announcementUpdateDto) {
+    public void updateAnnouncement(@Valid @RequestBody AnnouncementUpdateDto announcementUpdateDto) {
         announcementService.update(announcementUpdateDto);
     }
 

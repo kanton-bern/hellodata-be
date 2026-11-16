@@ -42,12 +42,14 @@ import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
+import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -91,6 +93,7 @@ public class BatchUsersInvitationService {
     }
 
     @Scheduled(fixedDelayString = "${hello-data.batch-users-file.scan-interval-seconds}", timeUnit = TimeUnit.SECONDS)
+    @SchedulerLock(name = "inviteOrUpdateBatchUsers", lockAtMostFor = "PT1H")
     public void inviteOrUpdateUsers() {
         try {
             ContextsDto availableContexts = userService.getAvailableContexts();
@@ -144,6 +147,9 @@ public class BatchUsersInvitationService {
             Map<String, List<String>> resolvedGroupIds = resolveDashboardGroupNamesToIds(user);
             user.setSelectedDashboardGroupIdsForUser(resolvedGroupIds);
 
+            // Map RLS_* supersetRoles from CSV to the RLS roles managed by the portal
+            user.setSelectedRlsRolesForUser(mapSupersetRolesToRlsRoles(user));
+
             boolean isLast = i == users.size() - 1;
             userService.updateContextRolesForUserFromBatch(UUID.fromString(userId), user, isLast);
         }
@@ -158,7 +164,7 @@ public class BatchUsersInvitationService {
         AdUserDto adUserDto = firstAD.orElseGet(() -> any.orElseThrow(() -> new NoSuchElementException("User not found: " + user.getEmail())));
         try {
             String userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName(), adUserDto.getOrigin());
-            Thread.sleep(1000L); //wait for it to push to subsystems before proceeding to set context roles
+            waitForSubsystemPropagation();
             batchUsersCustomLogger.logMessage(String.format("Created user %s", user.getEmail()));
             return userId;
         } catch (UserAlreadyExistsException e) {
@@ -169,23 +175,34 @@ public class BatchUsersInvitationService {
         }
     }
 
+    private static void waitForSubsystemPropagation() {
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000L);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted while waiting for user creation propagation in subsystems", e);
+        }
+    }
+
     /**
      * Resolves dashboard group names from the CSV to dashboard group IDs.
      * Uses DashboardGroupService to look up groups by name and context key.
      */
     private Map<String, List<String>> resolveDashboardGroupNamesToIds(BatchUpdateContextRolesForUserDto user) {
-        Map<String, List<String>> dashboardGroupNamesMap = user.getDashboardGroupNamesFromCsv();
-        if (dashboardGroupNamesMap == null || dashboardGroupNamesMap.isEmpty()) {
-            return new HashMap<>();
-        }
+        Map<String, List<String>> dashboardGroupNamesMap = user.getDashboardGroupNamesFromCsv() == null
+                ? Map.of() : user.getDashboardGroupNamesFromCsv();
 
         Map<String, List<String>> resolvedGroupIds = new HashMap<>();
         for (Map.Entry<String, List<String>> entry : dashboardGroupNamesMap.entrySet()) {
             String contextKey = entry.getKey();
             List<String> groupNames = entry.getValue();
-            List<String> groupIds = resolveGroupNamesForContext(contextKey, groupNames, user.getEmail());
-            if (!groupIds.isEmpty()) {
-                resolvedGroupIds.put(contextKey, groupIds);
+            resolvedGroupIds.put(contextKey, resolveGroupNamesForContext(contextKey, groupNames, user.getEmail()));
+        }
+        // the file defines the complete state of the data domain, so a data domain without groups in the file
+        // removes the user from the groups it was in before (HELLODATA-2073 / HELLODATA-2074)
+        if (user.getDataDomainRoles() != null) {
+            for (UserContextRoleDto dataDomainRole : user.getDataDomainRoles()) {
+                resolvedGroupIds.putIfAbsent(dataDomainRole.getContext().getContextKey(), new ArrayList<>());
             }
         }
         return resolvedGroupIds;
@@ -263,9 +280,9 @@ public class BatchUsersInvitationService {
             String contextKey = entry.getKey();
             List<DashboardForUserDto> matched = mapDashboardsForContext(
                     contextKey, entry.getValue(), contextToDataDomainRole, contextToDashboards, user.getEmail());
-            if (!matched.isEmpty()) {
-                selectedDashboards.put(contextKey, matched);
-            }
+            // the file defines the complete state of the data domain, so an empty list removes the dashboards
+            // an existing user was given before (HELLODATA-2073 / HELLODATA-2074)
+            selectedDashboards.put(contextKey, matched);
         }
         return selectedDashboards;
     }
@@ -328,6 +345,34 @@ public class BatchUsersInvitationService {
                 .flatMap(moduleRoleNames -> moduleRoleNames.roleNames().stream())
                 .filter(roleName -> roleName.startsWith(SlugifyUtil.DASHBOARD_ROLE_PREFIX))
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * Maps supersetRoles from CSV (RLS_* roles) to RLS role selections per context.
+     * Every context of the CSV gets an entry (empty if no RLS role is set), as the CSV defines the complete set of superset roles.
+     * Eligibility (VIEWER or BUSINESS_SPECIALIST) is checked when the selection is persisted.
+     */
+    private Map<String, List<String>> mapSupersetRolesToRlsRoles(BatchUpdateContextRolesForUserDto user) {
+        Map<String, List<ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames>> contextToModuleRoles =
+                user.getContextToModuleRoleNamesMap();
+        Map<String, List<String>> selectedRlsRoles = new HashMap<>();
+        if (contextToModuleRoles == null) {
+            return selectedRlsRoles;
+        }
+        for (Map.Entry<String, List<ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames>> entry : contextToModuleRoles.entrySet()) {
+            if (entry.getKey() == null || entry.getKey().isEmpty()) {
+                continue;
+            }
+            List<String> rlsRoles = entry.getValue().stream()
+                    .filter(moduleRoleNames -> moduleRoleNames.moduleType() == ModuleType.SUPERSET)
+                    .flatMap(moduleRoleNames -> moduleRoleNames.roleNames().stream())
+                    .filter(RlsRoleService::isRlsRoleKey)
+                    .distinct()
+                    .sorted()
+                    .toList();
+            selectedRlsRoles.put(entry.getKey(), rlsRoles);
+        }
+        return selectedRlsRoles;
     }
 
     private boolean hasMatchingRole(SupersetDashboard dashboard, Set<String> supersetRoleNames) {

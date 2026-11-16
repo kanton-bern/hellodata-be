@@ -29,6 +29,8 @@ package ch.bedag.dap.hellodata.sidecars.superset.config;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.properties.SupersetProperties;
 import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,11 +46,11 @@ public class SupersetConfig {
      *
      * @return new instance of supersetClient
      *
-     * @throws Exception if error occurred on client creation
+     * @throws IOException, URISyntaxException if error occurred on client creation
      */
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public SupersetClient supersetClient() throws Exception {
+    public SupersetClient supersetClient() throws IOException, URISyntaxException {
         return new SupersetClient(supersetProperties.getHost(), supersetProperties.getPort(), supersetProperties.getAdminUsername(), supersetProperties.getAdminPassword());
     }
 }

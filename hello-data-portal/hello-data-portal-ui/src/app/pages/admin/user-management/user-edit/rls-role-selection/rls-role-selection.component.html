@@ -1,0 +1,55 @@
+<!--
+  ~ Copyright © 2024, Kanton Bern
+  ~ All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without
+  ~ modification, are permitted provided that the following conditions are met:
+  ~     * Redistributions of source code must retain the above copyright
+  ~       notice, this list of conditions and the following disclaimer.
+  ~     * Redistributions in binary form must reproduce the above copyright
+  ~       notice, this list of conditions and the following disclaimer in the
+  ~       documentation and/or other materials provided with the distribution.
+  ~     * Neither the name of the <organization> nor the
+  ~       names of its contributors may be used to endorse or promote products
+  ~       derived from this software without specific prior written permission.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+  ~ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  ~ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+  ~ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  ~ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  ~ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+  ~ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  ~ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  ~ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+@if ((selection$ | async); as selection) {
+  @if (selection.rlsRoles.length > 0) {
+    <div class="w-full border border-surface rounded-lg p-3 mb-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-surface">
+        <span class="font-medium">{{ '@RLS Groups' | transloco }} ({{ selection.selectedRoleKeys.length }})</span>
+        <span class="text-sm text-gray-600">{{ '@Optional - restricts the data the user sees in the dashboards' | transloco }}</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+        @for (rlsRole of selection.rlsRoles; track rlsRole.roleKey) {
+          <div class="flex items-start gap-2 p-1">
+            <p-checkbox
+              class="mt-0.5"
+              [binary]="true"
+              [ngModel]="selection.selectedRoleKeys.includes(rlsRole.roleKey)"
+              (ngModelChange)="onRlsRoleChange(rlsRole.roleKey, $event, selection.selectedRoleKeys)"
+              [inputId]="'rls-' + context().contextKey + '-' + rlsRole.roleKey"/>
+            <label [for]="'rls-' + context().contextKey + '-' + rlsRole.roleKey" class="text-sm cursor-pointer leading-tight">
+              <span class="block">{{ rlsRole.name }}</span>
+              @if (rlsRole.name !== rlsRole.roleKey) {
+                <span class="text-gray-500 text-xs block">{{ rlsRole.roleKey }}</span>
+              }
+            </label>
+          </div>
+        }
+      </div>
+    </div>
+  }
+}

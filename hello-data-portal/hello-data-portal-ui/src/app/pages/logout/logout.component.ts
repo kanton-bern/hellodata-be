@@ -34,6 +34,7 @@ import {logout} from "../../store/auth/auth.action";
 import {TranslocoPipe} from '@jsverse/transloco';
 import {selectAppInfoByModuleType} from "../../store/metainfo-resource/metainfo-resource.selector";
 import {take} from "rxjs";
+import {jupyterhubLogoutUrl} from "../../shared/services/subsystem-logout.service";
 
 @Component({
   selector: 'app-logout',
@@ -48,16 +49,31 @@ export class LogoutComponent implements AfterViewInit {
   constructor() {
     // check if superset was opened in an iframe, if so call for logout there as well
     const openedSubsystems = sessionStorage.getItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY);
-    if (openedSubsystems) {
-      const storedSetArray: string[] = JSON.parse(openedSubsystems);
-      storedSetArray.forEach(url => {
-        const componentRefSupersetIframe = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-        componentRefSupersetIframe.setInput('url', url);
-      })
-    }
+    const visitedUrls: string[] = openedSubsystems ? JSON.parse(openedSubsystems) : [];
+    visitedUrls.forEach(url => {
+      const componentRefSupersetIframe = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+      componentRefSupersetIframe.setInput('url', url);
+    });
 
     this.logoutAirflow();
+    this.logoutAirflow3();
     this.logoutFilebrowser();
+    this.logoutJupyterhubs(new Set(visitedUrls));
+  }
+
+  // HELLODATA-4166: log out of every JupyterHub of the user, also when it was opened in another tab
+  // (the visited list above only knows the JupyterHubs opened in this tab)
+  private logoutJupyterhubs(alreadyCalled: Set<string>) {
+    this.store.select(selectAppInfoByModuleType('JUPYTERHUB')).pipe(take(1)).subscribe(jupyterhubInfos => {
+      jupyterhubInfos
+        .filter(info => !!info?.data?.url)
+        .map(info => jupyterhubLogoutUrl(info.data.url))
+        .filter(url => !alreadyCalled.has(url))
+        .forEach(url => {
+          const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+          componentRef.setInput('url', url);
+        });
+    });
   }
 
   private logoutFilebrowser() {
@@ -74,6 +90,15 @@ export class LogoutComponent implements AfterViewInit {
       if (airflowInfos.length > 0) {
         const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
         componentRef.setInput('url', airflowInfos[0].data.url + '/logout');
+      }
+    });
+  }
+
+  private logoutAirflow3() {
+    this.store.select(selectAppInfoByModuleType('AIRFLOW3')).pipe(take(1)).subscribe(airflow3Infos => {
+      if (airflow3Infos.length > 0) {
+        const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+        componentRef.setInput('url', airflow3Infos[0].data.url + '/logout');
       }
     });
   }

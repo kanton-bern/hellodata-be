@@ -60,6 +60,12 @@ HelloDATA supports two ways of granting dashboard access to users:
 
 Both methods coexist. When determining a user's final set of dashboards for Superset synchronization, the system **merges** direct assignments with group-based assignments. If the same dashboard appears in both a direct assignment and a group, it is included only once — the user still gets viewer access.
 
+## RLS Groups
+
+A Dashboard Group can also select RLS Groups (row level security roles `RLS_01` - `RLS_15`). All members of the group are
+assigned to these RLS Groups in Superset, in addition to the RLS Groups assigned directly to them. See
+[RLS Groups](rls-groups.md) for details.
+
 ## Validation Rules
 
 The system enforces the following rules when creating or updating Dashboard Groups:
@@ -74,7 +80,7 @@ The system enforces the following rules when creating or updating Dashboard Grou
 Dashboard Groups are tightly integrated with the Superset permission synchronization pipeline:
 
 - **On group creation** — if the group contains both dashboards and users, all member users are synchronized.
-- **On group update** — the system detects which users were added or removed, and whether the dashboard list changed. Only affected users are re-synchronized. If the dashboard list changed, all current and former members are synchronized.
+- **On group update** — the system detects which users were added or removed, and whether the dashboard list changed. Only affected users are re-synchronized. If the dashboard list or the RLS Groups changed, all current and former members are synchronized.
 - **On group deletion** — all users who were members of the deleted group are re-synchronized so that their excess permissions are revoked.
 
 Synchronization happens **asynchronously** after the database transaction is committed, ensuring data consistency.

@@ -63,7 +63,7 @@ public abstract class HDControllerTest {
 
     protected byte[] asJsonString(Object object) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
         JavaTimeModule module = new JavaTimeModule();
         mapper.registerModule(module);

@@ -26,6 +26,9 @@
 #
 hello-data:
   synchronize-query-in-minutes: 60
+  cache:
+    users-with-dashboards-ttl-minutes: 60
+    subsystem-users-ttl-minutes: 60
 spring:
   application:
     name: HelloDATA Sidecar for Portal

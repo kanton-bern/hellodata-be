@@ -116,24 +116,22 @@ public class DashboardCommentNotificationService {
      * Notify the comment author that their comment was published or declined.
      */
     @Async
-    public void notifyStatusChange(String contextKey, int dashboardId, String commentId, String authorEmail,
-                                   String authorNameFallback, String commentText, String actorEmail,
-                                   String reviewerFullName, boolean published, String declineReason) {
+    public void notifyStatusChange(AuthorNotificationContext ctx, boolean published, String declineReason) {
         try {
-            ResolvedAuthor author = resolveAuthor(commentId, authorEmail, authorNameFallback, actorEmail);
+            ResolvedAuthor author = resolveAuthor(ctx);
             if (author == null) {
                 return;
             }
-            String dashboardName = getDashboardTitle(contextKey, dashboardId);
+            String dashboardName = getDashboardTitle(ctx.contextKey(), ctx.dashboardId());
             if (published) {
                 emailNotificationService.notifyAboutCommentPublished(
-                        author.firstName(), authorEmail, commentText, dashboardName, reviewerFullName, author.locale());
+                        author.firstName(), ctx.authorEmail(), ctx.commentText(), dashboardName, ctx.actorFullName(), author.locale());
             } else {
                 emailNotificationService.notifyAboutCommentDeclined(
-                        author.firstName(), authorEmail, commentText, dashboardName, declineReason, reviewerFullName, author.locale());
+                        author.firstName(), ctx.authorEmail(), ctx.commentText(), dashboardName, declineReason, ctx.actorFullName(), author.locale());
             }
         } catch (Exception e) {
-            log.warn("Failed to send status-change notification for comment {}: {}", commentId, e.getMessage());
+            log.warn("Failed to send status-change notification for comment {}: {}", ctx.commentId(), e.getMessage());
         }
     }
 
@@ -141,38 +139,36 @@ public class DashboardCommentNotificationService {
      * Notify the comment author that their comment was deleted by another user.
      */
     @Async
-    public void notifyDeleted(String contextKey, int dashboardId, String commentId, String authorEmail,
-                              String authorNameFallback, String commentText, String deleterEmail,
-                              String deleterFullName, String deletionReason) {
+    public void notifyDeleted(AuthorNotificationContext ctx, String deletionReason) {
         try {
-            ResolvedAuthor author = resolveAuthor(commentId, authorEmail, authorNameFallback, deleterEmail);
+            ResolvedAuthor author = resolveAuthor(ctx);
             if (author == null) {
                 return;
             }
-            String dashboardName = getDashboardTitle(contextKey, dashboardId);
+            String dashboardName = getDashboardTitle(ctx.contextKey(), ctx.dashboardId());
             emailNotificationService.notifyAboutCommentDeleted(
-                    author.firstName(), authorEmail, commentText, dashboardName, deletionReason, deleterFullName, author.locale());
+                    author.firstName(), ctx.authorEmail(), ctx.commentText(), dashboardName, deletionReason, ctx.actorFullName(), author.locale());
         } catch (Exception e) {
-            log.warn("Failed to send deletion notification for comment {}: {}", commentId, e.getMessage());
+            log.warn("Failed to send deletion notification for comment {}: {}", ctx.commentId(), e.getMessage());
         }
     }
 
     /**
-     * Notify the comment author that their comment was edited by a reviewer.
+     * Notify the comment author that their comment was edited by a reviewer. The context's
+     * {@code commentText} carries the new text.
      */
     @Async
-    public void notifyEditedByReviewer(String contextKey, int dashboardId, String commentId, String authorEmail,
-                                       String authorNameFallback, String newText, String editorEmail, String reviewerFullName) {
+    public void notifyEditedByReviewer(AuthorNotificationContext ctx) {
         try {
-            ResolvedAuthor author = resolveAuthor(commentId, authorEmail, authorNameFallback, editorEmail);
+            ResolvedAuthor author = resolveAuthor(ctx);
             if (author == null) {
                 return;
             }
-            String dashboardName = getDashboardTitle(contextKey, dashboardId);
+            String dashboardName = getDashboardTitle(ctx.contextKey(), ctx.dashboardId());
             emailNotificationService.notifyAboutCommentEditedByReviewer(
-                    author.firstName(), authorEmail, newText, dashboardName, reviewerFullName, author.locale());
+                    author.firstName(), ctx.authorEmail(), ctx.commentText(), dashboardName, ctx.actorFullName(), author.locale());
         } catch (Exception e) {
-            log.warn("Failed to send edited-by-reviewer notification for comment {}: {}", commentId, e.getMessage());
+            log.warn("Failed to send edited-by-reviewer notification for comment {}: {}", ctx.commentId(), e.getMessage());
         }
     }
 
@@ -180,7 +176,11 @@ public class DashboardCommentNotificationService {
      * Resolves the author's display name and locale, applying the shared skip rules (missing email,
      * self-notification, disabled author). Returns {@code null} when no notification should be sent.
      */
-    private ResolvedAuthor resolveAuthor(String commentId, String authorEmail, String authorNameFallback, String actorEmail) {
+    private ResolvedAuthor resolveAuthor(AuthorNotificationContext ctx) {
+        String commentId = ctx.commentId();
+        String authorEmail = ctx.authorEmail();
+        String authorNameFallback = ctx.authorNameFallback();
+        String actorEmail = ctx.actorEmail();
         if (authorEmail == null || authorEmail.isBlank()) {
             log.debug("No author email for comment {}, skipping notification", commentId);
             return null;
@@ -225,5 +225,14 @@ public class DashboardCommentNotificationService {
     }
 
     private record ResolvedAuthor(String firstName, Locale locale) {
+    }
+
+    /**
+     * Plain values captured on the request thread that identify a comment, its author and the user
+     * (reviewer, deleter or editor) whose action triggers a notification to that author.
+     */
+    public record AuthorNotificationContext(String contextKey, int dashboardId, String commentId,
+                                            String authorEmail, String authorNameFallback, String commentText,
+                                            String actorEmail, String actorFullName) {
     }
 }

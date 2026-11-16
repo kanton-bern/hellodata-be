@@ -26,32 +26,20 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
+import ch.bedag.dap.hellodata.portalcommon.userscache.UsersCacheManagerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.LoggingCacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
-import tools.jackson.databind.DefaultTyping;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
-
-import java.time.Duration;
 
 @EnableCaching
 @Configuration
-public class RedisConfig {
-    public static final String USERS_WITH_DASHBOARD_CACHE = "users_with_dashboards";
-    public static final String SUBSYSTEM_USERS_CACHE = "subsystem_users";
+public class RedisConfig implements CachingConfigurer {
 
     @Value("${hello-data.cache.users-with-dashboards-ttl-minutes}")
     private long usersWithDashboardsTtlCacheMinutes;
@@ -61,28 +49,14 @@ public class RedisConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
-        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(Object.class)
-                .build();
+        return UsersCacheManagerFactory.create(factory, usersWithDashboardsTtlCacheMinutes, subsystemUsersTtlCacheMinutes);
+    }
 
-        ObjectMapper objectMapper = JsonMapper.builder()
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .activateDefaultTypingAsProperty(ptv, DefaultTyping.NON_FINAL, "@class")
-                .build();
-
-        RedisSerializer<Object> serializer = new GenericJacksonJsonRedisSerializer(objectMapper);
-
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
-
-        return RedisCacheManager.builder(factory)
-                .cacheDefaults(config)
-                .withCacheConfiguration(USERS_WITH_DASHBOARD_CACHE,
-                        config.entryTtl(Duration.ofMinutes(usersWithDashboardsTtlCacheMinutes)))
-                .withCacheConfiguration(SUBSYSTEM_USERS_CACHE,
-                        config.entryTtl(Duration.ofMinutes(subsystemUsersTtlCacheMinutes)))
-                .build();
+    /**
+     * An entry that cannot be read (e.g. written by an older version) is treated as a cache miss and rebuilt instead of failing the request.
+     */
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new LoggingCacheErrorHandler();
     }
 }
-

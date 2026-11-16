@@ -1,0 +1,317 @@
+<div class="app">
+  <aside class="palette">
+    @if (mode === 'manage') {
+      <h2>{{ (editId ? '@Edit layout' : '@Create layout') | transloco }}</h2>
+
+      <label class="field name-field">
+        <span>{{ '@Layout name' | transloco }}</span>
+        <input pInputText type="text" maxlength="255" [ngModel]="layoutName()" (ngModelChange)="layoutName.set($event)"
+               [attr.aria-label]="'@Layout name' | transloco"/>
+      </label>
+    } @else {
+      <h2>{{ '@PDF export' | transloco }}</h2>
+
+      <label class="field">
+        <span>{{ '@Saved layout' | transloco }}</span>
+        <p-select
+          [options]="savedLayoutOptions()"
+          [ngModel]="layoutPickerValue()"
+          (ngModelChange)="onLayoutPick($event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'@Choose a saved layout' | transloco"
+          [emptyMessage]="'@No saved layouts' | transloco"
+          [loading]="loadingLayout()"
+          [disabled]="loadingLayout()"
+          appendTo="body"
+          styleClass="w-full"/>
+      </label>
+      <div class="layout-actions">
+        <p-button (click)="openLayoutManagement()" (keydown.enter)="openLayoutManagement()"
+                  [icon]="icons.ACTION_EDIT.class" [label]="'@Manage layouts' | transloco"
+                  severity="secondary" size="small" pRipple/>
+        <p-button (click)="clearExport()" (keydown.enter)="clearExport()" [disabled]="!canClearExport()"
+                  [icon]="icons.ACTION_FILTER_CLEAR.class" [label]="'@Clear' | transloco"
+                  [pTooltip]="'@Start an empty export' | transloco"
+                  severity="secondary" size="small" pRipple/>
+      </div>
+      @if (currentLayout()) {
+        <p class="hint local-hint">{{ '@Changes here are only used for your export' | transloco }}</p>
+      }
+    }
+
+    <label class="field">
+      <span>{{ '@Dashboard' | transloco }}</span>
+      <p-select
+        [options]="dashboardOptions()"
+        [ngModel]="dashboardPickerValue()"
+        (ngModelChange)="onDashboardPick($event)"
+        optionLabel="label"
+        optionValue="value"
+        [disabled]="editId !== null"
+        [placeholder]="'@Choose a dashboard' | transloco"
+        appendTo="body"
+        styleClass="w-full"/>
+    </label>
+
+    <label class="field title-field">
+      <span class="field-label">
+        {{ '@PDF title' | transloco }}
+        <i [class]="icons.STATUS_INFO.class" class="field-info" aria-hidden="true"
+           [pTooltip]="'@PDF title tooltip' | transloco" tooltipPosition="right"></i>
+      </span>
+      <input pInputText type="text" maxlength="500" [ngModel]="pdfTitle()" (ngModelChange)="onTitleChange($event)"
+             [placeholder]="selectedDashboard()?.dashboardTitle ?? ''"
+             [attr.aria-label]="'@PDF title' | transloco"
+             [attr.aria-description]="'@PDF title tooltip' | transloco"/>
+    </label>
+
+    <h3>
+      <button type="button" class="section-toggle" (click)="toggleCharts()"
+              [attr.aria-expanded]="chartsExpanded()" aria-controls="pdf-builder-charts">
+        <i [class]="chartsExpanded() ? icons.NAV_CHEVRON_DOWN.class : icons.NAV_CHEVRON_RIGHT.class" aria-hidden="true"></i>
+        <span>{{ '@Charts' | transloco }}</span>
+        @if (charts().length) {
+          <span class="count">{{ charts().length }}</span>
+        }
+      </button>
+    </h3>
+    @if (chartsExpanded()) {
+      <div id="pdf-builder-charts">
+        <p class="hint">{{ '@Drag a chart onto the grid' | transloco }}</p>
+        <ul class="items">
+          @for (c of charts(); track c.id) {
+            <li class="palette-item" draggable="true"
+                (dragstart)="onDragStart({ type: 'chart', chartId: c.id, name: c.name })" (dragend)="onDragEnd()">
+              {{ c.name }}
+            </li>
+          } @empty {
+            <li class="empty">{{ '@No charts loaded' | transloco }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <h3>{{ '@Text' | transloco }}</h3>
+    <p class="hint">{{ '@Drag a text block onto the grid' | transloco }}</p>
+    <ul class="items">
+      <li class="palette-item" draggable="true"
+          (dragstart)="onDragStart({ type: 'markdown', html: '', readonly: false })" (dragend)="onDragEnd()">
+        {{ '@Text block' | transloco }}
+      </li>
+    </ul>
+
+    <div class="actions">
+      <label class="field">
+        <span>{{ '@Template' | transloco }}</span>
+        <p-select
+          [options]="templates()"
+          [ngModel]="selectedTemplate()"
+          (ngModelChange)="onTemplateChange($event)"
+          optionLabel="name"
+          optionValue="id"
+          appendTo="body"
+          styleClass="w-full"/>
+      </label>
+      @if (mode === 'manage') {
+        <p-button (click)="saveManagedLayout()" (keydown.enter)="saveManagedLayout()"
+                  [disabled]="selectedDashboard() === null || !layoutName().trim() || saving()"
+                  [loading]="saving()"
+                  [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco"
+                  styleClass="w-full" pRipple/>
+        <p-button (click)="cancelManage()" (keydown.enter)="cancelManage()"
+                  [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"
+                  severity="secondary" styleClass="w-full" pRipple/>
+      } @else {
+        <label class="fresh-data">
+          <input type="checkbox" [checked]="freshData()"
+                 (change)="freshData.set($any($event.target).checked)"/>
+          <span>{{ '@Fresh data' | transloco }}</span>
+          <small>{{ '@Re-render charts with the latest data (slower)' | transloco }}</small>
+        </label>
+        <p-button (click)="export()" (keydown.enter)="export()"
+                  [disabled]="selectedDashboard() === null || cells().length === 0 || exporting() || anyPreviewLoading()"
+                  [loading]="exporting()"
+                  [icon]="icons.ACTION_FILE_EXPORT.class"
+                  [label]="(exporting() ? '@Exporting' : '@Export PDF') | transloco"
+                  styleClass="w-full" pRipple/>
+        <p-button (click)="openSaveAs()" (keydown.enter)="openSaveAs()"
+                  [disabled]="selectedDashboard() === null || cells().length === 0 || saving()"
+                  [icon]="icons.ACTION_SAVE.class" [label]="'@Save as layout' | transloco"
+                  severity="secondary" styleClass="w-full" pRipple/>
+        @if (anyPreviewLoading()) {
+          <small class="export-hint">{{ '@Export is enabled once all chart previews have loaded' | transloco }}</small>
+        }
+      }
+    </div>
+  </aside>
+
+  <main class="canvas">
+    <div class="paginator">
+      <span class="page-label">{{ '@Page' | transloco }}</span>
+      <p-button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0"
+                [icon]="icons.NAV_CHEVRON_LEFT.class" [text]="true" [rounded]="true" size="small"
+                [ariaLabel]="'@Previous page' | transloco"/>
+      <div class="page-numbers">
+        @for (p of pages(); track p) {
+          <button type="button" class="page-btn" [class.active]="p === currentPage()"
+                  (click)="goToPage(p)">{{ p + 1 }}</button>
+        }
+      </div>
+      <p-button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= pageCount() - 1"
+                [icon]="icons.NAV_CHEVRON_RIGHT.class" [text]="true" [rounded]="true" size="small"
+                [ariaLabel]="'@Next page' | transloco"/>
+      <div class="page-actions">
+        <p-button (click)="addPage()" [icon]="icons.ACTION_ADD.class" [label]="'@Add page' | transloco"
+                  severity="secondary" size="small" pRipple/>
+        <p-button (click)="removePage()" [disabled]="!canRemovePage()"
+                  [icon]="icons.ACTION_DELETE.class" [label]="'@Remove page' | transloco"
+                  severity="secondary" size="small" pRipple/>
+      </div>
+    </div>
+    <!-- The page grid in the PDF's shape and scale (see canvas()); tiles mirror the PDF's tiles. -->
+    <div class="page-area" #pageArea>
+      @if (canvas(); as page) {
+        <div class="pdf-page" [style.width.px]="page.width" [style.height.px]="page.height"
+             [style.--pdf-scale]="page.textScale">
+          <gridster [options]="options">
+            @for (cell of visibleCells(); track cell) {
+              <gridster-item [item]="cell" (itemChange)="onCellChange(cell)">
+                <div class="cell">
+                  <span class="cell-actions">
+                    @if (cell.type === 'chart') {
+                      <p-button (click)="refreshPreview(cell)" [disabled]="previewLoadingFor(cell)"
+                                [icon]="icons.ACTION_REFRESH.class"
+                                [text]="true" [rounded]="true" size="small" severity="secondary"
+                                [pTooltip]="'@Refresh preview with latest data' | transloco"
+                                [ariaLabel]="'@Refresh preview with latest data' | transloco"/>
+                    }
+                    @if (cell.type === 'markdown' && !cell.readonly) {
+                      <p-button (click)="editCell(cell)" [icon]="icons.ACTION_EDIT.class"
+                                [text]="true" [rounded]="true" size="small" severity="secondary"
+                                [ariaLabel]="'@Edit' | transloco"/>
+                    }
+                    <p-button (click)="removeCell(cell)" [icon]="icons.ACTION_DELETE.class"
+                              [text]="true" [rounded]="true" size="small" severity="danger"
+                              [ariaLabel]="'@Delete' | transloco"/>
+                  </span>
+                  @if (cell.type === 'chart') {
+                    <div class="pdf-tile">
+                      <div class="chart">
+                        <h3 class="chart-name">{{ cell.name }}</h3>
+                        <div class="chart-image" [class.placeholder]="!previewUrl(cell)"
+                             [style.height.px]="chartImageHeight(cell)">
+                          @if (previewUrl(cell); as url) {
+                            <img [src]="url" [alt]="cell.name" draggable="false"/>
+                          } @else if (previewLoadingFor(cell)) {
+                            <div class="spinner" [attr.aria-label]="'@Loading preview' | transloco"></div>
+                          } @else {
+                            <svg class="chart-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path d="M3 3h2v18H3V3zm4 10h3v8H7v-8zm5-6h3v14h-3V7zm5 3h3v11h-3V10z"/>
+                            </svg>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="pdf-tile" appClipWatch #clip="clipWatch">
+                      @if (cell.html || cell.markdown) {
+                        <div class="summary markdown" [innerHTML]="textHtml(cell)"></div>
+                      } @else {
+                        <div class="summary markdown"><em>{{ '@empty markdown' | transloco }}</em></div>
+                      }
+                    </div>
+                    @if (clip.clipped()) {
+                      <div class="clip-warning" role="status">
+                        <i [class]="icons.STATUS_WARNING.class" aria-hidden="true"></i>
+                        <span>{{ '@Text is cut off in the PDF' | transloco }}</span>
+                      </div>
+                    }
+                  }
+                </div>
+              </gridster-item>
+            }
+          </gridster>
+        </div>
+      } @else {
+        <div class="spinner" aria-hidden="true"></div>
+      }
+    </div>
+  </main>
+</div>
+
+<p-confirmDialog #removePageDlg key="removePdfPage" [style]="{width: '32rem'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="removePageDlg.onReject()" (keydown.escape)="removePageDlg.onReject()"
+              [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
+    <p-button (click)="removePageDlg.onAccept()" (keydown.enter)="removePageDlg.onAccept()"
+              [icon]="icons.ACTION_DELETE.class" [label]="'@Remove page' | transloco" severity="danger"/>
+  </ng-template>
+</p-confirmDialog>
+
+<p-confirmDialog #discardDlg key="discardPdfLayout" [style]="{width: '32rem'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="discardDlg.onReject()" (keydown.escape)="discardDlg.onReject()"
+              [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco" severity="secondary"/>
+    <p-button (click)="discardDlg.onAccept()" (keydown.enter)="discardDlg.onAccept()"
+              [icon]="icons.ACTION_UNDO.class" [label]="'@Discard changes' | transloco" severity="danger"/>
+  </ng-template>
+</p-confirmDialog>
+
+<div class="editor-backdrop" [class.open]="saveAsOpen()">
+  <div class="editor-dialog save-as-dialog" role="dialog" aria-modal="true">
+    <h3>{{ '@Save as layout' | transloco }}</h3>
+    <p class="hint">{{ '@Save as layout hint' | transloco }}</p>
+    <label class="field name-field">
+      <span>{{ '@Layout name' | transloco }}</span>
+      @if (saveAsOpen()) {
+        <input pInputText type="text" maxlength="255" [pAutoFocus]="true" [ngModel]="saveAsName()" (ngModelChange)="saveAsName.set($event)"
+               (keydown.enter)="saveAsLayout()" (keydown.escape)="closeSaveAs()"
+               [attr.aria-label]="'@Layout name' | transloco"/>
+      }
+    </label>
+    <div class="editor-actions">
+      <p-button (click)="closeSaveAs()" (keydown.enter)="closeSaveAs()"
+                [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"
+                severity="secondary" pRipple/>
+      <p-button (click)="saveAsLayout()" (keydown.enter)="saveAsLayout()"
+                [disabled]="!saveAsName().trim() || saving()" [loading]="saving()"
+                [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco" pRipple/>
+    </div>
+  </div>
+</div>
+
+<div class="editor-backdrop" [class.open]="editorOpen()">
+  <div class="editor-dialog">
+    <h3>{{ (editorMode() === 'edit' ? '@Edit text block' : '@Add text block') | transloco }}</h3>
+    <p-editor [ngModel]="editingText()" (ngModelChange)="editingText.set($event)"
+              (onInit)="onEditorInit($event)" [style]="{ height: '240px' }">
+      <ng-template #header>
+        <span class="ql-formats">
+          <button type="button" class="ql-bold" [attr.aria-label]="'@Bold' | transloco" [title]="'@Bold' | transloco"></button>
+          <button type="button" class="ql-italic" [attr.aria-label]="'@Italic' | transloco" [title]="'@Italic' | transloco"></button>
+        </span>
+        <span class="ql-formats">
+          <select class="ql-header" [attr.aria-label]="'@Heading' | transloco" [title]="'@Heading' | transloco">
+            <option value="1"></option>
+            <option value="2"></option>
+            <option value="3"></option>
+            <option selected></option>
+          </select>
+        </span>
+        <span class="ql-formats">
+          <button type="button" class="ql-list" value="bullet" [attr.aria-label]="'@Bullet list' | transloco" [title]="'@Bullet list' | transloco"></button>
+          <button type="button" class="ql-list" value="ordered" [attr.aria-label]="'@Numbered list' | transloco" [title]="'@Numbered list' | transloco"></button>
+          <button type="button" class="ql-link" [attr.aria-label]="'@Link' | transloco" [title]="'@Link' | transloco"></button>
+        </span>
+      </ng-template>
+    </p-editor>
+    <div class="editor-actions">
+      <p-button (click)="closeEditor()" (keydown.enter)="closeEditor()"
+                [icon]="icons.ACTION_CANCEL.class" [label]="'@Cancel' | transloco"
+                severity="secondary" pRipple/>
+      <p-button (click)="saveEditor()" (keydown.enter)="saveEditor()"
+                [icon]="icons.ACTION_SAVE.class" [label]="'@Save' | transloco" pRipple/>
+    </div>
+  </div>
+</div>

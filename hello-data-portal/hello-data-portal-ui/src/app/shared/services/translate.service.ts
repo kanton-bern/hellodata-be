@@ -30,6 +30,7 @@ import {LangDefinition, TranslateParams, Translation, TranslocoScope, TranslocoS
 import {Observable, Subscription, switchMap, tap} from "rxjs";
 import {filter} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
+import {environment} from "../../../environments/environment";
 
 type HashMap<T = any> = { [key: string]: T };
 
@@ -72,6 +73,14 @@ export class TranslateService implements OnDestroy {
 
   public setActiveLang(lang: string) {
     this.translocoService.setActiveLang(lang);
+    // Mirror the language to a cookie on the shared parent domain so embedded, cross-origin
+    // subsystems can pick it up. The Airflow 3 iframe reads hd_lang and maps it into its own
+    // i18next locale (see the Airflow index.html bootstrap).
+    try {
+      document.cookie = `hd_lang=${encodeURIComponent(lang)}; path=/; domain=.${environment.baseDomain}; secure;`;
+    } catch (e) {
+      console.warn('could not set hd_lang cookie', e);
+    }
   }
 
   public getDefaultLanguage() {

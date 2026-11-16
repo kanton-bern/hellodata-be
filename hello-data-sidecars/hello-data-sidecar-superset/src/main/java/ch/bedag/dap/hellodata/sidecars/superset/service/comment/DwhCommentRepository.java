@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
 public class DwhCommentRepository {
 
     /** Postgres unquoted identifier charset; guards the role names we interpolate into GRANT statements. */
-    private static final Pattern SAFE_ROLE_NAME = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    private static final Pattern SAFE_ROLE_NAME = Pattern.compile("^[a-zA-Z_]\\w*$");
 
     private final JdbcTemplate jdbcTemplate;
     private final DwhCommentSyncProperties properties;
@@ -63,10 +63,21 @@ public class DwhCommentRepository {
         this.properties = properties;
     }
 
+    /**
+     * SQL identifiers (schema/table) cannot be bound as JDBC parameters, so they are validated against a strict
+     * whitelist before being concatenated into DDL/DML. Fails fast on a misconfigured value.
+     */
+    private static String requireSafeIdentifier(String value, String propertyName) {
+        if (value == null || !SAFE_ROLE_NAME.matcher(value).matches()) {
+            throw new IllegalStateException("Invalid dashboard-comments " + propertyName + ": '" + value + "' is not a valid SQL identifier");
+        }
+        return value;
+    }
+
     @PostConstruct
     public void ensureTableExists() {
-        String schema = properties.getDwhSchema();
-        String table = properties.getDwhTable();
+        String schema = requireSafeIdentifier(properties.getDwhSchema(), "dwh-schema");
+        String table = requireSafeIdentifier(properties.getDwhTable(), "dwh-table");
         String qualifiedTable = schema + "." + table;
 
         jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS " + schema);
@@ -149,8 +160,8 @@ public class DwhCommentRepository {
      */
     @Transactional
     public void replaceCommentsForDashboard(DashboardCommentsPublished payload) {
-        String schema = properties.getDwhSchema();
-        String table = properties.getDwhTable();
+        String schema = requireSafeIdentifier(properties.getDwhSchema(), "dwh-schema");
+        String table = requireSafeIdentifier(properties.getDwhTable(), "dwh-table");
         String qualifiedTable = schema + "." + table;
 
         jdbcTemplate.update("DELETE FROM " + qualifiedTable + " WHERE dashboard_id = ? AND context_key = ?",

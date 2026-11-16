@@ -87,7 +87,9 @@ DROP FUNCTION IF EXISTS backfill_dag_permissions_for_role();
 -- Flow per new DAG row:
 -- 1) Build view menu key "DAG:<dag_id>" and role key "DD_<data_domain>".
 -- 2) Ensure ab_view_menu entry exists.
--- 3) Ensure ab_role entry exists (if derivable from fileloc).
+-- 3) Ensure ab_role entry exists (if derivable from fileloc: the folder below a
+--    "dags" folder, e.g. /opt/airflow/dags/<data_domain>/... or
+--    /storage/airflow/dags/<data_domain>/... in docker compose).
 -- 4) Ensure permission views for can_delete/can_read/can_edit exist.
 -- 5) Map those permission views to the domain role.
 --
@@ -103,7 +105,7 @@ DECLARE
     _role_name VARCHAR(255);
 BEGIN
     _view_menu_name := 'DAG:' || new.dag_id;
-    _role_name := 'DD_' || substring(new.fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)');
+    _role_name := 'DD_' || substring(new.fileloc from '/dags/([a-zA-Z0-9_]+)/');
 
     INSERT INTO ab_view_menu (name)
     VALUES (_view_menu_name)
@@ -239,7 +241,7 @@ BEGIN
     JOIN ab_view_menu vm ON vm.name = 'DAG:' || d.dag_id
     JOIN ab_permission_view pv ON pv.view_menu_id = vm.id
     JOIN ab_permission p ON p.id = pv.permission_id
-    WHERE substring(d.fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') = _domain_key
+    WHERE substring(d.fileloc from '/dags/([a-zA-Z0-9_]+)/') = _domain_key
       AND p.name IN ('can_delete', 'can_read', 'can_edit')
     ON CONFLICT (permission_view_id, role_id) DO NOTHING;
 

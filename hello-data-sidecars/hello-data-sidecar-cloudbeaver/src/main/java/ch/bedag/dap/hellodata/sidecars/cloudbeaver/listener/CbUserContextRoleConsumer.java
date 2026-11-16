@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserUpdateOrderGuard;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Privilege;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Role;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.User;
@@ -54,6 +55,8 @@ public class CbUserContextRoleConsumer {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final CbUserResourceProviderService userResourceProviderService;
+    // shared by the single updates and the full synchronization, which both go through this bean
+    private final UserUpdateOrderGuard orderGuard = new UserUpdateOrderGuard();
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
@@ -63,6 +66,16 @@ public class CbUserContextRoleConsumer {
     }
 
     public void processContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
+        try (UserUpdateOrderGuard.Permit permit = orderGuard.enter(userContextRoleUpdate)) {
+            if (permit.isStale()) {
+                return;
+            }
+            applyContextRoleUpdate(userContextRoleUpdate);
+            permit.applied();
+        }
+    }
+
+    private void applyContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
         log.info("--> process email: {}", userContextRoleUpdate.getEmail());
         log.info("--> process username: {}", userContextRoleUpdate.getUsername());
         User user = userRepository.findByEmailIgnoreCase(userContextRoleUpdate.getEmail());

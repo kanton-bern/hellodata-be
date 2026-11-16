@@ -68,12 +68,13 @@ public class HellodataAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getCredentials() {
+        // no credentials are kept after authentication
         return null;
     }
 
     @Override
     public Object getPrincipal() {
-        return email;
+        return getEmail();
     }
 
     public boolean isSuperuser() {

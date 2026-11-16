@@ -26,7 +26,7 @@
 #
 
 x-superset-image:
-  &superset-image bedag/hello-data-dc-superset
+  &superset-image bedag/hello-data-dc-superset:${HD_VERSION:-latest}
 x-superset-depends-on:
   &superset-depends-on
   postgres:
@@ -101,7 +101,7 @@ services:
 
   hello-data-superset-sidecar-extra-data-domain:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-superset
+    image: bedag/hello-data-sidecar-superset:${HD_VERSION:-latest}
     env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"

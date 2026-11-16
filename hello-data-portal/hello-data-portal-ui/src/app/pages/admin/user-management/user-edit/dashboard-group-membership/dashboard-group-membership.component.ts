@@ -64,24 +64,42 @@ export class DashboardGroupMembershipComponent implements OnInit {
 
   constructor() {
     this.memberships$ = this.store.select(selectDashboardGroupMembershipsForUser).pipe(
-      map(allMemberships => allMemberships[this.context().contextKey] || [])
+      map(allMemberships => this.forContext(allMemberships))
     );
     this.selectedGroupIds$ = this.store.select(selectSelectedDashboardGroupIdsForUser).pipe(
-      map(allSelectedIds => allSelectedIds[this.context().contextKey] || [])
+      map(allSelectedIds => this.forContext(allSelectedIds))
     );
   }
 
   ngOnInit() {
-    this.store.dispatch(loadDashboardGroupMemberships({contextKey: this.context().contextKey}));
+    const contextKey = this.contextKey();
+    if (contextKey) {
+      this.store.dispatch(loadDashboardGroupMemberships({contextKey}));
+    }
   }
 
   onMembershipChange(groupId: string, isMember: boolean) {
+    const contextKey = this.contextKey();
+    if (!contextKey) {
+      return;
+    }
     this.store.dispatch(setDashboardGroupMembershipForUser({
-      contextKey: this.context().contextKey,
+      contextKey,
       groupId,
       isMember
     }));
     this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
+  }
+
+  /** The data domain whose memberships are shown; optional on Context, so nothing is loaded without it. */
+  private contextKey(): string | undefined {
+    return this.context().contextKey;
+  }
+
+  /** This data domain's entry of a per-domain map; empty when the domain has none or no key. */
+  private forContext<T>(byContextKey: Record<string, T[]>): T[] {
+    const contextKey = this.contextKey();
+    return contextKey ? byContextKey[contextKey] || [] : [];
   }
 
   isGroupSelected(groupId: string, selectedIds: string[]): boolean {

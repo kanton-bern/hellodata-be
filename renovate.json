@@ -12,7 +12,6 @@
   ],
   "timezone": "Europe/Zurich",
   "ignorePaths": [
-    "hello-data-portal/hello-data-portal-ui-e2e/**",
     "**/requirements*.txt"
   ],
   "enabledManagers": [

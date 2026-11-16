@@ -113,7 +113,7 @@ services:
       - "keycloak.localhost:host-gateway"
 
   hello-data-jupyterhub-gateway-default-data-domain:
-    image: bedag/hello-data-jupyterhub-gateway
+    image: bedag/hello-data-jupyterhub-gateway:${HD_VERSION:-latest}
     profiles:
       - disabled
     env_file: .env
@@ -136,7 +136,7 @@ services:
       - "keycloak.localhost:host-gateway"
 
   hello-data-sidecar-jupyterhub-default-data-domain:
-    image: bedag/hello-data-sidecar-jupyterhub
+    image: bedag/hello-data-sidecar-jupyterhub:${HD_VERSION:-latest}
     env_file: .env
     environment:
       - HELLO_DATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://postgres:5432/hellodata_product_development_default_data_domain_dwh

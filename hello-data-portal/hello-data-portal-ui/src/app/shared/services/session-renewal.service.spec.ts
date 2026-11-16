@@ -27,31 +27,39 @@
 
 import {TestBed} from '@angular/core/testing';
 import {OidcSecurityService} from 'angular-auth-oidc-client';
-import {of} from 'rxjs';
+import {BehaviorSubject, of} from 'rxjs';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 import {SessionRenewalService} from './session-renewal.service';
+import {SessionRefreshService} from './session-refresh.service';
 
 describe('SessionRenewalService', () => {
   const nowSec = () => Math.floor(Date.now() / 1000);
 
-  const setup = (opts: {isAuthenticated?: boolean; exp?: number} = {}) => {
+  const setup = (opts: {isAuthenticated?: boolean; exp?: number; wasAuthenticated?: boolean} = {}) => {
+    const isAuthenticated = opts.isAuthenticated ?? true;
+    const isAuthenticated$ = new BehaviorSubject({isAuthenticated: opts.wasAuthenticated ?? isAuthenticated});
     const oidcMock = {
-      isAuthenticated: jest.fn().mockReturnValue(of(opts.isAuthenticated ?? true)),
-      getPayloadFromAccessToken: jest.fn().mockReturnValue(of({exp: opts.exp})),
-      forceRefreshSession: jest.fn().mockReturnValue(of({isAuthenticated: true}))
+      isAuthenticated$,
+      isAuthenticated: jest.fn().mockReturnValue(of(isAuthenticated)),
+      getPayloadFromAccessToken: jest.fn().mockReturnValue(of({exp: opts.exp}))
+    };
+    const sessionRefreshMock = {
+      refresh: jest.fn().mockReturnValue(of('new-token')),
+      redirectToLogin: jest.fn()
     };
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         SessionRenewalService,
-        {provide: OidcSecurityService, useValue: oidcMock}
+        {provide: OidcSecurityService, useValue: oidcMock},
+        {provide: SessionRefreshService, useValue: sessionRefreshMock}
       ]
     });
 
     const service = TestBed.inject(SessionRenewalService);
     service.start();
-    return {service, oidcMock};
+    return {service, oidcMock, sessionRefreshMock};
   };
 
   beforeEach(() => {
@@ -62,50 +70,58 @@ describe('SessionRenewalService', () => {
   const fireResume = () => document.dispatchEvent(new Event('resume'));
 
   it('refreshes when the access token is expired or about to expire', () => {
-    const {oidcMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
+    const {oidcMock, sessionRefreshMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
     fireVisibility();
-    expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(1);
+    expect(sessionRefreshMock.refresh).toHaveBeenCalledTimes(1);
   });
 
   it('does NOT refresh when the access token is still fresh', () => {
-    const {oidcMock} = setup({isAuthenticated: true, exp: nowSec() + 240});
+    const {oidcMock, sessionRefreshMock} = setup({isAuthenticated: true, exp: nowSec() + 240});
     fireVisibility();
-    expect(oidcMock.forceRefreshSession).not.toHaveBeenCalled();
+    expect(sessionRefreshMock.refresh).not.toHaveBeenCalled();
   });
 
-  it('does NOT refresh when the user is not authenticated', () => {
-    const {oidcMock} = setup({isAuthenticated: false, exp: nowSec() - 10});
+  it('does NOT refresh or redirect when the page never had a session (bootstrap / callback)', () => {
+    const {oidcMock, sessionRefreshMock} = setup({isAuthenticated: false, exp: nowSec() - 10});
     fireVisibility();
     expect(oidcMock.getPayloadFromAccessToken).not.toHaveBeenCalled();
-    expect(oidcMock.forceRefreshSession).not.toHaveBeenCalled();
+    expect(sessionRefreshMock.refresh).not.toHaveBeenCalled();
+    expect(sessionRefreshMock.redirectToLogin).not.toHaveBeenCalled();
+  });
+
+  it('redirects to login on wake when the session was lost while away', () => {
+    const {sessionRefreshMock} = setup({isAuthenticated: false, wasAuthenticated: true});
+    fireVisibility();
+    expect(sessionRefreshMock.refresh).not.toHaveBeenCalled();
+    expect(sessionRefreshMock.redirectToLogin).toHaveBeenCalledTimes(1);
   });
 
   it('does NOT act while the tab is hidden', () => {
-    const {oidcMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
+    const {oidcMock, sessionRefreshMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
     Object.defineProperty(document, 'visibilityState', {value: 'hidden', configurable: true});
     fireVisibility();
     expect(oidcMock.isAuthenticated).not.toHaveBeenCalled();
-    expect(oidcMock.forceRefreshSession).not.toHaveBeenCalled();
+    expect(sessionRefreshMock.refresh).not.toHaveBeenCalled();
   });
 
   it('throttles rapid focus events to a single refresh', () => {
-    const {oidcMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
+    const {oidcMock, sessionRefreshMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
     fireVisibility();
     fireVisibility();
     fireVisibility();
-    expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(1);
+    expect(sessionRefreshMock.refresh).toHaveBeenCalledTimes(1);
   });
 
   it('refreshes on the Page Lifecycle resume event (frozen tab un-frozen)', () => {
-    const {oidcMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
+    const {oidcMock, sessionRefreshMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
     fireResume();
-    expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(1);
+    expect(sessionRefreshMock.refresh).toHaveBeenCalledTimes(1);
   });
 
   it('refreshes on resume even while the tab is not yet in the foreground', () => {
-    const {oidcMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
+    const {oidcMock, sessionRefreshMock} = setup({isAuthenticated: true, exp: nowSec() - 10});
     Object.defineProperty(document, 'visibilityState', {value: 'hidden', configurable: true});
     fireResume();
-    expect(oidcMock.forceRefreshSession).toHaveBeenCalledTimes(1);
+    expect(sessionRefreshMock.refresh).toHaveBeenCalledTimes(1);
   });
 });

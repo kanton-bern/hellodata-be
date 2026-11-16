@@ -26,8 +26,24 @@
  */
 package ch.bedag.dap.hellodata.sidecars.portal.config;
 
+import ch.bedag.dap.hellodata.portalcommon.userscache.UsersCacheManagerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 @Configuration
 public class RedisConfig {
+
+    @Value("${hello-data.cache.users-with-dashboards-ttl-minutes}")
+    private long usersWithDashboardsTtlCacheMinutes;
+
+    @Value("${hello-data.cache.subsystem-users-ttl-minutes}")
+    private long subsystemUsersTtlCacheMinutes;
+
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory factory) {
+        return UsersCacheManagerFactory.create(factory, usersWithDashboardsTtlCacheMinutes, subsystemUsersTtlCacheMinutes);
+    }
 }

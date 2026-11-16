@@ -39,6 +39,8 @@ public enum RequestReplySubject {
     GET_QUERY_LIST("-get_query_list"),
     GET_DASHBOARD_ACCESS_LIST("-get_logs_list"),
     VALIDATE_DASHBOARD_POINTERS("-validate_dashboard_pointers"),
+    EXPORT_DASHBOARD_SCREENSHOTS("-export_dashboard_screenshots"),
+    GET_DASHBOARD_PALETTE("-get_dashboard_palette"),
     REQUEST_USERS_SYNC("request_users_sync"),
     ;
     private final String subject;

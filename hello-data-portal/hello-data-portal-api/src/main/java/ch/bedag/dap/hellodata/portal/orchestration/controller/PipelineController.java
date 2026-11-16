@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.portal.orchestration.service.OrchestrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,6 +47,17 @@ public class PipelineController {
     public ResponseEntity<List<PipelineDto>> getAllPipelines() {
         List<PipelineDto> allPipelines = orchestrationService.getAllPipelines();
         return ResponseEntity.ok(allPipelines);
+    }
+
+    /**
+     * Reconcile the current user's Airflow 3 Keycloak roles synchronously. The portal-ui calls this
+     * right before embedding Airflow 3 (then force-refreshes the token) so a just-made portal role
+     * change is reflected on the very next open, instead of waiting for the async reconcile.
+     */
+    @PostMapping("/airflow3/sync-my-roles")
+    public ResponseEntity<Void> syncMyAirflow3Roles() {
+        orchestrationService.syncCurrentUserAirflowRoles();
+        return ResponseEntity.ok().build();
     }
 
 }

@@ -47,4 +47,6 @@ public class UpdateContextRolesForUserDto {
     private Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = new HashMap<>();
     private List<DashboardCommentPermissionDto> commentPermissions;
     private Map<String, List<String>> selectedDashboardGroupIdsForUser = new HashMap<>();
+    //CONTEXT -> RLS ROLE KEYS i.e. "Data Domain One" -> ["RLS_01", "RLS_03"]; contexts missing in the map stay unchanged
+    private Map<String, List<String>> selectedRlsRolesForUser = new HashMap<>();
 }

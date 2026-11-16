@@ -29,10 +29,9 @@ package ch.bedag.dap.hellodata.sidecars.portal.service.resource.user;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserCacheUpdate;
+import ch.bedag.dap.hellodata.sidecars.portal.service.cache.UsersCacheRefreshService;
 import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -41,14 +40,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_USER_RESOURCES;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_METAINFO_USERS_CACHE;
 
 @Log4j2
 @Service
 @AllArgsConstructor
 public class PublishedUserResourcesConsumer {
     private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
-    private final NatsSenderService natsSenderService;
+    private final UsersCacheRefreshService usersCacheRefreshService;
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_USER_RESOURCES)
@@ -58,9 +56,11 @@ public class PublishedUserResourcesConsumer {
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(userResource);
         HdContextEntity context = genericPublishedResourceConsumer.attachContext(userResource, resource);
         List<SubsystemUser> data = userResource.getData();
-        UserCacheUpdate userCacheUpdate = new UserCacheUpdate();
-        userCacheUpdate.setModuleType(userResource.getModuleType());
-        natsSenderService.publishMessageToJetStream(UPDATE_METAINFO_USERS_CACHE, userCacheUpdate);
+        try {
+            usersCacheRefreshService.refresh(userResource.getModuleType());
+        } catch (RuntimeException e) {
+            log.error("Could not refresh the users caches after receiving user resource from instance {}", userResource.getInstanceName(), e);
+        }
     }
 
 }

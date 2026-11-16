@@ -40,4 +40,5 @@ public class ExampleUsersProperties {
     private final String dataDomainAdminPassword;
     private final String dataDomainEditorPassword;
     private final String dataDomainViewerPassword;
+    private final String dataDomainBusinessSpecialistPassword;
 }

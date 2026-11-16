@@ -27,6 +27,7 @@
 
 import {
   Component,
+  DestroyRef,
   ElementRef,
   HostListener,
   inject,
@@ -38,12 +39,14 @@ import {
   SimpleChanges,
   viewChild
 } from '@angular/core';
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {NgStyle} from "@angular/common";
 
 import {AuthService} from "../../services";
-import {Subscription} from "rxjs";
+import {catchError, distinctUntilChanged, map, Observable, of, skip, Subscription, switchMap} from "rxjs";
 import {environment} from "../../../../environments/environment";
 import {SafePipe} from '../../pipes/safe.pipe';
+import {TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-subsystem-iframe[url]',
@@ -59,19 +62,79 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     [p: string]: any;
   } | null>(null);
   readonly switchStyleOverflow = input(true);
+  // Visually crop N px off the LEFT of the embedded page by widening the iframe and shifting it
+  // left inside the overflow-hidden wrapper. Used to hide the Airflow 3 native left sidebar in
+  // the portal iframe (the iframe is cross-origin, so its DOM can't be touched directly).
+  readonly cropLeftPx = input(0);
+  // Force an OIDC refresh-token grant before the first load so the auth.access_token cookie carries
+  // the user's CURRENT Keycloak claims/roles. Needed for the Airflow 3 embed: it re-syncs FAB roles
+  // from that cookie on every open (logout-first), but a not-yet-renewed cookie still holds the old
+  // roles, so a role change wouldn't show until the portal's next silent renew without this.
+  readonly forceTokenRefreshBeforeLoad = input(false);
+  // Optional one-shot step to run BEFORE the token refresh + first load (e.g. the Airflow 3 embed
+  // synchronously reconciles the user's Keycloak roles so the subsequent force-refresh already
+  // carries the latest roles). Errors are swallowed so the iframe still loads.
+  readonly beforeLoad = input<Observable<unknown> | null>(null);
+  // Reload the iframe when the portal language changes so the embedded subsystem re-reads it. Used
+  // by the Airflow 3 embed: its index.html bootstrap maps the hd_lang cookie -> i18next locale only
+  // at load time, so a running iframe must be re-navigated to pick up a new language.
+  readonly reloadOnLanguageChange = input(false);
   readonly iframeSetup = output<boolean>();
   frameUrl: string | undefined;
   readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
   accessTokenSub!: Subscription;
+  private langSub?: Subscription;
   private readonly authService = inject(AuthService);
+  private readonly transloco = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     console.debug('on init', this.url(), this.delay());
 
+    // Reload the iframe on portal language change (Airflow 3 only) so it re-reads the hd_lang cookie.
+    // distinctUntilChanged is essential: the portal re-applies the selected language on every profile
+    // refresh (~30s) via setActiveLang, and Transloco's langChanges$ emits even when the value is
+    // unchanged — without it the iframe would reload every ~30s. skip(1) ignores the initial emission;
+    // TranslateService.setActiveLang writes the cookie synchronously before this fires.
+    if (this.reloadOnLanguageChange()) {
+      this.langSub = this.transloco.langChanges$
+        .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.reloadIframe());
+    }
 
-    this.accessTokenSub = this.authService.accessToken.subscribe({
+    this.load();
+  }
+
+  // Initial load through the full prepare chain: optional beforeLoad step (e.g. the Airflow 3 role
+  // reconcile) -> optional forced token refresh (so the auth.access_token cookie carries the user's
+  // CURRENT roles) -> read the current access token -> navigate the iframe. This is where role
+  // propagation happens (on open); language-change reloads use the lighter reloadIframe(). Each step
+  // is best-effort and, crucially, a beforeLoad failure must NOT skip the refresh (its own
+  // catchError keeps the chain going).
+  private load(): void {
+    if (this.accessTokenSub) {
+      this.accessTokenSub.unsubscribe();
+    }
+    const prepare$ = (this.beforeLoad() ?? of(null)).pipe(catchError(() => of(null)));
+    // Use the access token straight from the forceRefreshSession RESPONSE (the just-minted one).
+    // Re-reading getAccessToken() after the refresh raced the lib's storage update and often
+    // returned the PRE-refresh token, so the cookie carried stale roles. null => fall back below.
+    const refresh$: Observable<string | null> = this.forceTokenRefreshBeforeLoad()
+      ? this.authService.forceRefreshSession().pipe(
+          map((r: any) => (r && r.accessToken) ? r.accessToken as string : null),
+          catchError(err => {
+            console.error('Airflow embed: forceRefreshSession failed, using existing token', err);
+            return of(null);
+          })
+        )
+      : of(null);
+
+    this.accessTokenSub = prepare$.pipe(
+      switchMap(() => refresh$),
+      switchMap((refreshed: string | null) => refreshed ? of(refreshed) : this.authService.accessToken),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: value => {
-        console.debug('access token changed', value)
         console.debug("creating an auth cookie for a domain: ." + environment.baseDomain);
         document.cookie = 'auth.access_token=' + value + '; path=/; domain=.' + environment.baseDomain + '; secure;';
         setTimeout(() => {
@@ -98,9 +161,30 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     this.notifyIframeResize();
   }
 
+  // Lightweight reload for a portal language change: drop the iframe (@if frameUrl) and re-add it
+  // next tick with the SAME url so it re-navigates and re-reads the hd_lang cookie. Deliberately
+  // does NOT go through load()/forceRefreshSession: a language change doesn't change roles, and the
+  // oidc refresh resolves outside Angular's zone, which left the re-created iframe blank until a
+  // change-detection tick (e.g. opening devtools). The re-auth still re-syncs roles from the current
+  // cookie, which the open-time force-refresh already made current.
+  private reloadIframe() {
+    const current = this.frameUrl;
+    if (!current) {
+      return;
+    }
+    this.frameUrl = undefined;
+    setTimeout(() => {
+      this.frameUrl = current;
+      setTimeout(() => this.setupIframeLoadListener(), 100);
+    });
+  }
+
   ngOnDestroy() {
     if (this.accessTokenSub) {
       this.accessTokenSub.unsubscribe();
+    }
+    if (this.langSub) {
+      this.langSub.unsubscribe();
     }
     const mainContentDiv = document.getElementById('mainContentDiv');
     if (this.switchStyleOverflow() && mainContentDiv) {
@@ -113,7 +197,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
       if (this.accessTokenSub) {
         this.accessTokenSub.unsubscribe();
       }
-      this.accessTokenSub = this.authService.accessToken.subscribe({
+      this.accessTokenSub = this.authService.accessToken.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.frameUrl = this.url();
           this.iframeSetup.emit(true);

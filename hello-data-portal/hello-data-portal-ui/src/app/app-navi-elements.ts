@@ -93,6 +93,10 @@ export const naviElements: any = {
     path: 'embedded-orchestration',
     label: '@Orchestration'
   },
+  embeddedOrchestrationAirflow3: {
+    path: 'embedded-orchestration-airflow3',
+    label: '@Orchestration (airflow3)'
+  },
   embeddedOrchestrationDetails: {
     path: 'details/:id',
     label: '@Detail'
@@ -164,6 +168,10 @@ export const naviElements: any = {
   dashboardGroups: {
     path: 'dashboard-groups',
     label: '@Dashboard groups'
+  },
+  rlsGroups: {
+    path: 'rls-groups',
+    label: '@RLS Groups'
   },
   dashboardGroupsList: {
     path: 'list/:contextKey',

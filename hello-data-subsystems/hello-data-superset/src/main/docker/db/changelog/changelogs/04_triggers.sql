@@ -26,38 +26,40 @@
 --
 
 --
--- Various triggers to automatically handle additional business logic in Superset.
+-- Additional Superset metadata business logic.
+--
+-- Main invariants:
+--   * Every dashboard has exactly one generated dashboard role.
+--   * Generated dashboard roles follow create_dashboard_role_name(...), including
+--     the dashboard ID as the trailing numeric part.
+--   * Every BI_EDITOR owns all dashboards, charts and datasets.
+--   * Removing BI_EDITOR removes all ownership for that user.
+--
 -- This script is repeatable.
 --
 
 
 --
--- Trigger function for inserts on dashboards table that also inserts a corresponding dashboard_role
+-- Create the generated role for a newly inserted dashboard and link it through
+-- dashboard_roles. The role name is the canonical dashboard-role identifier.
 --
--- DROP FUNCTION insert_new_dashboard_role;
 CREATE OR REPLACE FUNCTION insert_new_dashboard_role() RETURNS TRIGGER AS
 $$
 DECLARE
     new_role_id INTEGER := nextval('ab_role_id_seq');
 BEGIN
-    INSERT INTO
-        ab_role(id, name)
-    VALUES(new_role_id, create_dashboard_role_name(new.dashboard_title, new.id));
+    INSERT INTO ab_role(id, name)
+    VALUES (new_role_id, create_dashboard_role_name(new.dashboard_title, new.id));
 
-    INSERT INTO
-        dashboard_roles(id, role_id, dashboard_id)
-    VALUES(nextval('dashboard_roles_id_seq'), new_role_id, new.id);
+    INSERT INTO dashboard_roles(id, role_id, dashboard_id)
+    VALUES (nextval('dashboard_roles_id_seq'), new_role_id, new.id);
 
     RETURN new;
 END;
 $$
 LANGUAGE plpgsql;
 
-
---
--- After insert Trigger on dashboard that creates a dashboard role
---
-DROP TRIGGER IF EXISTS insert_new_dashboard_role on dashboards;
+DROP TRIGGER IF EXISTS insert_new_dashboard_role ON dashboards;
 CREATE TRIGGER insert_new_dashboard_role
     AFTER INSERT ON dashboards
     FOR EACH ROW
@@ -65,37 +67,38 @@ EXECUTE FUNCTION insert_new_dashboard_role();
 
 
 --
--- Trigger function for inserts on dashboards table that sets all BI_EDITOR users as owner of the dashboard
+-- Make all BI_EDITOR users owners of a newly created dashboard.
+-- The creator is excluded because Superset manages the creator ownership itself.
+-- IS DISTINCT FROM keeps all BI_EDITORs when created_by_fk is NULL (e.g. CLI imports).
+-- NOT EXISTS protects against ownership rows that already exist.
 --
--- DROP FUNCTION insert_owners_on_new_dashboard;
 CREATE OR REPLACE FUNCTION insert_owners_on_new_dashboard() RETURNS TRIGGER AS
 $$
 BEGIN
-
     INSERT INTO dashboard_user(id, user_id, dashboard_id)
-
-        SELECT
-            nextval('dashboard_user_id_seq'),
-            ab_user.id,
-            new.id
-        FROM
-            ab_user
-            LEFT JOIN ab_user_role ON ab_user.id = ab_user_role.user_id
-            LEFT JOIN ab_role ON ab_role.id = ab_user_role.role_id
-        WHERE
-            ab_role.name = 'BI_EDITOR'
-            AND ab_user.id <> new.created_by_fk;
+    SELECT
+        nextval('dashboard_user_id_seq'),
+        u.id,
+        new.id
+    FROM ab_user u
+        JOIN ab_user_role ur ON u.id = ur.user_id
+        JOIN ab_role r ON r.id = ur.role_id
+    WHERE
+        r.name = 'BI_EDITOR'
+        AND u.id IS DISTINCT FROM new.created_by_fk
+        AND NOT EXISTS (
+            SELECT 1
+            FROM dashboard_user du
+            WHERE du.user_id = u.id
+              AND du.dashboard_id = new.id
+        );
 
     RETURN new;
 END;
 $$
 LANGUAGE plpgsql;
 
-
---
--- After insert Trigger on dashboard that sets all BI_EDITOR users as owner of the dashboard
---
-DROP TRIGGER IF EXISTS insert_owners_on_new_dashboard on dashboards;
+DROP TRIGGER IF EXISTS insert_owners_on_new_dashboard ON dashboards;
 CREATE TRIGGER insert_owners_on_new_dashboard
     AFTER INSERT ON dashboards
     FOR EACH ROW
@@ -103,19 +106,17 @@ EXECUTE FUNCTION insert_owners_on_new_dashboard();
 
 
 --
--- Function for updates on dashboards table updates the dashboard role name as well if needed
+-- Keep the generated dashboard role name synchronized with the dashboard title.
+-- The trailing dashboard ID in the role name is an intentional invariant and is
+-- used to identify the corresponding generated role.
 --
--- DROP FUNCTION update_dashboard_role;
 CREATE OR REPLACE FUNCTION update_dashboard_role() RETURNS TRIGGER AS
 $$
 BEGIN
-
     IF old.dashboard_title <> new.dashboard_title THEN
-        UPDATE
-            ab_role
+        UPDATE ab_role
         SET name = create_dashboard_role_name(new.dashboard_title, new.id)
-        WHERE
-            substring(ab_role.name from 'D_.*_([0-9]+)')::INTEGER = new.id;
+        WHERE substring(ab_role.name from 'D_.*_([0-9]+)')::INTEGER = new.id;
     END IF;
 
     RETURN new;
@@ -123,11 +124,7 @@ END;
 $$
 LANGUAGE plpgsql;
 
-
---
--- After update trigger on dashboards to update dashboard role name after change of dashboard title
---
-DROP TRIGGER IF EXISTS update_dashboard_role on dashboards;
+DROP TRIGGER IF EXISTS update_dashboard_role ON dashboards;
 CREATE TRIGGER update_dashboard_role
     AFTER UPDATE ON dashboards
     FOR EACH ROW
@@ -135,27 +132,32 @@ EXECUTE FUNCTION update_dashboard_role();
 
 
 --
--- Function for deletions on dashboards table deletes the corresponding dashboard role and possible assignments of the role to users
+-- Delete the generated dashboard role when its dashboard is deleted.
+-- INTO STRICT intentionally enforces that exactly one generated role exists.
+-- Any missing or duplicate role is treated as inconsistent metadata.
 --
--- DROP FUNCTION delete_dashboard_role;
 CREATE OR REPLACE FUNCTION delete_dashboard_role() RETURNS TRIGGER AS
 $$
 DECLARE
     ab_role_id INTEGER;
 BEGIN
-    SELECT ab_role.id INTO STRICT ab_role_id FROM ab_role WHERE ab_role.name = create_dashboard_role_name(old.dashboard_title, old.id);
-    DELETE FROM ab_user_role where ab_user_role.role_id = ab_role_id;
-    DELETE FROM ab_role where ab_role.id = ab_role_id;
+    SELECT ab_role.id
+    INTO STRICT ab_role_id
+    FROM ab_role
+    WHERE ab_role.name = create_dashboard_role_name(old.dashboard_title, old.id);
+
+    DELETE FROM ab_user_role
+    WHERE ab_user_role.role_id = ab_role_id;
+
+    DELETE FROM ab_role
+    WHERE ab_role.id = ab_role_id;
+
     RETURN NULL;
 END;
 $$
 LANGUAGE plpgsql;
 
-
---
--- After delete trigger that handles the deletion of dashboard roles after deleting a dashboard
---
-DROP TRIGGER IF EXISTS delete_dashboard_role on dashboards;
+DROP TRIGGER IF EXISTS delete_dashboard_role ON dashboards;
 CREATE TRIGGER delete_dashboard_role
     AFTER DELETE ON dashboards
     FOR EACH ROW
@@ -163,30 +165,33 @@ EXECUTE FUNCTION delete_dashboard_role();
 
 
 --
--- Trigger function for inserts on ab_user_role table that assigns the user as owner to all dashboards if he is a BI_EDITOR
+-- When BI_EDITOR is granted, normalize the user's ownership: the user becomes
+-- owner of every existing dashboard, chart and dataset.
+-- Existing ownership rows are deliberately removed first.
 --
--- DROP FUNCTION set_new_bi_editor_as_owner;
 CREATE OR REPLACE FUNCTION set_new_bi_editor_as_owner() RETURNS TRIGGER AS
 $$
 DECLARE
     BI_EDITOR_role_id INTEGER := (SELECT id FROM ab_role WHERE name = 'BI_EDITOR');
 BEGIN
-
     IF new.role_id = BI_EDITOR_role_id THEN
-        --- Handle ownership of dashboards
+        -- Dashboards
         DELETE FROM dashboard_user WHERE user_id = new.user_id;
         INSERT INTO dashboard_user
-        SELECT nextval('dashboard_user_id_seq'), new.user_id, dashboards.id from dashboards;
+        SELECT nextval('dashboard_user_id_seq'), new.user_id, dashboards.id
+        FROM dashboards;
 
-        --- Handle ownership of charts
+        -- Charts
         DELETE FROM slice_user WHERE user_id = new.user_id;
         INSERT INTO slice_user
-        SELECT nextval('slice_user_id_seq'), new.user_id, slices.id from slices;
+        SELECT nextval('slice_user_id_seq'), new.user_id, slices.id
+        FROM slices;
 
-        --- Handle ownership of datasets
+        -- Datasets
         DELETE FROM sqlatable_user WHERE user_id = new.user_id;
         INSERT INTO sqlatable_user
-        SELECT nextval('sqlatable_user_id_seq'), new.user_id, tables.id from tables;
+        SELECT nextval('sqlatable_user_id_seq'), new.user_id, tables.id
+        FROM tables;
     END IF;
 
     RETURN new;
@@ -194,10 +199,6 @@ END;
 $$
 LANGUAGE plpgsql;
 
-
---
--- After insert Trigger on ab_user_role that that assigns the user as owner to all dashboards if he is a BI_EDITOR
---
 DROP TRIGGER IF EXISTS set_new_bi_editor_as_owner ON ab_user_role;
 CREATE TRIGGER set_new_bi_editor_as_owner
     AFTER INSERT ON ab_user_role
@@ -206,38 +207,34 @@ EXECUTE FUNCTION set_new_bi_editor_as_owner();
 
 
 --
--- Trigger function for deletes on ab_user_role table that removes dashboard favorites if user looses dashboard role
+-- When a generated dashboard role is removed from a user, remove that user's
+-- favorite for the corresponding dashboard. The dashboard ID is intentionally
+-- derived from the generated role-name convention.
 --
--- DROP FUNCTION remove_favstar;
 CREATE OR REPLACE FUNCTION remove_favstar() RETURNS TRIGGER AS
 $$
 BEGIN
-    DELETE FROM favstar WHERE
+    DELETE FROM favstar
+    WHERE
         user_id = old.user_id
         AND class_name = 'Dashboard'
         AND obj_id = (
-
-            SELECT
-                substring(ab_role.name from 'D_.*_([0-9]+)')::INTEGER
-            FROM
-                ab_user_role
-                LEFT JOIN ab_role on ab_user_role.role_id = ab_role.id
+            SELECT substring(ab_role.name from 'D_.*_([0-9]+)')::INTEGER
+            FROM ab_user_role
+                LEFT JOIN ab_role ON ab_user_role.role_id = ab_role.id
             WHERE
                 ab_role.name LIKE 'D_%'
                 AND user_id = old.user_id
                 AND role_id = old.role_id
-
-            );
+        );
 
     RETURN old;
 END;
 $$
-    LANGUAGE plpgsql;
+LANGUAGE plpgsql;
 
-
---
--- Before delete Trigger on ab_user_role that removes dashboard favorites if user looses dashboard role
---
+-- BEFORE DELETE is required because remove_favstar() reads the role assignment
+-- that is about to be deleted.
 DROP TRIGGER IF EXISTS remove_favstar ON ab_user_role;
 CREATE TRIGGER remove_favstar
     BEFORE DELETE ON ab_user_role
@@ -246,65 +243,49 @@ EXECUTE FUNCTION remove_favstar();
 
 
 --
--- Trigger function for updates on dashboards table that removes dashboard favorites for BI_VIEWERs if dashboard is set to draft
+-- Remove BI_VIEWER favorites when a dashboard transitions to draft.
+-- The trigger condition ensures this runs only when published becomes FALSE,
+-- not on every update to an already unpublished dashboard.
 --
--- DROP FUNCTION remove_favstar_2;
 CREATE OR REPLACE FUNCTION remove_favstar_2() RETURNS TRIGGER AS
 $$
 BEGIN
-
-    IF new.published = FALSE THEN
-        DELETE FROM favstar
-        WHERE
-            obj_id = new.id
-            AND class_name = 'Dashboard'
-            AND user_id IN (
-
-                SELECT
-                    user_id
-                FROM
-                    ab_user_role
-                    LEFT JOIN ab_role ON ab_role.id = ab_user_role.role_id
-                WHERE
-                    ab_role.name = 'BI_VIEWER'
-            );
-
-    END IF;
+    DELETE FROM favstar
+    WHERE
+        obj_id = new.id
+        AND class_name = 'Dashboard'
+        AND user_id IN (
+            SELECT ur.user_id
+            FROM ab_user_role ur
+                JOIN ab_role r ON r.id = ur.role_id
+            WHERE r.name = 'BI_VIEWER'
+        );
 
     RETURN new;
 END;
 $$
 LANGUAGE plpgsql;
 
-
---
--- After update Trigger on dashboards that removes dashboard favorites for BI_VIEWERs if dashboard is set to draft
---
 DROP TRIGGER IF EXISTS remove_favstar_2 ON dashboards;
 CREATE TRIGGER remove_favstar_2
-    AFTER UPDATE ON dashboards
+    AFTER UPDATE OF published ON dashboards
     FOR EACH ROW
+    WHEN (old.published IS DISTINCT FROM FALSE AND new.published = FALSE)
 EXECUTE FUNCTION remove_favstar_2();
 
 
 --
--- Trigger function for deletes on ab_user_role table that removes the user as owner from all dashboards if he was a BI_EDITOR
+-- When BI_EDITOR is revoked, remove all dashboard, chart and dataset ownership
+-- from the user. This is intentional: users without BI_EDITOR must own nothing.
 --
--- DROP FUNCTION remove_deleted_bi_editor_as_owner;
 CREATE OR REPLACE FUNCTION remove_deleted_bi_editor_as_owner() RETURNS TRIGGER AS
 $$
 DECLARE
     BI_EDITOR_role_id INTEGER := (SELECT id FROM ab_role WHERE name = 'BI_EDITOR');
 BEGIN
-
     IF old.role_id = BI_EDITOR_role_id THEN
-        --- Delete ownership of dashboards
         DELETE FROM dashboard_user WHERE user_id = old.user_id;
-
-        --- Delete ownership of charts
         DELETE FROM slice_user WHERE user_id = old.user_id;
-
-        --- Delete ownership of datasets
         DELETE FROM sqlatable_user WHERE user_id = old.user_id;
     END IF;
 
@@ -313,10 +294,6 @@ END;
 $$
 LANGUAGE plpgsql;
 
-
---
--- After delete Trigger on ab_user_role that removes the user as owner from all dashboards if he was a BI_EDITOR
---
 DROP TRIGGER IF EXISTS remove_deleted_bi_editor_as_owner ON ab_user_role;
 CREATE TRIGGER remove_deleted_bi_editor_as_owner
     AFTER DELETE ON ab_user_role
@@ -325,77 +302,77 @@ EXECUTE FUNCTION remove_deleted_bi_editor_as_owner();
 
 
 --
--- Trigger function for inserts on tables table that sets all BI_EDITOR users as owner of the corresponding dataset
+-- Make all BI_EDITOR users owners of a newly created dataset.
+-- The creator is excluded because Superset manages the creator ownership itself.
+-- IS DISTINCT FROM keeps all BI_EDITORs when created_by_fk is NULL (e.g. CLI imports).
+-- NOT EXISTS protects against ownership rows that already exist.
 --
--- DROP FUNCTION insert_owners_on_new_dataset;
 CREATE OR REPLACE FUNCTION insert_owners_on_new_dataset() RETURNS TRIGGER AS
 $$
 BEGIN
-
     INSERT INTO sqlatable_user(id, user_id, table_id)
-
     SELECT
         nextval('sqlatable_user_id_seq'),
-        ab_user.id,
+        u.id,
         new.id
-    FROM
-        ab_user
-        LEFT JOIN ab_user_role ON ab_user.id = ab_user_role.user_id
-        LEFT JOIN ab_role ON ab_role.id = ab_user_role.role_id
+    FROM ab_user u
+        JOIN ab_user_role ur ON u.id = ur.user_id
+        JOIN ab_role r ON r.id = ur.role_id
     WHERE
-        ab_role.name = 'BI_EDITOR'
-        AND ab_user.id <> new.created_by_fk;
+        r.name = 'BI_EDITOR'
+        AND u.id IS DISTINCT FROM new.created_by_fk
+        AND NOT EXISTS (
+            SELECT 1
+            FROM sqlatable_user su
+            WHERE su.user_id = u.id
+              AND su.table_id = new.id
+        );
 
     RETURN new;
 END;
 $$
-    LANGUAGE plpgsql;
+LANGUAGE plpgsql;
 
-
---
--- After insert Trigger on tables that sets all BI_EDITOR users as owner of the corresponding dataset
---
-DROP TRIGGER IF EXISTS insert_owners_on_new_dataset on tables;
+DROP TRIGGER IF EXISTS insert_owners_on_new_dataset ON tables;
 CREATE TRIGGER insert_owners_on_new_dataset
     AFTER INSERT ON tables
     FOR EACH ROW
 EXECUTE FUNCTION insert_owners_on_new_dataset();
 
 
-
 --
--- Trigger function for inserts on slices table that sets all BI_EDITOR users as owner of the corresponding chart
+-- Make all BI_EDITOR users owners of a newly created chart.
+-- The creator is excluded because Superset manages the creator ownership itself.
+-- IS DISTINCT FROM keeps all BI_EDITORs when created_by_fk is NULL (e.g. CLI imports).
+-- NOT EXISTS protects against ownership rows that already exist.
 --
--- DROP FUNCTION insert_owners_on_new_slice;
 CREATE OR REPLACE FUNCTION insert_owners_on_new_slice() RETURNS TRIGGER AS
 $$
 BEGIN
-
     INSERT INTO slice_user(id, user_id, slice_id)
-
     SELECT
         nextval('slice_user_id_seq'),
-        ab_user.id,
+        u.id,
         new.id
-    FROM
-        ab_user
-            LEFT JOIN ab_user_role ON ab_user.id = ab_user_role.user_id
-            LEFT JOIN ab_role ON ab_role.id = ab_user_role.role_id
+    FROM ab_user u
+        JOIN ab_user_role ur ON u.id = ur.user_id
+        JOIN ab_role r ON r.id = ur.role_id
     WHERE
-        ab_role.name = 'BI_EDITOR'
-        AND ab_user.id <> new.created_by_fk;
+        r.name = 'BI_EDITOR'
+        AND u.id IS DISTINCT FROM new.created_by_fk
+        AND NOT EXISTS (
+            SELECT 1
+            FROM slice_user su
+            WHERE su.user_id = u.id
+              AND su.slice_id = new.id
+        );
 
     RETURN new;
 END;
 $$
-    LANGUAGE plpgsql;
+LANGUAGE plpgsql;
 
-
---
--- After insert Trigger on slices that sets all BI_EDITOR users as owner of the corresponding chart
---
-DROP TRIGGER IF EXISTS insert_owners_on_new_dataset on slices;
-DROP TRIGGER IF EXISTS insert_owners_on_new_slice on slices;
+DROP TRIGGER IF EXISTS insert_owners_on_new_slice ON slices;
 CREATE TRIGGER insert_owners_on_new_slice
     AFTER INSERT ON slices
     FOR EACH ROW

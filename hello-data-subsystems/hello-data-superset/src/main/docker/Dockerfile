@@ -25,9 +25,11 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hellodata-superset:5-0-HD-rc3
+FROM bedag/hellodata-superset:6-1-HD-rc1
 
-ARG GECKODRIVER_VERSION=0.34.0
+# geckodriver 0.37.1 matches firefox-esr 140.* (0.34.0 logged a version-mismatch warning on every
+# chart screenshot render — see HELLODATA-4110). Bump when the bundled firefox-esr major changes.
+ARG GECKODRIVER_VERSION=0.37.1
 
 COPY ./assets/images/* /app/superset/static/assets/images/
 
@@ -38,8 +40,8 @@ USER root
 RUN apt-get update && \
     # deps for superset
     apt-get install --no-install-recommends -y firefox-esr wget gcc g++ && \
-    # deps for liquibase
-    apt-get install --no-install-recommends -y openjdk-17-jre-headless ca-certificates-java gnupg unzip postgresql-client
+    # deps for liquibase (Superset 6.1 base is Debian trixie, which ships Java 21, no 17)
+    apt-get install --no-install-recommends -y openjdk-21-jre-headless ca-certificates-java gnupg unzip postgresql-client
 
 ENV GECKODRIVER_VERSION=${GECKODRIVER_VERSION}
 RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
@@ -48,7 +50,7 @@ RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRI
     rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz
 
 # Install requirements for superset
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && uv pip install --no-cache authlib==1.5.2 psycopg2-binary==2.9.10 redis==5.2.1 jmespath==1.0.1 gevent
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && uv pip install --no-cache authlib==1.5.2 psycopg2-binary==2.9.10 jmespath==1.0.1 gevent
 
 # install additional drivers
 # Find which driver you need based on the analytics database you want to connect to here:
@@ -59,8 +61,8 @@ RUN uv pip install pymssql
 RUN uv pip install psycopg2
 # oracle
 RUN uv pip install oracledb
-# statsd
-RUN uv pip install statsd
+# statsd (pinned to match the version the chart bootstrapScript used to pip-install at pod start)
+RUN uv pip install statsd==4.0.1
 
 # Flower is a web based tool for monitoring the Celery cluster
 RUN uv pip install flower
@@ -102,6 +104,15 @@ COPY --chown=1000:1000 ./entrypoint.sh /db/entrypoint.sh
 #    && chown -R superset:superset /db
 
 RUN chmod a+x /db/*.sh
+
+# HelloDATA custom security manager (OAuth to Keycloak, cookie-SSO). Baked onto the
+# PYTHONPATH (extraEnv sets PYTHONPATH=/app/pythonpath:/app/pythonpath-extra) and
+# referenced from superset_config.py as `from hd_security_manager import HdSecurityManager`.
+# Reads KEYCLOAK_BASE_URL from env, so no chart-side Secret/mount is needed.
+COPY --chown=1000:1000 ./hd_security_manager.py /app/pythonpath-extra/hd_security_manager.py
+# HelloDATA static Superset config (no per-env values). superset_config.py pulls it in
+# with `from hd_superset_config import *`; env-specific config stays in the chart.
+COPY --chown=1000:1000 ./hd_superset_config.py /app/pythonpath-extra/hd_superset_config.py
 
 # Switching back to using the `superset` user
 USER 1000

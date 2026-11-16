@@ -24,7 +24,7 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Verifies that {@link UploadDashboardsFileListener} normalizes double-encoded {@code query_context}
@@ -195,7 +195,7 @@ class UploadDashboardsFileListenerNormalizeTest {
     private String readEntry(File zip, String entryName) throws Exception {
         try (ZipFile zf = new ZipFile(zip)) {
             ZipEntry entry = zf.getEntry(entryName);
-            assertTrue(entry != null, "entry missing: " + entryName);
+            assertNotNull(entry, "entry missing: " + entryName);
             try (InputStream in = zf.getInputStream(entry)) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 in.transferTo(bos);
