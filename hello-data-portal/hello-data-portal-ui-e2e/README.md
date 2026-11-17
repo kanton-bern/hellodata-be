@@ -233,7 +233,7 @@ kubectl access with `pods/exec` in the namespace: they exec into `deploy/portal-
 ## CI
 
 `.github/workflows/e2e.yml` runs the suite for every release candidate tag (`*.rc*`) right after `maven.yml` pushed the
-images, and every working night (Monday to Friday, 02:00 UTC) against the images of `develop` (`latest`) with Airflow 2,
+images, and every working night (Monday to Friday, 02:00 UTC) against the images of `develop` (`latest`) with Airflow 2 and Airflow 3,
 so a fresh report of `latest` is on the reports page every morning. Schedules only run from the default branch. It can also be started manually on any branch (Actions -> "E2E tests (docker compose)" -> Run workflow) with
 the image tag to test, the browser (Chromium or Microsoft Edge) and the Airflows (`2,3` by default, or one of them).
 Release candidates are tested with Airflow 2 and Airflow 3 in one run. The tests run from the selected branch, the images come from the given tag. Every push publishes

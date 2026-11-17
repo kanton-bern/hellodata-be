@@ -1,6 +1,6 @@
 name: E2E tests (docker compose)
 
-run-name: "E2E: ${{ inputs.version || 'latest' }} (${{ inputs.browser || 'msedge' }}, Airflow ${{ inputs.airflow || '2' }})"
+run-name: "E2E: ${{ inputs.version || 'latest' }} (${{ inputs.browser || 'msedge' }}, Airflow ${{ inputs.airflow || '2,3' }})"
 
 # Runs the Playwright regression suite against the portal and the default data domain's Superset of the docker compose
 # installation.
@@ -25,7 +25,7 @@ on:
         default: '2,3'
         type: string
   # every working night against the images of develop ('latest'), so the reports are fresh in the morning; schedules
-  # run only from the default branch and have no inputs, so the version and browser fall back to latest and msedge
+  # run only from the default branch and have no inputs, so version, browser and airflow fall back to latest, msedge and 2,3
   schedule:
     - cron: '0 2 * * 1-5'
   workflow_dispatch:
@@ -81,8 +81,8 @@ jobs:
       HD_SFTPGO_PUBLISH_INTERVAL_MINUTES: 1
       # the Airflows to start and test, one Playwright project each (playwright.config.ts): the first runs the whole
       # suite, the others only the Airflow specs; Airflow 3 comes from compose-airflow3.yaml. The nightly schedule has
-      # no inputs and tests Airflow 2 (develop had no Airflow 3 images before 1.7.0)
-      E2E_AIRFLOW_VERSIONS: ${{ inputs.airflow || '2' }}
+      # no inputs and tests both Airflows (the airflow3-latest images are published from develop since 1.7.0)
+      E2E_AIRFLOW_VERSIONS: ${{ inputs.airflow || '2,3' }}
       # the services the tests use, the others they depend on are started with them; the step "Add e2e compose
       # override" adds the Airflow services and writes the list to E2E_SERVICES
       E2E_BASE_SERVICES: >-
