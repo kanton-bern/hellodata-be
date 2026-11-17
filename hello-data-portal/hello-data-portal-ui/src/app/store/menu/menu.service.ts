@@ -185,6 +185,11 @@ export class MenuService {
   }
 
   private processDataEngMenu(menuItem: any, appInfos: MetaInfoResource[], contextRoles: any[], selectedDataDomain: any): void {
+    // Show "Orchestration (Airflow3)" only when an Airflow 3 sidecar has registered its app info.
+    // Installations with Airflow 3 disabled have no AIRFLOW3 app info, so the entry is dropped.
+    if (!appInfos.some(appInfo => appInfo.moduleType === 'AIRFLOW3')) {
+      menuItem.items = menuItem.items.filter((item: { id: string; }) => item.id !== 'dataEngOrchestrationAirflow3Menu');
+    }
     const sftpgo = appInfos.filter(appInfo => appInfo.moduleType === "SFTPGO");
     if (sftpgo && sftpgo.length > 0) {
       const sftpgoUrl = sftpgo[0].data.url;
