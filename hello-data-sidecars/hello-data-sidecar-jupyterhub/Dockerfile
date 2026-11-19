@@ -35,4 +35,5 @@ WORKDIR /app
 RUN chown -R 3012:3012 /app
 
 COPY target/*.jar /app/app.jar
-CMD ["java", "-jar", "/app/app.jar"]
+# Java4Shell (CVE-2026-114938) workaround: disable the vulnerable AVX-512 Base64 intrinsic. Remove once the base image ships a patched JDK.
+CMD ["java", "-XX:-UseBASE64Intrinsics", "-jar", "/app/app.jar"]
