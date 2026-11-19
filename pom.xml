@@ -160,7 +160,8 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>${maven-deploy-plugin.version}</version>
                 <configuration>
-                    <deployAtEnd>false</deployAtEnd>
+                    <!-- upload all artifacts only after every module (incl. its Docker image) was built, so a failed release build publishes nothing and can be rerun -->
+                    <deployAtEnd>true</deployAtEnd>
                 </configuration>
             </plugin>
             <plugin>
