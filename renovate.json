@@ -16,7 +16,8 @@
   ],
   "enabledManagers": [
     "maven",
-    "npm"
+    "npm",
+    "dockerfile"
   ],
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
@@ -223,6 +224,45 @@
         "!/^@fortawesome\\//",
         "!/^primeng/"
       ]
+    },
+    {
+      "description": "Dockerfile base images: internal bedag images use build-arg tags and are released together with this repo",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "/^bedag\\//"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Temurin base image: stay on JDK 21 and understand the 21.0.13.1_2-jre tag format (build and revision parts)",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "eclipse-temurin"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(\\.(?<build>\\d+))?_(?<revision>\\d+)-(?<compatibility>.+)$",
+      "allowedVersions": "<22",
+      "groupName": "Temurin base image",
+      "groupSlug": "temurin-base-image",
+      "schedule": [
+        "at any time"
+      ],
+      "prPriority": 9
+    },
+    {
+      "description": "Platform base images (Airflow, JupyterHub, Postgres) are deliberate upgrades: create PRs only after approval on the dependency dashboard",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "apache/airflow",
+        "/^quay\\.io\\/jupyter/",
+        "postgres"
+      ],
+      "dependencyDashboardApproval": true
     }
   ]
 }
