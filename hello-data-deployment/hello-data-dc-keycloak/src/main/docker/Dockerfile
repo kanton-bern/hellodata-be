@@ -31,7 +31,7 @@ RUN dnf install --installroot /mnt/rootfs curl --releasever 9 --setopt install_w
     dnf --installroot /mnt/rootfs clean all && \
     rpm --root /mnt/rootfs -e --nodeps setup
 
-FROM quay.io/keycloak/keycloak:26.7.5 as builder
+FROM quay.io/keycloak/keycloak:26.8.2 as builder
 
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
@@ -41,7 +41,7 @@ ENV KEYCLOAK_ADMIN_PASSWORD=admin
 
 RUN /opt/keycloak/bin/kc.sh build
 
-FROM quay.io/keycloak/keycloak:26.7.5
+FROM quay.io/keycloak/keycloak:26.8.2
 # Java4Shell (CVE-2026-114938) workaround: disable the vulnerable AVX-512 Base64 intrinsic for every JVM in this image. Remove once the base image ships a patched JDK.
 ENV JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics"
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
