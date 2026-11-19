@@ -63,7 +63,7 @@ npm ci && npx playwright install chromium
 npx playwright test
 ```
 
-`.github/workflows/e2e.yml` runs the same suite for every release candidate tag (`*.rc*`, called from `maven.yml`
+`.github/workflows/e2e.yml` runs the same suite for every release candidate tag (`*.rc*` or `*-rc*`, called from `maven.yml`
 after the images are pushed) and can be started manually for any image tag. The compose files pick the HelloDATA
 image tag from `HD_VERSION` (default `latest`).
 
