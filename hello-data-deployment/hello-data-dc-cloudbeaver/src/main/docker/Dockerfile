@@ -26,6 +26,8 @@
 #
 
 FROM dbeaver/cloudbeaver:26.2.3
+# Java4Shell (CVE-2026-114938) workaround: disable the vulnerable AVX-512 Base64 intrinsic for every JVM in this image. Remove once the base image ships a patched JDK.
+ENV JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics"
 
 # curl is no longer part of the base image since 26.x but is needed by the docker compose healthcheck
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
