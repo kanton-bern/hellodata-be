@@ -96,6 +96,8 @@ RUN ln -s /liquibase/liquibase /usr/local/bin/liquibase
 
 # Set LIQUIBASE_HOME environment variable
 ENV LIQUIBASE_HOME=/liquibase
+# Java4Shell (CVE-2026-114938) workaround for the JVM that runs Liquibase: disable the vulnerable AVX-512 Base64 intrinsic. Remove once the distro ships a patched OpenJDK.
+ENV JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics"
 
 # Latest Liquibase Release Version
 ARG LIQUIBASE_VERSION=4.21.1
