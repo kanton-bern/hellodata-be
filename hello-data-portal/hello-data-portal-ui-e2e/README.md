@@ -233,7 +233,7 @@ kubectl access with `pods/exec` in the namespace: they exec into `deploy/portal-
 ## CI
 
 `.github/workflows/e2e.yml` runs the suite for every release candidate tag (`*.rc*`) right after `maven.yml` pushed the
-images, and every working night (Monday to Friday, 02:00 UTC) against the images of `develop` (`latest`) with Airflow 2,
+images, and every working night (Monday to Friday, 02:00 UTC) against the images of `develop` (`latest`) with Airflow 2 and Airflow 3,
 so a fresh report of `latest` is on the reports page every morning. Schedules only run from the default branch. It can also be started manually on any branch (Actions -> "E2E tests (docker compose)" -> Run workflow) with
 the image tag to test, the browser (Chromium or Microsoft Edge) and the Airflows (`2,3` by default, or one of them).
 Release candidates are tested with Airflow 2 and Airflow 3 in one run. The tests run from the selected branch, the images come from the given tag. Every push publishes
@@ -261,13 +261,19 @@ Every run is also summarized and published as a web page, so it can be shared wi
    - `e2e/<version>/<browser>/<run id>-<attempt>/` - what was tested in a run and the result
    - `e2e/<version>/<browser>/<run id>-<attempt>/report/` - the full Playwright HTML report
 
-   The pages are rebuilt from the `summary.json` files every time, and only the last 5 runs per version (all browsers
-   together) and the last 30 versions are kept, to limit the size of the site. Compose logs are not published, they stay
-   in the workflow artifact.
+   The pages are rebuilt from the `summary.json` files every time, and only the runs of the last 90 days, at most the
+   last 5 per version (all browsers together), and the last 30 versions are kept, to limit the size of the site
+   (`--max-age-days`, `--keep-runs` and `--keep-versions`). Compose logs are not published, they stay in the workflow
+   artifact.
 
-`.github/workflows/deploy_docs.yml` also writes to `gh-pages`: it replaces the docs and keeps `e2e/`. Both use
+`.github/workflows/e2e-reports-cleanup.yml` rebuilds the site every night (03:30 UTC) to delete the reports older than 90
+days also when no new report is published; a version without runs left disappears from the site. It can be started
+manually with another age (Actions -> "E2E reports cleanup" -> Run workflow).
+
+`.github/workflows/deploy_docs.yml` also writes to `gh-pages`: it replaces the docs and keeps `e2e/`. All three use
 `.github/scripts/update-gh-pages.sh`, which pushes the branch as a single commit without history (so old reports do not
-stay in every clone of the repository) and runs the change again when the other workflow pushed in the meantime.
+stay in every clone of the repository), runs the change again when another workflow pushed in the meantime, and pushes
+nothing when the change left `gh-pages` as it was.
 
 The reports are public. They contain screenshots, videos and traces of the test stack (example users only).
 

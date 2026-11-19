@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Changes the gh-pages branch, which GitHub Pages serves as https://kanton-bern.github.io/hellodata-be/.
-# Two workflows write to it: deploy_docs.yml replaces the docs and keeps e2e/, e2e.yml changes only e2e/.
+# Three workflows write to it: deploy_docs.yml replaces the docs and keeps e2e/, e2e.yml and e2e-reports-cleanup.yml
+# change only e2e/.
 #
 # .github/scripts/update-gh-pages.sh "<commit message>" <command> [args...]
 #
@@ -24,7 +25,14 @@ for attempt in 1 2 3 4 5; do
   git worktree add --quiet --detach --force "$dir" "$lease"
   (cd "$dir" && "$@")
   git -C "$dir" add --all
-  commit=$(git -C "$dir" commit-tree "$(git -C "$dir" write-tree)" -m "$message")
+  tree=$(git -C "$dir" write-tree)
+  # nothing changed (e.g. the nightly cleanup found no old report): no commit, so GitHub Pages is not deployed again
+  if [ "$tree" = "$(git rev-parse "$lease^{tree}")" ]; then
+    git worktree remove --force "$dir"
+    echo "$branch unchanged"
+    exit 0
+  fi
+  commit=$(git -C "$dir" commit-tree "$tree" -m "$message")
   if git push --quiet --force-with-lease="$branch:$lease" origin "$commit:refs/heads/$branch"; then
     git worktree remove --force "$dir"
     echo "pushed $branch $commit"

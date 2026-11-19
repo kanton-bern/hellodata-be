@@ -24,6 +24,9 @@ const {values: args} = parseArgs({
     // runs kept per version (all browsers together), and versions kept in all; older ones are deleted from the site
     'keep-runs': {type: 'string', default: '5'},
     'keep-versions': {type: 'string', default: '30'},
+    // runs started more than this many days ago are deleted from the site too (0 keeps them); e2e-reports-cleanup.yml
+    // rebuilds the site every night, so old runs go also when nothing is published
+    'max-age-days': {type: 'string', default: '90'},
   },
 });
 if (!args.site) throw new Error('--site is required');
@@ -68,18 +71,25 @@ function loadRuns() {
   return runs.sort((a, b) => b.startedAt.localeCompare(a.startedAt));
 }
 
-// runs are sorted newest first, so the first ones seen of a version are kept
+// Removes the runs over the limits: older than max-age-days, after the keep-runs latest of their version, or of a
+// version after the keep-versions last tested ones. Runs are sorted newest first, so the first ones seen are kept.
 function prune(runs) {
   const keepRuns = Number(args['keep-runs']);
   const keepVersions = Number(args['keep-versions']);
-  const versions = [...new Set(runs.map(run => run.version))].slice(0, keepVersions);
+  const maxAgeDays = Number(args['max-age-days']);
+  if ([keepRuns, keepVersions, maxAgeDays].some(Number.isNaN)) throw new Error('the limits must be numbers');
+  const cutoff = maxAgeDays > 0 ? new Date(Date.now() - maxAgeDays * 24 * 60 * 60 * 1000).toISOString() : '';
+  const recent = runs.filter(run => run.startedAt >= cutoff);
+  const versions = [...new Set(recent.map(run => run.version))].slice(0, keepVersions);
   const seen = new Map();
   return runs.filter(run => {
-    // runs are sorted newest first, so the first keepRuns runs of a version are its latest ones
     seen.set(run.version, (seen.get(run.version) ?? 0) + 1);
-    if (versions.includes(run.version) && seen.get(run.version) <= keepRuns) return true;
+    const reason = run.startedAt < cutoff ? `started before ${cutoff.slice(0, 10)}`
+      : !versions.includes(run.version) ? `not one of the ${keepVersions} last tested versions`
+        : seen.get(run.version) > keepRuns ? `not one of the ${keepRuns} latest runs of ${run.version}` : '';
+    if (!reason) return true;
     fs.rmSync(path.join(site, run.path), {recursive: true, force: true});
-    console.log(`pruned ${run.path}`);
+    console.log(`pruned ${run.path} (${reason})`);
     return false;
   });
 }

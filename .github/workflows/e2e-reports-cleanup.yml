@@ -1,0 +1,46 @@
+name: E2E reports cleanup
+
+# Deletes the e2e reports older than 3 months from the reports site (the e2e/ folder of the gh-pages branch, published
+# by e2e.yml): https://kanton-bern.github.io/hellodata-be/e2e/. The site is rebuilt from the remaining runs, and a
+# version without runs left disappears from it. e2e.yml applies the same limits whenever it publishes a report, this
+# workflow removes old reports also when nothing is published. When nothing is old enough, gh-pages is not changed.
+on:
+  # every night; schedules run only from the default branch and have no inputs, so the age falls back to 90 days
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+    inputs:
+      max-age-days:
+        description: 'Delete the reports of runs started more than this many days ago'
+        required: true
+        default: '90'
+        type: string
+
+concurrency:
+  group: e2e-reports-cleanup
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      MAX_AGE_DAYS: ${{ inputs.max-age-days || '90' }}
+      E2E_DIR: hello-data-portal/hello-data-portal-ui-e2e
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # build-reports-site.mjs uses fs.globSync and Object.groupBy
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      # runs in a checkout of gh-pages; without an e2e/ folder there is nothing to clean up
+      - name: Delete old reports
+        run: >-
+          .github/scripts/update-gh-pages.sh "Delete e2e reports older than $MAX_AGE_DAYS days"
+          bash -c '[ ! -d e2e ] || node "$0" --site e2e --max-age-days "$1"'
+          "$GITHUB_WORKSPACE/$E2E_DIR/scripts/build-reports-site.mjs" "$MAX_AGE_DAYS"
