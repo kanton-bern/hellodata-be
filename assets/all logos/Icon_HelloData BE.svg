@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Ebene_2" data-name="Ebene 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 141.73 141.73">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#Unbenannter_Verlauf_8);
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        fill: url(#Unbenannter_Verlauf_5);
+      }
+
+      .cls-3 {
+        fill: url(#Unbenannter_Verlauf_15);
+      }
+
+      .cls-4 {
+        fill: url(#Unbenannter_Verlauf_30);
+      }
+
+      .cls-5 {
+        fill: #fff;
+      }
+
+      .cls-6 {
+        fill: #ffe4e0;
+      }
+    </style>
+    <linearGradient id="Unbenannter_Verlauf_30" data-name="Unbenannter Verlauf 30" x1="70.92" y1="-5.35" x2="70.92" y2="228.02" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffe4e0"/>
+      <stop offset="1" stop-color="#fff"/>
+    </linearGradient>
+    <linearGradient id="Unbenannter_Verlauf_8" data-name="Unbenannter Verlauf 8" x1="70.92" y1="61.97" x2="70.92" y2="135.79" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffaea2"/>
+      <stop offset="1" stop-color="#ffc9c1"/>
+    </linearGradient>
+    <linearGradient id="Unbenannter_Verlauf_5" data-name="Unbenannter Verlauf 5" x1="70.87" y1="82.39" x2="70.87" y2="171" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff7864"/>
+      <stop offset="1" stop-color="#ff9383"/>
+    </linearGradient>
+    <radialGradient id="Unbenannter_Verlauf_15" data-name="Unbenannter Verlauf 15" cx="108.22" cy="38.09" fx="108.22" fy="38.09" r="63.86" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff7864"/>
+      <stop offset="1" stop-color="#ff9383"/>
+    </radialGradient>
+  </defs>
+  <g id="Ebene_1-2" data-name="Ebene 1">
+    <rect class="cls-4" x=".1" width="141.63" height="141.64"/>
+    <polygon class="cls-1" points="11.96 94.32 42.52 66.35 93.94 75.38 141.73 62.83 141.73 141.64 .1 141.64 11.96 94.32"/>
+    <polygon class="cls-2" points="0 88.37 76.99 110.11 141.73 78.49 141.73 141.73 .1 141.73 0 88.37"/>
+    <circle class="cls-6" cx="45.93" cy="94.32" r="9.7"/>
+    <circle class="cls-5" cx="44.72" cy="104.14" r="8.91"/>
+    <circle class="cls-5" cx="66.87" cy="72.14" r="14.09"/>
+    <circle class="cls-6" cx="70.19" cy="85.23" r="9.07"/>
+    <circle class="cls-5" cx="26.74" cy="116.42" r="6.31"/>
+    <circle class="cls-5" cx="16.98" cy="126.42" r="3.46"/>
+    <circle class="cls-5" cx="103.64" cy="38.09" r="29.09"/>
+    <path class="cls-3" d="m103.64,9v29.09l-19.92,21.19c5.21,4.9,12.21,7.9,19.92,7.9,16.07,0,29.09-13.03,29.09-29.09s-13.03-29.09-29.09-29.09Z"/>
+  </g>
+</svg>
