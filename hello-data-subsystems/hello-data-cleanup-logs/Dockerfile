@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM eclipse-temurin:21.0.13_9-jre
+FROM eclipse-temurin:21.0.13.1_2-jre
 LABEL MAINTAINER="HelloData Team"
 
 # add 'app' user with uid 3012 and corresponding group
@@ -36,6 +36,5 @@ USER 3012
 
 
 COPY target/*.jar /app/app.jar
-# Java4Shell (CVE-2026-114938) workaround: disable the vulnerable AVX-512 Base64 intrinsic. Remove once the base image ships a patched JDK.
-CMD ["java", "-XX:-UseBASE64Intrinsics", "-jar", "/app/app.jar"]
+CMD ["java", "-jar", "/app/app.jar"]
 EXPOSE 8087

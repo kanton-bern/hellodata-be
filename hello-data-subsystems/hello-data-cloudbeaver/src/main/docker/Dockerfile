@@ -25,6 +25,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM dbeaver/cloudbeaver:26.2.3
+FROM dbeaver/cloudbeaver:26.2.5
 # Java4Shell (CVE-2026-114938) workaround: disable the vulnerable AVX-512 Base64 intrinsic for every JVM in this image. Remove once the base image ships a patched JDK.
 ENV JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics"

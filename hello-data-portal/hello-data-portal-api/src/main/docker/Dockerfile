@@ -28,7 +28,7 @@
 # The fat JAR base-image executes a JAR /app/app.jar (or, if there is no /app/app.jar, it executes the first JAR it finds in the /app folder).
 # The java executable is wrapped with tini and executed as the USER 3012 with uid 3012.
 
-FROM eclipse-temurin:21.0.13_9-jre
+FROM eclipse-temurin:21.0.13.1_2-jre
 LABEL MAINTAINER="HelloData Team"
 
 # add 'app' user with uid 3012 and corresponding group
@@ -39,5 +39,4 @@ USER 3012
 
 
 COPY target/*.jar /app/app.jar
-# Java4Shell (CVE-2026-114938) workaround: disable the vulnerable AVX-512 Base64 intrinsic. Remove once the base image ships a patched JDK.
-CMD ["java", "-XX:-UseBASE64Intrinsics", "-jar", "/app/app.jar"]
+CMD ["java", "-jar", "/app/app.jar"]
