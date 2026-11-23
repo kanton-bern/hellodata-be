@@ -42,8 +42,6 @@ ENV KEYCLOAK_ADMIN_PASSWORD=admin
 RUN /opt/keycloak/bin/kc.sh build
 
 FROM quay.io/keycloak/keycloak:26.8.2
-# Java4Shell (CVE-2026-114938) workaround: disable the vulnerable AVX-512 Base64 intrinsic for every JVM in this image. Remove once the base image ships a patched JDK.
-ENV JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics"
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 COPY --from=ubi-micro-build /mnt/rootfs /
 COPY hellodata.json /opt/keycloak/data/import/hellodata.json

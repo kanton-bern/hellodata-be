@@ -36,5 +36,4 @@ USER 3012
 
 
 COPY target/*.jar /app/app.jar
-# Java4Shell (CVE-2026-114938) workaround: disable the vulnerable AVX-512 Base64 intrinsic. Remove once the base image ships a patched JDK.
-CMD ["java", "-XX:-UseBASE64Intrinsics", "-Xmx1024m", "-XX:MaxMetaspaceSize=256m", "-jar", "/app/app.jar"]
+CMD ["java", "-Xmx1024m", "-XX:MaxMetaspaceSize=256m", "-jar", "/app/app.jar"]
