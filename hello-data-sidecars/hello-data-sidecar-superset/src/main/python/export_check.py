@@ -51,6 +51,14 @@ def get_dict_from_yaml(dashboard_export_path):
     return dict_files
 
 
+EMPTY_DASHBOARD_ERROR = ('The dashboard contains no charts. Empty dashboards cannot be imported - '
+                         'add at least one chart to the dashboard and export it again')
+
+
+def has_folder(dict_files, folder_name):
+    return any(folder_name in path.split(os.sep) for path in dict_files.keys())
+
+
 def check_zip_export(export_path_dashboard, dict_files):
     list_error_output = []
     check_attribut = 'type'
@@ -71,9 +79,12 @@ def check_zip_export(export_path_dashboard, dict_files):
             else:
                 export_type = file.get('attributes').get('type')
 
+    if not list_error_output and export_type == 'Dashboard' and not has_folder(dict_files, 'charts'):
+        list_error_output.append(EMPTY_DASHBOARD_ERROR)
+
     if not list_error_output:
         for check_folder in dickt_export_folders.get(export_type):
-            if not list(filter(lambda x: check_folder in x, list(dict_files.keys()))):
+            if not has_folder(dict_files, check_folder):
                 list_error_output.append(f'[ {check_folder} ] is missing in export zip file : import file don`t match the check pattern')
 
     return list_error_output

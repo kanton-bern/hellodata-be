@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM nginx:alpine
+FROM nginx:1.31.10-alpine
 
 # Copy the static content into the nginx default directory
 COPY site/ /usr/share/nginx/html/
