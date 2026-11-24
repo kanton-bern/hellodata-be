@@ -82,7 +82,7 @@ services:
       SIDECAR_API_URL: http://hello-data-sidecar-jupyterhub-default-data-domain:8089/create-temporary-user
 
   jupyterhub-proxy-default-data-domain:
-    image: jupyterhub/configurable-http-proxy:latest
+    image: jupyterhub/configurable-http-proxy:5.4.0
     container_name: jupyterhub-proxy-default-data-domain
     environment:
       - CONFIGPROXY_AUTH_TOKEN=s3cr3t
