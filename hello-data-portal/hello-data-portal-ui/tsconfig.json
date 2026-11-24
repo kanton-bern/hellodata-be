@@ -30,8 +30,6 @@
       "dom"
     ],
     "types": [
-      "jasmine",
-      "jasminewd2",
       "jest"
     ],
     "typeRoots": [
