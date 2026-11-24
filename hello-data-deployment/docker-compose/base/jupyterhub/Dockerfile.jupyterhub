@@ -1,5 +1,4 @@
-ARG JUPYTERHUB_VERSION=latest
-FROM quay.io/jupyterhub/jupyterhub:$JUPYTERHUB_VERSION
+FROM quay.io/jupyterhub/jupyterhub:6.2.0
 
 # Install additional packages
 RUN apt-get update && \

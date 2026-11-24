@@ -263,6 +263,36 @@
         "postgres"
       ],
       "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Red Hat UBI images: understand the 9.9-1795197514 tag format (minor and build number), so new builds are picked up",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "/^registry\\.access\\.redhat\\.com\\/ubi/"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)-(?<patch>\\d+)$"
+    },
+    {
+      "description": "Jupyter docker-stacks images: track the daily date tags (2026-11-23)",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "quay.io/jupyter/base-notebook"
+      ],
+      "versioning": "regex:^(?<major>\\d{4})-(?<minor>\\d{2})-(?<patch>\\d{2})$"
+    },
+    {
+      "description": "Airflow slim images: understand the slim-3.2.2-python3.12 tag format and keep the Python version",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "apache/airflow"
+      ],
+      "versioning": "regex:^slim-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>python\\d+\\.\\d+)$"
     }
   ]
 }

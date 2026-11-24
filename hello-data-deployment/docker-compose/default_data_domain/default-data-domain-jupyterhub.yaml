@@ -32,8 +32,6 @@ services:
     build:
       context: ./base/jupyterhub
       dockerfile: Dockerfile.jupyterhub
-      args:
-        JUPYTERHUB_VERSION: latest
     restart: always
     container_name: jupyterhub-default-data-domain
     volumes:
