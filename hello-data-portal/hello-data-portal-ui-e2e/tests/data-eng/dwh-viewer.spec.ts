@@ -59,6 +59,21 @@ test.describe('DWH Viewer', () => {
           await expandConnectionsFolder(cloudbeaver);
           await expect(cloudbeaver.getByText('User password', {exact: true})).toHaveCount(0);
         });
+
+        // the user opens the DWH Viewer and sees exactly the CloudBeaver connections of its role. CloudBeaver grants a
+        // connection only to a team whose id matches the one in data-sources-permissions.json exactly (case-sensitive),
+        // otherwise it shows "No Connections" to everybody but the admin (regression of the 1.7.2 cloudbeaver chart,
+        // which granted the connections to <data domain key>_read_dm instead of the team <DATA DOMAIN KEY>_READ_DM)
+        test('sees the connections of its role in the DWH Viewer', async ({page}) => {
+          const viewer = await openDwhViewer(page, user);
+          const cloudbeaver = viewer.frameLocator('#data-warehouse-component iframe');
+          await expandConnectionsFolder(cloudbeaver);
+          await expect(cloudbeaver.getByText(/^No Connections/)).toHaveCount(0);
+          for (const connection of ALL_CONNECTIONS) {
+            await expect(cloudbeaverConnection(cloudbeaver, connection), connection)
+              .toHaveCount(connections.includes(connection) ? 1 : 0);
+          }
+        });
       } else {
         // the user has no DWH Viewer entry in the menu and the page of the DWH Viewer redirects to the forbidden page
         test('has no DWH Viewer', async ({page}) => {
