@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   db:
-    image: mysql
+    image: mysql:26.10.0
     command: --max-allowed-packet=64MB
     restart: always
     volumes:
@@ -13,7 +13,7 @@ services:
       - ./db.env
 
   app:
-    image: matomo:fpm-alpine
+    image: matomo:6.0.0-fpm-alpine
     restart: always
     links:
       - db
@@ -27,7 +27,7 @@ services:
       - ./db.env
 
   web:
-    image: nginx:alpine
+    image: nginx:1.31.10-alpine
     restart: always
     volumes:
       - matomo:/var/www/html:ro

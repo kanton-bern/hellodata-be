@@ -83,12 +83,15 @@ version: "3.7"
 services:
 
   minio:
-    image: minio/minio
+    # minio/minio and minio/mc are no longer published on Docker Hub, so the bitnami builds are used
+    image: bitnamilegacy/minio:2025.7.23
     container_name: minio
+    user: "0"
+    entrypoint: []
+    command: minio server /data --console-address ":9001"
     environment:
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-    command: server /data --console-address ":9001"
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -101,7 +104,8 @@ services:
       retries: 5
 
   createbuckets:
-    image: minio/mc
+    image: bitnamilegacy/minio-client:2025.7.21
+    user: "0"
     restart: on-failure
     depends_on:
       - minio
@@ -195,7 +199,7 @@ services:
 
   redis:
     platform: ${HD_PLATFORM}
-    image: redis:latest
+    image: redis:8.12.0
     env_file: .env
     ports:
       - "36379:6379"
@@ -208,7 +212,7 @@ services:
 
   nats:
     platform: ${HD_PLATFORM}
-    image: nats:alpine3.20
+    image: nats:2.10.22-alpine3.20
     command: --name hello-data --http_port 8222 --js
     restart: on-failure
     ports:
@@ -225,7 +229,7 @@ services:
 
   nats-box:
     platform: ${HD_PLATFORM}
-    image: natsio/nats-box
+    image: natsio/nats-box:0.20.2
     entrypoint: /bin/sh -c 'tail -f /dev/null'
     restart: on-failure
     # use following commands inside after the docker exec:
@@ -234,7 +238,7 @@ services:
     # nats stream view
 
   nats-ui:
-    image: ghcr.io/nats-nui/nui:latest
+    image: ghcr.io/nats-nui/nui:0.10.0
     container_name: nats-ui
     ports:
       - 31311:31311
@@ -248,7 +252,7 @@ services:
   #   smtp dev server
   smtp4dev:
     platform: ${HD_PLATFORM}
-    image: rnwood/smtp4dev:v3
+    image: rnwood/smtp4dev:v3.16
     restart: always
     ports:
       # port the web interface should be accessible on
@@ -352,7 +356,7 @@ services:
       - "keycloak.localhost:host-gateway"
 
   sftpgo:
-    image: drakkan/sftpgo
+    image: drakkan/sftpgo:v2.7.6
     container_name: sftpgo
     environment:
       SFTPGO_HTTPD__BINDINGS__0__PORT: 8080

@@ -17,7 +17,8 @@
   "enabledManagers": [
     "maven",
     "npm",
-    "dockerfile"
+    "dockerfile",
+    "docker-compose"
   ],
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
@@ -228,7 +229,8 @@
     {
       "description": "Dockerfile base images: internal bedag images use build-arg tags and are released together with this repo",
       "matchManagers": [
-        "dockerfile"
+        "dockerfile",
+        "docker-compose"
       ],
       "matchPackageNames": [
         "/^bedag\\//"
@@ -238,7 +240,8 @@
     {
       "description": "Temurin base image: stay on JDK 21 and understand the 21.0.13.1_2-jre tag format (build and revision parts)",
       "matchManagers": [
-        "dockerfile"
+        "dockerfile",
+        "docker-compose"
       ],
       "matchPackageNames": [
         "eclipse-temurin"
@@ -255,7 +258,8 @@
     {
       "description": "Platform base images (Airflow, JupyterHub, Postgres) are deliberate upgrades: create PRs only after approval on the dependency dashboard",
       "matchManagers": [
-        "dockerfile"
+        "dockerfile",
+        "docker-compose"
       ],
       "matchPackageNames": [
         "apache/airflow",
@@ -267,7 +271,8 @@
     {
       "description": "Red Hat UBI images: understand the 9.9-1795197514 tag format (minor and build number), so new builds are picked up",
       "matchManagers": [
-        "dockerfile"
+        "dockerfile",
+        "docker-compose"
       ],
       "matchPackageNames": [
         "/^registry\\.access\\.redhat\\.com\\/ubi/"
@@ -277,7 +282,8 @@
     {
       "description": "Jupyter docker-stacks images: track the daily date tags (2026-11-23)",
       "matchManagers": [
-        "dockerfile"
+        "dockerfile",
+        "docker-compose"
       ],
       "matchPackageNames": [
         "quay.io/jupyter/base-notebook"
@@ -287,12 +293,24 @@
     {
       "description": "Airflow slim images: understand the slim-3.2.2-python3.12 tag format and keep the Python version",
       "matchManagers": [
-        "dockerfile"
+        "dockerfile",
+        "docker-compose"
       ],
       "matchPackageNames": [
         "apache/airflow"
       ],
       "versioning": "regex:^slim-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>python\\d+\\.\\d+)$"
+    },
+    {
+      "description": "Compose images that are built locally or come from the internal registry cannot be looked up",
+      "matchManagers": [
+        "docker-compose"
+      ],
+      "matchPackageNames": [
+        "hellodata-jupyterhub-notebook-default-data-domain",
+        "/^registry\\.mgmtbi\\.ch\\//"
+      ],
+      "enabled": false
     }
   ]
 }
