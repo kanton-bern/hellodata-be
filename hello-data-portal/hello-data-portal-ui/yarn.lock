@@ -3059,7 +3059,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jest/environment-jsdom-abstract@npm:30.5.2, @jest/environment-jsdom-abstract@npm:^30.0.0":
+"@jest/environment-jsdom-abstract@npm:30.5.2, @jest/environment-jsdom-abstract@npm:^30.5.1":
   version: 30.5.2
   resolution: "@jest/environment-jsdom-abstract@npm:30.5.2"
   dependencies:
@@ -5493,29 +5493,6 @@ __metadata:
   dependencies:
     "@types/istanbul-lib-report": "npm:*"
   checksum: 10c0/1647fd402aced5b6edac87274af14ebd6b3a85447ef9ad11853a70fd92a98d35f81a5d3ea9fcb5dbb5834e800c6e35b64475e33fcae6bfa9acc70d61497c54ee
-  languageName: node
-  linkType: hard
-
-"@types/jasmine@npm:*":
-  version: 7.0.0
-  resolution: "@types/jasmine@npm:7.0.0"
-  checksum: 10c0/165dd685981ee34a451ab6d16065531fc6b1789af382ce7186bda1fe814fef319c88f757ac9c267272f213771186a518fe59878f936f490cd8591fb602349e66
-  languageName: node
-  linkType: hard
-
-"@types/jasmine@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "@types/jasmine@npm:6.0.0"
-  checksum: 10c0/9521bb7bd9c897ba6333478cd1c4acd68f813ea9b2ebf0f61283cc0357a9d7581c44f1798f4733ad662b3d1498449ebbb074a0e8bf96b95d6c72e9651fe7e047
-  languageName: node
-  linkType: hard
-
-"@types/jasminewd2@npm:^2.0.13":
-  version: 2.0.13
-  resolution: "@types/jasminewd2@npm:2.0.13"
-  dependencies:
-    "@types/jasmine": "npm:*"
-  checksum: 10c0/4a4abed8a09a278e8f21a6bb28e1bf8566658992e1812d0555bdfbdc24e47f23ca19c75444af1d5936337a0c62b777651b9b70dcee7abdfdaa394b517cb259ba
   languageName: node
   linkType: hard
 
@@ -8001,7 +7978,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild-wasm@npm:>=0.23.0":
+"esbuild-wasm@npm:>=0.28.0":
   version: 0.28.2
   resolution: "esbuild-wasm@npm:0.28.2"
   bin:
@@ -8953,8 +8930,6 @@ __metadata:
     "@tailwindcss/postcss": "npm:^4.2.1"
     "@testing-library/angular": "npm:^19.0.0"
     "@testing-library/dom": "npm:^10.4.1"
-    "@types/jasmine": "npm:^6.0.0"
-    "@types/jasminewd2": "npm:^2.0.13"
     "@types/jest": "npm:^30.0.0"
     "@types/pdfmake": "npm:^0.3.2"
     angular-auth-oidc-client: "npm:^21.0.0"
@@ -8966,9 +8941,9 @@ __metadata:
     eslint: "npm:^10.0.0"
     jest: "npm:^30.2.0"
     jest-environment-jsdom: "npm:^30.2.0"
-    jest-junit: "npm:^16.0.0"
+    jest-junit: "npm:^17.0.0"
     jest-mock-extended: "npm:^4.0.0"
-    jest-preset-angular: "npm:^16.0.0"
+    jest-preset-angular: "npm:^17.0.0"
     jest-sonar: "npm:^0.2.16"
     ngx-matomo-client: "npm:^9.0.0"
     ngx-pipes: "npm:^3.2.2"
@@ -9911,15 +9886,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-junit@npm:^16.0.0":
-  version: 16.0.0
-  resolution: "jest-junit@npm:16.0.0"
+"jest-junit@npm:^17.0.0":
+  version: 17.0.0
+  resolution: "jest-junit@npm:17.0.0"
   dependencies:
     mkdirp: "npm:^1.0.4"
     strip-ansi: "npm:^6.0.1"
-    uuid: "npm:^8.3.2"
+    uuid: "npm:^14.0.0"
     xml: "npm:^1.0.1"
-  checksum: 10c0/d813d4d142341c2b51b634db7ad6ceb9849514cb58f96ec5e7e4cf4031a557133490452710c2d9dec9b1dd546334d9ca663e042d3070c3e8f102ce6217bd8e2e
+  checksum: 10c0/24206792c48064a474cb13deba5edac6212667065f79dc024677cb6f34615b96991ed231cb61846fd32eca2d5f97011e5dfb714d8a30b583f5e584b41b0878da
   languageName: node
   linkType: hard
 
@@ -10041,29 +10016,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-preset-angular@npm:^16.0.0":
-  version: 16.2.0
-  resolution: "jest-preset-angular@npm:16.2.0"
+"jest-preset-angular@npm:^17.0.0":
+  version: 17.0.3
+  resolution: "jest-preset-angular@npm:17.0.3"
   dependencies:
-    "@jest/environment-jsdom-abstract": "npm:^30.0.0"
+    "@jest/environment-jsdom-abstract": "npm:^30.5.1"
     bs-logger: "npm:^0.2.6"
-    esbuild: "npm:>=0.23.0"
-    esbuild-wasm: "npm:>=0.23.0"
-    jest-util: "npm:^30.0.0"
-    pretty-format: "npm:^30.0.0"
-    ts-jest: "npm:^29.4.0"
+    esbuild: "npm:>=0.28.0"
+    esbuild-wasm: "npm:>=0.28.0"
+    jest-util: "npm:^30.5.1"
+    pretty-format: "npm:^30.5.1"
+    ts-jest: "npm:^29.4.12"
   peerDependencies:
-    "@angular/compiler-cli": ">=19.0.0 <23.0.0"
-    "@angular/core": ">=19.0.0 <23.0.0"
-    "@angular/platform-browser": ">=19.0.0 <23.0.0"
-    "@angular/platform-browser-dynamic": ">=19.0.0 <23.0.0"
+    "@angular/compiler-cli": ">=20.0.0 <23.0.0"
+    "@angular/core": ">=20.0.0 <23.0.0"
+    "@angular/platform-browser": ">=20.0.0 <23.0.0"
     jest: ^30.0.0
     jsdom: ">=26.0.0"
-    typescript: ">=5.5"
+    typescript: ">=5.8"
   dependenciesMeta:
     esbuild:
       optional: true
-  checksum: 10c0/3fa7fecf554a4d15ae5083bb27af5d189341b8f129b4ad7eda5b2f487febce3fd94b26b014c5722f7ad404553e1bd374f2b5b5346520dad78c35fe9fc80f4d00
+  checksum: 10c0/479cfa03bf2e2d66cab3cdac502db75f98e72592a24cc8d7ba56c1c4f935b183eedfbc0cc3fe22ce8c2904fb7e33a647150e024809fdb744d1250c32a4f8c1f3
   languageName: node
   linkType: hard
 
@@ -10318,7 +10292,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-util@npm:30.5.1, jest-util@npm:^30.0.0":
+"jest-util@npm:30.5.1, jest-util@npm:^30.5.1":
   version: 30.5.1
   resolution: "jest-util@npm:30.5.1"
   dependencies:
@@ -12498,7 +12472,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:30.5.1, pretty-format@npm:^30.0.0":
+"pretty-format@npm:30.5.1, pretty-format@npm:^30.0.0, pretty-format@npm:^30.5.1":
   version: 30.5.1
   resolution: "pretty-format@npm:30.5.1"
   dependencies:
@@ -14087,7 +14061,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^29.4.0, ts-jest@npm:^29.4.5":
+"ts-jest@npm:^29.4.12, ts-jest@npm:^29.4.5":
   version: 29.4.15
   resolution: "ts-jest@npm:29.4.15"
   dependencies:
