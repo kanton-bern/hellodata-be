@@ -111,7 +111,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
 
-      # the compose files are listed in COMPOSE_FILE of the compose .env, the e2e override replaces unavailable images;
+      # the compose files are listed in COMPOSE_FILE of the compose .env, the e2e override adds a second data domain;
       # for Airflow 3 compose-airflow3.yaml adds its services. E2E_AIRFLOW_MODULES are the module types of the DAGs the
       # step "Wait for sidecar resources" waits for
       - name: Add e2e compose override
