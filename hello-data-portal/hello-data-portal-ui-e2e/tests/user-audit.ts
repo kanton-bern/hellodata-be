@@ -102,7 +102,8 @@ export function historyRows(page: Page) {
 export async function openHistory(page: Page) {
   await expect(historyPanel(page)).toBeVisible();
   if (!await historyTable(page).isVisible()) {
-    await historyPanel(page).locator('.p-panel-header').getByRole('button').click();
+    // the toggler is a p-button host (named after the header) around the icon button, click the host
+    await historyPanel(page).getByRole('button', {name: 'History', exact: true}).click();
   }
   await expect(historyTable(page)).toBeVisible();
   return historyTable(page);
