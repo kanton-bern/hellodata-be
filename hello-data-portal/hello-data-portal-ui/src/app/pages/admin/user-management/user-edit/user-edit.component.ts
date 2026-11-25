@@ -25,6 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
+import {Router} from '@angular/router';
 import {ChangeDetectorRef, Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Store} from "@ngrx/store";
@@ -123,6 +124,7 @@ export class UserEditComponent extends BaseComponent implements OnInit {
   userForm!: FormGroup;
   saveDisabled = false;
   private readonly store = inject<Store<AppState>>(Store);
+  private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -168,6 +170,10 @@ export class UserEditComponent extends BaseComponent implements OnInit {
 
   cancel() {
     this.store.dispatch(navigateToUsersManagement());
+  }
+
+  openAuditLogs(user: User) {
+    this.router.navigate([naviElements.userManagement.path, 'edit', user.id, 'audit-logs']);
   }
 
 

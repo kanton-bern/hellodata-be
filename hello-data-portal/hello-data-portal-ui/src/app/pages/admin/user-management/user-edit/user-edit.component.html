@@ -9,10 +9,12 @@
             [user]="editedUser"
             [saveDisabled]="saveDisabled"
             [saveLoading]="(userSaveButtonDisabled$ | async) ?? false"
+            [showAuditLogs]="true"
             (cancelClicked)="cancel()"
             (saveClicked)="updateUser()"
             (disableClicked)="showUserDisablePopup($event)"
-            (enableClicked)="showUserEnablePopup($event)"/>
+            (enableClicked)="showUserEnablePopup($event)"
+            (auditLogsClicked)="openAuditLogs(editedUser)"/>
           <p-divider/>
           <div class="field grid grid-cols-12 gap-4">
             <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
@@ -179,7 +181,8 @@
         }
 
         <!-- History (audit log) -->
-        <p-panel [collapsed]="true" [header]="'@History' | transloco" [toggleable]="true" class="mb-4 block" id="userHistoryPanel">
+        <!-- content-block: the same margins as the cards of the page (_content_section.scss) -->
+        <p-panel [collapsed]="true" [header]="'@History' | transloco" [toggleable]="true" class="content-block mb-4 block" id="userHistoryPanel">
           <ng-template pTemplate="content">
             <app-user-audit-history [userId]="editedUser.id"/>
           </ng-template>

@@ -33,6 +33,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupUserEntry;
 import ch.bedag.dap.hellodata.portal.rls_role.entity.UserRlsRoleEntity;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditAction;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditChange;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditChangeDto;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditLogDto;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
@@ -47,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
@@ -160,6 +162,36 @@ class UserAuditServicePostgresTest {
         UserAuditLogDto deleted = entries.stream().filter(e -> e.action() == UserAuditAction.USER_DELETED).findFirst().orElseThrow();
         assertThat(deleted.targetEmail()).isEqualTo("created@example.com");
         assertThat(deleted.changes()).allSatisfy(change -> assertThat(change.after()).isNull());
+    }
+
+    @Test
+    void should_filter_by_data_domain_and_keep_only_its_changes() {
+        UserEntity user = persistUser("filter@example.com");
+        UUID userId = user.getId();
+        userAuditService.recordChanges(userId, user.getEmail(), UserAuditAction.ROLES_CHANGED, UserAuditSource.MANUAL, List.of(
+                new UserAuditChange("role", DATA_DOMAIN, "NONE", "DATA_DOMAIN_VIEWER"),
+                new UserAuditChange("role", "dd_two", "NONE", "DATA_DOMAIN_EDITOR"),
+                new UserAuditChange("enabled", null, false, true)));
+        userAuditService.recordChanges(userId, user.getEmail(), UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
+                List.of(new UserAuditChange("dashboardGroups", DATA_DOMAIN, null, "Finance")));
+        userAuditService.recordChanges(userId, user.getEmail(), UserAuditAction.USER_DISABLED, UserAuditSource.MANUAL,
+                List.of(new UserAuditChange("enabled", null, true, false)));
+
+        Page<UserAuditLogDto> all = userAuditService.getAuditLog(userId, null, PageRequest.of(0, 10));
+        assertThat(all.getTotalElements()).isEqualTo(3);
+
+        Page<UserAuditLogDto> one = userAuditService.getAuditLog(userId, DATA_DOMAIN, PageRequest.of(0, 10));
+        assertThat(one.getTotalElements()).isEqualTo(2);
+        assertThat(one.getContent()).extracting(UserAuditLogDto::action)
+                .containsExactlyInAnyOrder(UserAuditAction.ROLES_CHANGED, UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED);
+        assertThat(one.getContent()).flatExtracting(UserAuditLogDto::changes)
+                .allSatisfy(change -> assertThat(change.contextKey()).isEqualTo(DATA_DOMAIN));
+
+        Page<UserAuditLogDto> two = userAuditService.getAuditLog(userId, "dd_two", PageRequest.of(0, 10));
+        assertThat(two.getContent()).singleElement().satisfies(entry ->
+                assertThat(entry.changes()).singleElement().satisfies(change -> assertThat(change.after()).isEqualTo("DATA_DOMAIN_EDITOR")));
+
+        assertThat(userAuditService.getAuditLog(userId, "unknown", PageRequest.of(0, 10)).getTotalElements()).isZero();
     }
 
     private UserEntity persistUser(String email) {

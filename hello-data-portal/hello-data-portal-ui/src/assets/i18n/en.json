@@ -548,6 +548,7 @@
   "@RLS group names saved": "RLS group names saved",
   "@You are not allowed to manage the RLS groups of this data domain": "You are not allowed to manage the RLS groups of this data domain",
   "@No data domains to manage": "No data domains to manage",
+  "@Audit logs": "Audit logs",
   "@History": "History",
   "@History when": "When",
   "@History who": "Who",

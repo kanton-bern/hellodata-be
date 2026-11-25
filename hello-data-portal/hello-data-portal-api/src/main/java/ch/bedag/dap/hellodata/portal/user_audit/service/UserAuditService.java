@@ -99,10 +99,23 @@ public class UserAuditService {
 
     @Transactional(readOnly = true)
     public Page<UserAuditLogDto> getAuditLog(UUID userId, Pageable pageable) {
+        return getAuditLog(userId, null, pageable);
+    }
+
+    /**
+     * The audit log of a user, newest first. With a context key only the entries that touch that business / data domain
+     * are returned, each with only its changes in that domain.
+     */
+    @Transactional(readOnly = true)
+    public Page<UserAuditLogDto> getAuditLog(UUID userId, String contextKey, Pageable pageable) {
         Map<String, String> contextNames = contextRepository.findAllByTypeIn(List.of(HdContextType.BUSINESS_DOMAIN, HdContextType.DATA_DOMAIN)).stream()
                 .collect(Collectors.toMap(HdContextEntity::getContextKey, HdContextEntity::getName, (a, b) -> a));
-        return userAuditLogRepository.findAllByTargetUserIdOrderByOccurredAtDesc(userId, pageable)
-                .map(entity -> toDto(entity, contextNames));
+        if (contextKey == null || contextKey.isBlank()) {
+            return userAuditLogRepository.findAllByTargetUserIdOrderByOccurredAtDesc(userId, pageable)
+                    .map(entity -> toDto(entity, contextNames, null));
+        }
+        return userAuditLogRepository.findAllByTargetUserIdAndContextKey(userId, contextKey, pageable)
+                .map(entity -> toDto(entity, contextNames, contextKey));
     }
 
     // private helpers below run in the transaction of the public method that called them
@@ -159,8 +172,9 @@ public class UserAuditService {
         return contextKeys.size() == 1 ? contextKeys.iterator().next() : null;
     }
 
-    private static UserAuditLogDto toDto(UserAuditLogEntity entity, Map<String, String> contextNames) {
+    private static UserAuditLogDto toDto(UserAuditLogEntity entity, Map<String, String> contextNames, String onlyContextKey) {
         List<UserAuditChangeDto> changes = entity.getChanges().stream()
+                .filter(change -> onlyContextKey == null || onlyContextKey.equals(change.contextKey()))
                 .map(change -> new UserAuditChangeDto(change.field(), change.contextKey(), contextNames.get(change.contextKey()), change.before(), change.after()))
                 .toList();
         return new UserAuditLogDto(entity.getId(), entity.getOccurredAt(), entity.getActorId(), entity.getActorEmail(), entity.getTargetUserId(),

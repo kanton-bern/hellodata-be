@@ -49,6 +49,14 @@ import {ICON_REGISTRY} from '../../../../../shared/icons';
         }
       </div>
       <div class="p-toolbar-group-end">
+        @if (showAuditLogs()) {
+          <p-button (click)="auditLogsClicked.emit()" (keydown.enter)="auditLogsClicked.emit()"
+                    (keydown.space)="auditLogsClicked.emit()"
+                    [icon]="icons.ACTION_HISTORY.class" pRipple
+                    [label]="'@Audit logs' | transloco"
+                    class="mr-2" id="userAuditLogsButton"
+                    severity="secondary" [outlined]="true"/>
+        }
         @if (!user().superuser && !user().enabled) {
           <p-button (click)="enableClicked.emit(user())" (keydown.enter)="enableClicked.emit(user())"
                     (keydown.space)="enableClicked.emit(user())"
@@ -77,9 +85,12 @@ export class UserEditToolbarComponent {
   readonly user = input.required<User>();
   readonly saveDisabled = input<boolean>(false);
   readonly saveLoading = input<boolean>(false);
+  /** The button to the audit logs page of the user, shown in the toolbar above the form only. */
+  readonly showAuditLogs = input<boolean>(false);
 
   readonly cancelClicked = output<void>();
   readonly saveClicked = output<void>();
   readonly disableClicked = output<User>();
   readonly enableClicked = output<User>();
+  readonly auditLogsClicked = output<void>();
 }

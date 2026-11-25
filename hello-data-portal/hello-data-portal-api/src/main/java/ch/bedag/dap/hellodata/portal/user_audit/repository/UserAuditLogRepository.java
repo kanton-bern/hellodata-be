@@ -30,6 +30,8 @@ import ch.bedag.dap.hellodata.portal.user_audit.entity.UserAuditLogEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
@@ -38,4 +40,25 @@ import java.util.UUID;
 public interface UserAuditLogRepository extends JpaRepository<UserAuditLogEntity, UUID> {
 
     Page<UserAuditLogEntity> findAllByTargetUserIdOrderByOccurredAtDesc(UUID targetUserId, Pageable pageable);
+
+    /**
+     * The entries of a user that touch one business / data domain: the entry's own context key, or any of its changes.
+     */
+    @Query(value = """
+            SELECT l.* FROM user_audit_log l
+            WHERE l.target_user_id = :targetUserId
+              AND (l.context_key = :contextKey
+                   OR EXISTS (SELECT 1 FROM jsonb_array_elements(l.changes) c WHERE c ->> 'contextKey' = :contextKey))
+            ORDER BY l.occurred_at DESC
+            """,
+            countQuery = """
+                    SELECT count(*) FROM user_audit_log l
+                    WHERE l.target_user_id = :targetUserId
+                      AND (l.context_key = :contextKey
+                           OR EXISTS (SELECT 1 FROM jsonb_array_elements(l.changes) c WHERE c ->> 'contextKey' = :contextKey))
+                    """,
+            nativeQuery = true)
+    Page<UserAuditLogEntity> findAllByTargetUserIdAndContextKey(@Param("targetUserId") UUID targetUserId,
+                                                                @Param("contextKey") String contextKey,
+                                                                Pageable pageable);
 }

@@ -1,0 +1,22 @@
+@if ((editedUser$ | async); as user) {
+  <p-card class="mb-4 block" id="userAuditLogsPage">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+      <h4 class="m-0">{{ '@Audit logs' | transloco }}: {{ user.email }}</h4>
+      <p-button (click)="back(user)" [icon]="icons.ACTION_BACK.class" [label]="'@Back' | transloco"
+                id="userAuditLogsBackButton" severity="secondary"/>
+    </div>
+    <div class="flex items-center gap-2 mb-4">
+      <label for="userAuditDataDomainFilter">{{ '@Data domain' | transloco }}</label>
+      <p-select [(ngModel)]="selectedContextKey"
+                [options]="(dataDomains$ | async) ?? []"
+                [placeholder]="'@All Data Domains' | transloco"
+                [showClear]="true"
+                class="w-72"
+                id="userAuditDataDomain"
+                inputId="userAuditDataDomainFilter"
+                optionLabel="name"
+                optionValue="contextKey"/>
+    </div>
+    <app-user-audit-history [contextKey]="selectedContextKey" [userId]="user.id"/>
+  </p-card>
+}

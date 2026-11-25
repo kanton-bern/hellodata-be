@@ -1,5 +1,5 @@
 import {Page} from '@playwright/test';
-import {CONTEXT_KEY} from '../instance';
+import {CONTEXT_KEY, EXTRA_CONTEXT_KEY} from '../instance';
 import {
   ADMIN,
   BUSINESS_DOMAIN_ADMIN,
@@ -16,17 +16,24 @@ import {
   User,
 } from '../fixtures';
 import {DATA_DOMAIN, openUserEdit, saveUserEdit, SHOWCASE_DASHBOARD, withUser} from '../superset';
+import {breadcrumb} from '../data-eng';
 import {BATCH_TIMEOUT, deleteBatchUsers, deleteDashboardGroup, importCsv, portalRoles, portalUser, toCsv} from '../batch-import';
 import {bulkAssign, expectResult} from '../bulk-assignments';
 import {
+  auditLogsFilter,
+  auditLogsPage,
   AuditRow,
   auditRows,
+  auditRowsOfContext,
+  contextName,
   deleteAuditRows,
   expectHistoryRow,
   getAuditLog,
+  historyPaginator,
   historyPanel,
   historyRow,
   historyRows,
+  openAuditLogs,
   openHistory,
   portalApiOf,
   portalUserId,
@@ -283,6 +290,60 @@ test.describe('User audit log', () => {
     });
   });
 
+  // the Audit logs button of the edit page opens the audit logs of the user on a page of its own: the breadcrumb ends
+  // with the user's e-mail (a link back to the edit page) and Audit logs, the data domain filter shows only the entries
+  // with changes in that domain (and only those changes), a domain without entries shows the empty message without a
+  // paginator, and Back returns to the edit page
+  test('the audit logs page lists the history, filters it by data domain and leads back', async ({adminPage: page}) => {
+    const rows = auditRows(userId);
+    const ofDataDomain = auditRowsOfContext(userId, CONTEXT_KEY);
+    expect(ofDataDomain.length, 'the earlier tests changed roles in the data domain').toBeGreaterThan(0);
+    expect(ofDataDomain.length, 'enabling and disabling are not changes of the data domain').toBeLessThan(rows.length);
+
+    await openUserEdit(page, TARGET);
+    await openAuditLogs(page, userId);
+    await expect(breadcrumb(page).getByText('User management', {exact: true})).toBeVisible();
+    await expect(breadcrumb(page).getByText('Audit logs', {exact: true})).toBeVisible();
+    const userCrumb = breadcrumb(page).getByText(EMAIL, {exact: true});
+    await expect(userCrumb).toBeVisible();
+    await expect(auditLogsPage(page)).toContainText(EMAIL);
+
+    // all data domains: the whole log, with the paginator
+    await expect(historyRows(page)).toHaveCount(Math.min(rows.length, HISTORY_PAGE_SIZE));
+    await expect(historyPaginator(page)).toBeVisible();
+
+    // the default data domain: its entries only, each change of the data domain
+    const filtered = page.waitForResponse(r => r.url().includes(`/users/${userId}/audit`) && r.url().includes(`contextKey=${CONTEXT_KEY}`));
+    await selectOption(auditLogsFilter(page), DATA_DOMAIN);
+    expect((await filtered).ok()).toBe(true);
+    await expect(historyRows(page)).toHaveCount(Math.min(ofDataDomain.length, HISTORY_PAGE_SIZE));
+    for (const row of await historyRows(page).all()) {
+      for (const changeLine of await row.getByRole('cell').nth(5).locator('div').all()) {
+        await expect(changeLine).toContainText(`[${DATA_DOMAIN}]`);
+      }
+    }
+    await expect(historyRows(page).filter({has: page.getByRole('cell', {name: ACTION.USER_DISABLED, exact: true})})).toHaveCount(0);
+
+    // the extra data domain: the user never had a role there, so there is nothing to show and no paginator
+    await selectOption(auditLogsFilter(page), contextName(EXTRA_CONTEXT_KEY));
+    await expect(historyRows(page)).toHaveCount(1);
+    await expect(historyRows(page).first()).toHaveText('No history entries');
+    await expect(historyPaginator(page)).toHaveCount(0);
+
+    // clearing the filter shows the whole log again
+    await auditLogsFilter(page).locator('.p-select-clear-icon').click();
+    await expect(historyRows(page)).toHaveCount(Math.min(rows.length, HISTORY_PAGE_SIZE));
+
+    // Back returns to the edit page of the user, and so does the e-mail in the breadcrumb
+    await page.locator('#userAuditLogsBackButton').click();
+    await expect(page).toHaveURL(new RegExp(`/user-management/edit/${userId}$`));
+    await expect(historyPanel(page)).toBeVisible();
+    await openAuditLogs(page, userId);
+    await breadcrumb(page).getByText(EMAIL, {exact: true}).click();
+    await expect(page).toHaveURL(new RegExp(`/user-management/edit/${userId}$`));
+    await expect(page.locator('#email')).toHaveValue(EMAIL);
+  });
+
   // a business domain admin has the USER_MANAGEMENT permission too: it sees the same History panel and may read the
   // audit log through the api
   test('a business domain admin sees the History panel and may read the log through the api', async ({browser}) => {
@@ -292,6 +353,9 @@ test.describe('User audit log', () => {
       await openHistory(page);
       await expect(historyRows(page)).toHaveCount(Math.min(rows.length, HISTORY_PAGE_SIZE));
       await expect(historyRows(page).first().getByRole('cell').nth(3)).toHaveText(ACTION[rows[0].action as keyof typeof ACTION]);
+
+      await openAuditLogs(page, userId);
+      await expect(historyRows(page)).toHaveCount(Math.min(rows.length, HISTORY_PAGE_SIZE));
 
       const api = await portalApiOf(page);
       const response = await getAuditLog(page.request, api, userId);
@@ -329,6 +393,20 @@ test.describe('User audit log', () => {
     // out of range values are clamped instead of failing
     const clamped = await (await getAuditLog(page.request, api, userId, {page: -1, size: 0})).json();
     expect(clamped).toMatchObject({number: 0, size: 1});
+
+    // the data domain filter returns the entries with a change in the data domain, each with only those changes
+    const ofDataDomain = auditRowsOfContext(userId, CONTEXT_KEY);
+    const byDomain = await (await getAuditLog(page.request, api, userId, {size: 100, contextKey: CONTEXT_KEY})).json();
+    expect(byDomain.totalElements).toBe(ofDataDomain.length);
+    expect(byDomain.content.map((e: any) => e.action)).toEqual(ofDataDomain.map(r => r.action));
+    for (const entry of byDomain.content) {
+      expect(entry.changes.length).toBeGreaterThan(0);
+      for (const change of entry.changes) {
+        expect(change.contextKey).toBe(CONTEXT_KEY);
+      }
+    }
+    const byUnknownDomain = await (await getAuditLog(page.request, api, userId, {contextKey: 'no_such_domain'})).json();
+    expect(byUnknownDomain.totalElements).toBe(0);
 
     const unknown = await getAuditLog(page.request, api, crypto.randomUUID());
     expect(unknown.status()).toBe(200);
@@ -417,9 +495,9 @@ test.describe('User audit log access', () => {
         expect(await response.text()).not.toContain('"occurredAt"');
       });
 
-      // opening the user edit page by url sends the user to the forbidden page, without a History panel and without any
-      // request for the audit log
-      test('is sent to the forbidden page instead of the History panel', async () => {
+      // opening the user edit page or the audit logs page by url sends the user to the forbidden page, without a History
+      // panel and without any request for the audit log
+      test('is sent to the forbidden page instead of the History panel and the audit logs page', async () => {
         const auditRequests: string[] = [];
         const onRequest = (r: {url(): string}) => {
           if (/\/users\/[^/]+\/audit(\?|$)/.test(r.url())) {
@@ -432,6 +510,12 @@ test.describe('User audit log access', () => {
           await expect(page).toHaveURL(/\/forbidden$/);
           await expect(page.locator('app-not-allowed')).toHaveCount(1);
           await expect(historyPanel(page)).toHaveCount(0);
+
+          // the audit logs page by url as well
+          await page.goto(`user-management/edit/${otherUserId}/audit-logs`);
+          await expect(page).toHaveURL(/\/forbidden$/);
+          await expect(page.locator('app-not-allowed')).toHaveCount(1);
+          await expect(auditLogsPage(page)).toHaveCount(0);
           expect(auditRequests, 'the portal requested the audit log for a user without USER_MANAGEMENT').toEqual([]);
         } finally {
           page.off('request', onRequest);

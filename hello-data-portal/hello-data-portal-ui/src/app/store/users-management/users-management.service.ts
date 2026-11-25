@@ -60,10 +60,13 @@ export class UsersManagementService {
   baseUsersSyncUrl = `${environment.portalApi}/user-sync`;
   baseMetainfoUrl = `${environment.portalApi}/metainfo`;
 
-  getUserAuditLog(userId: string, page: number, size: number): Observable<PaginatedResponse<UserAuditLog>> {
-    const params = new HttpParams()
+  getUserAuditLog(userId: string, page: number, size: number, contextKey?: string | null): Observable<PaginatedResponse<UserAuditLog>> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+    if (contextKey) {
+      params = params.set('contextKey', contextKey);
+    }
     return this.httpClient.get<PaginatedResponse<UserAuditLog>>(`${this.baseUsersUrl}/${userId}/audit`, {params});
   }
 

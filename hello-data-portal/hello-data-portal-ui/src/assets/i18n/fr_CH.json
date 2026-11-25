@@ -548,6 +548,7 @@
   "@RLS group names saved": "Noms des groupes RLS enregistrés",
   "@You are not allowed to manage the RLS groups of this data domain": "Vous n'êtes pas autorisé à gérer les groupes RLS de ce domaine de données",
   "@No data domains to manage": "Aucun domaine de données à gérer",
+  "@Audit logs": "Journaux d'audit",
   "@History": "Historique",
   "@History when": "Quand",
   "@History who": "Qui",
