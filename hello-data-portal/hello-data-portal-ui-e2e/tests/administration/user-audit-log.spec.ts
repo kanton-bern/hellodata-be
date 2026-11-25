@@ -324,11 +324,33 @@ test.describe('User audit log', () => {
     }
     await expect(historyRows(page).filter({has: page.getByRole('cell', {name: ACTION.USER_DISABLED, exact: true})})).toHaveCount(0);
 
-    // the extra data domain: the user never had a role there, so there is nothing to show and no paginator
-    await selectOption(auditLogsFilter(page), contextName(EXTRA_CONTEXT_KEY));
-    await expect(historyRows(page)).toHaveCount(1);
-    await expect(historyRows(page).first()).toHaveText('No history entries');
+    // the extra data domain: the invitation and the bulk assignment touched it too, so it shows exactly those entries
+    const ofExtraDomain = auditRowsOfContext(userId, EXTRA_CONTEXT_KEY);
+    const extraName = contextName(EXTRA_CONTEXT_KEY);
+    const extraFiltered = page.waitForResponse(r => r.url().includes(`/users/${userId}/audit`) && r.url().includes(`contextKey=${EXTRA_CONTEXT_KEY}`));
+    await selectOption(auditLogsFilter(page), extraName);
+    expect((await extraFiltered).ok()).toBe(true);
+    if (ofExtraDomain.length > 0) {
+      await expect(historyRows(page)).toHaveCount(Math.min(ofExtraDomain.length, HISTORY_PAGE_SIZE));
+      for (const row of await historyRows(page).all()) {
+        for (const changeLine of await row.getByRole('cell').nth(5).locator('div').all()) {
+          await expect(changeLine).toContainText(`[${extraName}]`);
+        }
+      }
+    } else {
+      await expect(historyRows(page)).toHaveText(['No history entries']);
+    }
+
+    // a data domain without entries shows the empty message and no paginator; every data domain of the installation has
+    // entries of this user by now, so the api answers the extra data domain with an empty page here
+    await page.route(url => url.pathname.endsWith(`/users/${userId}/audit`) && url.searchParams.get('contextKey') === EXTRA_CONTEXT_KEY,
+      route => route.fulfill({json: {content: [], totalElements: 0, totalPages: 0, number: 0, size: HISTORY_PAGE_SIZE}}));
+    await auditLogsFilter(page).locator('.p-select-clear-icon').click();
+    await expect(historyRows(page)).toHaveCount(Math.min(rows.length, HISTORY_PAGE_SIZE));
+    await selectOption(auditLogsFilter(page), extraName);
+    await expect(historyRows(page)).toHaveText(['No history entries']);
     await expect(historyPaginator(page)).toHaveCount(0);
+    await page.unrouteAll();
 
     // clearing the filter shows the whole log again
     await auditLogsFilter(page).locator('.p-select-clear-icon').click();
