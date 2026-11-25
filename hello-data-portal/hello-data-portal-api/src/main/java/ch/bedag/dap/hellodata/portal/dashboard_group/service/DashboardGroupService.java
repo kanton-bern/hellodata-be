@@ -214,7 +214,7 @@ public class DashboardGroupService {
                 log.warn("Skipping audit of dashboard group membership, no portal user with id {}", userId);
                 continue;
             }
-            UserAuditChange change = new UserAuditChange("dashboardGroup", contextKey, wasMember ? nameBefore : null, isMember ? nameAfter : null);
+            UserAuditChange change = new UserAuditChange(UserAuditChange.FIELD_DASHBOARD_GROUPS, contextKey, wasMember ? nameBefore : null, isMember ? nameAfter : null);
             userAuditService.recordChanges(user.get().getId(), user.get().getEmail(), UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL, List.of(change));
         }
     }

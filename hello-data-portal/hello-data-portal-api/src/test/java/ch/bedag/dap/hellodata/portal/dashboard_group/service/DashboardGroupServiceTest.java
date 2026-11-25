@@ -510,9 +510,9 @@ class DashboardGroupServiceTest {
 
         // then
         verify(userAuditService).recordChanges(UUID.fromString(removed.getId()), "removed.stored@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
-                List.of(new UserAuditChange("dashboardGroup", "ctx1", "Old name", null)));
+                List.of(new UserAuditChange("dashboardGroups", "ctx1", "Old name", null)));
         verify(userAuditService).recordChanges(UUID.fromString(added.getId()), "added.stored@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
-                List.of(new UserAuditChange("dashboardGroup", "ctx1", null, "New name")));
+                List.of(new UserAuditChange("dashboardGroups", "ctx1", null, "New name")));
         verifyNoMoreInteractions(userAuditService);
     }
 
@@ -562,7 +562,7 @@ class DashboardGroupServiceTest {
 
         // then
         verify(userAuditService).recordChanges(UUID.fromString(member.getId()), "m@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
-                List.of(new UserAuditChange("dashboardGroup", "ctx1", "Group", null)));
+                List.of(new UserAuditChange("dashboardGroups", "ctx1", "Group", null)));
     }
 
     @Test
@@ -580,7 +580,7 @@ class DashboardGroupServiceTest {
 
         // then
         verify(userAuditService).recordChanges(UUID.fromString(member.getId()), "m@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
-                List.of(new UserAuditChange("dashboardGroup", "ctx1", null, "Group")));
+                List.of(new UserAuditChange("dashboardGroups", "ctx1", null, "Group")));
     }
 
     @Test

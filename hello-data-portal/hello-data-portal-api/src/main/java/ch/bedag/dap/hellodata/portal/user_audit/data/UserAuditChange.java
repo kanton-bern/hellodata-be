@@ -29,10 +29,13 @@ package ch.bedag.dap.hellodata.portal.user_audit.data;
 /**
  * A single changed field of an audited user.
  *
- * @param field      the field name, e.g. {@code dataDomainRole}, {@code rlsRoles}, {@code enabled}
+ * @param field      the field name, e.g. {@code role}, {@code rlsRoles}, {@code enabled}
  * @param contextKey the business / data domain the field belongs to, null for user level fields
  * @param before     the value before the change (null if not set)
  * @param after      the value after the change (null if not set)
  */
 public record UserAuditChange(String field, String contextKey, Object before, Object after) {
+
+    /** The field of the dashboard group memberships, shared by the snapshot reader and the dashboard group service. */
+    public static final String FIELD_DASHBOARD_GROUPS = "dashboardGroups";
 }

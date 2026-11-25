@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.user_audit.service;
 
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditChange;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -50,7 +51,7 @@ class UserStateSnapshotReader {
     static final String PORTAL_ROLES = "portalRoles";
     static final String RLS_ROLES = "rlsRoles";
     static final String DASHBOARDS = "dashboards";
-    static final String DASHBOARD_GROUPS = "dashboardGroups";
+    static final String DASHBOARD_GROUPS = UserAuditChange.FIELD_DASHBOARD_GROUPS;
     static final String COMMENT_PERMISSIONS = "commentPermissions";
 
     private final NamedParameterJdbcTemplate jdbc;
