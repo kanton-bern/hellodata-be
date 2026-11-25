@@ -5,11 +5,11 @@
     <parent>
         <groupId>ch.bedag.dap.hellodata</groupId>
         <artifactId>hello-data</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>1.8.0-dev-SNAPSHOT</version>
     </parent>
 
     <artifactId>hello-data-commons</artifactId>
-    <version>develop-SNAPSHOT</version>
+    <version>1.8.0-dev-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-commons</name>

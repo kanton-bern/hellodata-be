@@ -5,13 +5,13 @@
     <parent>
         <groupId>ch.bedag.dap.hellodata</groupId>
         <artifactId>hello-data-commons</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>1.8.0-dev-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-spring-boot-starter-parent</artifactId>
-    <version>develop-SNAPSHOT</version>
+    <version>1.8.0-dev-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-spring-boot-starter-parent</name>

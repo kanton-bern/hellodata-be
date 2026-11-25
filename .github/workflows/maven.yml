@@ -18,6 +18,9 @@ on:
       - 'fix/*'
       - 'bugfix/*'
       - 'renovate/*'
+      # upcoming release lines (e.g. 1.8.0-dev): they carry their own <version>-dev-SNAPSHOT version, so their images
+      # get their own tag and never overwrite 'latest' from develop
+      - '*-dev'
     tags:
       - '*'
 

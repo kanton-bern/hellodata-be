@@ -4,7 +4,7 @@
 
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-airflow</artifactId>
-    <version>develop-SNAPSHOT</version>
+    <version>1.8.0-dev-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-airflow</name>
