@@ -39,6 +39,7 @@ import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditAction;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditChange;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
 import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
+import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
@@ -77,6 +78,9 @@ class DashboardGroupServiceTest {
 
     @Mock
     private UserContextRoleRepository userContextRoleRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private org.springframework.context.ApplicationEventPublisher eventPublisher;
@@ -493,6 +497,8 @@ class DashboardGroupServiceTest {
         updateDto.setName("New name");
         updateDto.setContextKey("ctx1");
         updateDto.setUsers(List.of(unchanged, added));
+        stubPortalUser(removed.getId(), "removed.stored@example.com");
+        stubPortalUser(added.getId(), "added.stored@example.com");
 
         // when
         org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
@@ -503,9 +509,9 @@ class DashboardGroupServiceTest {
         }
 
         // then
-        verify(userAuditService).recordChanges(UUID.fromString(removed.getId()), "removed@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
+        verify(userAuditService).recordChanges(UUID.fromString(removed.getId()), "removed.stored@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
                 List.of(new UserAuditChange("dashboardGroup", "ctx1", "Old name", null)));
-        verify(userAuditService).recordChanges(UUID.fromString(added.getId()), "added@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
+        verify(userAuditService).recordChanges(UUID.fromString(added.getId()), "added.stored@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
                 List.of(new UserAuditChange("dashboardGroup", "ctx1", null, "New name")));
         verifyNoMoreInteractions(userAuditService);
     }
@@ -544,6 +550,7 @@ class DashboardGroupServiceTest {
         existingEntity.setContextKey("ctx1");
         existingEntity.setUsers(new ArrayList<>(List.of(member)));
         when(dashboardGroupRepository.findById(groupId)).thenReturn(Optional.of(existingEntity));
+        stubPortalUser(member.getId(), "m@example.com");
 
         // when
         org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
@@ -566,6 +573,7 @@ class DashboardGroupServiceTest {
         createDto.setName("Group");
         createDto.setContextKey("ctx1");
         createDto.setUsers(List.of(member));
+        stubPortalUser(member.getId(), "m@example.com");
 
         // when
         dashboardGroupService.create(createDto);
@@ -573,5 +581,29 @@ class DashboardGroupServiceTest {
         // then
         verify(userAuditService).recordChanges(UUID.fromString(member.getId()), "m@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
                 List.of(new UserAuditChange("dashboardGroup", "ctx1", null, "Group")));
+    }
+
+    @Test
+    void testCreate_unknownUserId_isNotAudited() {
+        // given - a forged member entry whose id is not a portal user
+        DashboardGroupUserEntry forged = new DashboardGroupUserEntry(UUID.randomUUID().toString(), "someone.else@example.com", "F", "F", "DATA_DOMAIN_VIEWER");
+        DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
+        createDto.setName("Group");
+        createDto.setContextKey("ctx1");
+        createDto.setUsers(List.of(forged));
+        when(userRepository.findById(UUID.fromString(forged.getId()))).thenReturn(Optional.empty());
+
+        // when
+        dashboardGroupService.create(createDto);
+
+        // then
+        verifyNoInteractions(userAuditService);
+    }
+
+    private void stubPortalUser(String userId, String storedEmail) {
+        UserEntity user = new UserEntity();
+        user.setId(UUID.fromString(userId));
+        user.setEmail(storedEmail);
+        when(userRepository.findById(UUID.fromString(userId))).thenReturn(Optional.of(user));
     }
 }

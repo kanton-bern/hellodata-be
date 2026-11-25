@@ -208,13 +208,22 @@ public class DashboardGroupService {
             if (wasMember == isMember) {
                 continue;
             }
-            DashboardGroupUserEntry user = isMember ? after.get(userId) : before.get(userId);
-            UserAuditChange change = new UserAuditChange("dashboardGroup", contextKey, wasMember ? nameBefore : null, isMember ? nameAfter : null);
-            try {
-                userAuditService.recordChanges(UUID.fromString(userId), user.getEmail(), UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL, List.of(change));
-            } catch (IllegalArgumentException e) {
-                log.warn("Skipping audit of dashboard group membership, invalid user id {}", userId);
+            // the target email comes from the user table, never from the request body (which the client controls)
+            Optional<UserEntity> user = findPortalUser(userId);
+            if (user.isEmpty()) {
+                log.warn("Skipping audit of dashboard group membership, no portal user with id {}", userId);
+                continue;
             }
+            UserAuditChange change = new UserAuditChange("dashboardGroup", contextKey, wasMember ? nameBefore : null, isMember ? nameAfter : null);
+            userAuditService.recordChanges(user.get().getId(), user.get().getEmail(), UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL, List.of(change));
+        }
+    }
+
+    private Optional<UserEntity> findPortalUser(String userId) {
+        try {
+            return userRepository.findById(UUID.fromString(userId));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
         }
     }
 
