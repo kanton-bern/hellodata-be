@@ -101,6 +101,9 @@ class AutoProvisionServiceTest {
     @Mock
     private DashboardCommentPermissionRepository dashboardCommentPermissionRepository;
 
+    @Mock
+    private ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService userAuditService;
+
     @InjectMocks
     private AutoProvisionService autoProvisionService;
 

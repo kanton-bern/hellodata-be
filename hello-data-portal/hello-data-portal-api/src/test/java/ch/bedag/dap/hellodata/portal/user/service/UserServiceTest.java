@@ -26,29 +26,29 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
-import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.conf.SupportContactProperties;
 import ch.bedag.dap.hellodata.portal.user.data.*;
-import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.log4j.Log4j2;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditTestSupport;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -124,8 +124,16 @@ class UserServiceTest {
     @Mock
     private SupportContactProperties supportContactProperties;
 
+    @Mock
+    private UserAuditService userAuditService;
+
     @InjectMocks
     private UserService userService;
+
+    @BeforeEach
+    void setUpAudit() {
+        UserAuditTestSupport.passThrough(userAuditService);
+    }
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
@@ -149,7 +157,7 @@ class UserServiceTest {
         when(userRepresentation.getUsername()).thenReturn("username");
 
         // when
-        String result = userService.createUser(email, firstName, lastName, AdUserOrigin.LOCAL);
+        String result = userService.createUser(email, firstName, lastName, AdUserOrigin.LOCAL, UserAuditSource.MANUAL);
 
         // then
         assertEquals(createdUserId, result);
@@ -285,9 +293,9 @@ class UserServiceTest {
         UUID userId = UUID.randomUUID();
         UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
 
-        userService.updateContextRolesForUser(userId, updateDto, true);
+        userService.updateContextRolesForUser(userId, updateDto, true, UserAuditSource.MANUAL);
 
-        verify(userContextRoleService).updateContextRolesForUser(userId, updateDto, true);
+        verify(userContextRoleService).updateContextRolesForUser(userId, updateDto, true, UserAuditSource.MANUAL);
     }
 
     @Test

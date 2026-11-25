@@ -47,6 +47,7 @@ import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
 import ch.bedag.dap.hellodata.portal.user.data.*;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -163,7 +164,7 @@ public class BatchUsersInvitationService {
         Optional<AdUserDto> firstAD = usersSearched.stream().filter(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP).findFirst();
         AdUserDto adUserDto = firstAD.orElseGet(() -> any.orElseThrow(() -> new NoSuchElementException("User not found: " + user.getEmail())));
         try {
-            String userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName(), adUserDto.getOrigin());
+            String userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName(), adUserDto.getOrigin(), UserAuditSource.BATCH);
             waitForSubsystemPropagation();
             batchUsersCustomLogger.logMessage(String.format("Created user %s", user.getEmail()));
             return userId;
@@ -471,7 +472,7 @@ public class BatchUsersInvitationService {
                     .filter(contextDto -> contextDto.getContextKey().equalsIgnoreCase(dataDomainRole.getContext().getContextKey()))
                     .findAny().orElseThrow(() -> new RuntimeException("Context not found")));
             return dataDomainRole;
-        }).collect(Collectors.toList());
+        }).toList();
         user.setDataDomainRoles(dataDomainRoles);
     }
 

@@ -29,6 +29,9 @@ package ch.bedag.dap.hellodata.portal.user.service;
 import ch.bedag.dap.hellodata.portal.initialize.event.SyncAllUsersEvent;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditAction;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -53,6 +56,7 @@ public class KeycloakUserSyncService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final UserAuditService userAuditService;
 
     /**
      * Checks if any of keycloak users has a changed id (e.g: user removed directly in the keycloak and then added again)
@@ -71,7 +75,6 @@ public class KeycloakUserSyncService {
             UserRepresentation userRepresentation = keycloakService.getUserRepresentationByEmail(userEntity.getEmail());
             if (userRepresentation != null) {
                 userEntity.setAuthId(userRepresentation.getId());
-                userEntity.setEnabled(userRepresentation.isEnabled());
                 userEntity.setUsername(userRepresentation.getEmail());
                 userEntity.setFirstName(userRepresentation.getFirstName());
                 userEntity.setLastName(userRepresentation.getLastName());
@@ -82,12 +85,23 @@ public class KeycloakUserSyncService {
                 log.debug("[sync-users-with-keycloak] Is user {} federated: {}", userEntity.getEmail(), isFederated);
                 log.debug("[sync-users-with-keycloak] Is user {} federated in keycloak: {}", userEntity.getEmail(), userRepresentation.getFederationLink());
                 userEntity.setFederated(isFederated || userRepresentation.getFederationLink() != null);
+                syncEnabledFlag(userEntity, userRepresentation.isEnabled());
             }
         }
         userRepository.saveAll(allPortalUsers);
         userRepository.flush();
         applicationEventPublisher.publishEvent(new SyncAllUsersEvent());
         log.debug("[sync-users-with-keycloak] Completed, starting users with subsystems sync....");
+    }
+
+    /**
+     * The enabled flag is the only audited user state the sync can change, so only a flipped flag is wrapped in an audit entry
+     */
+    private void syncEnabledFlag(UserEntity userEntity, boolean enabledInKeycloak) {
+        if (userEntity.isEnabled() == enabledInKeycloak) {
+            return;
+        }
+        userAuditService.audit(userEntity.getId(), UserAuditAction.USER_SYNCED, UserAuditSource.KEYCLOAK_SYNC, () -> userEntity.setEnabled(enabledInKeycloak));
     }
 
 }

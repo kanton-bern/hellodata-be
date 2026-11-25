@@ -51,6 +51,9 @@ import ch.bedag.dap.hellodata.portal.user.conf.SupportContactProperties;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
 import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditAction;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
@@ -96,14 +99,17 @@ public class UserService {
     private final UserContextRoleService userContextRoleService;
     private final SupportContactProperties supportContactProperties;
     private final HellodataAuthenticationConverter authenticationConverter;
+    private final UserAuditService userAuditService;
 
     @Transactional
-    public String createUser(String email, String firstName, String lastName, AdUserOrigin origin) {
+    public String createUser(String email, String firstName, String lastName, AdUserOrigin origin, UserAuditSource source) {
         email = email.toLowerCase(Locale.ROOT);
         log.info("Creating user. Email: {}, first name: {}, last name {}", email, firstName, lastName);
         validateEmailAlreadyExists(email);
         boolean isFederated = origin != AdUserOrigin.LOCAL;
-        return handleUserCreation(email, firstName, lastName, isFederated);
+        String userId = handleUserCreation(email, firstName, lastName, isFederated);
+        userAuditService.recordCreated(UUID.fromString(userId), source);
+        return userId;
     }
 
     @Transactional(readOnly = true)
@@ -168,9 +174,11 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete yourself");//NOSONAR
         }
         UserEntity userEntity = getUserEntity(dbId);
-        // Remove user from all dashboard groups before deleting the user entity
-        userContextRoleService.removeUserFromDashboardGroupsForAllDomains(dbId);
-        userRepository.delete(userEntity);
+        userAuditService.audit(dbId, UserAuditAction.USER_DELETED, UserAuditSource.MANUAL, () -> {
+            // Remove user from all dashboard groups before deleting the user entity
+            userContextRoleService.removeUserFromDashboardGroupsForAllDomains(dbId);
+            userRepository.delete(userEntity);
+        });
         // The user is intentionally NOT removed from the auth provider (Keycloak): the realm can be
         // shared across environments and/or federated with AD, so the portal must not touch it.
         SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
@@ -204,8 +212,10 @@ public class UserService {
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
         validateNotAllowedIfUserIsSuperuser(dbId);
         UserEntity userEntity = getUserEntity(userId);
-        userEntity.setEnabled(false);
-        userRepository.save(userEntity);
+        userAuditService.audit(dbId, UserAuditAction.USER_DISABLED, UserAuditSource.MANUAL, () -> {
+            userEntity.setEnabled(false);
+            userRepository.save(userEntity);
+        });
         // Drop the cached user so the disabled state (no permissions) applies to the very next request
         authenticationConverter.invalidateUserCache(userEntity.getEmail());
         // Access is revoked in the portal and in the subsystems (below); the auth provider (Keycloak)
@@ -222,8 +232,10 @@ public class UserService {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
         UserEntity userEntity = getUserEntity(userId);
-        userEntity.setEnabled(true);
-        userRepository.saveAndFlush(userEntity);
+        userAuditService.audit(dbId, UserAuditAction.USER_ENABLED, UserAuditSource.MANUAL, () -> {
+            userEntity.setEnabled(true);
+            userRepository.saveAndFlush(userEntity);
+        });
         authenticationConverter.invalidateUserCache(userEntity.getEmail());
         // Access is restored in the portal and in the subsystems (below); the auth provider (Keycloak)
         // is intentionally left untouched, as the realm can be shared across environments / federated with AD.
@@ -283,8 +295,8 @@ public class UserService {
     }
 
     @Transactional
-    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
-        userContextRoleService.updateContextRolesForUser(userId, updateContextRolesForUserDto, sendBackUserList);
+    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList, UserAuditSource source) {
+        userContextRoleService.updateContextRolesForUser(userId, updateContextRolesForUserDto, sendBackUserList, source);
     }
 
     @Transactional

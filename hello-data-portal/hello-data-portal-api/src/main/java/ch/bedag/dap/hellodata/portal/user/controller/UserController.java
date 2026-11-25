@@ -62,6 +62,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -107,7 +108,7 @@ public class UserController {
             String firstName = createUserRequestDto.getUser().getFirstName();
             String lastName = createUserRequestDto.getUser().getLastName();
             AdUserOrigin origin = createUserRequestDto.getUser().getOrigin();
-            String userId = userService.createUser(email, firstName, lastName, origin);
+            String userId = userService.createUser(email, firstName, lastName, origin, UserAuditSource.MANUAL);
             return CreateUserResponseDto.builder().userId(userId).build();
         } catch (ClientErrorException e) {
             log.error("Error on user creation", e);
@@ -268,7 +269,7 @@ public class UserController {
     @PatchMapping("/{userId}/context-roles")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void updateContextRolesForUser(@PathVariable UUID userId, @NotNull @Valid @RequestBody UpdateContextRolesForUserDto updateContextRolesForUserDto) {
-        userService.updateContextRolesForUser(userId, updateContextRolesForUserDto, true);
+        userService.updateContextRolesForUser(userId, updateContextRolesForUserDto, true, UserAuditSource.MANUAL);
     }
 
     @GetMapping("/context-roles")

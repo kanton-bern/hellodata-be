@@ -210,3 +210,30 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+
+export type UserAuditAction =
+  'USER_CREATED' | 'USER_DELETED' | 'USER_ENABLED' | 'USER_DISABLED' | 'ROLES_CHANGED' | 'DASHBOARD_GROUP_MEMBERSHIP_CHANGED' | 'USER_SYNCED';
+
+export type UserAuditSource = 'MANUAL' | 'BULK_ASSIGNMENT' | 'BATCH' | 'AUTO_PROVISION' | 'KEYCLOAK_SYNC';
+
+export interface UserAuditChange {
+  field: string;
+  contextKey: string | null;
+  contextName: string | null;
+  before: string | boolean | string[] | null;
+  after: string | boolean | string[] | null;
+}
+
+export interface UserAuditLog {
+  id: string;
+  occurredAt: string;
+  actorId: string | null;
+  actorEmail: string | null;
+  targetUserId: string;
+  targetEmail: string | null;
+  action: UserAuditAction;
+  source: UserAuditSource;
+  contextKey: string | null;
+  contextName: string | null;
+  changes: UserAuditChange[];
+}

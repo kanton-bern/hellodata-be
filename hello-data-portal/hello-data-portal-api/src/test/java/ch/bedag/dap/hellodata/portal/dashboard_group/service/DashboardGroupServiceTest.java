@@ -35,6 +35,10 @@ import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntry;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupUserEntry;
 import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditAction;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditChange;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
@@ -58,6 +62,9 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 class DashboardGroupServiceTest {
+
+    @Mock
+    private UserAuditService userAuditService;
 
     @InjectMocks
     private DashboardGroupService dashboardGroupService;
@@ -465,5 +472,106 @@ class DashboardGroupServiceTest {
         // then
         assertEquals(List.of("RLS_01", "RLS_02"), existingEntity.getRlsRoles());
         verify(eventPublisher).publishEvent(new ch.bedag.dap.hellodata.portal.user.event.UserDashboardSyncEvent(UUID.fromString(userId), "ctx1"));
+    }
+
+    @Test
+    void testUpdate_auditsAddedAndRemovedUsersOnly() {
+        // given
+        UUID groupId = UUID.randomUUID();
+        DashboardGroupUserEntry unchanged = new DashboardGroupUserEntry(UUID.randomUUID().toString(), "same@example.com", "S", "S", "DATA_DOMAIN_VIEWER");
+        DashboardGroupUserEntry removed = new DashboardGroupUserEntry(UUID.randomUUID().toString(), "removed@example.com", "R", "R", "DATA_DOMAIN_VIEWER");
+        DashboardGroupUserEntry added = new DashboardGroupUserEntry(UUID.randomUUID().toString(), "added@example.com", "A", "A", "DATA_DOMAIN_VIEWER");
+
+        DashboardGroupEntity existingEntity = new DashboardGroupEntity();
+        existingEntity.setId(groupId);
+        existingEntity.setName("Old name");
+        existingEntity.setUsers(new ArrayList<>(List.of(unchanged, removed)));
+        when(dashboardGroupRepository.findById(groupId)).thenReturn(Optional.of(existingEntity));
+
+        DashboardGroupUpdateDto updateDto = new DashboardGroupUpdateDto();
+        updateDto.setId(groupId);
+        updateDto.setName("New name");
+        updateDto.setContextKey("ctx1");
+        updateDto.setUsers(List.of(unchanged, added));
+
+        // when
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        try {
+            dashboardGroupService.update(updateDto);
+        } finally {
+            org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization();
+        }
+
+        // then
+        verify(userAuditService).recordChanges(UUID.fromString(removed.getId()), "removed@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
+                List.of(new UserAuditChange("dashboardGroup", "ctx1", "Old name", null)));
+        verify(userAuditService).recordChanges(UUID.fromString(added.getId()), "added@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
+                List.of(new UserAuditChange("dashboardGroup", "ctx1", null, "New name")));
+        verifyNoMoreInteractions(userAuditService);
+    }
+
+    @Test
+    void testUpdate_noMembershipChange_doesNotAudit() {
+        // given
+        UUID groupId = UUID.randomUUID();
+        DashboardGroupUserEntry member = new DashboardGroupUserEntry(UUID.randomUUID().toString(), "same@example.com", "S", "S", "DATA_DOMAIN_VIEWER");
+        DashboardGroupEntity existingEntity = new DashboardGroupEntity();
+        existingEntity.setId(groupId);
+        existingEntity.setUsers(new ArrayList<>(List.of(member)));
+        when(dashboardGroupRepository.findById(groupId)).thenReturn(Optional.of(existingEntity));
+
+        DashboardGroupUpdateDto updateDto = new DashboardGroupUpdateDto();
+        updateDto.setId(groupId);
+        updateDto.setName("Group");
+        updateDto.setContextKey("ctx1");
+        updateDto.setUsers(List.of(member));
+
+        // when
+        dashboardGroupService.update(updateDto);
+
+        // then
+        verifyNoInteractions(userAuditService);
+    }
+
+    @Test
+    void testDelete_auditsRemovalOfAllMembers() {
+        // given
+        UUID groupId = UUID.randomUUID();
+        DashboardGroupUserEntry member = new DashboardGroupUserEntry(UUID.randomUUID().toString(), "m@example.com", "M", "M", "DATA_DOMAIN_VIEWER");
+        DashboardGroupEntity existingEntity = new DashboardGroupEntity();
+        existingEntity.setId(groupId);
+        existingEntity.setName("Group");
+        existingEntity.setContextKey("ctx1");
+        existingEntity.setUsers(new ArrayList<>(List.of(member)));
+        when(dashboardGroupRepository.findById(groupId)).thenReturn(Optional.of(existingEntity));
+
+        // when
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        try {
+            dashboardGroupService.delete(groupId);
+        } finally {
+            org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization();
+        }
+
+        // then
+        verify(userAuditService).recordChanges(UUID.fromString(member.getId()), "m@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
+                List.of(new UserAuditChange("dashboardGroup", "ctx1", "Group", null)));
+    }
+
+    @Test
+    void testCreate_auditsInitialMembers() {
+        // given
+        DashboardGroupUserEntry member = new DashboardGroupUserEntry(UUID.randomUUID().toString(), "m@example.com", "M", "M", "DATA_DOMAIN_VIEWER");
+        DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
+        createDto.setName("Group");
+        createDto.setContextKey("ctx1");
+        createDto.setUsers(List.of(member));
+
+        // when
+        dashboardGroupService.create(createDto);
+
+        // then
+        verify(userAuditService).recordChanges(UUID.fromString(member.getId()), "m@example.com", UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL,
+                List.of(new UserAuditChange("dashboardGroup", "ctx1", null, "Group")));
     }
 }

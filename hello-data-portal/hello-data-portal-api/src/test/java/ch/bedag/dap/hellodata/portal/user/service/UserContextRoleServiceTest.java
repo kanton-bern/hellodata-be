@@ -48,6 +48,10 @@ import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditTestSupport;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -105,8 +109,16 @@ class UserContextRoleServiceTest {
     @Spy
     private ModelMapper modelMapper = new ModelMapper();
 
+    @Mock
+    private UserAuditService userAuditService;
+
     @InjectMocks
     private UserContextRoleService userContextRoleService;
+
+    @BeforeEach
+    void setUpAudit() {
+        UserAuditTestSupport.passThrough(userAuditService);
+    }
 
     @Test
     void testGetAvailableDataDomains() {
@@ -183,7 +195,7 @@ class UserContextRoleServiceTest {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // when
-            userContextRoleService.updateContextRolesForUser(userId, updateDto, false);
+            userContextRoleService.updateContextRolesForUser(userId, updateDto, false, UserAuditSource.MANUAL);
 
             // then - verify user was removed from dashboard groups in this domain
             verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
@@ -225,7 +237,7 @@ class UserContextRoleServiceTest {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // when
-            userContextRoleService.updateContextRolesForUser(userId, updateDto, false);
+            userContextRoleService.updateContextRolesForUser(userId, updateDto, false, UserAuditSource.MANUAL);
 
             // then - verify user was NOT removed from dashboard groups
             verify(dashboardGroupService, never()).removeUserFromDashboardGroupsInDomain(anyString(), anyString());
@@ -267,7 +279,7 @@ class UserContextRoleServiceTest {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // when
-            userContextRoleService.updateContextRolesForUser(userId, updateDto, false);
+            userContextRoleService.updateContextRolesForUser(userId, updateDto, false, UserAuditSource.MANUAL);
 
             // then - verify user was NOT removed from dashboard groups
             verify(dashboardGroupService, never()).removeUserFromDashboardGroupsInDomain(anyString(), anyString());
@@ -303,7 +315,7 @@ class UserContextRoleServiceTest {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // when
-            userContextRoleService.updateContextRolesForUser(userId, updateDto, false);
+            userContextRoleService.updateContextRolesForUser(userId, updateDto, false, UserAuditSource.MANUAL);
 
             // then - verify user was removed from dashboard groups in ALL domains
             verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), "dd1");
@@ -348,7 +360,7 @@ class UserContextRoleServiceTest {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // when
-            userContextRoleService.updateContextRolesForUser(userId, updateDto, false);
+            userContextRoleService.updateContextRolesForUser(userId, updateDto, false, UserAuditSource.MANUAL);
 
             // then - verify user was removed from dashboard groups in this domain
             verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
@@ -387,7 +399,7 @@ class UserContextRoleServiceTest {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // when
-            userContextRoleService.updateContextRolesForUser(userId, updateDto, false);
+            userContextRoleService.updateContextRolesForUser(userId, updateDto, false, UserAuditSource.MANUAL);
 
             // then: direct selections must be persisted for the edited context
             verify(userSelectedDashboardService).saveSelectedDashboards(eq(userId), eq(editedContext), any());
@@ -425,7 +437,7 @@ class UserContextRoleServiceTest {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // when
-            userContextRoleService.updateContextRolesForUser(userId, updateDto, false);
+            userContextRoleService.updateContextRolesForUser(userId, updateDto, false, UserAuditSource.MANUAL);
 
             // then
             verify(rlsRoleService).saveSelectedRlsRoles(userId, "ctx-viewer", List.of("RLS_01", "RLS_02"));

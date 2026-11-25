@@ -45,6 +45,8 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardComme
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
 import ch.bedag.dap.hellodata.portal.user.service.UserSelectedDashboardService.DashboardSelection;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.SystemDefaultPortalRoleName;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserPortalRoleEntity;
@@ -77,6 +79,7 @@ public class AutoProvisionService {
     private final UserPortalRoleRepository userPortalRoleRepository;
     private final HdContextRepository hdContextRepository;
     private final DashboardCommentPermissionRepository dashboardCommentPermissionRepository;
+    private final UserAuditService userAuditService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public UserEntity autoProvisionIfEnabled(String email, String firstName, String lastName, String keycloakSubject) {
@@ -117,6 +120,8 @@ public class AutoProvisionService {
 
         // Assign all published dashboards and build sync payload
         Map<String, List<DashboardForUserDto>> dashboardsPerContext = assignAllPublishedDashboards(userEntity.getId());
+
+        userAuditService.recordCreated(userEntity.getId(), UserAuditSource.AUTO_PROVISION);
 
         // Notify subsystems about the new user
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();

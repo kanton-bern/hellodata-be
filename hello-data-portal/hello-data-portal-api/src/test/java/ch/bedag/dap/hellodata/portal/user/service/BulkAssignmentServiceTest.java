@@ -1,6 +1,7 @@
 package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
@@ -105,7 +106,7 @@ class BulkAssignmentServiceTest {
         assertEquals(0, result.getFailedCount());
 
         ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), eq(true));
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), eq(true), eq(UserAuditSource.BULK_ASSIGNMENT));
 
         UpdateContextRolesForUserDto dto = captor.getValue();
         assertEquals(2, dto.getDataDomainRoles().size());
@@ -137,7 +138,7 @@ class BulkAssignmentServiceTest {
 
         assertEquals(2, result.getUpdatedCount());
         assertEquals(0, result.getFailedCount());
-        verify(userService, times(2)).updateContextRolesForUser(any(UUID.class), any(), anyBoolean());
+        verify(userService, times(2)).updateContextRolesForUser(any(UUID.class), any(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
     }
 
     @Test
@@ -154,7 +155,7 @@ class BulkAssignmentServiceTest {
         bulkAssignmentService.executeBulkAssignment(request);
 
         ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), eq(true));
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), eq(true), eq(UserAuditSource.BULK_ASSIGNMENT));
 
         UpdateContextRolesForUserDto dto = captor.getValue();
         UserContextRoleDto domainB = findByContextKey(dto.getDataDomainRoles(), "domain_b");
@@ -175,7 +176,7 @@ class BulkAssignmentServiceTest {
         bulkAssignmentService.executeBulkAssignment(request);
 
         ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
 
         UpdateContextRolesForUserDto dto = captor.getValue();
         assertNotNull(dto.getSelectedDashboardsForUser().get("domain_a"));
@@ -197,7 +198,7 @@ class BulkAssignmentServiceTest {
         bulkAssignmentService.executeBulkAssignment(request);
 
         ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
 
         var perms = captor.getValue().getCommentPermissions();
         var domainAPerm = perms.stream().filter(p -> "domain_a".equals(p.getContextKey())).findFirst().orElseThrow();
@@ -222,7 +223,7 @@ class BulkAssignmentServiceTest {
             bulkAssignmentService.executeBulkAssignment(request);
 
             ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-            verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+            verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
 
             var perms = captor.getValue().getCommentPermissions();
             var domainAPerm = perms.stream().filter(p -> "domain_a".equals(p.getContextKey())).findFirst().orElseThrow();
@@ -357,7 +358,7 @@ class BulkAssignmentServiceTest {
         bulkAssignmentService.executeBulkAssignment(request);
 
         ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
 
         List<DashboardCommentPermissionDto> perms = captor.getValue().getCommentPermissions();
         assertEquals(1, perms.size());
@@ -402,7 +403,7 @@ class BulkAssignmentServiceTest {
 
         assertEquals(0, result.getUpdatedCount());
         assertEquals(1, result.getSkippedCount());
-        verify(userService, never()).updateContextRolesForUser(any(), any(), anyBoolean());
+        verify(userService, never()).updateContextRolesForUser(any(), any(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
     }
 
     @Test
@@ -421,7 +422,7 @@ class BulkAssignmentServiceTest {
         bulkAssignmentService.executeBulkAssignment(request);
 
         ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
         assertEquals(Map.of("domain_a", List.of("RLS_01", "RLS_03")), captor.getValue().getSelectedRlsRolesForUser());
     }
 
@@ -441,7 +442,7 @@ class BulkAssignmentServiceTest {
         bulkAssignmentService.executeBulkAssignment(request);
 
         ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
         assertEquals(List.of(), captor.getValue().getSelectedRlsRolesForUser().get("domain_a"));
     }
 
@@ -521,9 +522,9 @@ class BulkAssignmentServiceTest {
         bulkAssignmentService.executeBulkAssignment(request);
 
         // First user: sendBackUserList = false
-        verify(userService).updateContextRolesForUser(eq(user1), any(), eq(false));
+        verify(userService).updateContextRolesForUser(eq(user1), any(), eq(false), eq(UserAuditSource.BULK_ASSIGNMENT));
         // Last user: sendBackUserList = true
-        verify(userService).updateContextRolesForUser(eq(user2), any(), eq(true));
+        verify(userService).updateContextRolesForUser(eq(user2), any(), eq(true), eq(UserAuditSource.BULK_ASSIGNMENT));
     }
 
     @Test
@@ -543,7 +544,7 @@ class BulkAssignmentServiceTest {
         bulkAssignmentService.executeBulkAssignment(request);
 
         ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
 
         assertEquals("BUSINESS_DOMAIN_ADMIN", captor.getValue().getBusinessDomainRole().getName());
     }
@@ -564,14 +565,14 @@ class BulkAssignmentServiceTest {
         assertEquals(0, result.getUpdatedCount());
         assertEquals(1, result.getSkippedCount());
         assertEquals(0, result.getFailedCount());
-        verify(userService, never()).updateContextRolesForUser(any(), any(), anyBoolean());
+        verify(userService, never()).updateContextRolesForUser(any(), any(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
     }
 
     // --- Helpers ---
 
     private DashboardCommentPermissionDto captureCommentPermission(UUID userId, String contextKey) {
         ArgumentCaptor<UpdateContextRolesForUserDto> captor = ArgumentCaptor.forClass(UpdateContextRolesForUserDto.class);
-        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean());
+        verify(userService).updateContextRolesForUser(eq(userId), captor.capture(), anyBoolean(), eq(UserAuditSource.BULK_ASSIGNMENT));
         return captor.getValue().getCommentPermissions().stream()
                 .filter(p -> contextKey.equals(p.getContextKey()))
                 .findFirst()

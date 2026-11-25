@@ -46,6 +46,7 @@ import ch.bedag.dap.hellodata.portal.user.data.DashboardGroupMembershipDto;
 import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -141,7 +142,7 @@ public class BulkAssignmentService {
             UpdateContextRolesForUserDto updateDto = buildUpdateDto(
                     existingRoles, assignmentsByKey, contextsByKey, allRoles, existingGroupIds);
 
-            userService.updateContextRolesForUser(userId, updateDto, isLastUser);
+            userService.updateContextRolesForUser(userId, updateDto, isLastUser, UserAuditSource.BULK_ASSIGNMENT);
             result.addUpdated(email, firstName, lastName);
         } catch (Exception e) {
             log.error("Failed to process bulk assignment for user {}", userId, e);

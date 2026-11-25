@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.user.controller;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
@@ -96,7 +97,7 @@ class UserControllerTest extends HDControllerTest {
         createUserRequestDto.setUser(adUserDto);
         UUID currentUserId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        when(userService.createUser("test@test.com", "Test", "User", AdUserOrigin.LOCAL)).thenReturn(userId.toString());
+        when(userService.createUser("test@test.com", "Test", "User", AdUserOrigin.LOCAL, UserAuditSource.MANUAL)).thenReturn(userId.toString());
 
         // when then
         MockHttpServletResponse response = mockMvc.perform(post("/users").header("authorization", generateToken(currentUserId))
@@ -117,7 +118,7 @@ class UserControllerTest extends HDControllerTest {
 
         UUID currentUserId = UUID.randomUUID();
         UUID createdUserId = UUID.randomUUID();
-        when(userService.createUser("test@test.com", "Test", "User", AdUserOrigin.LOCAL)).thenReturn(createdUserId.toString());
+        when(userService.createUser("test@test.com", "Test", "User", AdUserOrigin.LOCAL, UserAuditSource.MANUAL)).thenReturn(createdUserId.toString());
 
         // when then
         mockMvc.perform(post("/users").header("authorization", generateToken(currentUserId, Set.of("USER_MANAGEMENT")))

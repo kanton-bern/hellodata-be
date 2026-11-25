@@ -43,6 +43,7 @@ import {
   PaginatedResponse,
   SubsystemUsersResultDto,
   User,
+  UserAuditLog,
   UserSubsystemRolesDto,
   UserWithContextRolesDto
 } from "./users-management.model";
@@ -58,6 +59,13 @@ export class UsersManagementService {
   baseUsersUrl = `${environment.portalApi}/users`;
   baseUsersSyncUrl = `${environment.portalApi}/user-sync`;
   baseMetainfoUrl = `${environment.portalApi}/metainfo`;
+
+  getUserAuditLog(userId: string, page: number, size: number): Observable<PaginatedResponse<UserAuditLog>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.httpClient.get<PaginatedResponse<UserAuditLog>>(`${this.baseUsersUrl}/${userId}/audit`, {params});
+  }
 
   getUsers(page: number, size: number, sort: string, search: string): Observable<{
     content: User[],

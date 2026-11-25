@@ -41,6 +41,9 @@ import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditAction;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
@@ -75,6 +78,7 @@ public class UserContextRoleService {
     private final ApplicationEventPublisher eventPublisher;
     private final HellodataAuthenticationConverter authenticationConverter;
     private final ModelMapper modelMapper;
+    private final UserAuditService userAuditService;
 
     @Transactional(readOnly = true)
     public ContextsDto getAvailableContexts() {
@@ -86,12 +90,12 @@ public class UserContextRoleService {
     }
 
     @Transactional
-    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
+    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList, UserAuditSource source) {
         boolean isCurrentUserHDAdmin = SecurityUtils.isSuperuser();
         if (!isCurrentUserHDAdmin && HdRoleName.HELLODATA_ADMIN.name().equalsIgnoreCase(updateContextRolesForUserDto.getBusinessDomainRole().getName())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only a HelloData Admin can assign the HelloData Admin role to another user");
         }
-        updateContextRolesForUserInternal(userId, updateContextRolesForUserDto, sendBackUserList);
+        updateContextRolesForUserInternal(userId, updateContextRolesForUserDto, sendBackUserList, source);
     }
 
     /**
@@ -101,25 +105,13 @@ public class UserContextRoleService {
      */
     @Transactional
     public void updateContextRolesForUserFromBatch(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
-        updateContextRolesForUserInternal(userId, updateContextRolesForUserDto, sendBackUserList);
+        updateContextRolesForUserInternal(userId, updateContextRolesForUserDto, sendBackUserList, UserAuditSource.BATCH);
     }
 
-    private void updateContextRolesForUserInternal(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
+    private void updateContextRolesForUserInternal(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList, UserAuditSource source) {
         UserEntity userEntity = getUserEntity(userId);
-        updateContextRoles(userId, updateContextRolesForUserDto);
-
-        // Persist direct dashboard selections before syncing with Superset
-        persistDirectDashboardSelections(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
-
-        // Update dashboard group memberships
-        dashboardGroupService.updateDashboardGroupMemberships(userId, updateContextRolesForUserDto.getSelectedDashboardGroupIdsForUser());
-
-        // Persist directly assigned RLS roles
-        persistRlsRoleSelections(userId, updateContextRolesForUserDto.getSelectedRlsRolesForUser());
-
-        if (updateContextRolesForUserDto.getCommentPermissions() != null) {
-            dashboardCommentPermissionService.updatePermissions(userId, updateContextRolesForUserDto.getCommentPermissions());
-        }
+        // One audit entry with the before/after diff of everything below (roles, dashboards, groups, RLS roles, comment permissions)
+        userAuditService.audit(userId, UserAuditAction.ROLES_CHANGED, source, () -> applyContextRoleChanges(userId, updateContextRolesForUserDto));
         // Single unified sync: context roles + dashboards in one JetStream message (via event).
         // Dashboards are passed as null so the listener builds them from the persisted state (direct selections + groups)
         // for ALL contexts after commit. The request may only carry the edited context, and the Superset sidecar
@@ -134,6 +126,23 @@ public class UserContextRoleService {
             notifyUserViaEmail(userId, updateContextRolesForUserDto);
         } catch (Exception e) {
             log.error("Failed to send role-change notification email for user {}", userId, e);
+        }
+    }
+
+    private void applyContextRoleChanges(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
+        updateContextRoles(userId, updateContextRolesForUserDto);
+
+        // Persist direct dashboard selections before syncing with Superset
+        persistDirectDashboardSelections(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
+
+        // Update dashboard group memberships
+        dashboardGroupService.updateDashboardGroupMemberships(userId, updateContextRolesForUserDto.getSelectedDashboardGroupIdsForUser());
+
+        // Persist directly assigned RLS roles
+        persistRlsRoleSelections(userId, updateContextRolesForUserDto.getSelectedRlsRolesForUser());
+
+        if (updateContextRolesForUserDto.getCommentPermissions() != null) {
+            dashboardCommentPermissionService.updatePermissions(userId, updateContextRolesForUserDto.getCommentPermissions());
         }
     }
 

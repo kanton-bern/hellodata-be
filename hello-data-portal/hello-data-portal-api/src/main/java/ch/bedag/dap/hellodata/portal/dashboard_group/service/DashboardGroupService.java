@@ -37,6 +37,10 @@ import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRe
 import ch.bedag.dap.hellodata.portal.rls_role.service.RlsRoleService;
 import ch.bedag.dap.hellodata.portal.user.data.DashboardGroupMembershipDto;
 import ch.bedag.dap.hellodata.portal.user.event.UserDashboardSyncEvent;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditAction;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditChange;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
+import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -68,6 +72,7 @@ public class DashboardGroupService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserAuditService userAuditService;
 
     @Transactional(readOnly = true)
     public Page<DashboardGroupDto> getAllDashboardGroups(String contextKey, Pageable pageable, String search) {
@@ -99,6 +104,7 @@ public class DashboardGroupService {
         DashboardGroupEntity entity = modelMapper.map(createDto, DashboardGroupEntity.class);
         entity.setRlsRoles(sanitizeRlsRoles(createDto.getRlsRoles()));
         dashboardGroupRepository.save(entity);
+        auditMembershipChanges(entity.getContextKey(), null, null, entity.getName(), entity.getUsers());
 
         // If the new group has users and dashboards or RLS roles, sync those users after commit
         boolean hasUsers = entity.getUsers() != null && !entity.getUsers().isEmpty();
@@ -160,6 +166,8 @@ public class DashboardGroupService {
             usersToSync.addAll(newUserIds);
         }
 
+        auditMembershipChanges(updateDto.getContextKey(), entityToUpdate.getName(), entityToUpdate.getUsers(), updateDto.getName(), updateDto.getUsers());
+
         // Update entity fields explicitly (not using modelMapper to avoid list merging issues)
         entityToUpdate.setName(updateDto.getName());
         entityToUpdate.setContextKey(updateDto.getContextKey());
@@ -182,6 +190,40 @@ public class DashboardGroupService {
                 }
             });
         }
+    }
+
+    /**
+     * Records one audit entry per user that was added to or removed from the group by editing the group itself.
+     * Memberships changed from the user side are covered by the snapshot diff of the user audit.
+     */
+    private void auditMembershipChanges(String contextKey, String nameBefore, List<DashboardGroupUserEntry> usersBefore,
+                                        String nameAfter, List<DashboardGroupUserEntry> usersAfter) {
+        Map<String, DashboardGroupUserEntry> before = toUsersById(usersBefore);
+        Map<String, DashboardGroupUserEntry> after = toUsersById(usersAfter);
+        Set<String> affected = new LinkedHashSet<>(before.keySet());
+        affected.addAll(after.keySet());
+        for (String userId : affected) {
+            boolean wasMember = before.containsKey(userId);
+            boolean isMember = after.containsKey(userId);
+            if (wasMember == isMember) {
+                continue;
+            }
+            DashboardGroupUserEntry user = isMember ? after.get(userId) : before.get(userId);
+            UserAuditChange change = new UserAuditChange("dashboardGroup", contextKey, wasMember ? nameBefore : null, isMember ? nameAfter : null);
+            try {
+                userAuditService.recordChanges(UUID.fromString(userId), user.getEmail(), UserAuditAction.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, UserAuditSource.MANUAL, List.of(change));
+            } catch (IllegalArgumentException e) {
+                log.warn("Skipping audit of dashboard group membership, invalid user id {}", userId);
+            }
+        }
+    }
+
+    private static Map<String, DashboardGroupUserEntry> toUsersById(List<DashboardGroupUserEntry> users) {
+        Map<String, DashboardGroupUserEntry> byId = new LinkedHashMap<>();
+        if (users != null) {
+            users.forEach(user -> byId.putIfAbsent(user.getId(), user));
+        }
+        return byId;
     }
 
     private boolean haveDashboardsChanged(List<DashboardGroupEntry> oldEntries, List<DashboardGroupEntry> newEntries) {
@@ -218,6 +260,7 @@ public class DashboardGroupService {
                     ? group.getUsers().stream().map(DashboardGroupUserEntry::getId).collect(Collectors.toSet())
                     : Collections.emptySet();
 
+            auditMembershipChanges(contextKey, group.getName(), group.getUsers(), null, null);
             dashboardGroupRepository.deleteById(id);
 
             // Sync affected users to Superset after transaction commits

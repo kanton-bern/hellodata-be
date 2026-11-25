@@ -178,6 +178,13 @@
           </div>
         }
 
+        <!-- History (audit log) -->
+        <p-panel [collapsed]="true" [header]="'@History' | transloco" [toggleable]="true" class="mb-4 block" id="userHistoryPanel">
+          <ng-template pTemplate="content">
+            <app-user-audit-history [userId]="editedUser.id"/>
+          </ng-template>
+        </p-panel>
+
         <!-- Bottom toolbar with Save/Cancel -->
         <p-card>
           <app-user-edit-toolbar
