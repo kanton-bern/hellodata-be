@@ -29,9 +29,6 @@ package ch.bedag.dap.hellodata.portal.user.service;
 import ch.bedag.dap.hellodata.portal.initialize.event.SyncAllUsersEvent;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
-import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditAction;
-import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
-import ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -56,7 +53,6 @@ public class KeycloakUserSyncService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final UserAuditService userAuditService;
 
     /**
      * Checks if any of keycloak users has a changed id (e.g: user removed directly in the keycloak and then added again)
@@ -85,7 +81,7 @@ public class KeycloakUserSyncService {
                 log.debug("[sync-users-with-keycloak] Is user {} federated: {}", userEntity.getEmail(), isFederated);
                 log.debug("[sync-users-with-keycloak] Is user {} federated in keycloak: {}", userEntity.getEmail(), userRepresentation.getFederationLink());
                 userEntity.setFederated(isFederated || userRepresentation.getFederationLink() != null);
-                syncEnabledFlag(userEntity, userRepresentation.isEnabled());
+                warnIfDisabledOnlyInKeycloak(userEntity, userRepresentation.isEnabled());
             }
         }
         userRepository.saveAll(allPortalUsers);
@@ -95,13 +91,14 @@ public class KeycloakUserSyncService {
     }
 
     /**
-     * The enabled flag is the only audited user state the sync can change, so only a flipped flag is wrapped in an audit entry
+     * The enabled flag is owned by the portal: enabling/disabling a user no longer touches Keycloak (the realm can be
+     * shared across environments / federated with AD), so it must not be copied back from Keycloak either.
+     * A user disabled only in Keycloak still cannot log in, so just make that visible in the logs.
      */
-    private void syncEnabledFlag(UserEntity userEntity, boolean enabledInKeycloak) {
-        if (userEntity.isEnabled() == enabledInKeycloak) {
-            return;
+    private void warnIfDisabledOnlyInKeycloak(UserEntity userEntity, boolean enabledInKeycloak) {
+        if (userEntity.isEnabled() && !enabledInKeycloak) {
+            log.warn("[sync-users-with-keycloak] User {} is enabled in the portal but disabled in Keycloak, the login will be refused by Keycloak", userEntity.getEmail());
         }
-        userAuditService.audit(userEntity.getId(), UserAuditAction.USER_SYNCED, UserAuditSource.KEYCLOAK_SYNC, () -> userEntity.setEnabled(enabledInKeycloak));
     }
 
 }

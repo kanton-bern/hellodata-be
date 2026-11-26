@@ -74,8 +74,7 @@ class SchedulerLockConfigTest {
         context.registerBean(UserRoleSyncService.class, () -> new UserRoleSyncService(
                 mock(UserRepository.class), mock(RoleService.class), mock(HdContextRepository.class), mock(ApplicationEventPublisher.class)));
         context.registerBean(KeycloakUserSyncService.class, () -> new KeycloakUserSyncService(
-                mock(KeycloakService.class), mock(UserRepository.class), mock(UserService.class), mock(ApplicationEventPublisher.class),
-                mock(ch.bedag.dap.hellodata.portal.user_audit.service.UserAuditService.class)));
+                mock(KeycloakService.class), mock(UserRepository.class), mock(UserService.class), mock(ApplicationEventPublisher.class)));
         context.refresh();
     }
 
