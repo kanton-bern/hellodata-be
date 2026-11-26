@@ -545,7 +545,6 @@
   "@RLS group names saved": "Namen der RLS-Gruppen gespeichert",
   "@You are not allowed to manage the RLS groups of this data domain": "Sie dürfen die RLS-Gruppen dieser Datendomäne nicht verwalten",
   "@No data domains to manage": "Keine Datendomänen zum Verwalten",
-  "@Audit logs": "Audit-Logs",
   "@History": "Verlauf",
   "@History when": "Wann",
   "@History who": "Wer",

@@ -126,10 +126,6 @@ const routes: Routes = [
         loadComponent: () => import('./pages/admin/user-management/user-edit/user-edit.component').then(m => m.UserEditComponent),
         canDeactivate: [unsavedChangesGuard],
       },
-      {
-        path: naviElements.userAuditLogs.path,
-        loadComponent: () => import('./pages/admin/user-management/user-audit-logs/user-audit-logs.component').then(m => m.UserAuditLogsComponent),
-      },
     ]
   },
   {

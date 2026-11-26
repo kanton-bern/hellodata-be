@@ -68,11 +68,8 @@ export async function portalApiOf(page: Page): Promise<PortalApi> {
 
 /** GET <portal api>/users/{userId}/audit, with the token of the given user or, without one, anonymously. */
 export function getAuditLog(request: APIRequestContext, api: PortalApi, userId: string,
-                            {page, size, contextKey, anonymous}: {page?: number, size?: number, contextKey?: string, anonymous?: boolean} = {}) {
-  const params: Record<string, number | string> = {};
-  if (contextKey !== undefined) {
-    params.contextKey = contextKey;
-  }
+                            {page, size, anonymous}: {page?: number, size?: number, anonymous?: boolean} = {}) {
+  const params: Record<string, number> = {};
   if (page !== undefined) {
     params.page = page;
   }
@@ -87,39 +84,14 @@ export function getAuditLog(request: APIRequestContext, api: PortalApi, userId: 
   });
 }
 
-/** The name of a business or data domain in the portal database. */
-export function contextName(contextKey: string): string {
-  const [row] = sql(PORTAL_DB, `select name from context where context_key = ${literal(contextKey)}`);
-  expect(row, `no context ${contextKey}`).toBeDefined();
-  return row[0];
-}
-
-/** The audit rows that touch a data domain: their own context or any of their changes (the filter of the api). */
-export function auditRowsOfContext(userId: string, contextKey: string): AuditRow[] {
-  return auditRows(userId).filter(row => row.changes.some(change => change.contextKey === contextKey));
-}
-
-/** The audit logs page of a user (the Audit logs button of the user edit page). */
-export function auditLogsPage(page: Page) {
-  return page.locator('#userAuditLogsPage');
-}
-
-/** The data domain filter of the audit logs page. */
-export function auditLogsFilter(page: Page) {
-  return page.locator('p-select#userAuditDataDomain');
-}
-
-/** Opens the audit logs page with the Audit logs button of the user edit page the page shows. */
-export async function openAuditLogs(page: Page, userId: string) {
-  await page.locator('#userAuditLogsButton').click();
-  await expect(page).toHaveURL(new RegExp(`/user-management/edit/${userId}/audit-logs$`));
-  await expect(auditLogsPage(page)).toBeVisible();
-  await expect(historyTable(page)).toBeVisible();
-}
-
-/** The paginator of the history table, hidden while it has no entries. */
+/** The paginator of the History table, hidden while it has no entries. */
 export function historyPaginator(page: Page) {
   return page.locator('#userAuditTable .p-paginator');
+}
+
+/** The bold part of a change line of a History row: what changed, e.g. "Role [Data domain]". */
+export function changeLabels(row: Locator) {
+  return row.getByRole('cell').nth(5).locator('div > strong');
 }
 
 /** The History panel of the user edit page. */

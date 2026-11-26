@@ -26,7 +26,6 @@
 ///
 
 
-import {SimpleChange} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 import {of, Subject} from 'rxjs';
@@ -61,8 +60,7 @@ describe('UserAuditHistoryComponent', () => {
   };
 
   const mockService = {
-    getUserAuditLog: jest.fn((_userId: string, _page: number, _size: number, _contextKey?: string | null) =>
-      of({content: [entry], totalElements: 1, totalPages: 1, number: 0, size: 20}))
+    getUserAuditLog: jest.fn((_userId: string, _page: number, _size: number) => of({content: [entry], totalElements: 1, totalPages: 1, number: 0, size: 20}))
   };
 
   beforeEach(() => {
@@ -93,7 +91,7 @@ describe('UserAuditHistoryComponent', () => {
   it('should load the first page of the audit log', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20, null);
+    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20);
     expect(component.entries).toEqual([entry]);
     expect(component.totalRecords).toBe(1);
   });
@@ -101,7 +99,7 @@ describe('UserAuditHistoryComponent', () => {
   it('should request the right page on lazy load', async () => {
     component.load({first: 40, rows: 20});
     await Promise.resolve();
-    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 2, 20, null);
+    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 2, 20);
   });
 
   it('should reload the first page after the user was saved', () => {
@@ -112,24 +110,7 @@ describe('UserAuditHistoryComponent', () => {
     actions$.next(updateUserRolesSuccess());
 
     expect(component.first).toBe(0);
-    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20, null);
-  });
-
-  it('should reload the first page of the selected data domain when the filter changes', () => {
-    fixture.detectChanges();
-    component.first = 20;
-    mockService.getUserAuditLog.mockClear();
-
-    component.contextKey = 'ctx';
-    component.ngOnChanges({contextKey: new SimpleChange(null, 'ctx', false)});
-
-    expect(component.first).toBe(0);
-    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20, 'ctx');
-  });
-
-  it('should not load twice for the initial filter value', () => {
-    component.ngOnChanges({contextKey: new SimpleChange(undefined, null, true)});
-    expect(mockService.getUserAuditLog).not.toHaveBeenCalled();
+    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20);
   });
 
   it('should hide the paginator when there are no entries', async () => {
@@ -145,6 +126,15 @@ describe('UserAuditHistoryComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.p-paginator')).not.toBeNull();
+  });
+
+  it('should show what changed in bold and how it changed after it', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const line: HTMLElement = fixture.nativeElement.querySelector('tbody td:last-child div');
+    expect(line.querySelector('strong')?.textContent).toBe(component.changeLabel(entry.changes[0]));
+    expect(line.textContent).toBe(component.formatChange(entry.changes[0]));
   });
 
   it('should use the translated source when there is no actor', () => {

@@ -50,9 +50,8 @@ public class UserAuditController {
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public ResponseEntity<Page<UserAuditLogDto>> getAuditLog(@PathVariable UUID userId,
                                                              @RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(defaultValue = "20") int size,
-                                                             @RequestParam(required = false) String contextKey) {
+                                                             @RequestParam(defaultValue = "20") int size) {
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE));
-        return ResponseEntity.ok(userAuditService.getAuditLog(userId, contextKey, pageRequest));
+        return ResponseEntity.ok(userAuditService.getAuditLog(userId, pageRequest));
     }
 }

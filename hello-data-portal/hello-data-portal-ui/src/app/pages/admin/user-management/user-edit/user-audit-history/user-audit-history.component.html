@@ -29,7 +29,7 @@
       <td>{{ context(entry) }}</td>
       <td>
         @for (change of entry.changes; track $index) {
-          <div>{{ formatChange(change) }}</div>
+          <div><strong class="change-label">{{ changeLabel(change) }}</strong>: {{ changeValues(change) }}</div>
         }
       </td>
     </tr>

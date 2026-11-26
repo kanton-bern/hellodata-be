@@ -61,10 +61,6 @@ export const naviElements: any = {
   userEdit: {
     path: 'edit/:userId',
   },
-  userAuditLogs: {
-    path: 'edit/:userId/audit-logs',
-    label: '@Audit logs'
-  },
   rolesManagement: {
     path: 'roles-management',
     label: '@Portal roles management'

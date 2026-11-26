@@ -9,12 +9,10 @@
             [user]="editedUser"
             [saveDisabled]="saveDisabled"
             [saveLoading]="(userSaveButtonDisabled$ | async) ?? false"
-            [showAuditLogs]="true"
             (cancelClicked)="cancel()"
             (saveClicked)="updateUser()"
             (disableClicked)="showUserDisablePopup($event)"
-            (enableClicked)="showUserEnablePopup($event)"
-            (auditLogsClicked)="openAuditLogs(editedUser)"/>
+            (enableClicked)="showUserEnablePopup($event)"/>
           <p-divider/>
           <div class="field grid grid-cols-12 gap-4">
             <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>

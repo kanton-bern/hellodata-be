@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectorRef, Component, DestroyRef, inject, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, DestroyRef, inject, Input, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Actions, ofType} from '@ngrx/effects';
 import {DatePipe} from '@angular/common';
@@ -41,10 +41,8 @@ import {updateUserRolesSuccess, userPopupActionSuccess} from '../../../../../sto
   templateUrl: './user-audit-history.component.html',
   imports: [TableModule, PrimeTemplate, DatePipe, TranslocoPipe]
 })
-export class UserAuditHistoryComponent implements OnInit, OnChanges {
+export class UserAuditHistoryComponent implements OnInit {
   @Input({required: true}) userId!: string;
-  /** Shows only the entries (and their changes) of this business / data domain, all of them when empty. */
-  @Input() contextKey: string | null = null;
 
   entries: UserAuditLog[] = [];
   totalRecords = 0;
@@ -66,13 +64,6 @@ export class UserAuditHistoryComponent implements OnInit, OnChanges {
     ).subscribe(() => this.refresh());
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // the first value is loaded by the table's own lazy load
-    if (changes['contextKey'] && !changes['contextKey'].firstChange) {
-      this.refresh();
-    }
-  }
-
   refresh() {
     this.first = 0;
     this.fetch(0, this.pageSize);
@@ -89,7 +80,7 @@ export class UserAuditHistoryComponent implements OnInit, OnChanges {
   private fetch(page: number, rows: number) {
     this.loading = true;
     this.cdr.markForCheck();
-    this.service.getUserAuditLog(this.userId, page, rows, this.contextKey).subscribe({
+    this.service.getUserAuditLog(this.userId, page, rows).subscribe({
       next: result => {
         this.entries = result.content;
         this.totalRecords = result.totalElements;
@@ -112,10 +103,19 @@ export class UserAuditHistoryComponent implements OnInit, OnChanges {
   }
 
   formatChange(change: UserAuditChange): string {
+    return `${this.changeLabel(change)}: ${this.changeValues(change)}`;
+  }
+
+  /** What changed, e.g. "Role [Data domain]" (shown in bold). */
+  changeLabel(change: UserAuditChange): string {
     const field = this.transloco.translate('@History field ' + change.field);
     const ctx = change.contextName ?? change.contextKey;
-    const label = ctx ? `${field} [${ctx}]` : field;
-    return `${label}: ${this.formatValue(change.before)} -> ${this.formatValue(change.after)}`;
+    return ctx ? `${field} [${ctx}]` : field;
+  }
+
+  /** How it changed, e.g. "DATA_DOMAIN_ADMIN -> DATA_DOMAIN_VIEWER". */
+  changeValues(change: UserAuditChange): string {
+    return `${this.formatValue(change.before)} -> ${this.formatValue(change.after)}`;
   }
 
   private formatValue(value: string | boolean | string[] | null): string {

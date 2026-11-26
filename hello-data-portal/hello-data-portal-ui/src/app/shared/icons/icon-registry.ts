@@ -292,12 +292,6 @@ export const ACTION_BACK: IconDefinition = {
   category: 'action',
 };
 
-export const ACTION_HISTORY: IconDefinition = {
-  class: 'fa-solid fa-clock-rotate-left',
-  label: '@Audit logs',
-  category: 'action',
-};
-
 export const ACTION_FORWARD: IconDefinition = {
   class: 'fa-solid fa-arrow-right',
   label: '@Forward',
@@ -578,7 +572,6 @@ export const ICON_REGISTRY = {
   ACTION_SEARCH,
   ACTION_FILTER_CLEAR,
   ACTION_BACK,
-  ACTION_HISTORY,
   ACTION_FORWARD,
   ACTION_EXTERNAL_LINK,
   ACTION_PIN,
