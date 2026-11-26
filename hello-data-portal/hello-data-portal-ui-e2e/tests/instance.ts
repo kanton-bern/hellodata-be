@@ -22,6 +22,9 @@ export const BUSINESS_DOMAIN_ADMIN_USERNAME = env('E2E_BUSINESS_DOMAIN_ADMIN_USE
 export const PORTAL_DB = env('E2E_PORTAL_DB', 'hd_metainfo');
 export const SUPERSET_DB = env('E2E_SUPERSET_DB', 'superset_default_data_domain');
 
+// the Keycloak realm of the portal users, changed directly in Keycloak by the tests of the central authentication service
+export const KEYCLOAK_REALM = env('E2E_KEYCLOAK_REALM', 'hellodata');
+
 // a DAG of the default data domain that is in every Airflow: the showcase DAG of Airflow 2, the e2e DAG of
 // compose-airflow3.yaml in Airflow 3
 export const SHOWCASE_DAG_ID = env('E2E_SHOWCASE_DAG', `hello_world_${CONTEXT_KEY}`);

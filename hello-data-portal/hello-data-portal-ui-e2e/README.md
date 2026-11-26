@@ -194,6 +194,7 @@ them default to the compose stack:
 | `E2E_BUSINESS_DOMAIN_ADMIN_USERNAME` | `hellodata-product-development-admin@<domain>`     | Business domain admin example user              |
 | `E2E_PORTAL_DB`                      | `hd_metainfo`                                      | Portal database                                 |
 | `E2E_SUPERSET_DB`                    | `superset_default_data_domain`                     | Superset database of the default data domain    |
+| `E2E_KEYCLOAK_REALM`                 | `hellodata`                                        | Keycloak realm of the portal users              |
 | `E2E_SHOWCASE_DAG`                   | `hello_world_<E2E_CONTEXT_KEY>`                    | A DAG that is always in the default data domain |
 | `E2E_KUBE_NAMESPACE`                 | empty (docker compose)                             | Run the `docker exec` / psql steps with `kubectl exec` in this namespace instead |
 | `E2E_KUBE_CONTEXT`                   | empty (current kube context)                       | Kube context for `kubectl exec`                 |
