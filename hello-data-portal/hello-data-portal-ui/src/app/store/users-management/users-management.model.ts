@@ -53,6 +53,8 @@ export interface User {
   lastName: string;
   email: string;
   enabled: boolean;
+  /** enabled flag in the central authentication service (e.g. Keycloak), null/undefined if unknown */
+  enabledInAuthProvider?: boolean | null;
   emailVerified: boolean;
   createdTimestamp: number;
   requiredActions: string[];

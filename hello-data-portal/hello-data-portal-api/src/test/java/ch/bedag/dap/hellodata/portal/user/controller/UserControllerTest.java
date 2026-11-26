@@ -183,6 +183,7 @@ class UserControllerTest extends HDControllerTest {
         userDto1.setLastName("One");
 
         when(userService.getUserById(userId.toString())).thenReturn(userDto1);
+        when(userService.isEnabledInAuthProvider(userId.toString())).thenReturn(false);
 
         // when then
         mockMvc.perform(get("/users/" + userId).header("authorization", generateToken(Set.of("USER_MANAGEMENT"))))
@@ -194,6 +195,7 @@ class UserControllerTest extends HDControllerTest {
                             "email": "user1@test.com",
                             "emailVerified": null,
                             "enabled": null,
+                            "enabledInAuthProvider": false,
                             "firstName": "User",
                             "id": "42012620-df0d-4157-bf67-3683e7106a66",
                             "invitationsCount": 0,

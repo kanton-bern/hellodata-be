@@ -182,6 +182,7 @@
   "@Enable user": "Benutzer aktivieren",
   "@Enable user question": "Möchten Sie den Benutzer {{user}} aktivieren?",
   "@Enabled": "Aktiviert",
+  "@User disabled in auth provider warning": "Dieser Benutzer ist im zentralen Authentifizierungsdienst deaktiviert und kann sich nicht anmelden, auch wenn er hier aktiviert ist. Aktivieren Sie den Benutzer dort (z. B. in Keycloak).",
   "@Enter reason for declining this draft": "Geben Sie den Grund für die Ablehnung dieses Entwurfs ein",
   "@Enter reason for deleting this comment": "Grund für die Löschung dieses Kommentars eingeben",
   "@Env DEV": "Dev",

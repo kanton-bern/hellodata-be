@@ -47,4 +47,8 @@ public class UserDto {
     private List<String> permissions;
     private int invitationsCount;
     private boolean isFederated;
+    /**
+     * Whether the user is enabled in the central authentication service (e.g. Keycloak), null if unknown (not found there / not reachable)
+     */
+    private Boolean enabledInAuthProvider;
 }

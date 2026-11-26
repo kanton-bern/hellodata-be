@@ -83,6 +83,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {Card} from 'primeng/card';
 import {Panel} from 'primeng/panel';
 import {PrimeTemplate} from 'primeng/api';
+import {Message} from 'primeng/message';
 import {UserAuditHistoryComponent} from './user-audit-history/user-audit-history.component';
 import {
   DashboardViewerPermissionsComponent
@@ -98,7 +99,7 @@ import {ICON_REGISTRY} from '../../../../shared/icons';
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, DashboardGroupMembershipComponent, RlsRoleSelectionComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent, Card, NgClass, Panel, PrimeTemplate, UserAuditHistoryComponent]
+  imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, DashboardGroupMembershipComponent, RlsRoleSelectionComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent, Card, NgClass, Panel, PrimeTemplate, UserAuditHistoryComponent, Message]
 })
 export class UserEditComponent extends BaseComponent implements OnInit {
   protected readonly icons = ICON_REGISTRY;

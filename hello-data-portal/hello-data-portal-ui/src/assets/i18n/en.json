@@ -185,6 +185,7 @@
   "@Enable user": "Enable user",
   "@Enable user question": "Enable user {{user}}?",
   "@Enabled": "Enabled",
+  "@User disabled in auth provider warning": "This user is disabled in the central authentication service and cannot log in, even if enabled here. Enable the user there (e.g. in Keycloak).",
   "@Enter reason for declining this draft": "Enter the reason for declining this draft",
   "@Enter reason for deleting this comment": "Enter reason for deleting this comment",
   "@Env DEV": "Dev",

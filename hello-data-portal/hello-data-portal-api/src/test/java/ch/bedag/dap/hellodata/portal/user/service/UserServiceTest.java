@@ -136,6 +136,29 @@ class UserServiceTest {
     }
 
     @Test
+    void isEnabledInAuthProvider_returnsTheFlagFromTheAuthProvider() {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(UUID.randomUUID());
+        userEntity.setAuthId("kc-id");
+        when(userRepository.getByIdOrAuthId(userEntity.getId().toString())).thenReturn(userEntity);
+        UserRepresentation representation = new UserRepresentation();
+        representation.setEnabled(false);
+        when(keycloakService.getUserRepresentationById("kc-id")).thenReturn(representation);
+
+        assertEquals(Boolean.FALSE, userService.isEnabledInAuthProvider(userEntity.getId().toString()));
+    }
+
+    @Test
+    void isEnabledInAuthProvider_returnsNullWhenTheAuthProviderFails() {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(UUID.randomUUID());
+        when(userRepository.getByIdOrAuthId(userEntity.getId().toString())).thenReturn(userEntity);
+        when(keycloakService.getUserRepresentationById(userEntity.getId().toString())).thenThrow(new jakarta.ws.rs.NotFoundException());
+
+        assertNull(userService.isEnabledInAuthProvider(userEntity.getId().toString()));
+    }
+
+    @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     void testCreateUser() {
         // given

@@ -185,6 +185,7 @@
   "@Enable user": "Activer l'utilisateur",
   "@Enable user question": "Activer l'utilisateur {{user}} ?",
   "@Enabled": "Activé",
+  "@User disabled in auth provider warning": "Cet utilisateur est désactivé dans le service d'authentification central et ne peut pas se connecter, même s'il est activé ici. Activez l'utilisateur là-bas (p. ex. dans Keycloak).",
   "@Enter reason for declining this draft": "Entrez la raison du refus de ce brouillon",
   "@Enter reason for deleting this comment": "Indiquer la raison de la suppression de ce commentaire",
   "@Env DEV": "Dev",

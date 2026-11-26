@@ -194,6 +194,22 @@ public class UserService {
         return UserDtoMapper.map(userEntity);
     }
 
+    /**
+     * The portal does not change users in the central authentication service (e.g. Keycloak), but a user disabled there cannot log in.
+     *
+     * @return the enabled flag of the user in the authentication service, null if unknown (not found there or not reachable)
+     */
+    @Transactional(readOnly = true)
+    public Boolean isEnabledInAuthProvider(String userId) {
+        try {
+            UserRepresentation representation = getUserRepresentation(userId);
+            return representation == null ? null : representation.isEnabled();
+        } catch (RuntimeException e) {
+            log.warn("Could not read the user {} from the authentication service: {}", userId, e.getMessage());
+            return null;
+        }
+    }
+
     @Transactional
     public void updateLastAccess(String userId) {
         UserEntity userEntity = getUserEntity(userId);

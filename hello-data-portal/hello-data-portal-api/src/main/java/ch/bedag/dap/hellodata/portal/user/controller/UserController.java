@@ -136,7 +136,9 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public UserDto getUserById(@PathVariable String userId) {
         try {
-            return userService.getUserById(userId);
+            UserDto user = userService.getUserById(userId);
+            user.setEnabledInAuthProvider(userService.isEnabledInAuthProvider(userId));
+            return user;
         } catch (ClientErrorException e) {
             log.error("Error on getting user by id", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));

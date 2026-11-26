@@ -58,6 +58,10 @@
               }
             </div>
           </div>
+          @if (editedUser.enabledInAuthProvider === false) {
+            <p-message id="disabled-in-auth-provider-warning" severity="warn" styleClass="mt-3 w-full"
+                       [text]="'@User disabled in auth provider warning' | transloco"></p-message>
+          }
         </p-card>
 
         @if (userForm) {
