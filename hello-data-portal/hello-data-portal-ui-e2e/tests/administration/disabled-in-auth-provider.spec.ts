@@ -48,7 +48,8 @@ test.describe('User disabled in the central authentication service', () => {
     setEnabledInKeycloak(USER.username, true);
     await withUser(browser, ADMIN, async page => {
       await openUserEdit(page, USER);
-      await expect(page.locator('app-user-edit-toolbar')).toBeVisible();
+      // the warning is rendered together with the user data, so wait for the user before checking it is not there
+      await expect(page.locator('#email')).toHaveValue(USER.username);
       await expect(authProviderWarning(page)).toHaveCount(0);
     });
   });
