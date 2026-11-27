@@ -30,7 +30,9 @@ import {
   fetchContextRolesSuccess,
   fetchCurrentUserCommentPermissionsSuccess,
   fetchPermissionSuccess,
+  login,
   loginComplete,
+  loginServiceUnavailable,
   logout,
   setAvailableLanguages,
   setDefaultLanguage,
@@ -41,6 +43,18 @@ import {createReducer, on} from "@ngrx/store";
 
 export const authReducer = createReducer(
   initialAuthState,
+  on(login, (state: AuthState): AuthState => {
+    return {
+      ...state,
+      loginUnavailable: null
+    };
+  }),
+  on(loginServiceUnavailable, (state: AuthState, {info}): AuthState => {
+    return {
+      ...state,
+      loginUnavailable: info
+    };
+  }),
   on(loginComplete, (state: AuthState, {profile, isLoggedIn}): AuthState => {
     return {
       ...state,

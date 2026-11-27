@@ -42,7 +42,18 @@ export interface AuthState {
   selectedLanguage: string | null,
   defaultLanguage: string | null,
   firstLogin: boolean,
-  provisioning: boolean
+  provisioning: boolean,
+  loginUnavailable: LoginUnavailableInfo | null
+}
+
+// 'refused': the login service host answered (e.g. a firewall 403 page) but the browser could not
+// read the OIDC discovery document. 'unreachable': no answer at all (DNS, TLS, VPN, offline).
+export type LoginServiceReachability = 'refused' | 'unreachable';
+
+export interface LoginUnavailableInfo {
+  reachability: LoginServiceReachability,
+  loginServiceUrl: string,
+  occurredAt: string
 }
 
 export interface CurrentUserAuthData {
@@ -71,6 +82,7 @@ export const initialAuthState: AuthState = {
   selectedLanguage: null,
   defaultLanguage: null,
   firstLogin: false,
-  provisioning: false
+  provisioning: false,
+  loginUnavailable: null
 }
 

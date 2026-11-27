@@ -26,7 +26,7 @@
 ///
 
 import {createAction, props} from "@ngrx/store";
-import {CurrentUserAuthData} from "./auth.state";
+import {CurrentUserAuthData, LoginUnavailableInfo} from "./auth.state";
 import {CommentPermissions} from "../users-management/users-management.model";
 
 export enum AuthActionType {
@@ -48,6 +48,7 @@ export enum AuthActionType {
   USER_FORBIDDEN = '[AUTH] User forbidden',
   FETCH_CURRENT_USER_COMMENT_PERMISSIONS = '[AUTH] Fetch current user comment permissions',
   FETCH_CURRENT_USER_COMMENT_PERMISSIONS_SUCCESS = '[AUTH] Fetch current user comment permissions success',
+  LOGIN_SERVICE_UNAVAILABLE = '[AUTH] Login service unavailable',
 }
 
 export const login = createAction(
@@ -130,4 +131,9 @@ export const fetchCurrentUserCommentPermissions = createAction(
 export const fetchCurrentUserCommentPermissionsSuccess = createAction(
   AuthActionType.FETCH_CURRENT_USER_COMMENT_PERMISSIONS_SUCCESS,
   props<{ commentPermissions: Record<string, CommentPermissions> }>()
+);
+
+export const loginServiceUnavailable = createAction(
+  AuthActionType.LOGIN_SERVICE_UNAVAILABLE,
+  props<{ info: LoginUnavailableInfo }>()
 );

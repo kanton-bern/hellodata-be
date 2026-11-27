@@ -1,0 +1,39 @@
+.login-unavailable-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  overflow-y: auto;
+  background: #fff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.login-unavailable-content {
+  width: 100%;
+  max-width: 40rem;
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .open-login-service {
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+
+  .support-info {
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 0.8rem;
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0.75rem;
+    user-select: all;
+  }
+}

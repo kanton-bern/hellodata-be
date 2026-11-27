@@ -191,3 +191,7 @@ export const selectFirstLogin = createSelector(
   (state: AuthState) => state.firstLogin
 );
 
+export const selectLoginUnavailable = createSelector(
+  authState,
+  (state: AuthState) => state.loginUnavailable
+);
