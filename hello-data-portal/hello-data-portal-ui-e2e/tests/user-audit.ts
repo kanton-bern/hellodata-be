@@ -89,9 +89,38 @@ export function historyPaginator(page: Page) {
   return page.locator('#userAuditTable .p-paginator');
 }
 
-/** The bold part of a change line of a History row: what changed, e.g. "Role [Data domain]". */
-export function changeLabels(row: Locator) {
-  return row.getByRole('cell').nth(5).locator('div > strong');
+/** The bold part of the change lines of a History row or domain card: what changed, e.g. "Role". */
+export function changeLabels(rowOrCard: Locator) {
+  return rowOrCard.locator('.change-line > strong.change-label');
+}
+
+/** The changes without a domain (e-mail, enabled ...), shown in the row itself. */
+export function plainChangeLines(row: Locator) {
+  return row.getByRole('cell').nth(5).locator('.change-line');
+}
+
+/** The expanded row under a History row, with one card per domain the entry changed. */
+export function historyDetails(row: Locator) {
+  return row.locator('xpath=following-sibling::tr[1][contains(@class, "change-details-row")]');
+}
+
+/** Opens the domain cards of a History row (the chevron, like in the user overview) unless they are open, returns them. */
+export async function expandHistoryRow(row: Locator) {
+  if (!await historyDetails(row).isVisible()) {
+    await row.locator('.change-toggle button').click();
+  }
+  await expect(historyDetails(row)).toBeVisible();
+  return historyDetails(row);
+}
+
+/** The domain cards of an expanded History row. */
+export function changeCards(details: Locator) {
+  return details.locator('section.change-card');
+}
+
+/** The card of a domain in an expanded History row, its heading is the domain name. */
+export function changeCard(details: Locator, domain: string) {
+  return changeCards(details).filter({has: details.page().locator('.change-domain').getByText(domain, {exact: true})});
 }
 
 /** The History panel of the user edit page. */
@@ -104,8 +133,9 @@ export function historyTable(page: Page) {
   return page.locator('#userAuditTable');
 }
 
+/** The rows of the History table, one per entry (not the expanded rows with the domain cards). */
 export function historyRows(page: Page) {
-  return historyTable(page).locator('tbody tr');
+  return historyTable(page).locator('tbody tr:not(.change-details-row)');
 }
 
 /** Expands the History panel of the user edit page (it starts collapsed) and returns its table. */
@@ -119,13 +149,28 @@ export async function openHistory(page: Page) {
   return historyTable(page);
 }
 
+/**
+ * A change line: "Field: before -> after" for a change without a domain, "Field [Domain]: before -> after" (or a domain
+ * and a line) for one in a domain, which the panel shows as "Field: before -> after" in the domain's card of the expanded
+ * row.
+ */
+export type HistoryChange = string | {domain?: string, line: string | RegExp};
+
 export type HistoryEntry = {
   who: string,
   source: string,
   action: string,
   context?: string,
-  changes?: (string | RegExp)[],
+  changes?: HistoryChange[],
 };
+
+function inDomain(change: HistoryChange): {domain?: string, line: string | RegExp} {
+  if (typeof change !== 'string') {
+    return change;
+  }
+  const match = /^(.+?) \[(.+?)]: (.*)$/s.exec(change);
+  return match ? {domain: match[2], line: `${match[1]}: ${match[3]}`} : {line: change};
+}
 
 /** The columns of a History row: when, who, source, action, context, changes. */
 export async function expectHistoryRow(row: Locator, entry: HistoryEntry) {
@@ -138,7 +183,9 @@ export async function expectHistoryRow(row: Locator, entry: HistoryEntry) {
     await expect(cells.nth(4)).toHaveText(entry.context);
   }
   for (const change of entry.changes ?? []) {
-    await expect(cells.nth(5).locator('div').filter({hasText: change})).toHaveCount(1);
+    const {domain, line} = inDomain(change);
+    const lines = domain ? changeCard(await expandHistoryRow(row), domain).locator('.change-line') : plainChangeLines(row);
+    await expect(lines.filter({hasText: line})).toHaveCount(1);
   }
 }
 

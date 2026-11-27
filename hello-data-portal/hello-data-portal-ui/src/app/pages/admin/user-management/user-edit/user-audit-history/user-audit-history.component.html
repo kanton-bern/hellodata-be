@@ -7,9 +7,18 @@
   [rows]="pageSize"
   [totalRecords]="totalRecords"
   [value]="entries"
+  [expandedRowKeys]="expandedRows"
   class="p-datatable-striped"
   dataKey="id"
   id="userAuditTable">
+  <ng-template pTemplate="caption">
+    <div class="flex justify-end">
+      <p-button (onClick)="toggleExpandAll()" id="userAuditExpandAll"
+                [icon]="allExpanded ? icons.NAV_COLLAPSE.class : icons.NAV_EXPAND.class" pRipple
+                [label]="(allExpanded ? '@Collapse all' : '@Expand all') | transloco"
+                severity="secondary" [outlined]="true"/>
+    </div>
+  </ng-template>
   <ng-template pTemplate="header">
     <tr>
       <th scope="col">{{ '@History when' | transloco }}</th>
@@ -18,9 +27,10 @@
       <th scope="col">{{ '@History action' | transloco }}</th>
       <th scope="col">{{ '@History context' | transloco }}</th>
       <th scope="col">{{ '@History changes' | transloco }}</th>
+      <th scope="col" style="width: 3rem"></th>
     </tr>
   </ng-template>
-  <ng-template let-entry pTemplate="body">
+  <ng-template let-entry let-expanded="expanded" pTemplate="body">
     <tr>
       <td>{{ entry.occurredAt | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
       <td>{{ who(entry) }}</td>
@@ -28,15 +38,42 @@
       <td>{{ ('@History action ' + entry.action) | transloco }}</td>
       <td>{{ context(entry) }}</td>
       <td>
-        @for (change of entry.changes; track $index) {
-          <div><strong class="change-label">{{ changeLabel(change) }}</strong>: {{ changeValues(change) }}</div>
+        @for (change of plainChanges(entry); track $index) {
+          <div class="change-line"><strong class="change-label">{{ fieldLabel(change) }}</strong>: {{ changeValues(change) }}</div>
         }
+        @if (domainGroups(entry).length > 0 && !expanded) {
+          <div class="change-domains">{{ domainSummary(entry) }}</div>
+        }
+      </td>
+      <td>
+        @if (domainGroups(entry).length > 0) {
+          <p-button type="button" pRipple [pRowToggler]="entry" class="change-toggle"
+                    [text]="true" severity="secondary"
+                    [icon]="expanded ? icons.NAV_CHEVRON_DOWN.class : icons.NAV_CHEVRON_RIGHT.class"
+                    [ariaLabel]="'@More info' | transloco" [pTooltip]="'@More info' | transloco"/>
+        }
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template let-entry pTemplate="expandedrow">
+    <tr class="change-details-row">
+      <td colspan="7">
+        <div class="change-details-grid">
+          @for (group of domainGroups(entry); track group.key) {
+            <section class="change-group change-card" [class.business-domain-card]="group.businessDomain">
+              <div class="change-domain">{{ group.domain }}</div>
+              @for (change of group.changes; track $index) {
+                <div class="change-line"><strong class="change-label">{{ fieldLabel(change) }}</strong>: {{ changeValues(change) }}</div>
+              }
+            </section>
+          }
+        </div>
       </td>
     </tr>
   </ng-template>
   <ng-template pTemplate="emptymessage">
     <tr>
-      <td colspan="6">{{ '@History empty' | transloco }}</td>
+      <td colspan="7">{{ '@History empty' | transloco }}</td>
     </tr>
   </ng-template>
 </p-table>

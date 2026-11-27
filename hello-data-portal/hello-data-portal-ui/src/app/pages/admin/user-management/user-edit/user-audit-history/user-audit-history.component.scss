@@ -1,0 +1,32 @@
+// the domain changes of an entry as cards, like the role details of the user overview (subsystem-users)
+.change-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.change-card {
+  border: 1px solid var(--p-surface-200, #e5e7eb);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  background: var(--p-surface-0, #ffffff);
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.business-domain-card {
+  border-color: var(--p-primary-200, #bfdbfe);
+  background: var(--p-primary-50, #eff6ff);
+}
+
+.change-domain {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color, #6b7280);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.03em;
+}
+
+.change-domains {
+  color: var(--p-text-muted-color, #6b7280);
+}

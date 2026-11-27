@@ -128,13 +128,75 @@ describe('UserAuditHistoryComponent', () => {
     expect(fixture.nativeElement.querySelector('.p-paginator')).not.toBeNull();
   });
 
-  it('should show what changed in bold and how it changed after it', async () => {
+  it('should show the changes without a domain in the row and the domains in cards when the row is expanded', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
-    const line: HTMLElement = fixture.nativeElement.querySelector('tbody td:last-child div');
-    expect(line.querySelector('strong')?.textContent).toBe(component.changeLabel(entry.changes[0]));
-    expect(line.textContent).toBe(component.formatChange(entry.changes[0]));
+    const row: HTMLElement = fixture.nativeElement.querySelector('tbody tr');
+    expect(row.querySelector('.change-line strong')?.textContent).toBe('Dashboards');
+    expect(row.querySelector('.change-domains')?.textContent?.trim()).toBe('Context');
+    expect(fixture.nativeElement.querySelector('.change-card')).toBeNull();
+
+    (row.querySelector('.change-toggle button') as HTMLElement).click();
+    fixture.detectChanges();
+    const card: HTMLElement = fixture.nativeElement.querySelector('.change-card');
+    expect(card.querySelector('.change-domain')?.textContent?.trim()).toBe('Context');
+    const line = card.querySelector('.change-line') as HTMLElement;
+    expect(line.querySelector('strong')?.textContent).toBe('Role');
+    expect(line.textContent?.replace(/\s+/g, ' ').trim()).toBe('Role: - -> DATA_DOMAIN_VIEWER');
+    expect(fixture.nativeElement.querySelector('tbody .change-domains')).toBeNull();
+  });
+
+  const c = (field: string, contextKey: string | null, contextName: string | null, before: string | null, after: string | null) =>
+    ({field, contextKey, contextName, before, after});
+
+  it('should group the changes: without a domain, the business domain role, then each data domain with its role first', () => {
+    const groups = component.groupedChanges({
+      ...entry, changes: [
+        c('dashboards', 'dd2', 'Showcase', 'x', null),
+        c('dashboards', 'dd1', 'Demo', 'y', null),
+        c('enabled', null, null, 'false', 'true'),
+        c('role', 'bd', 'HelloDATA', 'NONE', 'BUSINESS_DOMAIN_ADMIN'),
+        c('role', 'dd1', 'Demo', 'DATA_DOMAIN_VIEWER', 'DATA_DOMAIN_ADMIN'),
+        c('role', 'dd2', 'Showcase', 'DATA_DOMAIN_VIEWER', 'DATA_DOMAIN_ADMIN'),
+      ]
+    });
+    expect(groups.map(g => [g.domain, ...g.changes.map(ch => ch.field)])).toEqual([
+      [null, 'enabled'],
+      ['HelloDATA', 'role'],
+      ['Demo', 'role', 'dashboards'],
+      ['Showcase', 'role', 'dashboards'],
+    ]);
+  });
+
+  it('should leave out the business domain group when its role did not change', () => {
+    const groups = component.groupedChanges({...entry, changes: [c('role', 'dd1', 'Demo', 'NONE', 'DATA_DOMAIN_VIEWER')]});
+    expect(groups.map(g => [g.domain, g.businessDomain])).toEqual([['Demo', false]]);
+  });
+
+  it('should expand the entries with domain changes on "Expand all" and remember it', () => {
+    localStorage.removeItem('user-audit-history-all-expanded');
+    component.entries = [entry, {...entry, id: '2', changes: [c('enabled', null, null, 'false', 'true')]}];
+    component.toggleExpandAll();
+    expect(component.allExpanded).toBe(true);
+    expect(component.expandedRows).toEqual({'1': true});
+    expect(localStorage.getItem('user-audit-history-all-expanded')).toBe('true');
+    component.toggleExpandAll();
+    expect(component.expandedRows).toEqual({});
+    expect(localStorage.getItem('user-audit-history-all-expanded')).toBe('false');
+  });
+
+  it('should list the changed domains for the collapsed row', () => {
+    expect(component.domainSummary({...entry, changes: [
+      c('role', 'dd2', 'Showcase', 'NONE', 'DATA_DOMAIN_VIEWER'),
+      c('role', 'dd1', 'Demo', 'NONE', 'DATA_DOMAIN_VIEWER'),
+      c('enabled', null, null, 'false', 'true'),
+    ]})).toBe('Demo, Showcase');
+  });
+
+  it('should show no change lines for a created user', () => {
+    expect(component.visibleChanges({...entry, action: 'USER_CREATED'})).toEqual([]);
+    expect(component.visibleChanges(entry)).toEqual(entry.changes);
   });
 
   it('should use the translated source when there is no actor', () => {

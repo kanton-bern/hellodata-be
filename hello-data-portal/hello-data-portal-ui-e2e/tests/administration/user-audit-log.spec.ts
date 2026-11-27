@@ -21,7 +21,11 @@ import {bulkAssign, expectResult} from '../bulk-assignments';
 import {
   AuditRow,
   auditRows,
+  changeCard,
+  changeCards,
   changeLabels,
+  expandHistoryRow,
+  historyDetails,
   deleteAuditRows,
   expectHistoryRow,
   getAuditLog,
@@ -102,7 +106,7 @@ test.describe('User audit log', () => {
   });
 
   // the admin invites a new user; the audit log gets a "User created" entry by the admin with the new user's e-mail,
-  // enabled flag and superuser flag, and the History panel of the edit page the portal opens lists it
+  // enabled flag and superuser flag, and the History panel of the edit page the portal opens lists it without them
   test('inviting a user writes a "User created" entry', async ({adminPage: page}) => {
     await navigate(page, 'Administration', 'User management');
     await page.locator('#user input').fill(EMAIL);
@@ -129,8 +133,9 @@ test.describe('User audit log', () => {
       who: ADMIN.email,
       source: SOURCE.MANUAL,
       action: ACTION.USER_CREATED,
-      changes: [`E-mail: - -> ${EMAIL}`, 'Enabled: - -> true', 'Superuser: - -> false'],
     });
+    // the initial values of a new user are obvious, the panel shows the entry without its changes (the log keeps them)
+    await expect(historyRow(page, ACTION.USER_CREATED, SOURCE.MANUAL).getByRole('cell').nth(5)).toHaveText('');
   });
 
   // the admin gives the user the viewer role and saves; the open History panel shows the new "Roles changed" entry on
@@ -155,7 +160,7 @@ test.describe('User audit log', () => {
       who: ADMIN.email,
       source: SOURCE.MANUAL,
       action: ACTION.ROLES_CHANGED,
-      changes: [new RegExp(`^Role \\[${escapeRegExp(DATA_DOMAIN)}\\]: .+ -> DATA_DOMAIN_VIEWER$`)],
+      changes: [{domain: DATA_DOMAIN, line: /^Role: .+ -> DATA_DOMAIN_VIEWER$/}],
     });
   });
 
@@ -285,9 +290,11 @@ test.describe('User audit log', () => {
     });
   });
 
-  // in every change line of the History what changed (field and data domain) is bold and how it changed is not; the table
+  // like the user overview, a History row shows the changes without a domain and the names of the domains it changed;
+  // its chevron opens one card per domain (the domain as its heading, its role first), "Expand all" opens all of them
+  // (even with the nine data domains some installations have); what changed is bold and how it changed is not; the table
   // pages with a paginator while it has entries and shows the empty message without one when it has none
-  test('the History shows what changed in bold and hides the paginator without entries', async ({adminPage: page}) => {
+  test('the History shows the domain changes in expandable cards and hides the paginator without entries', async ({adminPage: page}) => {
     const rows = auditRows(userId);
     await openUserEdit(page, TARGET);
     await openHistory(page);
@@ -295,12 +302,27 @@ test.describe('User audit log', () => {
     await expect(historyPaginator(page)).toBeVisible();
 
     const bulk = historyRow(page, ACTION.ROLES_CHANGED, SOURCE.BULK_ASSIGNMENT);
-    const role = changeLabels(bulk).filter({hasText: `Role [${DATA_DOMAIN}]`});
-    await expect(role).toHaveText(`Role [${DATA_DOMAIN}]`);
+    await expect(bulk.locator('.change-domains')).toContainText(DATA_DOMAIN);
+    const details = await expandHistoryRow(bulk);
+    await expect(bulk.locator('.change-domains')).toHaveCount(0);
+    const role = changeLabels(changeCard(details, DATA_DOMAIN)).first();
+    await expect(role).toHaveText('Role');
     expect(Number(await role.evaluate(e => getComputedStyle(e).fontWeight))).toBeGreaterThanOrEqual(600);
-    await expect(role.locator('xpath=..')).toHaveText(`Role [${DATA_DOMAIN}]: DATA_DOMAIN_BUSINESS_SPECIALIST -> DATA_DOMAIN_EDITOR`);
+    await expect(role.locator('xpath=..')).toHaveText('Role: DATA_DOMAIN_BUSINESS_SPECIALIST -> DATA_DOMAIN_EDITOR');
+    // one card per domain, each with its role first
+    const headings = await changeCards(details).locator('.change-domain').allTextContents();
+    expect(new Set(headings).size, `each domain in one card: ${headings}`).toBe(headings.length);
+    for (const heading of headings) {
+      const labels = await changeLabels(changeCard(details, heading)).allTextContents();
+      expect(labels.indexOf('Role'), `the role first in ${heading}: ${labels}`).toBeLessThanOrEqual(0);
+    }
+    await bulk.locator('.change-toggle button').click();
+    await expect(historyDetails(bulk)).toHaveCount(0);
+
+    // an entry without domain changes has no chevron, its changes are in the row
     const enabled = historyRows(page).filter({has: page.getByRole('cell', {name: ACTION.USER_ENABLED, exact: true})}).first();
     await expect(changeLabels(enabled)).toHaveText(['Enabled']);
+    await expect(enabled.locator('.change-toggle')).toHaveCount(0);
 
     // every user the tests create has entries, so an empty log is served by a stub of the api
     await page.route(url => url.pathname.endsWith(`/users/${userId}/audit`),
@@ -309,6 +331,30 @@ test.describe('User audit log', () => {
     await openHistory(page);
     await expect(historyRows(page)).toHaveText(['No history entries']);
     await expect(historyPaginator(page)).toHaveCount(0);
+    await page.unrouteAll();
+
+    // an entry with nine data domains: the names in the row, nine cards on "Expand all", which the page remembers
+    const entry = {
+      id: '00000000-0000-0000-0000-000000000001', occurredAt: new Date().toISOString(), actorId: null, actorEmail: ADMIN.email,
+      targetUserId: userId, targetEmail: EMAIL, action: 'ROLES_CHANGED', source: 'BULK_ASSIGNMENT', contextKey: null, contextName: null,
+      changes: Array.from({length: 9}, (_, i) => ({
+        field: 'role', contextKey: `dd${i}`, contextName: `Data domain ${i + 1}`, before: 'NONE', after: 'DATA_DOMAIN_VIEWER',
+      })),
+    };
+    await page.route(url => url.pathname.endsWith(`/users/${userId}/audit`),
+      route => route.fulfill({json: {content: [entry], totalElements: 1, totalPages: 1, number: 0, size: HISTORY_PAGE_SIZE}}));
+    await openUserEdit(page, TARGET);
+    await openHistory(page);
+    const many = historyRows(page).first();
+    await expect(many.locator('.change-domains')).toHaveText(Array.from({length: 9}, (_, i) => `Data domain ${i + 1}`).join(', '));
+    await page.locator('#userAuditExpandAll').click();
+    await expect(changeCards(historyDetails(many))).toHaveCount(9);
+    await expect(page.locator('#userAuditExpandAll')).toHaveText('Collapse all');
+    await openUserEdit(page, TARGET);
+    await openHistory(page);
+    await expect(changeCards(historyDetails(historyRows(page).first()))).toHaveCount(9);
+    await page.locator('#userAuditExpandAll').click();
+    await expect(historyDetails(historyRows(page).first())).toHaveCount(0);
     await page.unrouteAll();
   });
 

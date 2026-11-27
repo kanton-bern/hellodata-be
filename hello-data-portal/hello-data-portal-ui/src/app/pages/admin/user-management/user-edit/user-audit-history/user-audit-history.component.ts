@@ -31,21 +31,45 @@ import {Actions, ofType} from '@ngrx/effects';
 import {DatePipe} from '@angular/common';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
+import {Button} from 'primeng/button';
+import {Tooltip} from 'primeng/tooltip';
+import {Ripple} from 'primeng/ripple';
+import {ICON_REGISTRY} from '../../../../../shared/icons';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {UsersManagementService} from '../../../../../store/users-management/users-management.service';
 import {UserAuditChange, UserAuditLog} from '../../../../../store/users-management/users-management.model';
 import {updateUserRolesSuccess, userPopupActionSuccess} from '../../../../../store/users-management/users-management.action';
 
+/** The roles of a business domain; a role change from or to one of them is a change in the business domain. */
+const BUSINESS_DOMAIN_ROLES = new Set(['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']);
+/** Remembers in this browser whether the History shows the domain changes of all entries. */
+const EXPANDED_STORAGE_KEY = 'user-audit-history-all-expanded';
+
+/** The changes of an entry in one domain (domain null: the changes without a domain). */
+export interface ChangeGroup {
+  key: string;
+  domain: string | null;
+  businessDomain: boolean;
+  changes: UserAuditChange[];
+}
+
 @Component({
   selector: 'app-user-audit-history',
   templateUrl: './user-audit-history.component.html',
-  imports: [TableModule, PrimeTemplate, DatePipe, TranslocoPipe]
+  styleUrl: './user-audit-history.component.scss',
+  imports: [TableModule, PrimeTemplate, DatePipe, TranslocoPipe, Button, Tooltip, Ripple]
 })
 export class UserAuditHistoryComponent implements OnInit {
   @Input({required: true}) userId!: string;
 
   entries: UserAuditLog[] = [];
   totalRecords = 0;
+  /** The entries (by id) whose domain changes are shown, like the rows of the user overview. */
+  expandedRows: Record<string, boolean> = {};
+  allExpanded = this.loadAllExpanded();
+  protected readonly icons = ICON_REGISTRY;
+  /** The groups of each loaded entry, computed once (the template asks for them on every check). */
+  private readonly groups = new WeakMap<UserAuditLog, ChangeGroup[]>();
   loading = false;
   first = 0;
   readonly pageSize = 20;
@@ -84,6 +108,9 @@ export class UserAuditHistoryComponent implements OnInit {
       next: result => {
         this.entries = result.content;
         this.totalRecords = result.totalElements;
+        if (this.allExpanded) {
+          this.expandAllRows();
+        }
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -100,6 +127,102 @@ export class UserAuditHistoryComponent implements OnInit {
 
   context(entry: UserAuditLog): string {
     return entry.contextName ?? entry.contextKey ?? '';
+  }
+
+  /** The change lines of an entry; a new user's initial values (e-mail, enabled, roles NONE ...) are obvious, so none. */
+  visibleChanges(entry: UserAuditLog): UserAuditChange[] {
+    return entry.action === 'USER_CREATED' ? [] : entry.changes;
+  }
+
+  /**
+   * The change lines of an entry in groups: the changes without a domain (e-mail, enabled ...), then the business domain
+   * role, then one group per data domain (by name) with its role first, so the changes of two data domains do not mix.
+   * Each domain group has the domain as its heading, so its lines do not repeat it.
+   */
+  groupedChanges(entry: UserAuditLog): ChangeGroup[] {
+    let groups = this.groups.get(entry);
+    if (!groups) {
+      groups = this.group(entry);
+      this.groups.set(entry, groups);
+    }
+    return groups;
+  }
+
+  private group(entry: UserAuditLog): ChangeGroup[] {
+    const changes = this.visibleChanges(entry);
+    const businessDomains = new Set(changes
+      .filter(c => c.field === 'role' && (BUSINESS_DOMAIN_ROLES.has(String(c.before)) || BUSINESS_DOMAIN_ROLES.has(String(c.after))))
+      .map(c => c.contextKey));
+    const byDomain = new Map<string, ChangeGroup>();
+    for (const change of changes.filter(c => c.contextKey)) {
+      const group = byDomain.get(change.contextKey!)
+        ?? {key: change.contextKey!, domain: change.contextName ?? change.contextKey, businessDomain: false, changes: [] as UserAuditChange[]};
+      group.changes.push(change);
+      byDomain.set(change.contextKey!, group);
+    }
+    const domains = [...byDomain.values()];
+    domains.forEach(group => group.businessDomain = businessDomains.has(group.key));
+    domains.forEach(group => group.changes.sort((a, b) => Number(b.field === 'role') - Number(a.field === 'role')));
+    const dataDomains = domains.filter(group => !businessDomains.has(group.key))
+      .sort((a, b) => (a.domain ?? '').localeCompare(b.domain ?? ''));
+    return [
+      {key: '', domain: null, businessDomain: false, changes: changes.filter(c => !c.contextKey)},
+      ...domains.filter(group => businessDomains.has(group.key)),
+      ...dataDomains,
+    ].filter(group => group.changes.length > 0);
+  }
+
+  /** The changes without a domain (e-mail, enabled ...), shown in the row itself. */
+  plainChanges(entry: UserAuditLog): UserAuditChange[] {
+    return this.groupedChanges(entry).find(group => group.domain === null)?.changes ?? [];
+  }
+
+  /** The changes in the business domain and the data domains, one card each in the expanded row. */
+  domainGroups(entry: UserAuditLog): ChangeGroup[] {
+    return this.groupedChanges(entry).filter(group => group.domain !== null);
+  }
+
+  /** The domains an entry changed, e.g. "Demo, Showcase", shown in the row while it is collapsed. */
+  domainSummary(entry: UserAuditLog): string {
+    return this.domainGroups(entry).map(group => group.domain).join(', ');
+  }
+
+  toggleExpandAll(): void {
+    this.allExpanded = !this.allExpanded;
+    this.saveAllExpanded();
+    if (this.allExpanded) {
+      this.expandAllRows();
+    } else {
+      this.expandedRows = {};
+    }
+    this.cdr.markForCheck();
+  }
+
+  private expandAllRows(): void {
+    this.expandedRows = Object.fromEntries(this.entries
+      .filter(entry => this.domainGroups(entry).length > 0)
+      .map(entry => [entry.id, true]));
+  }
+
+  private saveAllExpanded(): void {
+    try {
+      localStorage.setItem(EXPANDED_STORAGE_KEY, String(this.allExpanded));
+    } catch {
+      // storage not available, the state is only kept until the page is left
+    }
+  }
+
+  private loadAllExpanded(): boolean {
+    try {
+      return localStorage.getItem(EXPANDED_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  /** The translated field of a change, e.g. "Role". */
+  fieldLabel(change: UserAuditChange): string {
+    return this.transloco.translate('@History field ' + change.field);
   }
 
   formatChange(change: UserAuditChange): string {
