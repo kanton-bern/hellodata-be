@@ -1,0 +1,20 @@
+<div class="login-unavailable-overlay" role="alertdialog" aria-labelledby="login-unavailable-title">
+  <div class="login-unavailable-content">
+    <h2 id="login-unavailable-title">{{ '@Login not possible' | transloco }}</h2>
+    <p>{{ reasonKey() | transloco }}</p>
+    <p>{{ '@Login service help' | transloco }}</p>
+
+    <div class="actions">
+      <p-button [label]="'@Retry login' | transloco" icon="fas fa-rotate-right" (onClick)="retry()"/>
+      <a class="p-button p-button-outlined open-login-service" [href]="info().loginServiceUrl" appExternalLink>
+        {{ '@Open login service' | transloco }}
+      </a>
+      <p-button [label]="(copied() ? '@Support information copied' : '@Copy support information') | transloco"
+                [icon]="copied() ? 'fas fa-check' : 'fas fa-copy'" severity="secondary" [outlined]="true"
+                (onClick)="copySupportInfo()"/>
+    </div>
+
+    <h3>{{ '@Support information' | transloco }}</h3>
+    <pre class="support-info">{{ supportInfo() }}</pre>
+  </div>
+</div>

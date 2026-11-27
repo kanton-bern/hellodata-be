@@ -45,7 +45,8 @@ describe('selectIsProvisioning', () => {
     selectedLanguage: null,
     defaultLanguage: null,
     firstLogin: false,
-    provisioning: true
+    provisioning: true,
+    loginUnavailable: null
   };
 
   const run = (overrides: Partial<AuthState>) =>

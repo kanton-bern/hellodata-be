@@ -13,6 +13,10 @@
   </div>
 }
 
+@if (loginUnavailable$ | async; as loginUnavailable) {
+  <app-login-unavailable [info]="loginUnavailable"/>
+}
+
 <ng-container>
   @if ((isMobile$ | async) === false) {
     <app-side-nav-outer-toolbar title="{{appInfo.title}}">

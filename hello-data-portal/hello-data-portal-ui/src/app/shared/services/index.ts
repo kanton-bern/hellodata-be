@@ -29,3 +29,4 @@ export * from './app-info.service';
 export * from './auth.service';
 export * from './screen.service';
 export * from './session-renewal.service';
+export * from './login-service-probe.service';

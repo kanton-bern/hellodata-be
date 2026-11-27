@@ -29,7 +29,7 @@ import {Component, HostBinding, inject, OnDestroy, OnInit} from '@angular/core';
 import {AppInfoService, ScreenService, SessionRenewalService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
-import {selectCurrentBusinessDomain, selectFirstLogin, selectIsProvisioning} from "./store/auth/auth.selector";
+import {selectCurrentBusinessDomain, selectFirstLogin, selectIsProvisioning, selectLoginUnavailable} from "./store/auth/auth.selector";
 import {filter, Observable, Subject, take, takeUntil, tap, timer} from "rxjs";
 import {Title} from "@angular/platform-browser";
 import {checkAuth, checkProfile} from "./store/auth/auth.action";
@@ -39,12 +39,14 @@ import {AsyncPipe} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
 import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
 import {TranslocoModule} from "@jsverse/transloco";
+import {LoginUnavailableComponent} from "./shared/components/login-unavailable/login-unavailable.component";
+import {LoginUnavailableInfo} from "./store/auth/auth.state";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [RouterOutlet, AsyncPipe, SideNavOuterToolbarComponent, MobileComponent, TranslocoModule]
+  imports: [RouterOutlet, AsyncPipe, SideNavOuterToolbarComponent, MobileComponent, TranslocoModule, LoginUnavailableComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
@@ -64,6 +66,7 @@ export class AppComponent implements OnInit, OnDestroy {
   businessDomain$: Observable<string>;
   redirectTo$: Observable<any>;
   isMobile$: Observable<boolean>;
+  loginUnavailable$: Observable<LoginUnavailableInfo | null>;
   showFirstLoginOverlay = false;
   overlayFadingOut = false;
   showProvisioningOverlay = false;
@@ -85,6 +88,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     }));
     this.isMobile$ = this.screen.isMobile.pipe(tap(v => console.log('is mobile', v)));
+    this.loginUnavailable$ = this.store.select(selectLoginUnavailable);
   }
 
   @HostBinding('class') get getClass() {

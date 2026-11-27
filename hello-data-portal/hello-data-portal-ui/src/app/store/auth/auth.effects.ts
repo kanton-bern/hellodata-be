@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {asyncScheduler, catchError, EMPTY, ignoreElements, map, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, EMPTY, exhaustMap, from, ignoreElements, map, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
 import {
   authError,
   checkAuth,
@@ -40,6 +40,7 @@ import {
   fetchPermissionSuccess,
   login,
   loginComplete,
+  loginServiceUnavailable,
   logout,
   prolongCBSession,
   setActiveTranslocoLanguage,
@@ -48,7 +49,7 @@ import {
   setSelectedLanguage,
   userForbidden
 } from "./auth.action";
-import {AuthService} from "../../shared/services";
+import {AuthService, LoginServiceProbeService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
 import {logError, showError} from "../app/app.action";
 import {loadMyLineageDocs} from "../lineage-docs/lineage-docs.action";
@@ -74,14 +75,29 @@ export class AuthEffects {
   private readonly _cloudbeaverService = inject(CloudbeaverService);
   private readonly _cloudbeaverSessionService = inject(CloudbeaverSessionService);
   private readonly _windowManagementService = inject(WindowManagementService);
+  private readonly _loginServiceProbe = inject(LoginServiceProbeService);
 
   login$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(login),
-      tap(() => this._authService.doLogin()),
-      catchError(e => scheduled([authError(e)], asyncScheduler))
+      exhaustMap(() => this._authService.doLogin().pipe(
+        ignoreElements(),
+        // the library wraps the HTTP error as Error("[object Object]"), so there is nothing useful to log from it
+        catchError(() => {
+          const loginServiceUrl = this._loginServiceProbe.wellKnownUrl;
+          console.error('[Auth] Could not load the login service configuration from', loginServiceUrl);
+          return from(this._loginServiceProbe.probe()).pipe(
+            map(reachability => {
+              console.warn(`[Auth] Login service probe result: ${reachability} (${loginServiceUrl})`);
+              return loginServiceUnavailable({
+                info: {reachability, loginServiceUrl, occurredAt: new Date().toISOString()}
+              });
+            })
+          );
+        })
+      ))
     )
-  }, {dispatch: false});
+  });
 
   logout$ = createEffect(() => {
     return this._actions$.pipe(

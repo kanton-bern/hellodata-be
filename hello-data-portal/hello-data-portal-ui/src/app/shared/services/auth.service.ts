@@ -27,6 +27,7 @@
 
 import { Injectable, inject } from '@angular/core';
 import {OidcSecurityService} from "angular-auth-oidc-client";
+import {map, Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -66,8 +67,13 @@ export class AuthService {
     return this.oidcSecurityService.forceRefreshSession();
   }
 
-  doLogin() {
-    this.oidcSecurityService.authorize();
+  // authorize() loads the OIDC discovery document itself but subscribes to it without an error
+  // handler, so a failure (e.g. Keycloak blocked by a firewall) ends up as an uncaught
+  // "Error: [object Object]". Load it first here so callers can catch and report the failure.
+  doLogin(): Observable<void> {
+    return this.oidcSecurityService.preloadAuthWellKnownDocument().pipe(
+      map(() => this.oidcSecurityService.authorize())
+    );
   }
 
   signOut() {

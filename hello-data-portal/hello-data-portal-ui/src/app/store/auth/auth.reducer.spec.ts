@@ -27,8 +27,8 @@
 
 import {describe, expect, it} from '@jest/globals';
 import {authReducer} from './auth.reducer';
-import {userForbidden} from './auth.action';
-import {CurrentUserAuthData, initialAuthState} from './auth.state';
+import {login, loginServiceUnavailable, userForbidden} from './auth.action';
+import {CurrentUserAuthData, initialAuthState, LoginUnavailableInfo} from './auth.state';
 
 describe('authReducer userForbidden', () => {
   const currentUserAuthData: CurrentUserAuthData = {
@@ -55,5 +55,25 @@ describe('authReducer userForbidden', () => {
     expect(state.isSuperuser).toBe(false);
     expect(state.provisioning).toBe(false);
     expect(state.businessDomain).toBe('Default Business Domain');
+  });
+});
+
+describe('authReducer login service unavailable', () => {
+  const info: LoginUnavailableInfo = {
+    reachability: 'refused',
+    loginServiceUrl: 'https://sso.example.com/realms/hd/.well-known/openid-configuration',
+    occurredAt: '2026-11-24T15:35:11.094Z'
+  };
+
+  it('stores the failure so the login unavailable notice is shown', () => {
+    const state = authReducer(initialAuthState, loginServiceUnavailable({info}));
+
+    expect(state.loginUnavailable).toEqual(info);
+  });
+
+  it('clears the failure when the login is retried', () => {
+    const state = authReducer({...initialAuthState, loginUnavailable: info}, login());
+
+    expect(state.loginUnavailable).toBeNull();
   });
 });
