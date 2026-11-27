@@ -162,10 +162,6 @@ export class UserAuditHistoryComponent implements OnInit {
     return entry.actorEmail ?? this.transloco.translate('@History source ' + entry.source);
   }
 
-  context(entry: UserAuditLog): string {
-    return entry.contextName ?? entry.contextKey ?? '';
-  }
-
   /** The change lines of an entry; a new user's initial values (e-mail, enabled, roles NONE ...) are obvious, so none. */
   visibleChanges(entry: UserAuditLog): UserAuditChange[] {
     return entry.action === 'USER_CREATED' ? [] : entry.changes;

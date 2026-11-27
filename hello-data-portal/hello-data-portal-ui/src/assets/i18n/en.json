@@ -554,7 +554,6 @@
   "@History who": "Who",
   "@History source": "Source",
   "@History action": "Action",
-  "@History context": "Context",
   "@History changes": "Changes",
   "@History empty": "No history entries",
   "@History source MANUAL": "Manual",

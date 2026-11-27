@@ -34,7 +34,6 @@
       <th scope="col">{{ '@History who' | transloco }}</th>
       <th scope="col">{{ '@History source' | transloco }}</th>
       <th scope="col">{{ '@History action' | transloco }}</th>
-      <th scope="col">{{ '@History context' | transloco }}</th>
       <th scope="col">{{ '@History changes' | transloco }}</th>
       <th scope="col" style="width: 3rem"></th>
     </tr>
@@ -45,7 +44,6 @@
       <td>{{ who(entry) }}</td>
       <td>{{ ('@History source ' + entry.source) | transloco }}</td>
       <td>{{ ('@History action ' + entry.action) | transloco }}</td>
-      <td>{{ context(entry) }}</td>
       <td>
         @for (change of plainChanges(entry); track $index) {
           <div class="change-line"><strong class="change-label">{{ fieldLabel(change) }}</strong>: {{ changeValues(change) }}</div>
@@ -66,7 +64,7 @@
   </ng-template>
   <ng-template let-entry pTemplate="expandedrow">
     <tr class="change-details-row">
-      <td colspan="7">
+      <td colspan="6">
         <div class="change-details-grid">
           @for (group of domainGroups(entry); track group.key) {
             <section class="change-group change-card" [class.business-domain-card]="group.businessDomain">
@@ -82,7 +80,7 @@
   </ng-template>
   <ng-template pTemplate="emptymessage">
     <tr>
-      <td colspan="7">{{ '@History empty' | transloco }}</td>
+      <td colspan="6">{{ '@History empty' | transloco }}</td>
     </tr>
   </ng-template>
 </p-table>

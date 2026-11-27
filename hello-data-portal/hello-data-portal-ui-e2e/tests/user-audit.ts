@@ -96,7 +96,7 @@ export function changeLabels(rowOrCard: Locator) {
 
 /** The changes without a domain (e-mail, enabled ...), shown in the row itself. */
 export function plainChangeLines(row: Locator) {
-  return row.getByRole('cell').nth(5).locator('.change-line');
+  return row.getByRole('cell').nth(4).locator('.change-line');
 }
 
 /** The expanded row under a History row, with one card per domain the entry changed. */
@@ -160,7 +160,6 @@ export type HistoryEntry = {
   who: string,
   source: string,
   action: string,
-  context?: string,
   changes?: HistoryChange[],
 };
 
@@ -172,16 +171,13 @@ function inDomain(change: HistoryChange): {domain?: string, line: string | RegEx
   return match ? {domain: match[2], line: `${match[1]}: ${match[3]}`} : {line: change};
 }
 
-/** The columns of a History row: when, who, source, action, context, changes. */
+/** The columns of a History row: when, who, source, action, changes. */
 export async function expectHistoryRow(row: Locator, entry: HistoryEntry) {
   const cells = row.getByRole('cell');
   await expect(cells.nth(0)).toHaveText(/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}$/);
   await expect(cells.nth(1)).toHaveText(entry.who);
   await expect(cells.nth(2)).toHaveText(entry.source);
   await expect(cells.nth(3)).toHaveText(entry.action);
-  if (entry.context !== undefined) {
-    await expect(cells.nth(4)).toHaveText(entry.context);
-  }
   for (const change of entry.changes ?? []) {
     const {domain, line} = inDomain(change);
     const lines = domain ? changeCard(await expandHistoryRow(row), domain).locator('.change-line') : plainChangeLines(row);

@@ -135,7 +135,7 @@ test.describe('User audit log', () => {
       action: ACTION.USER_CREATED,
     });
     // the initial values of a new user are obvious, the panel shows the entry without its changes (the log keeps them)
-    await expect(historyRow(page, ACTION.USER_CREATED, SOURCE.MANUAL).getByRole('cell').nth(5)).toHaveText('');
+    await expect(historyRow(page, ACTION.USER_CREATED, SOURCE.MANUAL).getByRole('cell').nth(4)).toHaveText('');
   });
 
   // the admin gives the user the viewer role and saves; the open History panel shows the new "Roles changed" entry on
@@ -229,11 +229,11 @@ test.describe('User audit log', () => {
     const membership = historyRows(page).filter({has: page.getByRole('cell', {name: ACTION.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, exact: true})});
     await expect(membership).toHaveCount(2);
     await expectHistoryRow(membership.nth(0), {
-      who: ADMIN.email, source: SOURCE.MANUAL, action: ACTION.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, context: DATA_DOMAIN,
+      who: ADMIN.email, source: SOURCE.MANUAL, action: ACTION.DASHBOARD_GROUP_MEMBERSHIP_CHANGED,
       changes: [`Dashboard groups [${DATA_DOMAIN}]: ${GROUP} -> -`],
     });
     await expectHistoryRow(membership.nth(1), {
-      who: ADMIN.email, source: SOURCE.MANUAL, action: ACTION.DASHBOARD_GROUP_MEMBERSHIP_CHANGED, context: DATA_DOMAIN,
+      who: ADMIN.email, source: SOURCE.MANUAL, action: ACTION.DASHBOARD_GROUP_MEMBERSHIP_CHANGED,
       changes: [`Dashboard groups [${DATA_DOMAIN}]: - -> ${GROUP}`],
     });
   });
