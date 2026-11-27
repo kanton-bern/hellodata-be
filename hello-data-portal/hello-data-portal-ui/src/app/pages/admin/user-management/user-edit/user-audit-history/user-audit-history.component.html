@@ -12,11 +12,20 @@
   dataKey="id"
   id="userAuditTable">
   <ng-template pTemplate="caption">
-    <div class="flex justify-end">
+    <div class="flex flex-wrap items-center gap-2">
       <p-button (onClick)="toggleExpandAll()" id="userAuditExpandAll"
                 [icon]="allExpanded ? icons.NAV_COLLAPSE.class : icons.NAV_EXPAND.class" pRipple
                 [label]="(allExpanded ? '@Collapse all' : '@Expand all') | transloco"
                 severity="secondary" [outlined]="true"/>
+      <div class="ml-auto flex items-center gap-2">
+        <p-button (onClick)="clearSearch()" [icon]="icons.ACTION_FILTER_CLEAR.class" id="userAuditSearchClear"
+                  [label]="'@Clear' | transloco" severity="secondary"/>
+        <p-iconfield>
+          <p-inputicon [class]="icons.ACTION_SEARCH.class"/>
+          <input [(ngModel)]="search" (input)="onSearchInput(search)" id="userAuditSearch" name="userAuditSearch"
+                 pInputText [placeholder]="'@Search' | transloco" [attr.aria-label]="'@Search' | transloco" type="text"/>
+        </p-iconfield>
+      </div>
     </div>
   </ng-template>
   <ng-template pTemplate="header">

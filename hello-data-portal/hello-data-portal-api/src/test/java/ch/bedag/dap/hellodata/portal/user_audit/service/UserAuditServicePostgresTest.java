@@ -32,7 +32,9 @@ import ch.bedag.dap.hellodata.portal.base.config.PersistenceConfig;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupUserEntry;
 import ch.bedag.dap.hellodata.portal.rls_role.entity.UserRlsRoleEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditAction;
+import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditChange;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditChangeDto;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditLogDto;
 import ch.bedag.dap.hellodata.portal.user_audit.data.UserAuditSource;
@@ -160,6 +162,41 @@ class UserAuditServicePostgresTest {
         UserAuditLogDto deleted = entries.stream().filter(e -> e.action() == UserAuditAction.USER_DELETED).findFirst().orElseThrow();
         assertThat(deleted.targetEmail()).isEqualTo("created@example.com");
         assertThat(deleted.changes()).allSatisfy(change -> assertThat(change.after()).isNull());
+    }
+
+    @Test
+    void should_search_the_actor_values_domain_names_and_translated_codes() {
+        HdContextEntity context = new HdContextEntity();
+        context.setContextKey(DATA_DOMAIN);
+        context.setName("Finance Domain");
+        context.setType(HdContextType.DATA_DOMAIN);
+        entityManager.persist(context);
+        UserEntity user = persistUser("search@example.com");
+        UUID userId = user.getId();
+        userAuditService.recordChanges(userId, user.getEmail(), UserAuditAction.ROLES_CHANGED, UserAuditSource.BULK_ASSIGNMENT,
+                List.of(new UserAuditChange("role", DATA_DOMAIN, "NONE", "DATA_DOMAIN_VIEWER")));
+        userAuditService.recordChanges(userId, user.getEmail(), UserAuditAction.USER_DISABLED, UserAuditSource.MANUAL,
+                List.of(new UserAuditChange("enabled", null, true, false)));
+        PageRequest page = PageRequest.of(0, 10);
+
+        assertThat(userAuditService.getAuditLog(userId, "  ", List.of(), page).getTotalElements()).isEqualTo(2);
+        // a value in the changes, the name of the data domain, the source and the action, case insensitive
+        assertThat(userAuditService.getAuditLog(userId, "domain_viewer", List.of(), page).getContent())
+                .extracting(UserAuditLogDto::action).containsExactly(UserAuditAction.ROLES_CHANGED);
+        assertThat(userAuditService.getAuditLog(userId, "finance", List.of(), page).getContent())
+                .extracting(UserAuditLogDto::action).containsExactly(UserAuditAction.ROLES_CHANGED);
+        assertThat(userAuditService.getAuditLog(userId, "Bulk", List.of(), page).getContent())
+                .extracting(UserAuditLogDto::action).containsExactly(UserAuditAction.ROLES_CHANGED);
+        assertThat(userAuditService.getAuditLog(userId, "user_disabled", List.of(), page).getContent())
+                .extracting(UserAuditLogDto::action).containsExactly(UserAuditAction.USER_DISABLED);
+        // the codes whose translated label matched ("Aktiviert" -> the field enabled, "Massen" -> the source)
+        assertThat(userAuditService.getAuditLog(userId, "Aktiviert", List.of("enabled"), page).getContent())
+                .extracting(UserAuditLogDto::action).containsExactly(UserAuditAction.USER_DISABLED);
+        assertThat(userAuditService.getAuditLog(userId, "Massen", List.of("BULK_ASSIGNMENT"), page).getContent())
+                .extracting(UserAuditLogDto::action).containsExactly(UserAuditAction.ROLES_CHANGED);
+        // % and _ are taken literally
+        assertThat(userAuditService.getAuditLog(userId, "%", List.of(), page).getTotalElements()).isZero();
+        assertThat(userAuditService.getAuditLog(userId, "nothing like this", List.of(), page).getTotalElements()).isZero();
     }
 
     private UserEntity persistUser(String email) {

@@ -60,10 +60,18 @@ export class UsersManagementService {
   baseUsersSyncUrl = `${environment.portalApi}/user-sync`;
   baseMetainfoUrl = `${environment.portalApi}/metainfo`;
 
-  getUserAuditLog(userId: string, page: number, size: number): Observable<PaginatedResponse<UserAuditLog>> {
-    const params = new HttpParams()
+  /**
+   * The audit log of a user; with a search only the entries that contain it, or that have one of the codes (the actions,
+   * sources and fields whose translated label contains the search) as action, source or changed field.
+   */
+  getUserAuditLog(userId: string, page: number, size: number, search = '', codes: string[] = []): Observable<PaginatedResponse<UserAuditLog>> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+    if (search) {
+      params = params.set('search', search);
+      codes.forEach(code => params = params.append('codes', code));
+    }
     return this.httpClient.get<PaginatedResponse<UserAuditLog>>(`${this.baseUsersUrl}/${userId}/audit`, {params});
   }
 

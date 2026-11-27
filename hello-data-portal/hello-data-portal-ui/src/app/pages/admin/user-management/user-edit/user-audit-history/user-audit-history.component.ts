@@ -35,6 +35,11 @@ import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
 import {Ripple} from 'primeng/ripple';
 import {ICON_REGISTRY} from '../../../../../shared/icons';
+import {FormsModule} from '@angular/forms';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {InputText} from 'primeng/inputtext';
+import {debounceTime, distinctUntilChanged, Subject} from 'rxjs';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {UsersManagementService} from '../../../../../store/users-management/users-management.service';
 import {UserAuditChange, UserAuditLog} from '../../../../../store/users-management/users-management.model';
@@ -44,6 +49,8 @@ import {updateUserRolesSuccess, userPopupActionSuccess} from '../../../../../sto
 const BUSINESS_DOMAIN_ROLES = new Set(['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']);
 /** Remembers in this browser whether the History shows the domain changes of all entries. */
 const EXPANDED_STORAGE_KEY = 'user-audit-history-all-expanded';
+/** The translation keys of the codes the search also matches by their translated label. */
+const CODE_PREFIXES = ['@History action ', '@History source ', '@History field '];
 
 /** The changes of an entry in one domain (domain null: the changes without a domain). */
 export interface ChangeGroup {
@@ -57,7 +64,7 @@ export interface ChangeGroup {
   selector: 'app-user-audit-history',
   templateUrl: './user-audit-history.component.html',
   styleUrl: './user-audit-history.component.scss',
-  imports: [TableModule, PrimeTemplate, DatePipe, TranslocoPipe, Button, Tooltip, Ripple]
+  imports: [TableModule, PrimeTemplate, DatePipe, TranslocoPipe, Button, Tooltip, Ripple, FormsModule, IconField, InputIcon, InputText]
 })
 export class UserAuditHistoryComponent implements OnInit {
   @Input({required: true}) userId!: string;
@@ -68,6 +75,9 @@ export class UserAuditHistoryComponent implements OnInit {
   expandedRows: Record<string, boolean> = {};
   allExpanded = this.loadAllExpanded();
   protected readonly icons = ICON_REGISTRY;
+  /** The text the History is searched for (in the actor, action, source, changes and domain names). */
+  search = '';
+  private readonly search$ = new Subject<string>();
   /** The groups of each loaded entry, computed once (the template asks for them on every check). */
   private readonly groups = new WeakMap<UserAuditLog, ChangeGroup[]>();
   loading = false;
@@ -86,6 +96,32 @@ export class UserAuditHistoryComponent implements OnInit {
       ofType(updateUserRolesSuccess, userPopupActionSuccess),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => this.refresh());
+    this.search$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.refresh());
+  }
+
+  onSearchInput(value: string) {
+    this.search$.next(value.trim());
+  }
+
+  clearSearch() {
+    this.search = '';
+    this.search$.next('');
+  }
+
+  /** The actions, sources and fields whose label in the current language contains the search, e.g. "Rolle" -> role. */
+  matchingCodes(search: string): string[] {
+    const term = search.trim().toLowerCase();
+    if (!term) {
+      return [];
+    }
+    const translation = this.transloco.getTranslation(this.transloco.getActiveLang()) ?? {};
+    return Object.entries(translation)
+      .filter(([, label]) => typeof label === 'string' && label.toLowerCase().includes(term))
+      .flatMap(([key]) => CODE_PREFIXES.filter(prefix => key.startsWith(prefix)).map(prefix => key.slice(prefix.length)));
   }
 
   refresh() {
@@ -104,7 +140,8 @@ export class UserAuditHistoryComponent implements OnInit {
   private fetch(page: number, rows: number) {
     this.loading = true;
     this.cdr.markForCheck();
-    this.service.getUserAuditLog(this.userId, page, rows).subscribe({
+    const search = this.search.trim();
+    this.service.getUserAuditLog(this.userId, page, rows, search, this.matchingCodes(search)).subscribe({
       next: result => {
         this.entries = result.content;
         this.totalRecords = result.totalElements;

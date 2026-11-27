@@ -36,6 +36,7 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -99,10 +100,22 @@ public class UserAuditService {
 
     @Transactional(readOnly = true)
     public Page<UserAuditLogDto> getAuditLog(UUID userId, Pageable pageable) {
+        return getAuditLog(userId, null, List.of(), pageable);
+    }
+
+    /**
+     * The audit log of a user, newest first; with a search text only the entries that contain it (in the actor, action,
+     * source, changes or the names of the domains they touch) or that have one of the codes as action, source or field.
+     */
+    @Transactional(readOnly = true)
+    public Page<UserAuditLogDto> getAuditLog(UUID userId, String search, Collection<String> codes, Pageable pageable) {
         Map<String, String> contextNames = contextRepository.findAllByTypeIn(List.of(HdContextType.BUSINESS_DOMAIN, HdContextType.DATA_DOMAIN)).stream()
                 .collect(Collectors.toMap(HdContextEntity::getContextKey, HdContextEntity::getName, (a, b) -> a));
-        return userAuditLogRepository.findAllByTargetUserIdOrderByOccurredAtDesc(userId, pageable)
-                .map(entity -> toDto(entity, contextNames));
+        Page<UserAuditLogEntity> entries = StringUtils.isBlank(search)
+                ? userAuditLogRepository.findAllByTargetUserIdOrderByOccurredAtDesc(userId, pageable)
+                // an empty IN () is not valid sql, a code no entry has keeps the query valid
+                : userAuditLogRepository.search(userId, likePattern(search), codes == null || codes.isEmpty() ? List.of("") : codes, pageable);
+        return entries.map(entity -> toDto(entity, contextNames));
     }
 
     // private helpers below run in the transaction of the public method that called them
@@ -157,6 +170,12 @@ public class UserAuditService {
     private static String commonContextKey(List<UserAuditChange> changes) {
         Set<String> contextKeys = changes.stream().map(UserAuditChange::contextKey).collect(Collectors.toSet());
         return contextKeys.size() == 1 ? contextKeys.iterator().next() : null;
+    }
+
+    /** A lower case LIKE pattern that matches the text anywhere, with % _ and \\ in it taken literally. */
+    static String likePattern(String search) {
+        String escaped = search.trim().toLowerCase(Locale.ROOT).replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+        return "%" + escaped + "%";
     }
 
     private static UserAuditLogDto toDto(UserAuditLogEntity entity, Map<String, String> contextNames) {

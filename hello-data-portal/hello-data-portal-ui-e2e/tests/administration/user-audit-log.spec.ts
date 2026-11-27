@@ -358,6 +358,33 @@ test.describe('User audit log', () => {
     await page.unrouteAll();
   });
 
+  // the search above the History table asks the api for the matching entries of all pages: here by the translated label
+  // of a source (the database holds BULK_ASSIGNMENT), a text no entry has shows the empty message, Clear shows all again
+  test('the History can be searched', async ({adminPage: page}) => {
+    const rows = auditRows(userId);
+    const bulk = rows.filter(row => row.source === 'BULK_ASSIGNMENT');
+    expect(bulk.length, 'the bulk assignment test wrote an entry').toBeGreaterThan(0);
+    await openUserEdit(page, TARGET);
+    await openHistory(page);
+    await expect(historyRows(page)).toHaveCount(Math.min(rows.length, HISTORY_PAGE_SIZE));
+
+    const searched = page.waitForResponse(r => r.url().includes(`/users/${userId}/audit`) && r.url().includes('search=') && r.url().includes('codes=BULK_ASSIGNMENT'));
+    await page.locator('#userAuditSearch').fill(SOURCE.BULK_ASSIGNMENT);
+    expect((await searched).ok()).toBe(true);
+    await expect(historyRows(page)).toHaveCount(bulk.length);
+    for (const row of await historyRows(page).all()) {
+      await expect(row.getByRole('cell').nth(2)).toHaveText(SOURCE.BULK_ASSIGNMENT);
+    }
+
+    await page.locator('#userAuditSearch').fill('no entry contains this');
+    await expect(historyRows(page)).toHaveText(['No history entries']);
+    await expect(historyPaginator(page)).toHaveCount(0);
+
+    await page.locator('#userAuditSearchClear').click();
+    await expect(page.locator('#userAuditSearch')).toHaveValue('');
+    await expect(historyRows(page)).toHaveCount(Math.min(rows.length, HISTORY_PAGE_SIZE));
+  });
+
   // a business domain admin has the USER_MANAGEMENT permission too: it sees the same History panel and may read the
   // audit log through the api
   test('a business domain admin sees the History panel and may read the log through the api', async ({browser}) => {

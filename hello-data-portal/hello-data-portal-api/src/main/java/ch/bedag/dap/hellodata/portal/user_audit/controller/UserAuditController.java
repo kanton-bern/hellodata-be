@@ -35,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -43,6 +44,7 @@ import java.util.UUID;
 public class UserAuditController {
 
     private static final int MAX_PAGE_SIZE = 100;
+    private static final int MAX_CODES = 50;
 
     private final UserAuditService userAuditService;
 
@@ -50,8 +52,12 @@ public class UserAuditController {
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public ResponseEntity<Page<UserAuditLogDto>> getAuditLog(@PathVariable UUID userId,
                                                              @RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(defaultValue = "20") int size) {
+                                                             @RequestParam(defaultValue = "20") int size,
+                                                             @RequestParam(required = false) String search,
+                                                             @RequestParam(required = false) List<String> codes) {
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE));
-        return ResponseEntity.ok(userAuditService.getAuditLog(userId, pageRequest));
+        // codes: the actions, sources and fields whose translated label (in the user's language) contains the search
+        List<String> searchCodes = codes == null ? List.of() : codes.stream().limit(MAX_CODES).toList();
+        return ResponseEntity.ok(userAuditService.getAuditLog(userId, search, searchCodes, pageRequest));
     }
 }

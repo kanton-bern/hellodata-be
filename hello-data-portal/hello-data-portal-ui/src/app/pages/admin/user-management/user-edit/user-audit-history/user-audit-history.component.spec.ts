@@ -60,7 +60,7 @@ describe('UserAuditHistoryComponent', () => {
   };
 
   const mockService = {
-    getUserAuditLog: jest.fn((_userId: string, _page: number, _size: number) => of({content: [entry], totalElements: 1, totalPages: 1, number: 0, size: 20}))
+    getUserAuditLog: jest.fn((_userId: string, _page: number, _size: number, _search?: string, _codes?: string[]) => of({content: [entry], totalElements: 1, totalPages: 1, number: 0, size: 20}))
   };
 
   beforeEach(() => {
@@ -74,7 +74,10 @@ describe('UserAuditHistoryComponent', () => {
             en: {
               '@History source BATCH': 'Batch',
               '@History field role': 'Role',
-              '@History field dashboards': 'Dashboards'
+              '@History field dashboards': 'Dashboards',
+              '@History field enabled': 'Aktiviert',
+              '@History action USER_ENABLED': 'Benutzer aktiviert',
+              '@Search': 'Search'
             }
           },
           translocoConfig: {availableLangs: ['en'], defaultLang: 'en'},
@@ -91,7 +94,7 @@ describe('UserAuditHistoryComponent', () => {
   it('should load the first page of the audit log', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20);
+    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20, '', []);
     expect(component.entries).toEqual([entry]);
     expect(component.totalRecords).toBe(1);
   });
@@ -99,7 +102,7 @@ describe('UserAuditHistoryComponent', () => {
   it('should request the right page on lazy load', async () => {
     component.load({first: 40, rows: 20});
     await Promise.resolve();
-    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 2, 20);
+    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 2, 20, '', []);
   });
 
   it('should reload the first page after the user was saved', () => {
@@ -110,7 +113,7 @@ describe('UserAuditHistoryComponent', () => {
     actions$.next(updateUserRolesSuccess());
 
     expect(component.first).toBe(0);
-    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20);
+    expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20, '', []);
   });
 
   it('should hide the paginator when there are no entries', async () => {
@@ -192,6 +195,34 @@ describe('UserAuditHistoryComponent', () => {
       c('role', 'dd1', 'Demo', 'NONE', 'DATA_DOMAIN_VIEWER'),
       c('enabled', null, null, 'false', 'true'),
     ]})).toBe('Demo, Showcase');
+  });
+
+  it('should send the codes whose translated label contains the search', () => {
+    expect(component.matchingCodes('aktiv').sort()).toEqual(['USER_ENABLED', 'enabled']);
+    expect(component.matchingCodes('BATCH')).toEqual(['BATCH']);
+    expect(component.matchingCodes('  ')).toEqual([]);
+  });
+
+  it('should search the first page after typing stops and again without the search when it is cleared', async () => {
+    jest.useFakeTimers();
+    try {
+      component.ngOnInit();
+      component.first = 40;
+      component.search = ' Rol ';
+      component.onSearchInput(component.search);
+      jest.advanceTimersByTime(299);
+      expect(mockService.getUserAuditLog).not.toHaveBeenCalled();
+      jest.advanceTimersByTime(1);
+      expect(component.first).toBe(0);
+      expect(mockService.getUserAuditLog).toHaveBeenCalledWith('u1', 0, 20, 'Rol', ['role']);
+
+      component.clearSearch();
+      jest.advanceTimersByTime(300);
+      expect(component.search).toBe('');
+      expect(mockService.getUserAuditLog).toHaveBeenLastCalledWith('u1', 0, 20, '', []);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('should show no change lines for a created user', () => {
