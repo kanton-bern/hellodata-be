@@ -174,6 +174,15 @@ describe('UserAuditHistoryComponent', () => {
     ]);
   });
 
+  it('should order the changes of a card: role, dashboard groups, dashboards, RLS roles, comment permissions', () => {
+    // the backend stores them sorted by the technical field name
+    const groups = component.groupedChanges({
+      ...entry, changes: ['commentPermissions', 'dashboardGroups', 'dashboards', 'rlsRoles', 'role']
+        .map(field => c(field, 'dd1', 'Demo', null, 'x'))
+    });
+    expect(groups[0].changes.map(ch => ch.field)).toEqual(['role', 'dashboardGroups', 'dashboards', 'rlsRoles', 'commentPermissions']);
+  });
+
   it('should leave out the business domain group when its role did not change', () => {
     const groups = component.groupedChanges({...entry, changes: [c('role', 'dd1', 'Demo', 'NONE', 'DATA_DOMAIN_VIEWER')]});
     expect(groups.map(g => [g.domain, g.businessDomain])).toEqual([['Demo', false]]);

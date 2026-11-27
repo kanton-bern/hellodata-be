@@ -48,6 +48,8 @@ import {updateUserRolesSuccess, userPopupActionSuccess} from '../../../../../sto
 
 /** The roles of a business domain; a role change from or to one of them is a change in the business domain. */
 const BUSINESS_DOMAIN_ROLES = new Set(['HELLODATA_ADMIN', 'BUSINESS_DOMAIN_ADMIN']);
+/** The order of the changes in a domain card: the role first, then what the user sees, the comment permissions last. */
+const FIELD_ORDER = ['role', 'dashboardGroups', 'dashboards', 'rlsRoles', 'commentPermissions'];
 /** Remembers in this browser whether the History shows the domain changes of all entries. */
 const EXPANDED_STORAGE_KEY = 'user-audit-history-all-expanded';
 /** The translation keys of the codes the search also matches by their translated label. */
@@ -57,6 +59,12 @@ const CODE_PREFIXES = ['@History action ', '@History source ', '@History field '
 export interface ChangeTag {
   value: string;
   severity: 'danger' | 'success' | 'secondary';
+}
+
+/** The position of a change in its domain card, a field not in FIELD_ORDER comes last. */
+function fieldRank(change: UserAuditChange): number {
+  const rank = FIELD_ORDER.indexOf(change.field);
+  return rank < 0 ? FIELD_ORDER.length : rank;
 }
 
 /** The changes of an entry in one domain (domain null: the changes without a domain). */
@@ -202,7 +210,7 @@ export class UserAuditHistoryComponent implements OnInit {
     }
     const domains = [...byDomain.values()];
     domains.forEach(group => group.businessDomain = businessDomains.has(group.key));
-    domains.forEach(group => group.changes.sort((a, b) => Number(b.field === 'role') - Number(a.field === 'role')));
+    domains.forEach(group => group.changes.sort((a, b) => fieldRank(a) - fieldRank(b)));
     const dataDomains = domains.filter(group => !businessDomains.has(group.key))
       .sort((a, b) => (a.domain ?? '').localeCompare(b.domain ?? ''));
     return [
