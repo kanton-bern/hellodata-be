@@ -89,6 +89,11 @@ export function historyPaginator(page: Page) {
   return page.locator('#userAuditTable .p-paginator');
 }
 
+/** The values of a change line before (left stack) and after it (right stack), as tags. */
+export function changeTags(line: Locator, side: 'before' | 'after') {
+  return line.locator(`.change-${side} .p-tag`);
+}
+
 /** The bold part of the change lines of a History row or domain card: what changed, e.g. "Role". */
 export function changeLabels(rowOrCard: Locator) {
   return rowOrCard.locator('.change-line > strong.change-label');
@@ -181,7 +186,8 @@ export async function expectHistoryRow(row: Locator, entry: HistoryEntry) {
   for (const change of entry.changes ?? []) {
     const {domain, line} = inDomain(change);
     const lines = domain ? changeCard(await expandHistoryRow(row), domain).locator('.change-line') : plainChangeLines(row);
-    await expect(lines.filter({hasText: line})).toHaveCount(1);
+    // the values are tags, the line names the whole change as "Field: before -> after" in its aria-label
+    await expect(lines.and(row.page().getByRole('group', {name: line}))).toHaveCount(1);
   }
 }
 

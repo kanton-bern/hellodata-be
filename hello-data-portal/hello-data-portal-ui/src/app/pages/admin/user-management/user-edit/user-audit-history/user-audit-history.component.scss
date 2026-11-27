@@ -1,7 +1,7 @@
 // the domain changes of an entry as cards, like the role details of the user overview (subsystem-users)
 .change-details-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 0.75rem;
   padding: 0.5rem 0.75rem;
 }
@@ -29,4 +29,43 @@
 
 .change-domains {
   color: var(--p-text-muted-color, #6b7280);
+}
+
+// a change: the label above, the values before and after it as two stacks of tags with an arrow between them
+.change-line + .change-line {
+  margin-top: 0.75rem;
+}
+
+.change-values {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.change-before,
+.change-after {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.change-arrow {
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.change-empty {
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+// long dashboard names wrap inside the tag instead of stretching the card
+:host ::ng-deep .change-tag .p-tag {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+  font-weight: 500;
 }

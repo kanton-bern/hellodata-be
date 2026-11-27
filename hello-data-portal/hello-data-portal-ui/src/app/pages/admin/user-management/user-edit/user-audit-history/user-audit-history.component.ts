@@ -28,7 +28,8 @@
 import {ChangeDetectorRef, Component, DestroyRef, inject, Input, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Actions, ofType} from '@ngrx/effects';
-import {DatePipe} from '@angular/common';
+import {DatePipe, NgTemplateOutlet} from '@angular/common';
+import {Tag} from 'primeng/tag';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
 import {Button} from 'primeng/button';
@@ -52,6 +53,12 @@ const EXPANDED_STORAGE_KEY = 'user-audit-history-all-expanded';
 /** The translation keys of the codes the search also matches by their translated label. */
 const CODE_PREFIXES = ['@History action ', '@History source ', '@History field '];
 
+/** A value of a change shown as a tag: removed values are red, added ones green, kept ones grey. */
+export interface ChangeTag {
+  value: string;
+  severity: 'danger' | 'success' | 'secondary';
+}
+
 /** The changes of an entry in one domain (domain null: the changes without a domain). */
 export interface ChangeGroup {
   key: string;
@@ -64,7 +71,7 @@ export interface ChangeGroup {
   selector: 'app-user-audit-history',
   templateUrl: './user-audit-history.component.html',
   styleUrl: './user-audit-history.component.scss',
-  imports: [TableModule, PrimeTemplate, DatePipe, TranslocoPipe, Button, Tooltip, Ripple, FormsModule, IconField, InputIcon, InputText]
+  imports: [TableModule, PrimeTemplate, DatePipe, TranslocoPipe, Button, Tooltip, Ripple, FormsModule, IconField, InputIcon, InputText, Tag, NgTemplateOutlet]
 })
 export class UserAuditHistoryComponent implements OnInit {
   @Input({required: true}) userId!: string;
@@ -274,13 +281,27 @@ export class UserAuditHistoryComponent implements OnInit {
     return `${this.formatValue(change.before)} -> ${this.formatValue(change.after)}`;
   }
 
-  private formatValue(value: string | boolean | string[] | null): string {
+  /** The values before the change, a value the change removed is red. */
+  beforeTags(change: UserAuditChange): ChangeTag[] {
+    const after = new Set(this.values(change.after));
+    return this.values(change.before).map(value => ({value, severity: after.has(value) ? 'secondary' : 'danger'}));
+  }
+
+  /** The values after the change, a value the change added is green. */
+  afterTags(change: UserAuditChange): ChangeTag[] {
+    const before = new Set(this.values(change.before));
+    return this.values(change.after).map(value => ({value, severity: before.has(value) ? 'secondary' : 'success'}));
+  }
+
+  private values(value: string | boolean | string[] | null): string[] {
     if (value == null) {
-      return '-';
+      return [];
     }
-    if (Array.isArray(value)) {
-      return value.length > 0 ? value.join(', ') : '-';
-    }
-    return String(value);
+    return Array.isArray(value) ? value : [String(value)];
+  }
+
+  private formatValue(value: string | boolean | string[] | null): string {
+    const values = this.values(value);
+    return values.length > 0 ? values.join(', ') : '-';
   }
 }

@@ -46,7 +46,7 @@
       <td>{{ ('@History action ' + entry.action) | transloco }}</td>
       <td>
         @for (change of plainChanges(entry); track $index) {
-          <div class="change-line"><strong class="change-label">{{ fieldLabel(change) }}</strong>: {{ changeValues(change) }}</div>
+          <ng-container *ngTemplateOutlet="changeLine; context: {$implicit: change}"/>
         }
         @if (domainGroups(entry).length > 0 && !expanded) {
           <div class="change-domains">{{ domainSummary(entry) }}</div>
@@ -70,7 +70,7 @@
             <section class="change-group change-card" [class.business-domain-card]="group.businessDomain">
               <div class="change-domain">{{ group.domain }}</div>
               @for (change of group.changes; track $index) {
-                <div class="change-line"><strong class="change-label">{{ fieldLabel(change) }}</strong>: {{ changeValues(change) }}</div>
+                <ng-container *ngTemplateOutlet="changeLine; context: {$implicit: change}"/>
               }
             </section>
           }
@@ -84,3 +84,27 @@
     </tr>
   </ng-template>
 </p-table>
+
+<!-- a change: what changed (bold) and its values before and after as two stacks of tags -->
+<ng-template #changeLine let-change>
+  <div class="change-line" role="group" [attr.aria-label]="fieldLabel(change) + ': ' + changeValues(change)">
+    <strong class="change-label">{{ fieldLabel(change) }}</strong>
+    <div class="change-values">
+      <div class="change-before">
+        @for (tag of beforeTags(change); track $index) {
+          <p-tag [value]="tag.value" [severity]="tag.severity" class="change-tag"/>
+        } @empty {
+          <span class="change-empty">-</span>
+        }
+      </div>
+      <i [class]="icons.ACTION_FORWARD.class + ' change-arrow'" aria-hidden="true"></i>
+      <div class="change-after">
+        @for (tag of afterTags(change); track $index) {
+          <p-tag [value]="tag.value" [severity]="tag.severity" class="change-tag"/>
+        } @empty {
+          <span class="change-empty">-</span>
+        }
+      </div>
+    </div>
+  </div>
+</ng-template>

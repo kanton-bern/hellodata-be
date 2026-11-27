@@ -146,7 +146,9 @@ describe('UserAuditHistoryComponent', () => {
     expect(card.querySelector('.change-domain')?.textContent?.trim()).toBe('Context');
     const line = card.querySelector('.change-line') as HTMLElement;
     expect(line.querySelector('strong')?.textContent).toBe('Role');
-    expect(line.textContent?.replace(/\s+/g, ' ').trim()).toBe('Role: - -> DATA_DOMAIN_VIEWER');
+    expect(line.getAttribute('aria-label')).toBe('Role: - -> DATA_DOMAIN_VIEWER');
+    expect(line.querySelector('.change-before')?.textContent?.trim()).toBe('-');
+    expect(Array.from(line.querySelectorAll('.change-after .p-tag'), t => t.textContent?.trim())).toEqual(['DATA_DOMAIN_VIEWER']);
     expect(fixture.nativeElement.querySelector('tbody .change-domains')).toBeNull();
   });
 
@@ -238,5 +240,13 @@ describe('UserAuditHistoryComponent', () => {
   it('should format changes', () => {
     expect(component.formatChange(entry.changes[0])).toBe('Role [Context]: - -> DATA_DOMAIN_VIEWER');
     expect(component.formatChange(entry.changes[1])).toBe('Dashboards: a, b -> -');
+  });
+
+  it('should show the values as tags, removed ones red, added ones green and kept ones grey', () => {
+    const change = {field: 'dashboards', contextKey: null, contextName: null, before: ['a', 'b'], after: ['b', 'c']};
+    expect(component.beforeTags(change)).toEqual([{value: 'a', severity: 'danger'}, {value: 'b', severity: 'secondary'}]);
+    expect(component.afterTags(change)).toEqual([{value: 'b', severity: 'secondary'}, {value: 'c', severity: 'success'}]);
+    expect(component.afterTags({...change, after: null})).toEqual([]);
+    expect(component.beforeTags({...change, before: true as any})).toEqual([{value: 'true', severity: 'danger'}]);
   });
 });

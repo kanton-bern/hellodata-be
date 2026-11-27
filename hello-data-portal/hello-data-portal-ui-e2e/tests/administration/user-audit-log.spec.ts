@@ -24,6 +24,7 @@ import {
   changeCard,
   changeCards,
   changeLabels,
+  changeTags,
   expandHistoryRow,
   historyDetails,
   deleteAuditRows,
@@ -308,7 +309,11 @@ test.describe('User audit log', () => {
     const role = changeLabels(changeCard(details, DATA_DOMAIN)).first();
     await expect(role).toHaveText('Role');
     expect(Number(await role.evaluate(e => getComputedStyle(e).fontWeight))).toBeGreaterThanOrEqual(600);
-    await expect(role.locator('xpath=..')).toHaveText('Role: DATA_DOMAIN_BUSINESS_SPECIALIST -> DATA_DOMAIN_EDITOR');
+    const roleLine = role.locator('xpath=..');
+    await expect(roleLine).toHaveAttribute('aria-label', 'Role: DATA_DOMAIN_BUSINESS_SPECIALIST -> DATA_DOMAIN_EDITOR');
+    // the values as stacks of tags: the removed role on the left, the added one on the right
+    await expect(changeTags(roleLine, 'before')).toHaveText(['DATA_DOMAIN_BUSINESS_SPECIALIST']);
+    await expect(changeTags(roleLine, 'after')).toHaveText(['DATA_DOMAIN_EDITOR']);
     // one card per domain, each with its role first
     const headings = await changeCards(details).locator('.change-domain').allTextContents();
     expect(new Set(headings).size, `each domain in one card: ${headings}`).toBe(headings.length);
