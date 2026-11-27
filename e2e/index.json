@@ -1,0 +1,3409 @@
+[
+  {
+    "version": "1.8.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "46013988690",
+    "runAttempt": "1",
+    "commit": "79e68f8373a9bb61d7ee066c27f22118abb9f15a",
+    "ref": "1.8.0-dev",
+    "startedAt": "2026-11-27T14:20:25.654Z",
+    "durationMs": 2099661,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:a2f0a47465bf9df79f5bfdca52ae913451da63fae1e03b0be976fca09bfbac19"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:805c275663679725d9dd35ee45c9eea36b3ae4fab95ab470dc0fe13b686fc3af"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:c6d1a812b6ced74d289fc3136c322763872c0a0903df09af4695ccf9f1634a1b"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:09286835c450b4951e5dd08835490f0aca446d8a2e89df2ad1af2ade104e0cc8"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:683cef4524f6dd51c9ba2c6fc05d159e0fdc15821040e81c66b6cc4951e64cb5"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:3b2e0a3befa74d7d592e4a02e05fe2f2e7bf03c8058abc5fb106eba3ea000fb4"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:47d569e960ab7ff6e362eaf95dba76e922907a94a8d3fdcd2594c84ac1861fee"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:8fb5470324f7c22643f2a117d9d10c7dce1468b6f27d8ae163c0bd5785a94e6c"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:992a9c32836b90b709ae594446ec9cf6669e0ff5825eb458008425bfa97b4fd8"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:4b3298f78568828a81937a6b2a04668553ba239bfd69edd5cbf13abd767c64e1"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:b473fa825b090f52207699413b96969d21d3878544690fce12d251319ad52e9b"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:8b1982b0b6ab3fc96ce2c34a79e37b8376037ab433201c624c3397388e7b9c50"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:4d4ef763d8c4d661f674a0872a76474de15121661b971ed83e00f7c0f1ebc3bb"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:1266f265f07e4ee71cc1817b04a0837b58792b70bfefd81501c3e00f27f945a9"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:3acaa5794ff60256532427c3997285309670d62159f4ef03be6a9fc94f2e917c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:c0e46acac7f376943623b52e41f63649e223bca0c1f4a1a5eece7226bfe24f64"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:2025.7.21",
+        "digest": "bitnamilegacy/minio-client@sha256:1a2f12802dc75668aded6de1b7b53d67518ac2a7df823760d9f935235fb3d948"
+      },
+      {
+        "image": "bitnamilegacy/minio:2025.7.23",
+        "digest": "bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7"
+      },
+      {
+        "image": "drakkan/sftpgo:v2.7.6",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:2.10.22-alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:8.12.0",
+        "digest": "redis@sha256:56a1737794e36c3ebe8a4544a8ab421af3ab1a6488fb2238aec228c404933fed"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3.16",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 339,
+      "passed": 339,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 203,
+        "passed": 203,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 37,
+        "passed": 37,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.8.0-dev-SNAPSHOT/msedge/46013988690-1",
+    "versionDir": "1.8.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "1.8.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "46003218024",
+    "runAttempt": "1",
+    "commit": "42bdb91699f332e18587a4f84b6aa5c290d06b85",
+    "ref": "1.8.0-dev",
+    "startedAt": "2026-11-27T13:06:24.707Z",
+    "durationMs": 2467905,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:00982227dc323e293e51058f3eb393c6852f9938b46052766ab8ab235879161b"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:b0da7fddbb9e460217c2dbe8287972d610ba74bc7f84fa5eb0a0ba2068d217ca"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:94dfb720085048fd929114140af130eaf7acbb814197f65f415f2bea9696f542"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:b2cb6ad0f785a488f39398c626111aefa870497dcbdfb38f409882129589bb76"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:e9f668690d60ffc86fc664e0625a1c76f0596d697b8aa5752a1513644f333f2c"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:546b5faf28aa7558012db5def638d62c55bfcf7a1014574e56f4131fbafa3ceb"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:1de2667cdad0c2a184cce399ec54256fe44727d174aa0a91670f56b052c88a09"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:508d037e3e7f93626e2a080dc6054c4c1407ef2313661b9fe3c5ea66e1ae3964"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:49b63b737a5e733cf0f6c119bce8f47653c52d202e785d6696a3697eb775356c"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:3710debefa79cfa9472679edf4676c6b910de0e0c702a4309051de07e300a905"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:82308545d5a908142efef645a9f5d1261ef7d328fdec0de38877c6caf019ecc4"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:d30489cb8b4fe0f61a1cd42789a176b3259c90f8725297f67af56d1ae7fb2f8f"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:65a6a60ed2f6b88991cf5a84cff52724895ff4dd1e71bf4c207297d14751cee0"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:fdf914dd77ed309d5f2a7f3c32b024edd19a514d4f33781681ea4237fe79edd8"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:8270b34ab7936419dff9f194a682c2fadbb4d7ff7bba76e0cdd52943225a163a"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:7b155539c821200f8f97d7e611c25374499dc5548ffdcb4e2dd82eb11b5624f2"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:2025.7.21",
+        "digest": "bitnamilegacy/minio-client@sha256:1a2f12802dc75668aded6de1b7b53d67518ac2a7df823760d9f935235fb3d948"
+      },
+      {
+        "image": "bitnamilegacy/minio:2025.7.23",
+        "digest": "bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7"
+      },
+      {
+        "image": "drakkan/sftpgo:v2.7.6",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:2.10.22-alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:8.12.0",
+        "digest": "redis@sha256:56a1737794e36c3ebe8a4544a8ab421af3ab1a6488fb2238aec228c404933fed"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3.16",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 339,
+      "passed": 339,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 203,
+        "passed": 203,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 37,
+        "passed": 37,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.8.0-dev-SNAPSHOT/msedge/46003218024-1",
+    "versionDir": "1.8.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "1.8.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "45986460537",
+    "runAttempt": "1",
+    "commit": "8a19f191408f3d92ef339a9103f5f8942ca4c9cc",
+    "ref": "1.8.0-dev",
+    "startedAt": "2026-11-27T11:03:54.720Z",
+    "durationMs": 1833326,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:e162b4f590f2e97d67c7ba62117d17f66f04cbe2af252ed31b2a55a4b8df06b0"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:a7c5f60b07ccdef756e7a7d34253eae9376dfb98279ca67b51585b46068e6c76"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:e19c67b8b29c39ea7a6f847e29e6bc49246718042716639ead2132249a29179d"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:033f23471bf4f8475ed8f763a4c441baec6fb82ede708d434336f0ac1bf943e1"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:a5b3266f9293109a1675c10af8c6cf83106618ed86349f7e2f66aabceef5e71b"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:a5d0e1eb3c8ff2d8321819b73f4660e0266d919569d1171a4dd2bff371efb842"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:d57b3b1c5f03ce3214e4114f25961c582c37909675fe5795bd39e8cdd98ca74a"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:80f84a99a733d23e7d668301a0cc5ad83028ade301b6156a8794abe397c42c89"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:8cf9de18e6e445f64d90c4c8d1d4424ad35f4358f2dd4ab34992e648b7feeb04"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:53e953e4293eef59acfc282e2e44ab98478aa579972b77a824427dfadd4aa52d"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:14106d4bc26b8e760b11429172e09a4e70069fb42e4c2a8ef32c008bcc9d6693"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:821dbea8bd43e858449de0a2d28053bbddc25b474ae5680e2a2dc34cfaab8be4"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:4adb4859eb76fe0e1162b86acdc121c60882bb671522ed64afedc46667c9f995"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:6327ed0f26d370ff24674f5f445c5f339648a92214fc7bc972d164e6777c1472"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:6a4834204089132937841042a4ca318cdfbc3e9a2df0f0a250a004097d08a229"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:33963423f9f2fdda8594b6fe234a8c7aadb143c0ec3ffd711c0378838e3b111c"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:2025.7.21",
+        "digest": "bitnamilegacy/minio-client@sha256:1a2f12802dc75668aded6de1b7b53d67518ac2a7df823760d9f935235fb3d948"
+      },
+      {
+        "image": "bitnamilegacy/minio:2025.7.23",
+        "digest": "bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7"
+      },
+      {
+        "image": "drakkan/sftpgo:v2.7.6",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:2.10.22-alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:8.12.0",
+        "digest": "redis@sha256:56a1737794e36c3ebe8a4544a8ab421af3ab1a6488fb2238aec228c404933fed"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3.16",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 339,
+      "passed": 339,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 203,
+        "passed": 203,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 37,
+        "passed": 37,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.8.0-dev-SNAPSHOT/msedge/45986460537-1",
+    "versionDir": "1.8.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "45982786887",
+    "runAttempt": "1",
+    "commit": "267f5d162d71382709b56c61daa707bb12dfe5ae",
+    "ref": "develop",
+    "startedAt": "2026-11-27T10:40:19.145Z",
+    "durationMs": 2667337,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-airflow@sha256:05461277d9ddf9352908ae1a5a329bf59dfbeda57dab6248a97601b609c300cb"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:4451999df1b36474826d6d714714a85004a87e3d157068b210984bb124d6f49e"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:6b076bb7f24dc37fe67008352b6ac923f6d3084de42109f281d156f1b952f442"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:f2c6f9c5d0842ed9a06f33b0f573bd62601c36715b1f1290012452d5bafca109"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:5c3c0969b9be65869c8e48a9f2ad2598b075403c2449bd17f9ba2e8fb034d131"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:e817cd6cdc8fe2cee09a6dec790fe06e77177df50d23fa9962c794f61a346061"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:330df5ef53aa01714c9b9e6d4203c2a4a55762583822504b1fc3a3cc233d89c8"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:83005e4a0e98efbfa0c5cfb02f73e78b7c39bc5c23ac0b46fc35971a278ce531"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:1b69743f956f36995184a37d2a18edb6aa974fc36bb5d4fa6e2c4b94868402a7"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:c6eb6734667eef1b9dba811749195d8291c04538128f9450389bc895c4d9ed87"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:e34624f63b90b5e3a5718e5288377fafd2bd8b05cc2b884c73ec842b42fb582c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:755a82f401f5f3786c5c4dd9d2a0b39f74672dc5049686815af101fb71c7eee5"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:d4bdd3f15cd2c2f1995e659002431cdfb9a1d81a9a8b186922893b8c518e5b18"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:5da156bec1c4379311553d7f7777a2200861430555ec08e2ad83d19fcd8fcd41"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:446c3cb861de013bff8b494c910e0dd4f81307eb1b98b3b7342e85cb6c5239d9"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:3029fa203a2370f6d0f2c99f5d8087a037c1b9d196beb4f59e9f93802c78eacf"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:e941899a1e584764db341b0fbbb1fa6cdd41f827105e68198c35e315aa916f9f"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:9b838cc284db99f2a898bd285be7b78b3b4c00bbd8ff3158a989ecf0ca294327"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:2025.7.21",
+        "digest": "bitnamilegacy/minio-client@sha256:1a2f12802dc75668aded6de1b7b53d67518ac2a7df823760d9f935235fb3d948"
+      },
+      {
+        "image": "bitnamilegacy/minio:2025.7.23",
+        "digest": "bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7"
+      },
+      {
+        "image": "drakkan/sftpgo:v2.7.6",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:2.10.22-alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:8.12.0",
+        "digest": "redis@sha256:56a1737794e36c3ebe8a4544a8ab421af3ab1a6488fb2238aec228c404933fed"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3.16",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 331,
+      "passed": 331,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 51,
+        "passed": 51,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "latest/msedge/45982786887-1",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "1.8.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "45976065634",
+    "runAttempt": "1",
+    "commit": "ea6dc2e0769195f12c0c08f47356a4ec141cd4a5",
+    "ref": "1.8.0-dev",
+    "startedAt": "2026-11-27T09:50:19.731Z",
+    "durationMs": 2390073,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:c037d305127c64a8debad57c621155b32ad80b7c4f71dcf04a31868dc345f562"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:cc9201a8a0aaa1b518353788014a45e9cfb13cdc3a07d282a7d6ca7b8f3ab3fd"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:c34a8a0e6d99cf2a4eb40172e143f98495a7485afc6ee91fb6ef368333c66db5"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:ad3956491390a6baf3244a8734568501e6560074207469217e97e03543ceffa5"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:f803d7aad8cc30940b5a8a91c7d1bdc97fa50b71d6cd25f5333de730c6034a6b"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:b6b451b904b4646c30635fe7eb36c1a65a372e653c101c7c5031c6289239d21b"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:9e1115af125542b8ee0e378e77389b2c0c6022621afec7de6a7881be387e4c6e"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:d018687cb4bd6a6e52983cef3746171a77d61bd71ec435f73f6cd689ff5ee878"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:6ba916a70d2b9298f7a69d73f36a1a9dc5d1880a43991950f81752ae0cb874db"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:2e12cace7095022902de113191c5b251dc3689e1bd596522f15efa1ec0350e94"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:1a90b834fba3b566039aec07b9d94ff070222a537bb86510ced09d384ab35d90"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:a51762f8b1156a58bd4298b83e5834e7f8628104f097736239c855fa523e0a52"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:e876b0eb8f2bb33d08ef657ee97ef7ebcbbb46ddf687d374b0feb322213f19f8"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:b0fb013eb358d45a24537a2e9db7e98da2a9bc52ab8e56567aa9c1d2e3e2cd41"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:4415d480428ecf479f10d35297dda9cdb025dee0ad4582907d3265e1b1928d86"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:0f0529c93125cc17524639be035e6f3788837a1e9a280acde11656fe2a784ba8"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:2025.7.21",
+        "digest": "bitnamilegacy/minio-client@sha256:1a2f12802dc75668aded6de1b7b53d67518ac2a7df823760d9f935235fb3d948"
+      },
+      {
+        "image": "bitnamilegacy/minio:2025.7.23",
+        "digest": "bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7"
+      },
+      {
+        "image": "drakkan/sftpgo:v2.7.6",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:2.10.22-alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:8.12.0",
+        "digest": "redis@sha256:56a1737794e36c3ebe8a4544a8ab421af3ab1a6488fb2238aec228c404933fed"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3.16",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 339,
+      "passed": 339,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 203,
+        "passed": 203,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 37,
+        "passed": 37,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.8.0-dev-SNAPSHOT/msedge/45976065634-1",
+    "versionDir": "1.8.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "1.8.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "45966804421",
+    "runAttempt": "1",
+    "commit": "0f8d1883abb026e1d5c8dcb3f1b88bc29937870d",
+    "ref": "1.8.0-dev",
+    "startedAt": "2026-11-27T08:42:10.379Z",
+    "durationMs": 2097806,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:7f9b21915f983016eba4eae371c58d9c7f3be7e0db1039b60ded50e1f8f066e1"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:c1ab8589dd176083de7462419928543f496763584094400049584ac3751f5fd6"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:e1dfc43938fade1a72eeae527f0b57e9e129e84ec357cf0b64cfeb53fdb9c308"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:90e68602e60e40de4df8d66a2c697d49bf772bc6754f48378d5add569d48f442"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:06ce09748054a82a351e942380af08a0340afeeaf34c19dc60773befa78d5158"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:d951a5263575c931db187c4d15d3aecf0bc41932a20aa9348e08dbd4ca7d2dbf"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:f37cc3639a09cd016afade33885671cfa1630daea132797bdc027a8b80626596"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:c0b58b10ae435b193ad71740a225cee07d450c6f6307cde4756fc9712fece131"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:b82200623e3620c87c75a83eb829bf58eaede63c3ff9afe757345003ef1eb2f6"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:be0df8722905f31c52e214253c0acb8ed0bb1a6465c1185f1ded0f70afb2746b"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:538b3b1f8269fc4820d90aa41d9ed4d4a5cc59be10e9da7f18318cfa68654a24"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:32a8e527a24c9c1fcdd1b707060902b4aa833e661fff6f58092710f8f77e64cd"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:9cff8c7875f51bb8dd70bfc20e901ae6bb2aaa0e0628df2deca53f017b70fa89"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:dece7dc9c61385eb3eb62cffe677269d6c7fb6e52a4015ceacab6115b8c045d9"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:9f5c87499029c2acbcb702c10c3bcbb9acd3a5a116a10f9df901ae175d6ce1c2"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.8.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:0ae546a1383c0871ca2f59ea2b126cc12b07f4229584c5a224307ab31d210a0c"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:2025.7.21",
+        "digest": "bitnamilegacy/minio-client@sha256:1a2f12802dc75668aded6de1b7b53d67518ac2a7df823760d9f935235fb3d948"
+      },
+      {
+        "image": "bitnamilegacy/minio:2025.7.23",
+        "digest": "bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7"
+      },
+      {
+        "image": "drakkan/sftpgo:v2.7.6",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:2.10.22-alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:8.12.0",
+        "digest": "redis@sha256:56a1737794e36c3ebe8a4544a8ab421af3ab1a6488fb2238aec228c404933fed"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3.16",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 338,
+      "passed": 338,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 202,
+        "passed": 202,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 37,
+        "passed": 37,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.8.0-dev-SNAPSHOT/msedge/45966804421-1",
+    "versionDir": "1.8.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "45801692045",
+    "runAttempt": "1",
+    "commit": "267f5d162d71382709b56c61daa707bb12dfe5ae",
+    "ref": "develop",
+    "startedAt": "2026-11-26T10:36:45.313Z",
+    "durationMs": 2588930,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-airflow@sha256:05461277d9ddf9352908ae1a5a329bf59dfbeda57dab6248a97601b609c300cb"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:4451999df1b36474826d6d714714a85004a87e3d157068b210984bb124d6f49e"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:6b076bb7f24dc37fe67008352b6ac923f6d3084de42109f281d156f1b952f442"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:f2c6f9c5d0842ed9a06f33b0f573bd62601c36715b1f1290012452d5bafca109"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:5c3c0969b9be65869c8e48a9f2ad2598b075403c2449bd17f9ba2e8fb034d131"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:e817cd6cdc8fe2cee09a6dec790fe06e77177df50d23fa9962c794f61a346061"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:330df5ef53aa01714c9b9e6d4203c2a4a55762583822504b1fc3a3cc233d89c8"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:83005e4a0e98efbfa0c5cfb02f73e78b7c39bc5c23ac0b46fc35971a278ce531"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:1b69743f956f36995184a37d2a18edb6aa974fc36bb5d4fa6e2c4b94868402a7"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:c6eb6734667eef1b9dba811749195d8291c04538128f9450389bc895c4d9ed87"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:e34624f63b90b5e3a5718e5288377fafd2bd8b05cc2b884c73ec842b42fb582c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:755a82f401f5f3786c5c4dd9d2a0b39f74672dc5049686815af101fb71c7eee5"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:d4bdd3f15cd2c2f1995e659002431cdfb9a1d81a9a8b186922893b8c518e5b18"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:5da156bec1c4379311553d7f7777a2200861430555ec08e2ad83d19fcd8fcd41"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:446c3cb861de013bff8b494c910e0dd4f81307eb1b98b3b7342e85cb6c5239d9"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:3029fa203a2370f6d0f2c99f5d8087a037c1b9d196beb4f59e9f93802c78eacf"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:e941899a1e584764db341b0fbbb1fa6cdd41f827105e68198c35e315aa916f9f"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:9b838cc284db99f2a898bd285be7b78b3b4c00bbd8ff3158a989ecf0ca294327"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:2025.7.21",
+        "digest": "bitnamilegacy/minio-client@sha256:1a2f12802dc75668aded6de1b7b53d67518ac2a7df823760d9f935235fb3d948"
+      },
+      {
+        "image": "bitnamilegacy/minio:2025.7.23",
+        "digest": "bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7"
+      },
+      {
+        "image": "drakkan/sftpgo:v2.7.6",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:2.10.22-alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:8.12.0",
+        "digest": "redis@sha256:3c4881844c6421f29fb9f9e8ca4f573d9fbdfb35967d65834504b6994cf6cd3b"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3.16",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 331,
+      "passed": 331,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 51,
+        "passed": 51,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "latest/msedge/45801692045-1",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "45599212658",
+    "runAttempt": "1",
+    "commit": "267f5d162d71382709b56c61daa707bb12dfe5ae",
+    "ref": "develop",
+    "startedAt": "2026-11-25T11:01:15.138Z",
+    "durationMs": 2637205,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-airflow@sha256:05461277d9ddf9352908ae1a5a329bf59dfbeda57dab6248a97601b609c300cb"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:4451999df1b36474826d6d714714a85004a87e3d157068b210984bb124d6f49e"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:6b076bb7f24dc37fe67008352b6ac923f6d3084de42109f281d156f1b952f442"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:f2c6f9c5d0842ed9a06f33b0f573bd62601c36715b1f1290012452d5bafca109"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:5c3c0969b9be65869c8e48a9f2ad2598b075403c2449bd17f9ba2e8fb034d131"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:e817cd6cdc8fe2cee09a6dec790fe06e77177df50d23fa9962c794f61a346061"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:330df5ef53aa01714c9b9e6d4203c2a4a55762583822504b1fc3a3cc233d89c8"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:83005e4a0e98efbfa0c5cfb02f73e78b7c39bc5c23ac0b46fc35971a278ce531"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:1b69743f956f36995184a37d2a18edb6aa974fc36bb5d4fa6e2c4b94868402a7"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:c6eb6734667eef1b9dba811749195d8291c04538128f9450389bc895c4d9ed87"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:e34624f63b90b5e3a5718e5288377fafd2bd8b05cc2b884c73ec842b42fb582c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:755a82f401f5f3786c5c4dd9d2a0b39f74672dc5049686815af101fb71c7eee5"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:d4bdd3f15cd2c2f1995e659002431cdfb9a1d81a9a8b186922893b8c518e5b18"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:5da156bec1c4379311553d7f7777a2200861430555ec08e2ad83d19fcd8fcd41"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:446c3cb861de013bff8b494c910e0dd4f81307eb1b98b3b7342e85cb6c5239d9"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:3029fa203a2370f6d0f2c99f5d8087a037c1b9d196beb4f59e9f93802c78eacf"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:e941899a1e584764db341b0fbbb1fa6cdd41f827105e68198c35e315aa916f9f"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:9b838cc284db99f2a898bd285be7b78b3b4c00bbd8ff3158a989ecf0ca294327"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:2025.7.21",
+        "digest": "bitnamilegacy/minio-client@sha256:1a2f12802dc75668aded6de1b7b53d67518ac2a7df823760d9f935235fb3d948"
+      },
+      {
+        "image": "bitnamilegacy/minio:2025.7.23",
+        "digest": "bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7"
+      },
+      {
+        "image": "drakkan/sftpgo:v2.7.6",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:2.10.22-alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:8.12.0",
+        "digest": "redis@sha256:3c4881844c6421f29fb9f9e8ca4f573d9fbdfb35967d65834504b6994cf6cd3b"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3.16",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 331,
+      "passed": 331,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 51,
+        "passed": 51,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "latest/msedge/45599212658-1",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "45389310364",
+    "runAttempt": "2",
+    "commit": "267f5d162d71382709b56c61daa707bb12dfe5ae",
+    "ref": "develop",
+    "startedAt": "2026-11-24T12:42:49.519Z",
+    "durationMs": 2098754,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-airflow@sha256:05461277d9ddf9352908ae1a5a329bf59dfbeda57dab6248a97601b609c300cb"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:4451999df1b36474826d6d714714a85004a87e3d157068b210984bb124d6f49e"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:6b076bb7f24dc37fe67008352b6ac923f6d3084de42109f281d156f1b952f442"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:f2c6f9c5d0842ed9a06f33b0f573bd62601c36715b1f1290012452d5bafca109"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:5c3c0969b9be65869c8e48a9f2ad2598b075403c2449bd17f9ba2e8fb034d131"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:e817cd6cdc8fe2cee09a6dec790fe06e77177df50d23fa9962c794f61a346061"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:330df5ef53aa01714c9b9e6d4203c2a4a55762583822504b1fc3a3cc233d89c8"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:83005e4a0e98efbfa0c5cfb02f73e78b7c39bc5c23ac0b46fc35971a278ce531"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:1b69743f956f36995184a37d2a18edb6aa974fc36bb5d4fa6e2c4b94868402a7"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:c6eb6734667eef1b9dba811749195d8291c04538128f9450389bc895c4d9ed87"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:e34624f63b90b5e3a5718e5288377fafd2bd8b05cc2b884c73ec842b42fb582c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:755a82f401f5f3786c5c4dd9d2a0b39f74672dc5049686815af101fb71c7eee5"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:d4bdd3f15cd2c2f1995e659002431cdfb9a1d81a9a8b186922893b8c518e5b18"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:5da156bec1c4379311553d7f7777a2200861430555ec08e2ad83d19fcd8fcd41"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:446c3cb861de013bff8b494c910e0dd4f81307eb1b98b3b7342e85cb6c5239d9"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:3029fa203a2370f6d0f2c99f5d8087a037c1b9d196beb4f59e9f93802c78eacf"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:e941899a1e584764db341b0fbbb1fa6cdd41f827105e68198c35e315aa916f9f"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:9b838cc284db99f2a898bd285be7b78b3b4c00bbd8ff3158a989ecf0ca294327"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:2025.7.21",
+        "digest": "bitnamilegacy/minio-client@sha256:1a2f12802dc75668aded6de1b7b53d67518ac2a7df823760d9f935235fb3d948"
+      },
+      {
+        "image": "bitnamilegacy/minio:2025.7.23",
+        "digest": "bitnamilegacy/minio@sha256:8935e75fa5d11295c17171e4aa49efe390a1193cd7f12e4d21b92af9ffef09d7"
+      },
+      {
+        "image": "drakkan/sftpgo:v2.7.6",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:2.10.22-alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:8.12.0",
+        "digest": "redis@sha256:3c4881844c6421f29fb9f9e8ca4f573d9fbdfb35967d65834504b6994cf6cd3b"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3.16",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 331,
+      "passed": 331,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 51,
+        "passed": 51,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "latest/msedge/45389310364-2",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "latest",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "45155025036",
+    "runAttempt": "1",
+    "commit": "3a9f72f4dde8816f431130418378533e61357205",
+    "ref": "develop",
+    "startedAt": "2026-11-23T10:28:33.966Z",
+    "durationMs": 2398612,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-airflow@sha256:66c82260ff3a918800e092c677cff0acc757f87cc89d1ed98e651feaabcf774b"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:latest",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:1568e13f5dcadee45a0d860b08f20f4f7643ea0db02b17cdc3a27246dfd7cbc5"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:latest",
+        "digest": "bedag/hello-data-dbt-docs@sha256:a5296139665d3bd72d5a1b9d2e589b09a67bbd6c6b74b2c87b00917d033d1b1d"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:latest",
+        "digest": "bedag/hello-data-dc-airflow@sha256:821263fa2e0b38629618caf8008cc3f476b4f62b8562a901b0daad6c9c675f2a"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:latest",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:be658259e45c94c889bb4b36961e2f915a48379f3ee54f04c357b4db4f53dcfd"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:latest",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:68155d1972f0290a6618bc2463cffafd844703b41c2d727e7320959a35395c66"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:latest",
+        "digest": "bedag/hello-data-dc-portal@sha256:b06cdb1e33a7cd75afeeffe3fa4359cc7e5a2c82cbba5eb594dec4103c6e7bc9"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:latest",
+        "digest": "bedag/hello-data-dc-postgres@sha256:c795084736e20a563fbd9bf3e0b985526c629984c5ebf09804b210fed9d89168"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:latest",
+        "digest": "bedag/hello-data-dc-superset@sha256:b9490b0a93cf705b60b50570af899a50e56e68b40a9a36f7491af5caa857cb78"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:latest",
+        "digest": "bedag/hello-data-portal-api@sha256:51837577d1aba623d326d790c2ebcc1b0fb8a78d5089f4285f445a1fa995872f"
+      },
+      {
+        "image": "bedag/hello-data-showcase:latest",
+        "digest": "bedag/hello-data-showcase@sha256:89182c9f551c342cdb9f6aeecb67e9352d59fc6e20b2188288a07df5b362ee38"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:5dc31bf5006d180d203d767809488071598ce9f1a6dc140d112513bd04a77b8c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:latest",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:c1165c59e02de90df444c851aec6f563fd4ef7526991dd5e4c7a4ac02b2e07d9"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:latest",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:2799ccbab19370b38423ea1c95264df63dccfb181ee4272db9c79b8d7571ac39"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:latest",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:29f81007e69d1c32e4671332217040acd43ab642e7971119d7f0a1de3f5a91c0"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:latest",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:e478da137852bbd137ea6aae039418429d1483648302b7cf762a8fb8c2c54cea"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:latest",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:2288b7a380724b579e5dc81a18dda57496206f4a4b61038d86d8cf26175575b9"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:latest",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:51088e42d5f1f4019fb1c6aabeb2e31b88d58661fcd4d00397550023b93d8941"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 328,
+      "passed": 328,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 48,
+        "passed": 48,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "latest/msedge/45155025036-1",
+    "versionDir": "latest",
+    "hasReport": true
+  },
+  {
+    "version": "1.7.2-rc1",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "45143971660",
+    "runAttempt": "1",
+    "commit": "31923f77f21dcae21c86aca2952c746eba6f24d7",
+    "ref": "1.7.2-rc1",
+    "startedAt": "2026-11-23T09:35:48.806Z",
+    "durationMs": 2502262,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-1.7.2-rc1",
+        "digest": "bedag/hello-data-airflow@sha256:a9df2e99ea721e7058420c71d12d4014f078301d4a5ecbea867afd4af58366bb"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.7.2-rc1",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:af50cabec6eb59465eeab1c0e8ef8516c3b2fdb2e1a75743eacd4636492d8bfd"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.7.2-rc1",
+        "digest": "bedag/hello-data-dbt-docs@sha256:97ecc95a16218a9028381ee6f4c79c7b21cc866e5957af41c4e4e8de3c176962"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.7.2-rc1",
+        "digest": "bedag/hello-data-dc-airflow@sha256:417512a6e8ac0399ecb61e06f8a73840bc7f9e1d6ed9eb04eb6aead5fbd1dc66"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.7.2-rc1",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:0c07c20e0731697fa0e3692c9ab287537256f6e16b832aadded4794de4528302"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.7.2-rc1",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:acfafbcf3ee7617b56b1406466f4d12d3c7a463586df26f43cba3ed50e0ca095"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.7.2-rc1",
+        "digest": "bedag/hello-data-dc-portal@sha256:526d6d7cab830aed33f466e64428006b906be62e325af1ee2fe93e3cebe7141f"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.7.2-rc1",
+        "digest": "bedag/hello-data-dc-postgres@sha256:03231303f4aa60e012386f70a60062748c7f3f9278ab77267d5385cfe8924fe3"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.7.2-rc1",
+        "digest": "bedag/hello-data-dc-superset@sha256:20db85c355fb255ec188d3bf7f51e23e55df163e3692d088b2933f6cf968d7ec"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.7.2-rc1",
+        "digest": "bedag/hello-data-portal-api@sha256:f341fba03d079d26b0f141f3f604649dc24914be38ba94c2e9a8c6c714271fbe"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.7.2-rc1",
+        "digest": "bedag/hello-data-showcase@sha256:5c756d4c2f4eab1d21c9cd6bb516b33fa85752480b7c236353cfc9a0112a4e29"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.7.2-rc1",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:2d37f6a54a88a2f202be2692e1006c64eaa355defb9848a2cf241ee263976561"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-1.7.2-rc1",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:60198d991244cd9740d62ee15b45bd2efdfe37c20840b87db29e8278121265e0"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.2-rc1",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:b782eb1f6eb865f556774124d6687421d296f54de752e366baf7fd80dd4346db"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.7.2-rc1",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:ed3f808ee1756ce4cd7063d0e74d4b70c866abdb489057626005fe331b7e18a1"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.7.2-rc1",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:466bc7df77dbdb443802d674b0cdcd952a525be3c3777994847fb3e64f1c0c71"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.7.2-rc1",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:a6edf91d33d2b2a06a26b3265a839755d21010415af62f7d85d901ca510e64f3"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.7.2-rc1",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:7c2015b25912055494ea5cbbb0714183095aaeb76750a93b8902f1a9e6976383"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 328,
+      "passed": 328,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 48,
+        "passed": 48,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.7.2-rc1/msedge/45143971660-1",
+    "versionDir": "1.7.2-rc1",
+    "hasReport": true
+  },
+  {
+    "version": "1.7.1-rc3",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "44572575872",
+    "runAttempt": "1",
+    "commit": "73b37847710f30ed7de4aef0c56f06478a478783",
+    "ref": "1.7.1-rc3",
+    "startedAt": "2026-11-19T17:35:27.917Z",
+    "durationMs": 2125575,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-1.7.1-rc3",
+        "digest": "bedag/hello-data-airflow@sha256:8073bfb98d41761de1c6ccba6b93d3ef9118fe82e4a18e78dc0255ebf4ac81b0"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.7.1-rc3",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:d3da7a5c58654ea410379146ada4f7de59ee26deec5ec800af2f1736aee4bab1"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.7.1-rc3",
+        "digest": "bedag/hello-data-dbt-docs@sha256:2bccd8aa4afe86d755440670fbd15a75966e379ec8a27dc80919595fdd45aef0"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.7.1-rc3",
+        "digest": "bedag/hello-data-dc-airflow@sha256:635c93aaf51b7a7e4e94d06ed74d649049cc54fe21724c4acfa7f1b6301c4a24"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.7.1-rc3",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:ff7df5b20fcf848597eced8c7bf3c87ddc38dc997c29642fafffa443391470ee"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.7.1-rc3",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:74610df1a789e4615d0bba799959c420b916a18df5595f37b08eee24d3111514"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.7.1-rc3",
+        "digest": "bedag/hello-data-dc-portal@sha256:502e1c34788372df7dc924ecd278e1ecc269b17d9441c348605acf548cda8ccd"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.7.1-rc3",
+        "digest": "bedag/hello-data-dc-postgres@sha256:976674dc9096832921b749b3fcadc04b44d8dc169cd738094dc6de9184f1f7f5"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.7.1-rc3",
+        "digest": "bedag/hello-data-dc-superset@sha256:3ef6e0411d3b0c1be6716079094e41f514f56aa4969a721b19ae827f93b43b96"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.7.1-rc3",
+        "digest": "bedag/hello-data-portal-api@sha256:0e9bb559c3dea477c8d5b8241b6018c5a9880025578dfdab6e5427fa52007b9c"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.7.1-rc3",
+        "digest": "bedag/hello-data-showcase@sha256:0d70b5a167cf014b9d89c2318df6be6dd0abb4207b7cd364c6dc2285ecc00d87"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.7.1-rc3",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:187b9145a2d994fe687a32c1e3f973d4b14de5653379de74a0872d13e75befc4"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-1.7.1-rc3",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:1900a56a37a42cf55527e6d7d2f3e246f9ee1654a2dd2e73a821b4ee7fc7ccb7"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.1-rc3",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:0a3d30538d082c1091a09f1c3e3a73fdf24b15a9db9b7d34011daa0a3fdc2ce7"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.7.1-rc3",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:2ca6c3a0dbb78a6af144308ad1750c9ea5aa87e79b07cd00c494ff5bde556d09"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.7.1-rc3",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:1fef83126ad51a2f8df03f300ab1b5f5b52f7a3bd2643b01f25c2e728b9a4a92"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.7.1-rc3",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:73b0fdd4a3f5c652c239bc878c1f214718c74b3c8e69d7f22fb459674b344405"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.7.1-rc3",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:5d7b5346bceacf0270f41071eca672a480d3d692be2dc3d42ac07467e5881952"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 328,
+      "passed": 328,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 48,
+        "passed": 48,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.7.1-rc3/msedge/44572575872-1",
+    "versionDir": "1.7.1-rc3",
+    "hasReport": true
+  },
+  {
+    "version": "1.7.0.rc2",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "44068952143",
+    "runAttempt": "1",
+    "commit": "d97babaca38014bc945565fbfa67fc01ed9fdd85",
+    "ref": "1.7.0.rc2",
+    "startedAt": "2026-11-17T11:29:28.976Z",
+    "durationMs": 2219397,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-1.7.0.rc2",
+        "digest": "bedag/hello-data-airflow@sha256:615e8fcd7712baf74b5205cd5594c0c60543f8cf8e624f68adee614405d4bd6d"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.7.0.rc2",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:40d81a02832c51f1405614d927b58a8915c84aefd527c386c89d737f53112f9a"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.7.0.rc2",
+        "digest": "bedag/hello-data-dbt-docs@sha256:9762803c6e135fc57e10fde9d09cf0e910d18c71e2f806e71f364ca2966c3d79"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.7.0.rc2",
+        "digest": "bedag/hello-data-dc-airflow@sha256:bb2c188b6b5600c707c6bcf992efb61f6bdff27fb27f1503bf4b44e404033518"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.7.0.rc2",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:a1bf439f6965333c66d85973cc365e52d603dd1022a292f6b91e29c869812abb"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.7.0.rc2",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:badbbb12d65c5694bd1af2cbb184d8bf60a19cd41ee8ddc91bd28fcd3f7e66e8"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.7.0.rc2",
+        "digest": "bedag/hello-data-dc-portal@sha256:00a2afe67ec6e7b34efbfb9aface2c81e8ed0ab3f199dddfa54a5d8f96397296"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.7.0.rc2",
+        "digest": "bedag/hello-data-dc-postgres@sha256:5444209273f4a632f1fbe7c11800cd5937ef8dfc70e8651c92d2c87a5f6a5905"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.7.0.rc2",
+        "digest": "bedag/hello-data-dc-superset@sha256:a22e33e731c558e767a73c6e7e7387abcc6601c88be2af97c22d1c96e542bba0"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.7.0.rc2",
+        "digest": "bedag/hello-data-portal-api@sha256:17a217a456fa8d56f5c0d9f66781a736f89795e670263b86bfd411af17160904"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.7.0.rc2",
+        "digest": "bedag/hello-data-showcase@sha256:da5831c72051abc3f2cb3eae44fc2ba7ca54c3b549596d9d1354ab9dc1f53366"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.7.0.rc2",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:6fdaef785b1561a9833a72d2e06054a1f041e77820ad362107c087532cb1f48a"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-1.7.0.rc2",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:6dea5cae656ec0696639d498ef1e1ac1400bf9e236c29052ec3059da84bf5eb3"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.0.rc2",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:88ebe281a17ea59ea171352840b48b855b63f2f253262a6dc1780091c2ff96ab"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.7.0.rc2",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:4fcbc33c145c58b5e858df5430b070a1ae378fd298c05d44c7db2fef28ac7f13"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.7.0.rc2",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:e029466e909aed2dbb771a3d5c3f27574310bab028d9bb538d14c1e52da6e384"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.7.0.rc2",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:f957069eb61cd42045d56159b25e7017c0274269327b592e089086cf197ef555"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.7.0.rc2",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:e0a45eec1372a211ba6dc6e6f3a4f373b63de4dd9ed34fcfb40025c37f5c6c84"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 328,
+      "passed": 328,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 48,
+        "passed": 48,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.7.0.rc2/msedge/44068952143-1",
+    "versionDir": "1.7.0.rc2",
+    "hasReport": true
+  },
+  {
+    "version": "1.7.0.rc1",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "43877799463",
+    "runAttempt": "1",
+    "commit": "4afe8307aad6acedd431346e960617f755dd7aae",
+    "ref": "1.7.0.rc1",
+    "startedAt": "2026-11-16T14:16:02.739Z",
+    "durationMs": 2207337,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-1.7.0.rc1",
+        "digest": "bedag/hello-data-airflow@sha256:fb91dabce903beff4f58f3feba9785913d63907e00e3b3276ffa893f47ebf763"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.7.0.rc1",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:e8cab3cb615fa21615915f584b2bcf8addd9ea09b5dda2e298f4bd636084f2f1"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.7.0.rc1",
+        "digest": "bedag/hello-data-dbt-docs@sha256:bfe7e227a42f85e432d1c0d7678e84ed849b3f0435bed42f7364d80bc2ce0661"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.7.0.rc1",
+        "digest": "bedag/hello-data-dc-airflow@sha256:ff3189226e01b5daee89bd76148ad725ac7c5ee3fc7c2f18e16de032bb1e110a"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.7.0.rc1",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:227dac5350a2998b35a63b989a37d09fb2b2d2d9000ec6bd614a712b3eaafffa"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.7.0.rc1",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:e4a115cf0efc22cd9d6b54f080ec6f6f21452fa5472b73ddeb022ae6c2f1351b"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.7.0.rc1",
+        "digest": "bedag/hello-data-dc-portal@sha256:f9f839e7542c672aff3fd5e6c79e6507f08666888797db6574237c8211678f3d"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.7.0.rc1",
+        "digest": "bedag/hello-data-dc-postgres@sha256:e276742226a5685d01166c3c89326926977df2b61f6667020551f6ad4eb4d7dd"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.7.0.rc1",
+        "digest": "bedag/hello-data-dc-superset@sha256:3520885b14a1aeec0533b7c5a6ef3a5178f412b92f60afc1e4526430a9615ee3"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.7.0.rc1",
+        "digest": "bedag/hello-data-portal-api@sha256:ee65b8115da3f2a40ec6c9752c09b818a5da3c9f575f85b49ee3b7b09888c1c8"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.7.0.rc1",
+        "digest": "bedag/hello-data-showcase@sha256:8514c842ab617ffd7f2c63037d3bbc42d8716b7af7d69e36b249ee05320b8894"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.7.0.rc1",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:a36f72971db7ae84dcb76da1138a9cb4b6e611c25d0ca24c96a05f4df1e51d78"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-1.7.0.rc1",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:7b16acc7d5e6c7d7dfd96f9404d3acad3cebd85855955f36f85766de515790a0"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.0.rc1",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:6ff6c7350d724f5ed70da651d8e6e4367b7c47ad5e46910e0088bc72141915b6"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.7.0.rc1",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:3c74d48c8eb7829ae16ed62ba036aad2edf9b84a713c02a67252bf0ca2d828d6"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.7.0.rc1",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:7b590a263a9bd42cecd971d04ede279ad2c2bfd33880e9531f1a36980c7f9515"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.7.0.rc1",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:89e2b57f0749319701ce3d3071d2b995eca4f69eeb8d94b3f17496c2009f4f20"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.7.0.rc1",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:5862116b05a8e76b9337ab0a68759b56e8358e4cf11f01f151d18032da9161b7"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 328,
+      "passed": 328,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 48,
+        "passed": 48,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.7.0.rc1/msedge/43877799463-1",
+    "versionDir": "1.7.0.rc1",
+    "hasReport": true
+  },
+  {
+    "version": "1.7.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "43264449859",
+    "runAttempt": "1",
+    "commit": "3febb94a2f8b7a1c6e27d1b6eebbd12207c7b26c",
+    "ref": "feature/1.7.0-dev",
+    "startedAt": "2026-11-12T17:07:09.021Z",
+    "durationMs": 2144341,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-airflow@sha256:af2077078cafc81cd138654a9302cb5d333ea26c84152a737288800512534645"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:2d55ed7b88ebd152fd9565a94608a1e43a9ec73b7364e11e5982889fcd5bb3ef"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:8c4300f77f8330ec6570bcf6ea41a4bc1bce860f580647a480d31395e62957ab"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:1d0e7545e9afb53a9ef3d99bd38b876123321c252bb1d8ac02db1b32a7381ea2"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:5f2ec05cca8a0efaeff6a6701c42e7649cfdba48c19597d016cd575622e9edc3"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:b9d7e9491652ef038bdf6f8a568b36e7c7c09109a3123ae1cbc8e36918b9691c"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:0ac568687d61c02ff01c7b5892e0c83376ae0279294492654c3471ff99d74532"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:124a4d41a47035f4616d73eb1a28b42aa282d5fe146a564c39d34c62151ee40f"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:32d0f830a2da3384ea543860682443495920f3c64e6f7f5c000190ff72e8c46f"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:5db3b512bd7224aad6945c3a8052513cd388e3b73681a8533162124f62e6389b"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:6f659eebe90247ac1bd57b4759e7b78f31b8b3fcedb5a603d80393f2d17dfa7b"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:9d8c7698edf9c931576fab6bbbb2f98de64e02014aa288796be3927b367893dd"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:7fb4c69a5384063190b9311aef48b6ebb77740e98ce711aab5f6b31e50edd83b"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:8a24e663474dd5e8b2e66fbbf36f9890968c121cd047ed7a2a7853e4a53a1326"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:217d95b3c2092d118904828d5dc1fbc73f928490ff737264d181e4b7eef9494a"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:9b421b7ba351c1a69e3ebad2d874043a238b90ebe12cd7187ccc5b8d329b7ac3"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:5ed0950bb29fa7f14bd8e98e939144dd2304f95e840767ceb126dcdb5e47d0c7"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:10c1a12bf9640294e0246c2157a35ab17f3dd4700ffb5f60dd839178d6f323ce"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 328,
+      "passed": 328,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 177,
+        "passed": 177,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 48,
+        "passed": 48,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.7.0-dev-SNAPSHOT/msedge/43264449859-1",
+    "versionDir": "1.7.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "1.7.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "43244449638",
+    "runAttempt": "1",
+    "commit": "d051e78fae44dcbee976b5a824606231284f48f7",
+    "ref": "diag/e2e-new-specs",
+    "startedAt": "2026-11-12T15:14:47.308Z",
+    "durationMs": 861762,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:2d55ed7b88ebd152fd9565a94608a1e43a9ec73b7364e11e5982889fcd5bb3ef"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:8c4300f77f8330ec6570bcf6ea41a4bc1bce860f580647a480d31395e62957ab"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:1d0e7545e9afb53a9ef3d99bd38b876123321c252bb1d8ac02db1b32a7381ea2"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:5f2ec05cca8a0efaeff6a6701c42e7649cfdba48c19597d016cd575622e9edc3"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:b9d7e9491652ef038bdf6f8a568b36e7c7c09109a3123ae1cbc8e36918b9691c"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:0ac568687d61c02ff01c7b5892e0c83376ae0279294492654c3471ff99d74532"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:124a4d41a47035f4616d73eb1a28b42aa282d5fe146a564c39d34c62151ee40f"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:32d0f830a2da3384ea543860682443495920f3c64e6f7f5c000190ff72e8c46f"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:06450b983e5aa9040ff12be35586e93b770a9b079ab4809381b73c8f1528afdc"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:6f659eebe90247ac1bd57b4759e7b78f31b8b3fcedb5a603d80393f2d17dfa7b"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:8fbca6ffb0fc3f61ae1560bb5d6f4c727c68a9cc46926f145894b766a8a6538c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:8a24e663474dd5e8b2e66fbbf36f9890968c121cd047ed7a2a7853e4a53a1326"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:217d95b3c2092d118904828d5dc1fbc73f928490ff737264d181e4b7eef9494a"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:b61aecdae66850e1ca4c8f73304f9807e218f6e712421076268ab7d8ca2c5728"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:5ed0950bb29fa7f14bd8e98e939144dd2304f95e840767ceb126dcdb5e47d0c7"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:a333c857ac5a6ba537acd1bd2019a76c37eedcd575c8f38bab39e708b9ed1c71"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 8,
+      "passed": 0,
+      "failed": 3,
+      "flaky": 0,
+      "skipped": 5
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 8,
+        "passed": 0,
+        "failed": 3,
+        "flaky": 0,
+        "skipped": 5
+      }
+    ],
+    "status": "error",
+    "errors": [
+      "Testing stopped early after 3 maximum allowed failures."
+    ],
+    "path": "1.7.0-dev-SNAPSHOT/msedge/43244449638-1",
+    "versionDir": "1.7.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "1.7.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "43241137389",
+    "runAttempt": "1",
+    "commit": "1291e83edc9efc741ca601bc63c14498460b5819",
+    "ref": "diag/e2e-new-specs",
+    "startedAt": "2026-11-12T14:56:01.103Z",
+    "durationMs": 454467,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:2d55ed7b88ebd152fd9565a94608a1e43a9ec73b7364e11e5982889fcd5bb3ef"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:8c4300f77f8330ec6570bcf6ea41a4bc1bce860f580647a480d31395e62957ab"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:1d0e7545e9afb53a9ef3d99bd38b876123321c252bb1d8ac02db1b32a7381ea2"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:5f2ec05cca8a0efaeff6a6701c42e7649cfdba48c19597d016cd575622e9edc3"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:b9d7e9491652ef038bdf6f8a568b36e7c7c09109a3123ae1cbc8e36918b9691c"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:0ac568687d61c02ff01c7b5892e0c83376ae0279294492654c3471ff99d74532"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:124a4d41a47035f4616d73eb1a28b42aa282d5fe146a564c39d34c62151ee40f"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:32d0f830a2da3384ea543860682443495920f3c64e6f7f5c000190ff72e8c46f"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:06450b983e5aa9040ff12be35586e93b770a9b079ab4809381b73c8f1528afdc"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:6f659eebe90247ac1bd57b4759e7b78f31b8b3fcedb5a603d80393f2d17dfa7b"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:8fbca6ffb0fc3f61ae1560bb5d6f4c727c68a9cc46926f145894b766a8a6538c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:8a24e663474dd5e8b2e66fbbf36f9890968c121cd047ed7a2a7853e4a53a1326"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:217d95b3c2092d118904828d5dc1fbc73f928490ff737264d181e4b7eef9494a"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:b61aecdae66850e1ca4c8f73304f9807e218f6e712421076268ab7d8ca2c5728"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:5ed0950bb29fa7f14bd8e98e939144dd2304f95e840767ceb126dcdb5e47d0c7"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:a333c857ac5a6ba537acd1bd2019a76c37eedcd575c8f38bab39e708b9ed1c71"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 8,
+      "passed": 4,
+      "failed": 2,
+      "flaky": 0,
+      "skipped": 2
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 8,
+        "passed": 4,
+        "failed": 2,
+        "flaky": 0,
+        "skipped": 2
+      }
+    ],
+    "status": "failed",
+    "errors": [],
+    "path": "1.7.0-dev-SNAPSHOT/msedge/43241137389-1",
+    "versionDir": "1.7.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "1.7.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "43239291155",
+    "runAttempt": "1",
+    "commit": "46bf03372bc244d17ab8ff80ff9256a57ebb4af7",
+    "ref": "diag/e2e-new-specs",
+    "startedAt": "2026-11-12T14:45:19.411Z",
+    "durationMs": 62723,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:2d55ed7b88ebd152fd9565a94608a1e43a9ec73b7364e11e5982889fcd5bb3ef"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:8c4300f77f8330ec6570bcf6ea41a4bc1bce860f580647a480d31395e62957ab"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:1d0e7545e9afb53a9ef3d99bd38b876123321c252bb1d8ac02db1b32a7381ea2"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:5f2ec05cca8a0efaeff6a6701c42e7649cfdba48c19597d016cd575622e9edc3"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:b9d7e9491652ef038bdf6f8a568b36e7c7c09109a3123ae1cbc8e36918b9691c"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:0ac568687d61c02ff01c7b5892e0c83376ae0279294492654c3471ff99d74532"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:124a4d41a47035f4616d73eb1a28b42aa282d5fe146a564c39d34c62151ee40f"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:32d0f830a2da3384ea543860682443495920f3c64e6f7f5c000190ff72e8c46f"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:06450b983e5aa9040ff12be35586e93b770a9b079ab4809381b73c8f1528afdc"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:6f659eebe90247ac1bd57b4759e7b78f31b8b3fcedb5a603d80393f2d17dfa7b"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:8fbca6ffb0fc3f61ae1560bb5d6f4c727c68a9cc46926f145894b766a8a6538c"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:8a24e663474dd5e8b2e66fbbf36f9890968c121cd047ed7a2a7853e4a53a1326"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:217d95b3c2092d118904828d5dc1fbc73f928490ff737264d181e4b7eef9494a"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:b61aecdae66850e1ca4c8f73304f9807e218f6e712421076268ab7d8ca2c5728"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:5ed0950bb29fa7f14bd8e98e939144dd2304f95e840767ceb126dcdb5e47d0c7"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:a333c857ac5a6ba537acd1bd2019a76c37eedcd575c8f38bab39e708b9ed1c71"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 5,
+      "passed": 0,
+      "failed": 1,
+      "flaky": 0,
+      "skipped": 4
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 5,
+        "passed": 0,
+        "failed": 1,
+        "flaky": 0,
+        "skipped": 4
+      }
+    ],
+    "status": "error",
+    "errors": [
+      "Testing stopped early after 1 maximum allowed failures."
+    ],
+    "path": "1.7.0-dev-SNAPSHOT/msedge/43239291155-1",
+    "versionDir": "1.7.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "1.7.0-dev-SNAPSHOT",
+    "browser": "msedge",
+    "airflow": "2,3",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "42787242437",
+    "runAttempt": "1",
+    "commit": "c3273742c122335ed026847655c18e39f8e2eb47",
+    "ref": "feature/1.7.0-dev",
+    "startedAt": "2026-11-10T09:11:55.431Z",
+    "durationMs": 2040847,
+    "images": [
+      {
+        "image": "bedag/hello-data-airflow:airflow3-1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-airflow@sha256:88ceb07a7651d5acb5fc48a97eff39b2adf95db0e917381c6cd25b17ea074539"
+      },
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:431605cd5064b1d9e5c6e89ab9bc48bf9f70ca36d2b12fd8f00900231b3b27d7"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:8cfdce01e5dcc4308c75d67cf74aa7e88889d79932d2af666e063be516cc68f9"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:bf6a24adbfef3b18d7fc40bada128973014e241da1b61bc84882ff4652fa4950"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:f119289435fe0ca8faa13689d20ecc3d7406f564381874138f878c355382db71"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:40556ab7548af60d65d8ce993bed4726b7ef37b7e4c6771f409f92c178c3cbc0"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:dbd735d0922b1f15bb9e6dd26cf15b0447bc970a7bb0356f20ede436c448ceff"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:a45793378d116dc785f95b8cdef4b52611221d21e247fc46877a1a9f5eed794f"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:24c3bec6ce6ca6c19b321abb4092246257e5d4d79a5e23b23927dc2332e8db01"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:3c04760623551bee0ebc1f94c7a8e4862c181d5addb7ea807d72ad3e834cbde5"
+      },
+      {
+        "image": "bedag/hello-data-showcase:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:fccf82b7a1607d66bed86af1500e74ee20f07b9d689efa05ce107d44a436c960"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:1757c8032837ff0e6d8bd7b3d902f671c646cd177af448ddfa1db1ab09af7643"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:airflow3-1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:e4e086c3cf8087afb7fa619eec91cbf7bdd8ccd83bc39dc4811bd4f965be6e4a"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:43415c12ca75b5d4a13e606362aed81618116fea6f79971329237515c01fb8da"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:8eb27f1e1bf0b08e06c51efed6b5d9df1ba228374d93f92ada4fed3ca7f4b4f6"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:bb9df100b7fc16cf33fa896562dc237d8dc3eb89c06b41ec4ba56d9a121c0f35"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:e1b8f86a646062baaefed564f9cea2fcbc744a0d42ddfd1619a3a8554beb8e5d"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:1.7.0-dev-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:d1be915120bcecf6df1f257ef3ed5128a4bc581357000db1aed0b57154922c8c"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75"
+      }
+    ],
+    "stats": {
+      "total": 323,
+      "passed": 323,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 172,
+        "passed": 172,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 48,
+        "passed": 48,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "1.7.0-dev-SNAPSHOT/msedge/42787242437-1",
+    "versionDir": "1.7.0-dev-SNAPSHOT",
+    "hasReport": true
+  },
+  {
+    "version": "e2e-edge-dashboard-groups-SNAPSHOT",
+    "browser": "msedge",
+    "repository": "kanton-bern/hellodata-be",
+    "serverUrl": "https://github.com",
+    "runId": "41987517440",
+    "runAttempt": "1",
+    "commit": "f7d62d8a01bd00796256b132ecbc464bbe4a38e6",
+    "ref": "feature/e2e-edge-dashboard-groups",
+    "startedAt": "2026-11-05T07:36:21.774Z",
+    "durationMs": 2344083,
+    "images": [
+      {
+        "image": "bedag/hello-data-cloudbeaver-gateway:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-cloudbeaver-gateway@sha256:a52629df9f5e9b0971f765c0e4654a07724e54cd009a454b16faa5b8b7531d61"
+      },
+      {
+        "image": "bedag/hello-data-dbt-docs:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dbt-docs@sha256:93307362edba9a616653e3939e70f0f4dfab31362088367eabb6f1da295c69d6"
+      },
+      {
+        "image": "bedag/hello-data-dc-airflow:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-airflow@sha256:879e1adac831573523c0e1ee145037603952300744d0031f150773d3cc29af61"
+      },
+      {
+        "image": "bedag/hello-data-dc-cloudbeaver:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-cloudbeaver@sha256:48e0be0cb544339525483a48ff9461c340db57e87c662b16f568b2e3f14bc9cf"
+      },
+      {
+        "image": "bedag/hello-data-dc-keycloak:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-keycloak@sha256:edc0eef8097e00946285331bd56bd235f05af65161c04b9a49659ff2771d012d"
+      },
+      {
+        "image": "bedag/hello-data-dc-portal:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-portal@sha256:759eaecc5d977d64090d8002fc4dfd71e133186bf631494c53007385a4b3527e"
+      },
+      {
+        "image": "bedag/hello-data-dc-postgres:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-postgres@sha256:01c5dd9ee9eeeb6e0bb9ba535eb54e7827ca015c1edb5bc3f5448861d951584c"
+      },
+      {
+        "image": "bedag/hello-data-dc-superset:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-dc-superset@sha256:da91bb7c5769ea45e85558efae93fb49a8992468533a18e15c8d9bbf1cd3b067"
+      },
+      {
+        "image": "bedag/hello-data-portal-api:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-portal-api@sha256:fdfb059de0070b5a5a11d98f7126f4d17f263a2ad20c707cee5448a323b2e83c"
+      },
+      {
+        "image": "bedag/hello-data-showcase:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-showcase@sha256:c5ef87a07789c80148e5db7affdf3763b49449ca4af460bae31ef304de958514"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-airflow:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-airflow@sha256:d731fd571c9ebd6ab8a3c63d785f83925a895a6b7fc41bc7b3ba823c7984befd"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-cloudbeaver:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-cloudbeaver@sha256:a8342a9bbbec536011c7010b93d828020fb87bbbd97ad59a5f77f0a6bfcb6aaf"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-dbt-docs:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-dbt-docs@sha256:625ecbe6040018346be48d518bc03dc2cba0a9da30ba5f372af5e0196158cd7d"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-portal:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-portal@sha256:bb4272d779a9093b7558f52109c3c4b29c4c975c8ed7f15b90e8008903907861"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-sftpgo:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-sftpgo@sha256:c76c8599027cbd02fbb470e1cfcba20a173c7aaa53a409f2c46f4c4bab561891"
+      },
+      {
+        "image": "bedag/hello-data-sidecar-superset:e2e-edge-dashboard-groups-SNAPSHOT",
+        "digest": "bedag/hello-data-sidecar-superset@sha256:7bc9bf2fb5815a6775a75e951d15b3f6fd4726d00349f732ef00c028d7b79efc"
+      },
+      {
+        "image": "bitnamilegacy/minio-client:latest",
+        "digest": "bitnamilegacy/minio-client@sha256:00dcc4e58ada0df45bb7d9ee435af98295f96c27c3c68292ce78ec700a87b511"
+      },
+      {
+        "image": "bitnamilegacy/minio:latest",
+        "digest": "bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c"
+      },
+      {
+        "image": "drakkan/sftpgo",
+        "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11"
+      },
+      {
+        "image": "nats:alpine3.20",
+        "digest": "nats@sha256:73b0ba5fec5518c5f698597c58d2a3350a2b5ccae43e84c308f8d2da1242deca"
+      },
+      {
+        "image": "redis:latest",
+        "digest": "redis@sha256:de1068af6f552240dfab67bcc9bfef99bfc60f776bb4580ef077ea4c8c97e848"
+      },
+      {
+        "image": "rnwood/smtp4dev:v3",
+        "digest": "rnwood/smtp4dev@sha256:25c434c1900a9c5b61e17ead0a774d9e81b80554d05cf64719d69e5ea8c66537"
+      }
+    ],
+    "stats": {
+      "total": 298,
+      "passed": 297,
+      "failed": 0,
+      "flaky": 1,
+      "skipped": 0
+    },
+    "features": [
+      {
+        "name": "administration",
+        "total": 165,
+        "passed": 165,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "batch-import",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "comments",
+        "total": 25,
+        "passed": 24,
+        "failed": 0,
+        "flaky": 1,
+        "skipped": 0
+      },
+      {
+        "name": "dashboards",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "data-eng",
+        "total": 34,
+        "passed": 34,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "portal",
+        "total": 23,
+        "passed": 23,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      },
+      {
+        "name": "superset",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "flaky": 0,
+        "skipped": 0
+      }
+    ],
+    "status": "passed",
+    "errors": [],
+    "path": "e2e-edge-dashboard-groups-SNAPSHOT/msedge/41987517440-1",
+    "versionDir": "e2e-edge-dashboard-groups-SNAPSHOT",
+    "hasReport": true
+  }
+]
