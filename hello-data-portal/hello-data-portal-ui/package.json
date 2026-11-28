@@ -94,12 +94,12 @@
     "lodash": "^4.17.23",
     "lodash-es": "^4.17.23",
     "@modelcontextprotocol/sdk": "^1.26.0",
-    "@jest/core": "30.5.0",
+    "@jest/core": "30.5.2",
     "webpack": "^5.112.1",
     "webpack-dev-server": "^5.2.4",
     "minimatch": "^11.0.0",
     "hono": "^4.13.11",
-    "rollup": "4.62.4",
+    "rollup": "4.68.9",
     "serialize-javascript": "^7.0.3",
     "immutable": "^5.1.5",
     "@hono/node-server": "^2.0.0",
@@ -118,5 +118,5 @@
     "follow-redirects": "^1.16.1",
     "handlebars": "^4.7.10"
   },
-  "packageManager": "yarn@4.18.0+sha512.fcb8716fe7cd0eece141ffc18b92193a9df9204c1ba83189c288835223fc0bbe64af473bab0d5e9927a7daeb5caf2bb07eb2787cc9338ca040ea125f2a1f2f7e"
+  "packageManager": "yarn@4.19.0+sha512.2cb9e5a36f7f11f2bc6ff444830d87368d419e0d83b6a0fb6077d3e6fed0f476c9514dff4ba4d84b049bd34ef32954e550f264ad2fbbfebcba6c89e869530bba"
 }
